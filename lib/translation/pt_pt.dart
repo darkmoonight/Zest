@@ -13,7 +13,7 @@ class PtPt {
         'month': 'Mês',
         'updateTodo': 'Tarefa atualizada',
         'addTodo': 'Adicionar uma tarefa',
-        'copletedTodo': 'Complete a tarefa',
+        'completedTodo': 'Complete a tarefa',
         'deletedTodo': 'Excluindo uma tarefa',
         'deletedTodoQuery': 'Tem certeza de que deseja excluir a tarefa?',
         'delete': 'Eliminar',
