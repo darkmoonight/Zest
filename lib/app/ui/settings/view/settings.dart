@@ -521,7 +521,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         style: context.textTheme.labelLarge,
                                         textAlign: TextAlign.center,
                                       ),
-                                      onTap: () async {
+                                      onTap: () {
                                         MyApp.updateAppState(
                                           context,
                                           newLocale:
