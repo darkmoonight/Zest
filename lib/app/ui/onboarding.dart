@@ -19,8 +19,8 @@ class _OnBordingState extends State<OnBording> {
 
   @override
   void initState() {
-    pageController = PageController(initialPage: 0);
     super.initState();
+    pageController = PageController(initialPage: 0);
   }
 
   @override
@@ -42,51 +42,63 @@ class _OnBordingState extends State<OnBording> {
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(
-              child: PageView.builder(
-                controller: pageController,
-                itemCount: data.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    pageIndex = index;
-                  });
-                },
-                itemBuilder:
-                    (context, index) => OnboardContent(
-                      image: data[index].image,
-                      title: data[index].title,
-                      description: data[index].description,
-                    ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ...List.generate(
-                  data.length,
-                  (index) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: DotIndicator(isActive: index == pageIndex),
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              child: MyTextButton(
-                text: pageIndex == data.length - 1 ? 'getStart'.tr : 'next'.tr,
-                onPressed: () {
-                  pageIndex == data.length - 1
-                      ? onBoardHome()
-                      : pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.ease,
-                      );
-                },
-              ),
-            ),
+            _buildPageView(),
+            _buildDotIndicators(),
+            _buildActionButton(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPageView() {
+    return Expanded(
+      child: PageView.builder(
+        controller: pageController,
+        itemCount: data.length,
+        onPageChanged: (index) {
+          setState(() {
+            pageIndex = index;
+          });
+        },
+        itemBuilder:
+            (context, index) => OnboardContent(
+              image: data[index].image,
+              title: data[index].title,
+              description: data[index].description,
+            ),
+      ),
+    );
+  }
+
+  Widget _buildDotIndicators() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        data.length,
+        (index) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: DotIndicator(isActive: index == pageIndex),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      child: MyTextButton(
+        text: pageIndex == data.length - 1 ? 'getStart'.tr : 'next'.tr,
+        onPressed: () {
+          if (pageIndex == data.length - 1) {
+            onBoardHome();
+          } else {
+            pageController.nextPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.ease,
+            );
+          }
+        },
       ),
     );
   }
@@ -149,6 +161,7 @@ class OnboardContent extends StatelessWidget {
     required this.title,
     required this.description,
   });
+
   final String image, title, description;
 
   @override

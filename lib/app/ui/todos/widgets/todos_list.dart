@@ -16,6 +16,7 @@ class TodosList extends StatefulWidget {
     this.selectedDay,
     required this.searchTodo,
   });
+
   final bool done;
   final Tasks? task;
   final bool allTodos;
@@ -35,124 +36,147 @@ class _TodosListState extends State<TodosList> {
     return Padding(
       padding: const EdgeInsets.only(top: 50),
       child: Obx(() {
-        RxList<Todos> todos = <Todos>[].obs;
-        List<Todos> filteredList =
-            widget.task != null
-                ? todoController.todos
-                    .where(
-                      (todo) =>
-                          todo.task.value?.id == widget.task?.id &&
-                          todo.done == widget.done &&
-                          (widget.searchTodo.isEmpty ||
-                              todo.name.toLowerCase().contains(
-                                widget.searchTodo,
-                              )),
-                    )
-                    .toList()
-                : widget.allTodos
-                ? todoController.todos
-                    .where(
-                      (todo) =>
-                          todo.task.value?.archive == false &&
-                          todo.done == widget.done &&
-                          (widget.searchTodo.isEmpty ||
-                              todo.name.toLowerCase().contains(
-                                widget.searchTodo,
-                              )),
-                    )
-                    .toList()
-                : widget.calendare
-                ? todoController.todos
-                    .where(
-                      (todo) =>
-                          todo.task.value?.archive == false &&
-                          todo.todoCompletedTime != null &&
-                          todo.todoCompletedTime!.isAfter(
-                            DateTime(
-                              widget.selectedDay!.year,
-                              widget.selectedDay!.month,
-                              widget.selectedDay!.day,
-                              0,
-                              0,
-                            ),
-                          ) &&
-                          todo.todoCompletedTime!.isBefore(
-                            DateTime(
-                              widget.selectedDay!.year,
-                              widget.selectedDay!.month,
-                              widget.selectedDay!.day,
-                              23,
-                              59,
-                              59,
-                              59,
-                              59,
-                            ),
-                          ) &&
-                          todo.done == widget.done,
-                    )
-                    .toList()
-                : todoController.todos;
-
-        if (widget.calendare) {
-          filteredList.sort(
-            (a, b) => a.todoCompletedTime!.compareTo(b.todoCompletedTime!),
-          );
-        } else {
-          filteredList.sort((a, b) {
-            if (a.fix && !b.fix) {
-              return -1;
-            } else if (!a.fix && b.fix) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-        }
-
-        todos.value = filteredList.obs;
-
-        return todos.isEmpty
-            ? ListEmpty(
-              img:
-                  widget.calendare
-                      ? 'assets/images/Calendar.png'
-                      : 'assets/images/Todo.png',
-              text: widget.done ? 'completedTodo'.tr : 'addTodo'.tr,
-            )
-            : ListView(
-              children: [
-                ...todos.map(
-                  (todo) => TodoCard(
-                    key: ValueKey(todo),
-                    todo: todo,
-                    allTodos: widget.allTodos,
-                    calendare: widget.calendare,
-                    onTap: () {
-                      todoController.isMultiSelectionTodo.isTrue
-                          ? todoController.doMultiSelectionTodo(todo)
-                          : showModalBottomSheet(
-                            enableDrag: false,
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (BuildContext context) {
-                              return TodosAction(
-                                text: 'editing'.tr,
-                                edit: true,
-                                todo: todo,
-                                category: true,
-                              );
-                            },
-                          );
-                    },
-                    onLongPress: () {
-                      todoController.isMultiSelectionTodo.value = true;
-                      todoController.doMultiSelectionTodo(todo);
-                    },
-                  ),
-                ),
-              ],
-            );
+        final todos = _getFilteredTodos();
+        return todos.isEmpty ? _buildListEmpty() : _buildListView(todos);
       }),
+    );
+  }
+
+  List<Todos> _getFilteredTodos() {
+    List<Todos> filteredList = _filterTodos();
+    _sortTodos(filteredList);
+    return filteredList;
+  }
+
+  List<Todos> _filterTodos() {
+    if (widget.task != null) {
+      return todoController.todos
+          .where(
+            (todo) =>
+                todo.task.value?.id == widget.task?.id &&
+                todo.done == widget.done &&
+                (widget.searchTodo.isEmpty ||
+                    todo.name.toLowerCase().contains(widget.searchTodo)),
+          )
+          .toList();
+    } else if (widget.allTodos) {
+      return todoController.todos
+          .where(
+            (todo) =>
+                todo.task.value?.archive == false &&
+                todo.done == widget.done &&
+                (widget.searchTodo.isEmpty ||
+                    todo.name.toLowerCase().contains(widget.searchTodo)),
+          )
+          .toList();
+    } else if (widget.calendare) {
+      return todoController.todos
+          .where(
+            (todo) =>
+                todo.task.value?.archive == false &&
+                todo.todoCompletedTime != null &&
+                _isWithinSelectedDay(todo) &&
+                todo.done == widget.done,
+          )
+          .toList();
+    } else {
+      return todoController.todos;
+    }
+  }
+
+  bool _isWithinSelectedDay(Todos todo) {
+    return todo.todoCompletedTime!.isAfter(
+          DateTime(
+            widget.selectedDay!.year,
+            widget.selectedDay!.month,
+            widget.selectedDay!.day,
+            0,
+            0,
+          ),
+        ) &&
+        todo.todoCompletedTime!.isBefore(
+          DateTime(
+            widget.selectedDay!.year,
+            widget.selectedDay!.month,
+            widget.selectedDay!.day,
+            23,
+            59,
+            59,
+          ),
+        );
+  }
+
+  void _sortTodos(List<Todos> todos) {
+    if (widget.calendare) {
+      todos.sort(
+        (a, b) => a.todoCompletedTime!.compareTo(b.todoCompletedTime!),
+      );
+    } else {
+      todos.sort((a, b) {
+        if (a.fix && !b.fix) {
+          return -1;
+        } else if (!a.fix && b.fix) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+    }
+  }
+
+  Widget _buildListEmpty() {
+    return ListEmpty(
+      img:
+          widget.calendare
+              ? 'assets/images/Calendar.png'
+              : 'assets/images/Todo.png',
+      text: widget.done ? 'completedTodo'.tr : 'addTodo'.tr,
+    );
+  }
+
+  Widget _buildListView(List<Todos> todos) {
+    return ListView(
+      children: todos.map((todo) => _buildTodoCard(todo)).toList(),
+    );
+  }
+
+  Widget _buildTodoCard(Todos todo) {
+    return TodoCard(
+      key: ValueKey(todo),
+      todo: todo,
+      allTodos: widget.allTodos,
+      calendare: widget.calendare,
+      onTap: () => _onTodoCardTap(todo),
+      onLongPress: () => _onTodoCardLongPress(todo),
+    );
+  }
+
+  void _onTodoCardTap(Todos todo) {
+    if (todoController.isMultiSelectionTodo.isTrue) {
+      todoController.doMultiSelectionTodo(todo);
+    } else {
+      _showTodoActionBottomSheet(todo);
+    }
+  }
+
+  void _onTodoCardLongPress(Todos todo) {
+    todoController.isMultiSelectionTodo.value = true;
+    todoController.doMultiSelectionTodo(todo);
+  }
+
+  void _showTodoActionBottomSheet(Todos todo) {
+    showModalBottomSheet(
+      enableDrag: false,
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return TodosAction(
+          text: 'editing'.tr,
+          edit: true,
+          todo: todo,
+          category: true,
+        );
+      },
     );
   }
 }

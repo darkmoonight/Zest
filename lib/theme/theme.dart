@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 
-final ThemeData baseLigth = ThemeData.light(useMaterial3: true);
+final ThemeData baseLight = ThemeData.light(useMaterial3: true);
 final ThemeData baseDark = ThemeData.dark(useMaterial3: true);
 
 const Color lightColor = Colors.white;
@@ -24,80 +24,12 @@ ThemeData lightTheme(
   ColorScheme? colorScheme,
   bool edgeToEdgeAvailable,
 ) {
-  return baseLigth.copyWith(
+  return _buildTheme(
+    baseTheme: baseLight,
     brightness: Brightness.light,
-    colorScheme:
-        colorScheme
-            ?.copyWith(
-              brightness: Brightness.light,
-              surface: baseLigth.colorScheme.surface,
-            )
-            .harmonized(),
-    textTheme: GoogleFonts.getTextTheme('Ubuntu', baseLigth.textTheme),
-    appBarTheme: AppBarTheme(
-      backgroundColor: color,
-      foregroundColor: baseLigth.colorScheme.onSurface,
-      shadowColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarIconBrightness: Brightness.dark,
-        statusBarColor: Colors.transparent,
-        systemStatusBarContrastEnforced: false,
-        systemNavigationBarContrastEnforced: false,
-        systemNavigationBarDividerColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor:
-            edgeToEdgeAvailable ? Colors.transparent : colorScheme?.surface,
-      ),
-    ),
-    primaryColor: color,
-    canvasColor: color,
-    scaffoldBackgroundColor: color,
-    chipTheme: baseLigth.chipTheme.copyWith(
-      side: BorderSide.none,
-      backgroundColor: Colors.transparent,
-      surfaceTintColor:
-          color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      shadowColor: Colors.transparent,
-    ),
-    cardTheme: baseLigth.cardTheme.copyWith(
-      color: color,
-      surfaceTintColor:
-          color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      shadowColor: Colors.transparent,
-    ),
-    bottomSheetTheme: baseLigth.bottomSheetTheme.copyWith(
-      backgroundColor: color,
-      surfaceTintColor:
-          color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
-    ),
-    navigationRailTheme: baseLigth.navigationRailTheme.copyWith(
-      backgroundColor: color,
-    ),
-    navigationBarTheme: baseLigth.navigationBarTheme.copyWith(
-      backgroundColor: color,
-      surfaceTintColor:
-          color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
-      labelTextStyle: WidgetStateProperty.all(
-        const TextStyle(overflow: TextOverflow.ellipsis, fontSize: 12),
-      ),
-    ),
-    inputDecorationTheme: baseLigth.inputDecorationTheme.copyWith(
-      labelStyle: WidgetStateTextStyle.resolveWith((Set<WidgetState> states) {
-        return const TextStyle(fontSize: 14);
-      }),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: BorderSide(color: baseLigth.disabledColor),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: BorderSide(color: baseLigth.disabledColor),
-      ),
-    ),
+    color: color,
+    colorScheme: colorScheme,
+    edgeToEdgeAvailable: edgeToEdgeAvailable,
   );
 }
 
@@ -106,79 +38,139 @@ ThemeData darkTheme(
   ColorScheme? colorScheme,
   bool edgeToEdgeAvailable,
 ) {
-  return baseDark.copyWith(
+  return _buildTheme(
+    baseTheme: baseDark,
     brightness: Brightness.dark,
-    colorScheme:
-        colorScheme
-            ?.copyWith(
-              brightness: Brightness.dark,
-              surface: baseDark.colorScheme.surface,
-            )
-            .harmonized(),
-    textTheme: GoogleFonts.getTextTheme('Ubuntu', baseDark.textTheme),
-    appBarTheme: AppBarTheme(
-      backgroundColor: color,
-      foregroundColor: baseDark.colorScheme.onSurface,
-      shadowColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarIconBrightness: Brightness.light,
-        statusBarColor: Colors.transparent,
-        systemStatusBarContrastEnforced: false,
-        systemNavigationBarContrastEnforced: false,
-        systemNavigationBarDividerColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.light,
-        systemNavigationBarColor:
-            edgeToEdgeAvailable ? Colors.transparent : colorScheme?.surface,
-      ),
+    color: color,
+    colorScheme: colorScheme,
+    edgeToEdgeAvailable: edgeToEdgeAvailable,
+  );
+}
+
+ThemeData _buildTheme({
+  required ThemeData baseTheme,
+  required Brightness brightness,
+  required Color? color,
+  required ColorScheme? colorScheme,
+  required bool edgeToEdgeAvailable,
+}) {
+  final harmonizedColorScheme =
+      colorScheme
+          ?.copyWith(
+            brightness: brightness,
+            surface: baseTheme.colorScheme.surface,
+          )
+          .harmonized();
+
+  return baseTheme.copyWith(
+    brightness: brightness,
+    colorScheme: harmonizedColorScheme,
+    textTheme: GoogleFonts.getTextTheme('Ubuntu', baseTheme.textTheme),
+    appBarTheme: _buildAppBarTheme(
+      color,
+      harmonizedColorScheme,
+      edgeToEdgeAvailable,
+      brightness,
     ),
     primaryColor: color,
     canvasColor: color,
     scaffoldBackgroundColor: color,
-    chipTheme: baseDark.chipTheme.copyWith(
-      side: BorderSide.none,
-      backgroundColor: Colors.transparent,
-      surfaceTintColor:
-          color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      shadowColor: Colors.transparent,
-    ),
-    cardTheme: baseDark.cardTheme.copyWith(
-      color: color,
-      surfaceTintColor:
-          color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      shadowColor: Colors.transparent,
-    ),
-    bottomSheetTheme: baseDark.bottomSheetTheme.copyWith(
-      backgroundColor: color,
-      surfaceTintColor:
-          color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
-    ),
-    navigationRailTheme: baseDark.navigationRailTheme.copyWith(
+    chipTheme: _buildChipTheme(color, harmonizedColorScheme),
+    cardTheme: _buildCardTheme(color, harmonizedColorScheme),
+    bottomSheetTheme: _buildBottomSheetTheme(color, harmonizedColorScheme),
+    navigationRailTheme: baseTheme.navigationRailTheme.copyWith(
       backgroundColor: color,
     ),
-    navigationBarTheme: baseDark.navigationBarTheme.copyWith(
-      backgroundColor: color,
-      surfaceTintColor:
-          color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
-      labelTextStyle: WidgetStateProperty.all(
-        const TextStyle(overflow: TextOverflow.ellipsis, fontSize: 12),
-      ),
+    navigationBarTheme: _buildNavigationBarTheme(color, harmonizedColorScheme),
+    inputDecorationTheme: _buildInputDecorationTheme(baseTheme),
+  );
+}
+
+AppBarTheme _buildAppBarTheme(
+  Color? color,
+  ColorScheme? colorScheme,
+  bool edgeToEdgeAvailable,
+  Brightness brightness,
+) {
+  return AppBarTheme(
+    backgroundColor: color,
+    foregroundColor: colorScheme?.onSurface,
+    shadowColor: Colors.transparent,
+    surfaceTintColor: Colors.transparent,
+    elevation: 0,
+    systemOverlayStyle: SystemUiOverlayStyle(
+      statusBarIconBrightness:
+          brightness == Brightness.light ? Brightness.dark : Brightness.light,
+      statusBarColor: Colors.transparent,
+      systemStatusBarContrastEnforced: false,
+      systemNavigationBarContrastEnforced: false,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarIconBrightness:
+          brightness == Brightness.light ? Brightness.dark : Brightness.light,
+      systemNavigationBarColor:
+          edgeToEdgeAvailable ? Colors.transparent : colorScheme?.surface,
     ),
-    inputDecorationTheme: baseDark.inputDecorationTheme.copyWith(
-      labelStyle: WidgetStateTextStyle.resolveWith((Set<WidgetState> states) {
-        return const TextStyle(fontSize: 14);
-      }),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: BorderSide(color: baseDark.disabledColor),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: BorderSide(color: baseDark.disabledColor),
-      ),
+  );
+}
+
+ChipThemeData _buildChipTheme(Color? color, ColorScheme? colorScheme) {
+  return ChipThemeData(
+    side: BorderSide.none,
+    backgroundColor: Colors.transparent,
+    surfaceTintColor:
+        color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    shadowColor: Colors.transparent,
+  );
+}
+
+CardTheme _buildCardTheme(Color? color, ColorScheme? colorScheme) {
+  return CardTheme(
+    color: color,
+    surfaceTintColor:
+        color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    shadowColor: Colors.transparent,
+  );
+}
+
+BottomSheetThemeData _buildBottomSheetTheme(
+  Color? color,
+  ColorScheme? colorScheme,
+) {
+  return BottomSheetThemeData(
+    backgroundColor: color,
+    surfaceTintColor:
+        color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
+  );
+}
+
+NavigationBarThemeData _buildNavigationBarTheme(
+  Color? color,
+  ColorScheme? colorScheme,
+) {
+  return NavigationBarThemeData(
+    backgroundColor: color,
+    surfaceTintColor:
+        color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
+    labelTextStyle: WidgetStateProperty.all(
+      const TextStyle(overflow: TextOverflow.ellipsis, fontSize: 12),
+    ),
+  );
+}
+
+InputDecorationTheme _buildInputDecorationTheme(ThemeData baseTheme) {
+  return InputDecorationTheme(
+    labelStyle: WidgetStateTextStyle.resolveWith((Set<WidgetState> states) {
+      return const TextStyle(fontSize: 14);
+    }),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: BorderSide(color: baseTheme.disabledColor),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: BorderSide(color: baseTheme.disabledColor),
     ),
   );
 }

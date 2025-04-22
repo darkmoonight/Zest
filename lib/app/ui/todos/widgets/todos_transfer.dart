@@ -25,14 +25,14 @@ class _TodosTransferState extends State<TodosTransfer> {
   final FocusNode focusNode = FocusNode();
   Tasks? selectedTask;
   final formKeyTransfer = GlobalKey<FormState>();
-  TextEditingController transferTodoConroller = TextEditingController();
+  final TextEditingController transferTodoController = TextEditingController();
 
   late final _EditingController controller;
 
   @override
-  initState() {
-    controller = _EditingController(selectedTask);
+  void initState() {
     super.initState();
+    controller = _EditingController(selectedTask);
   }
 
   Future<void> onPopInvokedWithResult(bool didPop, dynamic result) async {
@@ -46,7 +46,7 @@ class _TodosTransferState extends State<TodosTransfer> {
     final shouldPop = await showAdaptiveDialogTextIsNotEmpty(
       context: context,
       onPressed: () {
-        transferTodoConroller.clear();
+        transferTodoController.clear();
         Get.back(result: true);
       },
     );
@@ -57,8 +57,7 @@ class _TodosTransferState extends State<TodosTransfer> {
   }
 
   Future<List<Tasks>> getTaskAll(String pattern) async {
-    List<Tasks> getTask;
-    getTask = isar.tasks.filter().archiveEqualTo(false).findAllSync();
+    final getTask = isar.tasks.filter().archiveEqualTo(false).findAllSync();
     return getTask.where((element) {
       final title = element.title.toLowerCase();
       final query = pattern.toLowerCase();
@@ -71,7 +70,7 @@ class _TodosTransferState extends State<TodosTransfer> {
       if (selectedTask != null) {
         todoController.transferTodos(widget.todos, selectedTask!);
         todoController.doMultiSelectionTodoClear();
-        transferTodoConroller.clear();
+        transferTodoController.clear();
         Get.back();
       }
     }
@@ -79,117 +78,13 @@ class _TodosTransferState extends State<TodosTransfer> {
 
   @override
   void dispose() {
-    transferTodoConroller.clear();
+    transferTodoController.dispose();
     controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final todoCategory = RawAutocomplete<Tasks>(
-      focusNode: focusNode,
-      optionsViewOpenDirection: OptionsViewOpenDirection.up,
-      textEditingController: transferTodoConroller,
-      fieldViewBuilder: (
-        BuildContext context,
-        TextEditingController fieldTextEditingController,
-        FocusNode fieldFocusNode,
-        VoidCallback onFieldSubmitted,
-      ) {
-        return MyTextForm(
-          elevation: 4,
-          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          controller: transferTodoConroller,
-          focusNode: focusNode,
-          labelText: 'selectCategory'.tr,
-          type: TextInputType.text,
-          icon: const Icon(IconsaxPlusLinear.folder_2),
-          iconButton:
-              transferTodoConroller.text.isNotEmpty
-                  ? IconButton(
-                    icon: const Icon(IconsaxPlusLinear.close_square, size: 18),
-                    onPressed: () {
-                      transferTodoConroller.clear();
-                      setState(() {});
-                    },
-                  )
-                  : null,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'selectCategory'.tr;
-            }
-            return null;
-          },
-        );
-      },
-      optionsBuilder: (TextEditingValue textEditingValue) {
-        if (textEditingValue.text.isEmpty) {
-          return const Iterable<Tasks>.empty();
-        }
-        return getTaskAll(textEditingValue.text);
-      },
-      onSelected: (Tasks selection) {
-        transferTodoConroller.text = selection.title;
-        selectedTask = selection;
-        setState(() {
-          controller.task.value = selectedTask;
-        });
-        focusNode.unfocus();
-      },
-      displayStringForOption: (Tasks option) => option.title,
-      optionsViewBuilder: (
-        BuildContext context,
-        AutocompleteOnSelected<Tasks> onSelected,
-        Iterable<Tasks> options,
-      ) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Material(
-              borderRadius: BorderRadius.circular(20),
-              elevation: 4,
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                itemCount: options.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final Tasks tasks = options.elementAt(index);
-                  return InkWell(
-                    onTap: () => onSelected(tasks),
-                    child: ListTile(
-                      title: Text(
-                        tasks.title,
-                        style: context.textTheme.labelLarge,
-                      ),
-                      trailing: Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: Color(tasks.taskColor),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-      },
-    );
-
-    final submitButton = ValueListenableBuilder(
-      valueListenable: controller.canCompose,
-      builder: (context, canCompose, _) {
-        return MyTextButton(
-          text: 'done'.tr,
-          onPressed: canCompose ? () => onPressed() : null,
-        );
-      },
-    );
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: onPopInvokedWithResult,
@@ -206,25 +101,9 @@ class _TodosTransferState extends State<TodosTransfer> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 14, bottom: 7),
-                    child: Text(
-                      widget.text,
-                      style: context.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  todoCategory,
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    child: submitButton,
-                  ),
+                  _buildTitle(context),
+                  _buildTodoCategory(context),
+                  _buildSubmitButton(context),
                   const Gap(10),
                 ],
               ),
@@ -234,20 +113,150 @@ class _TodosTransferState extends State<TodosTransfer> {
       ),
     );
   }
+
+  Widget _buildTitle(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 14, bottom: 7),
+      child: Text(
+        widget.text,
+        style: context.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _buildTodoCategory(BuildContext context) {
+    return RawAutocomplete<Tasks>(
+      focusNode: focusNode,
+      optionsViewOpenDirection: OptionsViewOpenDirection.up,
+      textEditingController: transferTodoController,
+      fieldViewBuilder: _buildFieldView,
+      optionsBuilder: _buildOptions,
+      onSelected: _onSelected,
+      displayStringForOption: (Tasks option) => option.title,
+      optionsViewBuilder: _buildOptionsView,
+    );
+  }
+
+  Widget _buildFieldView(
+    BuildContext context,
+    TextEditingController fieldTextEditingController,
+    FocusNode fieldFocusNode,
+    VoidCallback onFieldSubmitted,
+  ) {
+    return MyTextForm(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      controller: transferTodoController,
+      focusNode: focusNode,
+      labelText: 'selectCategory'.tr,
+      type: TextInputType.text,
+      icon: const Icon(IconsaxPlusLinear.folder_2),
+      iconButton:
+          transferTodoController.text.isNotEmpty
+              ? IconButton(
+                icon: const Icon(IconsaxPlusLinear.close_square, size: 18),
+                onPressed: () {
+                  transferTodoController.clear();
+                  setState(() {});
+                },
+              )
+              : null,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'selectCategory'.tr;
+        }
+        return null;
+      },
+    );
+  }
+
+  Future<Iterable<Tasks>> _buildOptions(
+    TextEditingValue textEditingValue,
+  ) async {
+    if (textEditingValue.text.isEmpty) {
+      return const Iterable<Tasks>.empty();
+    }
+    return getTaskAll(textEditingValue.text);
+  }
+
+  void _onSelected(Tasks selection) {
+    transferTodoController.text = selection.title;
+    selectedTask = selection;
+    setState(() {
+      controller.task.value = selectedTask;
+    });
+    focusNode.unfocus();
+  }
+
+  Widget _buildOptionsView(
+    BuildContext context,
+    AutocompleteOnSelected<Tasks> onSelected,
+    Iterable<Tasks> options,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Material(
+          borderRadius: BorderRadius.circular(20),
+          elevation: 4,
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            itemCount: options.length,
+            itemBuilder: (BuildContext context, int index) {
+              final Tasks task = options.elementAt(index);
+              return InkWell(
+                onTap: () => onSelected(task),
+                child: ListTile(
+                  title: Text(task.title, style: context.textTheme.labelLarge),
+                  trailing: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: Color(task.taskColor),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: controller.canCompose,
+      builder: (context, canCompose, _) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          child: MyTextButton(
+            text: 'ready'.tr,
+            onPressed: canCompose ? onPressed : null,
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _EditingController extends ChangeNotifier {
   _EditingController(this.initialTask) {
     task.value = initialTask;
-
     task.addListener(_updateCanCompose);
   }
 
   final Tasks? initialTask;
-
   final task = ValueNotifier<Tasks?>(null);
-
   final _canCompose = ValueNotifier(false);
+
   ValueListenable<bool> get canCompose => _canCompose;
 
   void _updateCanCompose() => _canCompose.value = (task.value != initialTask);

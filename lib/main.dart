@@ -33,7 +33,7 @@ String timeformat = '24';
 String firstDay = 'monday';
 Locale locale = const Locale('en', 'US');
 
-final List appLanguages = [
+final List<Map<String, dynamic>> appLanguages = [
   {'name': 'العربية', 'locale': const Locale('ar', 'AR')},
   {'name': 'Deutsch', 'locale': const Locale('de', 'DE')},
   {'name': 'English', 'locale': const Locale('en', 'US')},
@@ -54,30 +54,35 @@ final List appLanguages = [
 List<String> allScreens = [];
 
 void main() async {
-  final String timeZoneName;
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeApp();
+  runApp(const MyApp());
+}
+
+Future<void> initializeApp() async {
   DeviceFeature().init();
   if (Platform.isAndroid) {
     await setOptimalDisplayMode();
   }
-  timeZoneName = await FlutterTimezone.getLocalTimezone();
-  tz.initializeTimeZones();
-  tz.setLocalLocation(tz.getLocation(timeZoneName));
-  const DarwinInitializationSettings initializationSettingsIos =
-      DarwinInitializationSettings();
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-  const LinuxInitializationSettings initializationSettingsLinux =
-      LinuxInitializationSettings(defaultActionName: 'Zest');
-  const InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-    linux: initializationSettingsLinux,
-    iOS: initializationSettingsIos,
-  );
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  await initializeTimeZone();
+  await initializeNotifications();
   await IsarController().openDB();
   await initSettings();
-  runApp(const MyApp());
+}
+
+Future<void> initializeTimeZone() async {
+  final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+  tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation(timeZoneName));
+}
+
+Future<void> initializeNotifications() async {
+  const initializationSettings = InitializationSettings(
+    android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    linux: LinuxInitializationSettings(defaultActionName: 'Zest'),
+    iOS: DarwinInitializationSettings(),
+  );
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 }
 
 Future<void> setOptimalDisplayMode() async {
@@ -85,15 +90,9 @@ Future<void> setOptimalDisplayMode() async {
   final DisplayMode active = await FlutterDisplayMode.active;
   final List<DisplayMode> sameResolution =
       supported
-          .where(
-            (DisplayMode m) =>
-                m.width == active.width && m.height == active.height,
-          )
+          .where((m) => m.width == active.width && m.height == active.height)
           .toList()
-        ..sort(
-          (DisplayMode a, DisplayMode b) =>
-              b.refreshRate.compareTo(a.refreshRate),
-        );
+        ..sort((a, b) => b.refreshRate.compareTo(a.refreshRate));
   final DisplayMode mostOptimalMode =
       sameResolution.isNotEmpty ? sameResolution.first : active;
   await FlutterDisplayMode.setPreferredMode(mostOptimalMode);
@@ -101,20 +100,10 @@ Future<void> setOptimalDisplayMode() async {
 
 Future<void> initSettings() async {
   settings = isar.settings.where().findFirstSync() ?? Settings();
-  if (settings.language == null) {
-    settings.language = '${Get.deviceLocale}';
-    isar.writeTxnSync(() => isar.settings.putSync(settings));
-  }
-
-  if (settings.theme == null) {
-    settings.theme = 'system';
-    isar.writeTxnSync(() => isar.settings.putSync(settings));
-  }
-
-  if (settings.isImage == null) {
-    settings.isImage = true;
-    isar.writeTxnSync(() => isar.settings.putSync(settings));
-  }
+  settings.language ??= '${Get.deviceLocale}';
+  settings.theme ??= 'system';
+  settings.isImage ??= true;
+  isar.writeTxnSync(() => isar.settings.putSync(settings));
 }
 
 class MyApp extends StatefulWidget {
@@ -196,6 +185,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
+    super.initState();
     amoledTheme = settings.amoledTheme;
     materialColor = settings.materialColor;
     timeformat = settings.timeformat;
@@ -205,7 +195,6 @@ class _MyAppState extends State<MyApp> {
       settings.language!.substring(0, 2),
       settings.language!.substring(3),
     );
-    super.initState();
   }
 
   @override

@@ -21,7 +21,28 @@ class _HomePageState extends State<HomePage> {
   final themeController = Get.put(ThemeController());
   int tabIndex = 0;
 
-  final pages = const [AllTasks(), AllTodos(), CalendarTodos(), SettingsPage()];
+  final List<Widget> pages = const [
+    AllTasks(),
+    AllTodos(),
+    CalendarTodos(),
+    SettingsPage(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeTabIndex();
+  }
+
+  void _initializeTabIndex() {
+    allScreens = _getScreens();
+    tabIndex = allScreens.indexOf(
+      allScreens.firstWhere(
+        (element) => element == settings.defaultScreen,
+        orElse: () => allScreens[0],
+      ),
+    );
+  }
 
   void changeTabIndex(int index) {
     setState(() {
@@ -31,7 +52,7 @@ class _HomePageState extends State<HomePage> {
 
   void onSwipe(DragEndDetails details) {
     if (details.primaryVelocity! < 0) {
-      if (tabIndex < 3) {
+      if (tabIndex < pages.length - 1) {
         changeTabIndex(tabIndex + 1);
       }
     } else if (details.primaryVelocity! > 0) {
@@ -41,78 +62,88 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  List<String> getScreens() {
+  List<String> _getScreens() {
     return ['categories', 'allTodos', 'calendar'];
   }
 
   @override
-  void initState() {
-    super.initState();
-    allScreens = getScreens();
-    tabIndex = allScreens.indexOf(
-      allScreens.firstWhere(
-        (element) => (element == settings.defaultScreen),
-        orElse: () => allScreens[0],
+  Widget build(BuildContext context) {
+    allScreens = _getScreens();
+    return Scaffold(
+      body: IndexedStack(index: tabIndex, children: pages),
+      bottomNavigationBar: _buildBottomNavigationBar(),
+      floatingActionButton: _buildFloatingActionButton(),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return GestureDetector(
+      onHorizontalDragEnd: onSwipe,
+      child: NavigationBar(
+        onDestinationSelected: changeTabIndex,
+        selectedIndex: tabIndex,
+        destinations: _buildNavigationDestinations(),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    allScreens = getScreens();
-    return Scaffold(
-      body: IndexedStack(index: tabIndex, children: pages),
-      bottomNavigationBar: GestureDetector(
-        onHorizontalDragEnd: onSwipe,
-        child: NavigationBar(
-          onDestinationSelected: (int index) => changeTabIndex(index),
-          selectedIndex: tabIndex,
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(IconsaxPlusLinear.folder_2),
-              selectedIcon: const Icon(IconsaxPlusBold.folder_2),
-              label: allScreens[0].tr,
-            ),
-            NavigationDestination(
-              icon: const Icon(IconsaxPlusLinear.task_square),
-              selectedIcon: const Icon(IconsaxPlusBold.task_square),
-              label: allScreens[1].tr,
-            ),
-            NavigationDestination(
-              icon: const Icon(IconsaxPlusLinear.calendar),
-              selectedIcon: const Icon(IconsaxPlusBold.calendar),
-              label: allScreens[2].tr,
-            ),
-            NavigationDestination(
-              icon: const Icon(IconsaxPlusLinear.category),
-              selectedIcon: const Icon(IconsaxPlusBold.category),
-              label: 'settings'.tr,
-            ),
-          ],
-        ),
+  List<NavigationDestination> _buildNavigationDestinations() {
+    return [
+      _buildNavigationDestination(
+        icon: IconsaxPlusLinear.folder_2,
+        selectedIcon: IconsaxPlusBold.folder_2,
+        label: allScreens[0].tr,
       ),
-      floatingActionButton:
-          tabIndex == 3
-              ? null
-              : FloatingActionButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    enableDrag: false,
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (BuildContext context) {
-                      return tabIndex == 0
-                          ? TasksAction(text: 'create'.tr, edit: false)
-                          : TodosAction(
-                            text: 'create'.tr,
-                            edit: false,
-                            category: true,
-                          );
-                    },
-                  );
-                },
-                child: const Icon(IconsaxPlusLinear.add),
-              ),
+      _buildNavigationDestination(
+        icon: IconsaxPlusLinear.task_square,
+        selectedIcon: IconsaxPlusBold.task_square,
+        label: allScreens[1].tr,
+      ),
+      _buildNavigationDestination(
+        icon: IconsaxPlusLinear.calendar,
+        selectedIcon: IconsaxPlusBold.calendar,
+        label: allScreens[2].tr,
+      ),
+      _buildNavigationDestination(
+        icon: IconsaxPlusLinear.category,
+        selectedIcon: IconsaxPlusBold.category,
+        label: 'settings'.tr,
+      ),
+    ];
+  }
+
+  NavigationDestination _buildNavigationDestination({
+    required IconData icon,
+    required IconData selectedIcon,
+    required String label,
+  }) {
+    return NavigationDestination(
+      icon: Icon(icon),
+      selectedIcon: Icon(selectedIcon),
+      label: label,
+    );
+  }
+
+  Widget? _buildFloatingActionButton() {
+    if (tabIndex == 3) {
+      return null;
+    }
+    return FloatingActionButton(
+      onPressed: _showBottomSheet,
+      child: const Icon(IconsaxPlusLinear.add),
+    );
+  }
+
+  void _showBottomSheet() {
+    showModalBottomSheet(
+      enableDrag: false,
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return tabIndex == 0
+            ? TasksAction(text: 'create'.tr, edit: false)
+            : TodosAction(text: 'create'.tr, edit: false, category: true);
+      },
     );
   }
 }

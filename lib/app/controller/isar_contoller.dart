@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -14,53 +13,51 @@ import 'package:zest/main.dart';
 
 class IsarController {
   var now = DateTime.now();
-
   var platform = MethodChannel('directory_picker');
 
   Future<Isar> openDB() async {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationSupportDirectory();
-
       return isar = await Isar.open(
         [TasksSchema, TodosSchema, SettingsSchema],
         directory: dir.path,
         inspector: true,
       );
     }
-
     return Future.value(Isar.getInstance());
   }
 
   Future<String?> pickDirectory() async {
     if (Platform.isAndroid) {
-      try {
-        final String? uri = await platform.invokeMethod('pickDirectory');
-        return uri;
-      } on PlatformException {
-        return null;
-      }
+      return await _pickDirectoryAndroid();
     } else if (Platform.isIOS) {
       return await getDirectoryPath();
     }
     return null;
   }
 
-  Future<String?> getDownloadsDirectory() async {
-    Directory? downloadsDir;
-
-    if (Platform.isAndroid) {
-      downloadsDir = Directory('/storage/emulated/0/Download');
-    } else if (Platform.isIOS) {
-      downloadsDir = await getApplicationDocumentsDirectory();
+  Future<String?> _pickDirectoryAndroid() async {
+    try {
+      final String? uri = await platform.invokeMethod('pickDirectory');
+      return uri;
+    } on PlatformException {
+      return null;
     }
+  }
 
-    return downloadsDir?.path;
+  Future<String?> getDownloadsDirectory() async {
+    if (Platform.isAndroid) {
+      return '/storage/emulated/0/Download';
+    } else if (Platform.isIOS) {
+      final dir = await getApplicationDocumentsDirectory();
+      return dir.path;
+    }
+    return null;
   }
 
   Future<void> createBackUp() async {
     final backUpDir = await pickDirectory();
-    String? allowedPath =
-        Platform.isAndroid ? await getDownloadsDirectory() : backUpDir;
+    final allowedPath = await _getAllowedPath(backUpDir);
 
     if (backUpDir == null || allowedPath == null) {
       EasyLoading.showInfo('errorPath'.tr);
@@ -68,33 +65,14 @@ class IsarController {
     }
 
     try {
-      final timeStamp = DateFormat('yyyyMMdd_HHmmss').format(now);
-      final backupFileName = 'backup_zest_db$timeStamp.isar';
+      final backupFileName = _generateBackupFileName();
       final backUpFile = File('$allowedPath/$backupFileName');
 
-      if (await backUpFile.exists()) {
-        await backUpFile.delete();
-      }
-
+      await _prepareBackupFile(backUpFile);
       await isar.copyToFile(backUpFile.path);
 
       if (Platform.isAndroid) {
-        Uint8List backupData = await backUpFile.readAsBytes();
-
-        final bool success = await platform.invokeMethod('writeFile', {
-          "directoryUri": backUpDir,
-          "fileName": backupFileName,
-          "fileContent": backupData,
-        });
-
-        backUpFile.delete();
-
-        if (success) {
-          EasyLoading.showSuccess('successBackup'.tr);
-        } else {
-          EasyLoading.showError('error'.tr);
-          return Future.error(e);
-        }
+        await _handleAndroidBackup(backUpDir, backupFileName, backUpFile);
       } else {
         EasyLoading.showSuccess('successBackup'.tr);
       }
@@ -104,9 +82,48 @@ class IsarController {
     }
   }
 
+  Future<String?> _getAllowedPath(String? backUpDir) async {
+    if (Platform.isAndroid) {
+      return await getDownloadsDirectory();
+    }
+    return backUpDir;
+  }
+
+  String _generateBackupFileName() {
+    final timeStamp = DateFormat('yyyyMMdd_HHmmss').format(now);
+    return 'backup_zest_db$timeStamp.isar';
+  }
+
+  Future<void> _prepareBackupFile(File backUpFile) async {
+    if (await backUpFile.exists()) {
+      await backUpFile.delete();
+    }
+  }
+
+  Future<void> _handleAndroidBackup(
+    String backUpDir,
+    String backupFileName,
+    File backUpFile,
+  ) async {
+    final backupData = await backUpFile.readAsBytes();
+    final success = await platform.invokeMethod('writeFile', {
+      'directoryUri': backUpDir,
+      'fileName': backupFileName,
+      'fileContent': backupData,
+    });
+
+    await backUpFile.delete();
+
+    if (success) {
+      EasyLoading.showSuccess('successBackup'.tr);
+    } else {
+      EasyLoading.showError('error'.tr);
+    }
+  }
+
   Future<void> restoreDB() async {
     final dbDirectory = await getApplicationSupportDirectory();
-    final XFile? backupFile = await openFile();
+    final backupFile = await openFile();
 
     if (backupFile == null) {
       EasyLoading.showInfo('errorPathRe'.tr);
@@ -121,8 +138,9 @@ class IsarController {
       if (await dbFile.exists()) {
         await dbFile.copy(dbPath);
       }
+
       EasyLoading.showSuccess('successRestoreCategory'.tr);
-      Future.delayed(
+      await Future.delayed(
         const Duration(milliseconds: 500),
         () => Restart.restartApp(),
       );

@@ -18,10 +18,11 @@ class TasksAction extends StatefulWidget {
     this.task,
     this.updateTaskName,
   });
+
   final String text;
   final bool edit;
   final Tasks? task;
-  final Function()? updateTaskName;
+  final VoidCallback? updateTaskName;
 
   @override
   State<TasksAction> createState() => _TasksActionState();
@@ -32,30 +33,34 @@ class _TasksActionState extends State<TasksAction> {
   final todoController = Get.put(TodoController());
   Color myColor = const Color(0xFF2196F3);
 
-  TextEditingController titleCategoryEdit = TextEditingController();
-  TextEditingController descCategoryEdit = TextEditingController();
+  final TextEditingController titleCategoryEdit = TextEditingController();
+  final TextEditingController descCategoryEdit = TextEditingController();
 
   late final _EditingController controller;
 
   @override
-  initState() {
+  void initState() {
+    super.initState();
     if (widget.edit) {
-      titleCategoryEdit = TextEditingController(text: widget.task!.title);
-      descCategoryEdit = TextEditingController(text: widget.task!.description);
-      myColor = Color(widget.task!.taskColor);
+      _initializeEditMode();
     }
     controller = _EditingController(
       titleCategoryEdit.text,
       descCategoryEdit.text,
       myColor,
     );
-    super.initState();
   }
 
-  textTrim(value) {
-    value.text = value.text.trim();
-    while (value.text.contains('  ')) {
-      value.text = value.text.replaceAll('  ', ' ');
+  void _initializeEditMode() {
+    titleCategoryEdit.text = widget.task!.title;
+    descCategoryEdit.text = widget.task!.description;
+    myColor = Color(widget.task!.taskColor);
+  }
+
+  void textTrim(TextEditingController controller) {
+    controller.text = controller.text.trim();
+    while (controller.text.contains('  ')) {
+      controller.text = controller.text.replaceAll('  ', ' ');
     }
   }
 
@@ -86,110 +91,44 @@ class _TasksActionState extends State<TasksAction> {
       textTrim(titleCategoryEdit);
       textTrim(descCategoryEdit);
       if (widget.edit) {
-        todoController.updateTask(
-          widget.task!,
-          titleCategoryEdit.text,
-          descCategoryEdit.text,
-          myColor,
-        );
-        widget.updateTaskName!();
+        _updateTask();
       } else {
-        todoController.addTask(
-          titleCategoryEdit.text,
-          descCategoryEdit.text,
-          myColor,
-        );
-        titleCategoryEdit.clear();
-        descCategoryEdit.clear();
+        _addTask();
       }
       Get.back();
     }
   }
 
-  @override
-  void dispose() {
+  void _updateTask() {
+    todoController.updateTask(
+      widget.task!,
+      titleCategoryEdit.text,
+      descCategoryEdit.text,
+      myColor,
+    );
+    widget.updateTaskName?.call();
+  }
+
+  void _addTask() {
+    todoController.addTask(
+      titleCategoryEdit.text,
+      descCategoryEdit.text,
+      myColor,
+    );
     titleCategoryEdit.clear();
     descCategoryEdit.clear();
+  }
+
+  @override
+  void dispose() {
+    titleCategoryEdit.dispose();
+    descCategoryEdit.dispose();
     controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final titleInput = MyTextForm(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      controller: titleCategoryEdit,
-      labelText: 'name'.tr,
-      type: TextInputType.text,
-      icon: const Icon(IconsaxPlusLinear.edit),
-      onChanged: (value) => controller.title.value = value,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'validateName'.tr;
-        }
-        return null;
-      },
-    );
-
-    final descriptionInput = MyTextForm(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      controller: descCategoryEdit,
-      labelText: 'description'.tr,
-      type: TextInputType.multiline,
-      icon: const Icon(IconsaxPlusLinear.note_text),
-      maxLine: null,
-      onChanged: (value) => controller.description.value = value,
-    );
-
-    final colorInput = ActionChip(
-      elevation: 4,
-      avatar: ColorIndicator(
-        height: 15,
-        width: 15,
-        borderRadius: 20,
-        color: myColor,
-        onSelectFocus: false,
-      ),
-      label: Text(
-        'color'.tr,
-        style: context.textTheme.labelLarge,
-        overflow: TextOverflow.visible,
-      ),
-      onPressed: () async {
-        final Color newColor = await showColorPickerDialog(
-          context,
-          myColor,
-          borderRadius: 20,
-          enableShadesSelection: false,
-          enableTonalPalette: true,
-          pickersEnabled: const <ColorPickerType, bool>{
-            ColorPickerType.accent: false,
-            ColorPickerType.primary: true,
-            ColorPickerType.wheel: false,
-            ColorPickerType.both: false,
-          },
-        );
-        setState(() {
-          myColor = newColor;
-          if (widget.edit) controller.color.value = newColor;
-        });
-      },
-    );
-
-    final submitButton = ValueListenableBuilder(
-      valueListenable: controller.canCompose,
-      builder: (context, canCompose, _) {
-        return MyTextButton(
-          text: 'ready'.tr,
-          onPressed: canCompose ? () => onPressed() : null,
-        );
-      },
-    );
-
-    final attributes = Row(children: [colorInput]);
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: onPopInvokedWithResult,
@@ -206,31 +145,11 @@ class _TasksActionState extends State<TasksAction> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 14, bottom: 7),
-                    child: Text(
-                      widget.text,
-                      style: context.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  titleInput,
-                  descriptionInput,
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: attributes,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    child: submitButton,
-                  ),
+                  _buildTitle(),
+                  _buildTitleInput(),
+                  _buildDescriptionInput(),
+                  _buildAttributes(),
+                  _buildSubmitButton(),
                   const Gap(10),
                 ],
               ),
@@ -238,6 +157,113 @@ class _TasksActionState extends State<TasksAction> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTitle() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 14, bottom: 7),
+      child: Text(
+        widget.text,
+        style: context.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _buildTitleInput() {
+    return MyTextForm(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      controller: titleCategoryEdit,
+      labelText: 'name'.tr,
+      type: TextInputType.text,
+      icon: const Icon(IconsaxPlusLinear.edit),
+      onChanged: (value) => controller.title.value = value,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'validateName'.tr;
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildDescriptionInput() {
+    return MyTextForm(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      controller: descCategoryEdit,
+      labelText: 'description'.tr,
+      type: TextInputType.multiline,
+      icon: const Icon(IconsaxPlusLinear.note_text),
+      maxLine: null,
+      onChanged: (value) => controller.description.value = value,
+    );
+  }
+
+  Widget _buildColorInput() {
+    return ActionChip(
+      elevation: 4,
+      avatar: ColorIndicator(
+        height: 15,
+        width: 15,
+        borderRadius: 20,
+        color: myColor,
+        onSelectFocus: false,
+      ),
+      label: Text(
+        'color'.tr,
+        style: context.textTheme.labelLarge,
+        overflow: TextOverflow.visible,
+      ),
+      onPressed: _showColorPicker,
+    );
+  }
+
+  Future<void> _showColorPicker() async {
+    final Color newColor = await showColorPickerDialog(
+      context,
+      myColor,
+      borderRadius: 20,
+      enableShadesSelection: false,
+      enableTonalPalette: true,
+      pickersEnabled: const <ColorPickerType, bool>{
+        ColorPickerType.accent: false,
+        ColorPickerType.primary: true,
+        ColorPickerType.wheel: false,
+        ColorPickerType.both: false,
+      },
+    );
+    setState(() {
+      myColor = newColor;
+      if (widget.edit) controller.color.value = newColor;
+    });
+  }
+
+  Widget _buildAttributes() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      child: Row(children: [_buildColorInput()]),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return ValueListenableBuilder(
+      valueListenable: controller.canCompose,
+      builder: (context, canCompose, _) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          child: MyTextButton(
+            text: 'ready'.tr,
+            onPressed: canCompose ? onPressed : null,
+          ),
+        );
+      },
     );
   }
 }
