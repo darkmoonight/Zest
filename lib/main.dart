@@ -93,8 +93,9 @@ Future<void> setOptimalDisplayMode() async {
           .where((m) => m.width == active.width && m.height == active.height)
           .toList()
         ..sort((a, b) => b.refreshRate.compareTo(a.refreshRate));
-  final DisplayMode mostOptimalMode =
-      sameResolution.isNotEmpty ? sameResolution.first : active;
+  final DisplayMode mostOptimalMode = sameResolution.isNotEmpty
+      ? sameResolution.first
+      : active;
   await FlutterDisplayMode.setPreferredMode(mostOptimalMode);
 }
 
@@ -120,24 +121,12 @@ class MyApp extends StatefulWidget {
   }) async {
     final state = context.findAncestorStateOfType<_MyAppState>()!;
 
-    if (newAmoledTheme != null) {
-      state.changeAmoledTheme(newAmoledTheme);
-    }
-    if (newMaterialColor != null) {
-      state.changeMarerialTheme(newMaterialColor);
-    }
-    if (newTimeformat != null) {
-      state.changeTimeFormat(newTimeformat);
-    }
-    if (newFirstDay != null) {
-      state.changeFirstDay(newFirstDay);
-    }
-    if (newLocale != null) {
-      state.changeLocale(newLocale);
-    }
-    if (newIsImage != null) {
-      state.changeIsImage(newIsImage);
-    }
+    if (newAmoledTheme != null) state.changeAmoledTheme(newAmoledTheme);
+    if (newMaterialColor != null) state.changeMarerialTheme(newMaterialColor);
+    if (newTimeformat != null) state.changeTimeFormat(newTimeformat);
+    if (newFirstDay != null) state.changeFirstDay(newFirstDay);
+    if (newLocale != null) state.changeLocale(newLocale);
+    if (newIsImage != null) state.changeIsImage(newIsImage);
   }
 
   @override
@@ -147,41 +136,16 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final themeController = Get.put(ThemeController());
 
-  void changeAmoledTheme(bool newAmoledTheme) {
-    setState(() {
-      amoledTheme = newAmoledTheme;
-    });
-  }
-
-  void changeMarerialTheme(bool newMaterialColor) {
-    setState(() {
-      materialColor = newMaterialColor;
-    });
-  }
-
-  void changeIsImage(bool newIsImage) {
-    setState(() {
-      isImage = newIsImage;
-    });
-  }
-
-  void changeTimeFormat(String newTimeformat) {
-    setState(() {
-      timeformat = newTimeformat;
-    });
-  }
-
-  void changeFirstDay(String newFirstDay) {
-    setState(() {
-      firstDay = newFirstDay;
-    });
-  }
-
-  void changeLocale(Locale newLocale) {
-    setState(() {
-      locale = newLocale;
-    });
-  }
+  void changeAmoledTheme(bool newAmoledTheme) =>
+      setState(() => amoledTheme = newAmoledTheme);
+  void changeMarerialTheme(bool newMaterialColor) =>
+      setState(() => materialColor = newMaterialColor);
+  void changeIsImage(bool newIsImage) => setState(() => isImage = newIsImage);
+  void changeTimeFormat(String newTimeformat) =>
+      setState(() => timeformat = newTimeformat);
+  void changeFirstDay(String newFirstDay) =>
+      setState(() => firstDay = newFirstDay);
+  void changeLocale(Locale newLocale) => setState(() => locale = newLocale);
 
   @override
   void initState() {
@@ -223,48 +187,38 @@ class _MyAppState extends State<MyApp> {
           );
 
           return GetMaterialApp(
-            theme:
-                materialColor
-                    ? lightColorScheme != null
-                        ? lightMaterialTheme
-                        : lightTheme(
+            theme: materialColor
+                ? lightColorScheme != null
+                      ? lightMaterialTheme
+                      : lightTheme(
                           lightColor,
                           colorSchemeLight,
                           edgeToEdgeAvailable,
                         )
-                    : lightTheme(
-                      lightColor,
-                      colorSchemeLight,
-                      edgeToEdgeAvailable,
-                    ),
-            darkTheme:
-                amoledTheme
-                    ? materialColor
-                        ? darkColorScheme != null
+                : lightTheme(lightColor, colorSchemeLight, edgeToEdgeAvailable),
+            darkTheme: amoledTheme
+                ? materialColor
+                      ? darkColorScheme != null
                             ? darkMaterialThemeOled
                             : darkTheme(
-                              oledColor,
-                              colorSchemeDark,
-                              edgeToEdgeAvailable,
-                            )
-                        : darkTheme(
+                                oledColor,
+                                colorSchemeDark,
+                                edgeToEdgeAvailable,
+                              )
+                      : darkTheme(
                           oledColor,
                           colorSchemeDark,
                           edgeToEdgeAvailable,
                         )
-                    : materialColor
-                    ? darkColorScheme != null
-                        ? darkMaterialTheme
-                        : darkTheme(
+                : materialColor
+                ? darkColorScheme != null
+                      ? darkMaterialTheme
+                      : darkTheme(
                           darkColor,
                           colorSchemeDark,
                           edgeToEdgeAvailable,
                         )
-                    : darkTheme(
-                      darkColor,
-                      colorSchemeDark,
-                      edgeToEdgeAvailable,
-                    ),
+                : darkTheme(darkColor, colorSchemeDark, edgeToEdgeAvailable),
             themeMode: themeController.theme,
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
@@ -274,8 +228,9 @@ class _MyAppState extends State<MyApp> {
             translations: Translation(),
             locale: locale,
             fallbackLocale: const Locale('en', 'US'),
-            supportedLocales:
-                appLanguages.map((e) => e['locale'] as Locale).toList(),
+            supportedLocales: appLanguages
+                .map((e) => e['locale'] as Locale)
+                .toList(),
             debugShowCheckedModeBanner: false,
             home: settings.onboard ? const HomePage() : const OnBording(),
             builder: EasyLoading.init(),

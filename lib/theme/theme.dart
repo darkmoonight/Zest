@@ -54,13 +54,9 @@ ThemeData _buildTheme({
   required ColorScheme? colorScheme,
   required bool edgeToEdgeAvailable,
 }) {
-  final harmonizedColorScheme =
-      colorScheme
-          ?.copyWith(
-            brightness: brightness,
-            surface: baseTheme.colorScheme.surface,
-          )
-          .harmonized();
+  final harmonizedColorScheme = colorScheme
+      ?.copyWith(brightness: brightness, surface: baseTheme.colorScheme.surface)
+      .harmonized();
 
   return baseTheme.copyWith(
     brightness: brightness,
@@ -99,16 +95,19 @@ AppBarTheme _buildAppBarTheme(
     surfaceTintColor: Colors.transparent,
     elevation: 0,
     systemOverlayStyle: SystemUiOverlayStyle(
-      statusBarIconBrightness:
-          brightness == Brightness.light ? Brightness.dark : Brightness.light,
+      statusBarIconBrightness: brightness == Brightness.light
+          ? Brightness.dark
+          : Brightness.light,
       statusBarColor: Colors.transparent,
       systemStatusBarContrastEnforced: false,
       systemNavigationBarContrastEnforced: false,
       systemNavigationBarDividerColor: Colors.transparent,
-      systemNavigationBarIconBrightness:
-          brightness == Brightness.light ? Brightness.dark : Brightness.light,
-      systemNavigationBarColor:
-          edgeToEdgeAvailable ? Colors.transparent : colorScheme?.surface,
+      systemNavigationBarIconBrightness: brightness == Brightness.light
+          ? Brightness.dark
+          : Brightness.light,
+      systemNavigationBarColor: edgeToEdgeAvailable
+          ? Colors.transparent
+          : colorScheme?.surface,
     ),
   );
 }
@@ -117,18 +116,20 @@ ChipThemeData _buildChipTheme(Color? color, ColorScheme? colorScheme) {
   return ChipThemeData(
     side: BorderSide.none,
     backgroundColor: Colors.transparent,
-    surfaceTintColor:
-        color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
+    surfaceTintColor: color == oledColor
+        ? Colors.transparent
+        : colorScheme?.surfaceTint,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
     shadowColor: Colors.transparent,
   );
 }
 
-CardTheme _buildCardTheme(Color? color, ColorScheme? colorScheme) {
-  return CardTheme(
+CardThemeData _buildCardTheme(Color? color, ColorScheme? colorScheme) {
+  return CardThemeData(
     color: color,
-    surfaceTintColor:
-        color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
+    surfaceTintColor: color == oledColor
+        ? Colors.transparent
+        : colorScheme?.surfaceTint,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     shadowColor: Colors.transparent,
   );
@@ -140,8 +141,9 @@ BottomSheetThemeData _buildBottomSheetTheme(
 ) {
   return BottomSheetThemeData(
     backgroundColor: color,
-    surfaceTintColor:
-        color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
+    surfaceTintColor: color == oledColor
+        ? Colors.transparent
+        : colorScheme?.surfaceTint,
   );
 }
 
@@ -151,8 +153,9 @@ NavigationBarThemeData _buildNavigationBarTheme(
 ) {
   return NavigationBarThemeData(
     backgroundColor: color,
-    surfaceTintColor:
-        color == oledColor ? Colors.transparent : colorScheme?.surfaceTint,
+    surfaceTintColor: color == oledColor
+        ? Colors.transparent
+        : colorScheme?.surfaceTint,
     labelTextStyle: WidgetStateProperty.all(
       const TextStyle(overflow: TextOverflow.ellipsis, fontSize: 12),
     ),
