@@ -12,7 +12,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.yoshi.todark"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = '29.0.13846066'
 
     compileOptions {
@@ -71,5 +71,5 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
-    implementation("androidx.documentfile:documentfile:1.0.1")
+    implementation("androidx.documentfile:documentfile:1.1.0")
 }
