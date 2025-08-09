@@ -57,9 +57,11 @@ class _TaskCardState extends State<TaskCard> {
     return todoController.isMultiSelectionTask.isTrue &&
             todoController.selectedTask.contains(widget.task)
         ? RoundedRectangleBorder(
-          side: BorderSide(color: context.theme.colorScheme.onPrimaryContainer),
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
-        )
+            side: BorderSide(
+              color: context.theme.colorScheme.onPrimaryContainer,
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(20)),
+          )
         : null;
   }
 
@@ -112,12 +114,12 @@ class _TaskCardState extends State<TaskCard> {
   Widget? _buildSubtitle() {
     return widget.task.description.isNotEmpty
         ? Text(
-          widget.task.description,
-          style: context.textTheme.labelLarge?.copyWith(
-            color: Colors.grey,
-            fontSize: 14,
-          ),
-        )
+            widget.task.description,
+            style: context.textTheme.labelLarge?.copyWith(
+              color: Colors.grey,
+              fontSize: 14,
+            ),
+          )
         : null;
   }
 

@@ -72,9 +72,9 @@ class _CalendarTodosState extends State<CalendarTodos>
   IconButton? _buildLeadingIconButton() {
     return todoController.isMultiSelectionTodo.isTrue
         ? IconButton(
-          onPressed: () => todoController.doMultiSelectionTodoClear(),
-          icon: const Icon(IconsaxPlusLinear.close_square, size: 20),
-        )
+            onPressed: () => todoController.doMultiSelectionTodoClear(),
+            icon: const Icon(IconsaxPlusLinear.close_square, size: 20),
+          )
         : null;
   }
 
@@ -197,8 +197,8 @@ class _CalendarTodosState extends State<CalendarTodos>
               var countTodos = todoController.countTotalTodosCalendar(day);
               return countTodos != 0
                   ? selectedDay.isAtSameMomentAs(day)
-                      ? _buildSelectedDayMarker(countTodos)
-                      : _buildDayMarker(countTodos)
+                        ? _buildSelectedDayMarker(countTodos)
+                        : _buildDayMarker(countTodos)
                   : const SizedBox.shrink();
             });
           },
@@ -330,7 +330,10 @@ class _CalendarTodosState extends State<CalendarTodos>
             overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
               return Colors.transparent;
             }),
-            tabs: [Tab(text: 'doing'.tr), Tab(text: 'done'.tr)],
+            tabs: [
+              Tab(text: 'doing'.tr),
+              Tab(text: 'done'.tr),
+            ],
           ),
         ),
         floating: true,

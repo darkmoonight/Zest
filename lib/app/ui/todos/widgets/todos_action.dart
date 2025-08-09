@@ -83,8 +83,8 @@ class _TodosActionState extends State<TodosAction> {
   String _formatDateTime(DateTime? dateTime) {
     return dateTime != null
         ? timeformat == '12'
-            ? DateFormat.yMMMEd(locale.languageCode).add_jm().format(dateTime)
-            : DateFormat.yMMMEd(locale.languageCode).add_Hm().format(dateTime)
+              ? DateFormat.yMMMEd(locale.languageCode).add_jm().format(dateTime)
+              : DateFormat.yMMMEd(locale.languageCode).add_Hm().format(dateTime)
         : '';
   }
 
@@ -268,14 +268,14 @@ class _TodosActionState extends State<TodosAction> {
   Widget _buildCategoryField() {
     return widget.category
         ? RawAutocomplete<Tasks>(
-          focusNode: categoryFocusNode,
-          textEditingController: textTodoController,
-          fieldViewBuilder: _buildCategoryFieldView,
-          optionsBuilder: _buildCategoryOptions,
-          onSelected: _onCategorySelected,
-          displayStringForOption: (Tasks option) => option.title,
-          optionsViewBuilder: _buildCategoryOptionsView,
-        )
+            focusNode: categoryFocusNode,
+            textEditingController: textTodoController,
+            fieldViewBuilder: _buildCategoryFieldView,
+            optionsBuilder: _buildCategoryOptions,
+            onSelected: _onCategorySelected,
+            displayStringForOption: (Tasks option) => option.title,
+            optionsViewBuilder: _buildCategoryOptionsView,
+          )
         : const Offstage();
   }
 
@@ -293,16 +293,15 @@ class _TodosActionState extends State<TodosAction> {
       labelText: 'selectCategory'.tr,
       type: TextInputType.text,
       icon: const Icon(IconsaxPlusLinear.folder_2),
-      iconButton:
-          textTodoController.text.isNotEmpty
-              ? IconButton(
-                icon: const Icon(IconsaxPlusLinear.close_square, size: 18),
-                onPressed: () {
-                  textTodoController.clear();
-                  setState(() {});
-                },
-              )
-              : null,
+      iconButton: textTodoController.text.isNotEmpty
+          ? IconButton(
+              icon: const Icon(IconsaxPlusLinear.close_square, size: 18),
+              onPressed: () {
+                textTodoController.clear();
+                setState(() {});
+              },
+            )
+          : null,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'selectCategory'.tr;
@@ -321,18 +320,14 @@ class _TodosActionState extends State<TodosAction> {
     return getTaskAll(textEditingValue.text);
   }
 
-  void _onCategorySelected(Tasks selection) async {
+  void _onCategorySelected(Tasks selection) {
     textTodoController.text = selection.title;
     selectedTask = selection;
     setState(() {
       if (widget.edit) controller.task.value = selectedTask;
     });
 
-    Future.microtask(() {
-      if (context.mounted) {
-        FocusScope.of(context).requestFocus(titleFocusNode);
-      }
-    });
+    FocusScope.of(context).requestFocus(titleFocusNode);
 
     categoryFocusNode.unfocus();
   }
@@ -478,12 +473,9 @@ class _TodosActionState extends State<TodosAction> {
     );
 
     if (dateTime != null) {
-      final String formattedDate =
-          timeformat == '12'
-              ? DateFormat.yMMMEd(locale.languageCode).add_jm().format(dateTime)
-              : DateFormat.yMMMEd(
-                locale.languageCode,
-              ).add_Hm().format(dateTime);
+      final String formattedDate = timeformat == '12'
+          ? DateFormat.yMMMEd(locale.languageCode).add_jm().format(dateTime)
+          : DateFormat.yMMMEd(locale.languageCode).add_Hm().format(dateTime);
 
       timeTodoEdit.text = formattedDate;
 

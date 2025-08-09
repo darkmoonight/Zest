@@ -173,18 +173,16 @@ class _SettingsPageState extends State<SettingsPage> {
     BuildContext context,
     StateSetter setState,
   ) {
-    ThemeMode themeMode =
-        newValue?.tr == 'system'.tr
-            ? ThemeMode.system
-            : newValue?.tr == 'dark'.tr
-            ? ThemeMode.dark
-            : ThemeMode.light;
-    String theme =
-        newValue?.tr == 'system'.tr
-            ? 'system'
-            : newValue?.tr == 'dark'.tr
-            ? 'dark'
-            : 'light';
+    ThemeMode themeMode = newValue?.tr == 'system'.tr
+        ? ThemeMode.system
+        : newValue?.tr == 'dark'.tr
+        ? ThemeMode.dark
+        : ThemeMode.light;
+    String theme = newValue?.tr == 'system'.tr
+        ? 'system'
+        : newValue?.tr == 'dark'.tr
+        ? 'dark'
+        : 'light';
     themeController.saveTheme(theme);
     themeController.changeThemeMode(themeMode);
     setState(() {});
@@ -463,10 +461,9 @@ class _SettingsPageState extends State<SettingsPage> {
       text: 'defaultScreen'.tr,
       info: true,
       infoSettings: true,
-      textInfo:
-          settings.defaultScreen.isNotEmpty
-              ? settings.defaultScreen.tr
-              : allScreens[0].tr,
+      textInfo: settings.defaultScreen.isNotEmpty
+          ? settings.defaultScreen.tr
+          : allScreens[0].tr,
       onPressed: () {
         _showDefaultScreenBottomSheet(context);
       },
@@ -540,11 +537,10 @@ class _SettingsPageState extends State<SettingsPage> {
       text: 'language'.tr,
       info: true,
       infoSettings: true,
-      textInfo:
-          appLanguages.firstWhere(
-            (element) => (element['locale'] == locale),
-            orElse: () => {'name': ''},
-          )['name'],
+      textInfo: appLanguages.firstWhere(
+        (element) => (element['locale'] == locale),
+        orElse: () => {'name': ''},
+      )['name'],
       onPressed: () {
         _showLanguageBottomSheet(context);
       },
@@ -656,15 +652,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       elevation: 4,
                       icon: const Icon(LineAwesomeIcons.discord),
                       text: 'Discord',
-                      onPressed:
-                          () => _urlLauncher('https://discord.gg/JMMa9aHh8f'),
+                      onPressed: () =>
+                          _urlLauncher('https://discord.gg/JMMa9aHh8f'),
                     ),
                     SettingCard(
                       elevation: 4,
                       icon: const Icon(LineAwesomeIcons.telegram),
                       text: 'Telegram',
-                      onPressed:
-                          () => _urlLauncher('https://t.me/darkmoonightX'),
+                      onPressed: () =>
+                          _urlLauncher('https://t.me/darkmoonightX'),
                     ),
                     const Gap(10),
                   ],

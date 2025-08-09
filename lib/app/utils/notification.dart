@@ -29,11 +29,10 @@ class NotificationShow {
   }
 
   Future<void> _requestNotificationPermission() async {
-    final platform =
-        flutterLocalNotificationsPlugin
-            .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin
-            >();
+    final platform = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (platform != null) {
       await platform.requestExactAlarmsPermission();
       await platform.requestNotificationsPermission();

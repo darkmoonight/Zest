@@ -155,16 +155,15 @@ class _TodosTransferState extends State<TodosTransfer> {
       labelText: 'selectCategory'.tr,
       type: TextInputType.text,
       icon: const Icon(IconsaxPlusLinear.folder_2),
-      iconButton:
-          transferTodoController.text.isNotEmpty
-              ? IconButton(
-                icon: const Icon(IconsaxPlusLinear.close_square, size: 18),
-                onPressed: () {
-                  transferTodoController.clear();
-                  setState(() {});
-                },
-              )
-              : null,
+      iconButton: transferTodoController.text.isNotEmpty
+          ? IconButton(
+              icon: const Icon(IconsaxPlusLinear.close_square, size: 18),
+              onPressed: () {
+                transferTodoController.clear();
+                setState(() {});
+              },
+            )
+          : null,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'selectCategory'.tr;

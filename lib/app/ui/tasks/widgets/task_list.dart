@@ -54,27 +54,27 @@ class _TasksListState extends State<TasksList> {
 
   Widget _buildListView(List<Tasks> tasks) {
     return ListView(
-      children:
-          tasks.map((task) {
-            final createdTodos = todoController.createdAllTodosTask(task);
-            final completedTodos = todoController.completedAllTodosTask(task);
-            final percent = (completedTodos / createdTodos * 100)
-                .toStringAsFixed(0);
+      children: tasks.map((task) {
+        final createdTodos = todoController.createdAllTodosTask(task);
+        final completedTodos = todoController.completedAllTodosTask(task);
+        final percent = (completedTodos / createdTodos * 100).toStringAsFixed(
+          0,
+        );
 
-            return TaskCard(
-              key: ValueKey(task),
-              task: task,
-              createdTodos: createdTodos,
-              completedTodos: completedTodos,
-              percent: percent,
-              onTap: () {
-                _handleTaskTap(task);
-              },
-              onLongPress: () {
-                _handleTaskLongPress(task);
-              },
-            );
-          }).toList(),
+        return TaskCard(
+          key: ValueKey(task),
+          task: task,
+          createdTodos: createdTodos,
+          completedTodos: completedTodos,
+          percent: percent,
+          onTap: () {
+            _handleTaskTap(task);
+          },
+          onLongPress: () {
+            _handleTaskLongPress(task);
+          },
+        );
+      }).toList(),
     );
   }
 

@@ -96,8 +96,10 @@ class TodoController extends GetxController {
   }
 
   Future<void> cancelNotificationsForTask(Tasks task) async {
-    final getTodo =
-        isar.todos.filter().task((q) => q.idEqualTo(task.id)).findAllSync();
+    final getTodo = isar.todos
+        .filter()
+        .task((q) => q.idEqualTo(task.id))
+        .findAllSync();
     for (var todo in getTodo) {
       if (todo.todoCompletedTime != null &&
           todo.todoCompletedTime!.isAfter(DateTime.now())) {
@@ -155,8 +157,10 @@ class TodoController extends GetxController {
   }
 
   Future<void> createNotificationsForTask(Tasks task) async {
-    final getTodo =
-        isar.todos.filter().task((q) => q.idEqualTo(task.id)).findAllSync();
+    final getTodo = isar.todos
+        .filter()
+        .task((q) => q.idEqualTo(task.id))
+        .findAllSync();
     for (var todo in getTodo) {
       if (todo.todoCompletedTime != null &&
           todo.todoCompletedTime!.isAfter(now)) {
@@ -230,13 +234,12 @@ class TodoController extends GetxController {
   }
 
   Future<bool> isTodoDuplicate(Tasks task, String title, DateTime? date) async {
-    final getTodos =
-        isar.todos
-            .filter()
-            .nameEqualTo(title)
-            .task((q) => q.idEqualTo(task.id))
-            .todoCompletedTimeEqualTo(date)
-            .findAllSync();
+    final getTodos = isar.todos
+        .filter()
+        .nameEqualTo(title)
+        .task((q) => q.idEqualTo(task.id))
+        .todoCompletedTimeEqualTo(date)
+        .findAllSync();
     return getTodos.isNotEmpty;
   }
 

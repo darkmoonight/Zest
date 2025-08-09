@@ -81,10 +81,9 @@ class SettingCard extends StatelessWidget {
       borderRadius: const BorderRadius.all(Radius.circular(15)),
       underline: Container(),
       value: dropdownName,
-      items:
-          dropdownList!.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(value: value, child: Text(value));
-          }).toList(),
+      items: dropdownList!.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(value: value, child: Text(value));
+      }).toList(),
       onChanged: dropdownChange,
     );
   }

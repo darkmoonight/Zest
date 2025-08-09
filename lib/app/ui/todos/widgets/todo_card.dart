@@ -83,9 +83,11 @@ class _TodoCardState extends State<TodoCard> {
     return todoController.isMultiSelectionTodo.isTrue &&
             todoController.selectedTodo.contains(widget.todo)
         ? RoundedRectangleBorder(
-          side: BorderSide(color: context.theme.colorScheme.onPrimaryContainer),
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
-        )
+            side: BorderSide(
+              color: context.theme.colorScheme.onPrimaryContainer,
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(20)),
+          )
         : null;
   }
 
@@ -132,46 +134,46 @@ class _TodoCardState extends State<TodoCard> {
   Widget _buildTodoDescription() {
     return widget.todo.description.isNotEmpty
         ? Text(
-          widget.todo.description,
-          style: context.textTheme.labelLarge?.copyWith(color: Colors.grey),
-          overflow: TextOverflow.visible,
-        )
+            widget.todo.description,
+            style: context.textTheme.labelLarge?.copyWith(color: Colors.grey),
+            overflow: TextOverflow.visible,
+          )
         : const Offstage();
   }
 
   Widget _buildCategoryInfo() {
     return (widget.allTodos || widget.calendare)
         ? Row(
-          children: [
-            ColorIndicator(
-              height: 8,
-              width: 8,
-              borderRadius: 20,
-              color: Color(widget.todo.task.value!.taskColor),
-              onSelectFocus: false,
-            ),
-            const Gap(5),
-            Text(
-              widget.todo.task.value!.title,
-              style: context.textTheme.bodyLarge?.copyWith(
-                color: Colors.grey,
-                fontSize: 12,
+            children: [
+              ColorIndicator(
+                height: 8,
+                width: 8,
+                borderRadius: 20,
+                color: Color(widget.todo.task.value!.taskColor),
+                onSelectFocus: false,
               ),
-            ),
-          ],
-        )
+              const Gap(5),
+              Text(
+                widget.todo.task.value!.title,
+                style: context.textTheme.bodyLarge?.copyWith(
+                  color: Colors.grey,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          )
         : const Offstage();
   }
 
   Widget _buildCompletionTime() {
     return widget.todo.todoCompletedTime != null && !widget.calendare
         ? Text(
-          _formatCompletionTime(widget.todo.todoCompletedTime!),
-          style: context.textTheme.labelLarge?.copyWith(
-            color: context.theme.colorScheme.secondary,
-            fontSize: 12,
-          ),
-        )
+            _formatCompletionTime(widget.todo.todoCompletedTime!),
+            style: context.textTheme.labelLarge?.copyWith(
+              color: context.theme.colorScheme.secondary,
+              fontSize: 12,
+            ),
+          )
         : const Offstage();
   }
 
@@ -191,18 +193,18 @@ class _TodoCardState extends State<TodoCard> {
   Widget _buildPriorityChip() {
     return widget.todo.priority != Priority.none
         ? _StatusChip(
-          icon: IconsaxPlusLinear.flag,
-          color: widget.todo.priority.color,
-          label: widget.todo.priority.name.tr,
-        )
+            icon: IconsaxPlusLinear.flag,
+            color: widget.todo.priority.color,
+            label: widget.todo.priority.name.tr,
+          )
         : const Offstage();
   }
 
   Widget _buildTagsChips() {
     return widget.todo.tags.isNotEmpty
         ? Row(
-          children: widget.todo.tags.map((e) => _TagsChip(label: e)).toList(),
-        )
+            children: widget.todo.tags.map((e) => _TagsChip(label: e)).toList(),
+          )
         : const Offstage();
   }
 
@@ -218,12 +220,12 @@ class _TodoCardState extends State<TodoCard> {
   Widget _buildCalendarTime() {
     return widget.calendare
         ? Text(
-          _formatCalendarTime(widget.todo.todoCompletedTime!),
-          style: context.textTheme.labelLarge?.copyWith(
-            color: context.theme.colorScheme.secondary,
-            fontSize: 12,
-          ),
-        )
+            _formatCalendarTime(widget.todo.todoCompletedTime!),
+            style: context.textTheme.labelLarge?.copyWith(
+              color: context.theme.colorScheme.secondary,
+              fontSize: 12,
+            ),
+          )
         : const Offstage();
   }
 
@@ -236,10 +238,10 @@ class _TodoCardState extends State<TodoCard> {
   Widget _buildFixedIcon() {
     return widget.todo.fix
         ? const Icon(
-          IconsaxPlusLinear.attach_square,
-          size: 20,
-          color: Colors.grey,
-        )
+            IconsaxPlusLinear.attach_square,
+            size: 20,
+            color: Colors.grey,
+          )
         : const Offstage();
   }
 }

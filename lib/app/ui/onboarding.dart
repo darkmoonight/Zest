@@ -61,12 +61,11 @@ class _OnBordingState extends State<OnBording> {
             pageIndex = index;
           });
         },
-        itemBuilder:
-            (context, index) => OnboardContent(
-              image: data[index].image,
-              title: data[index].title,
-              description: data[index].description,
-            ),
+        itemBuilder: (context, index) => OnboardContent(
+          image: data[index].image,
+          title: data[index].title,
+          description: data[index].description,
+        ),
       ),
     );
   }
@@ -116,10 +115,9 @@ class DotIndicator extends StatelessWidget {
       height: 8,
       width: 8,
       decoration: BoxDecoration(
-        color:
-            isActive
-                ? context.theme.colorScheme.secondary
-                : context.theme.colorScheme.secondaryContainer,
+        color: isActive
+            ? context.theme.colorScheme.secondary
+            : context.theme.colorScheme.secondaryContainer,
         shape: BoxShape.circle,
       ),
     );

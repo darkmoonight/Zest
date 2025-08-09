@@ -80,9 +80,9 @@ class _AllTasksState extends State<AllTasks>
   IconButton? _buildLeadingIconButton() {
     return todoController.isMultiSelectionTask.isTrue
         ? IconButton(
-          onPressed: () => todoController.doMultiSelectionTaskClear(),
-          icon: const Icon(IconsaxPlusLinear.close_square, size: 20),
-        )
+            onPressed: () => todoController.doMultiSelectionTaskClear(),
+            icon: const Icon(IconsaxPlusLinear.close_square, size: 20),
+          )
         : null;
   }
 
@@ -248,20 +248,19 @@ class _AllTasksState extends State<AllTasks>
         controller: searchTasks,
         margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         onChanged: applyFilter,
-        iconButton:
-            searchTasks.text.isNotEmpty
-                ? IconButton(
-                  onPressed: () {
-                    searchTasks.clear();
-                    applyFilter('');
-                  },
-                  icon: const Icon(
-                    IconsaxPlusLinear.close_square,
-                    color: Colors.grey,
-                    size: 20,
-                  ),
-                )
-                : null,
+        iconButton: searchTasks.text.isNotEmpty
+            ? IconButton(
+                onPressed: () {
+                  searchTasks.clear();
+                  applyFilter('');
+                },
+                icon: const Icon(
+                  IconsaxPlusLinear.close_square,
+                  color: Colors.grey,
+                  size: 20,
+                ),
+              )
+            : null,
       ),
     );
   }
@@ -296,7 +295,10 @@ class _AllTasksState extends State<AllTasks>
             ) {
               return Colors.transparent;
             }),
-            tabs: [Tab(text: 'active'.tr), Tab(text: 'archived'.tr)],
+            tabs: [
+              Tab(text: 'active'.tr),
+              Tab(text: 'archived'.tr),
+            ],
           ),
         ),
         floating: true,

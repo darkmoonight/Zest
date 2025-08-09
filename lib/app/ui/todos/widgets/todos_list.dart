@@ -126,10 +126,9 @@ class _TodosListState extends State<TodosList> {
 
   Widget _buildListEmpty() {
     return ListEmpty(
-      img:
-          widget.calendare
-              ? 'assets/images/Calendar.png'
-              : 'assets/images/Todo.png',
+      img: widget.calendare
+          ? 'assets/images/Calendar.png'
+          : 'assets/images/Todo.png',
       text: widget.done ? 'completedTodo'.tr : 'addTodo'.tr,
     );
   }

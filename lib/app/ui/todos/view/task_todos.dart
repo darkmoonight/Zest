@@ -81,15 +81,15 @@ class _TodosTaskState extends State<TodosTask>
   IconButton? _buildLeadingIconButton() {
     return todoController.isMultiSelectionTodo.isTrue
         ? IconButton(
-          onPressed: () => todoController.doMultiSelectionTodoClear(),
-          icon: const Icon(IconsaxPlusLinear.close_square, size: 20),
-        )
+            onPressed: () => todoController.doMultiSelectionTodoClear(),
+            icon: const Icon(IconsaxPlusLinear.close_square, size: 20),
+          )
         : IconButton(
-          onPressed: () {
-            Get.back();
-          },
-          icon: const Icon(IconsaxPlusLinear.arrow_left_3, size: 20),
-        );
+            onPressed: () {
+              Get.back();
+            },
+            icon: const Icon(IconsaxPlusLinear.arrow_left_3, size: 20),
+          );
   }
 
   Widget _buildTitle() {
@@ -267,20 +267,19 @@ class _TodosTaskState extends State<TodosTask>
         controller: searchTodos,
         margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         onChanged: applyFilter,
-        iconButton:
-            searchTodos.text.isNotEmpty
-                ? IconButton(
-                  onPressed: () {
-                    searchTodos.clear();
-                    applyFilter('');
-                  },
-                  icon: const Icon(
-                    IconsaxPlusLinear.close_square,
-                    color: Colors.grey,
-                    size: 20,
-                  ),
-                )
-                : null,
+        iconButton: searchTodos.text.isNotEmpty
+            ? IconButton(
+                onPressed: () {
+                  searchTodos.clear();
+                  applyFilter('');
+                },
+                icon: const Icon(
+                  IconsaxPlusLinear.close_square,
+                  color: Colors.grey,
+                  size: 20,
+                ),
+              )
+            : null,
       ),
     );
   }
@@ -299,7 +298,10 @@ class _TodosTaskState extends State<TodosTask>
             overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
               return Colors.transparent;
             }),
-            tabs: [Tab(text: 'doing'.tr), Tab(text: 'done'.tr)],
+            tabs: [
+              Tab(text: 'doing'.tr),
+              Tab(text: 'done'.tr),
+            ],
           ),
         ),
         floating: true,
