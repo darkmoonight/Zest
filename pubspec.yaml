@@ -31,7 +31,7 @@ dependencies:
   table_calendar: ^3.2.0
   flutter_timezone: ^4.1.1
   device_info_plus: ^11.5.0
-  package_info_plus: ^8.3.0
+  package_info_plus: ^8.3.1
   flex_color_picker: ^3.7.1
   flutter_easyloading: ^3.0.5
   flutter_displaymode: ^0.6.0
@@ -39,12 +39,8 @@ dependencies:
   line_awesome_flutter: ^3.0.1
   sleek_circular_slider: ^2.1.0
   flutter_local_notifications: ^19.4.0
-  isar:
-    version: ^3.1.8
-    hosted: https://pub.isar-community.dev/
-  isar_flutter_libs:
-    version: ^3.1.8
-    hosted: https://pub.isar-community.dev/
+  isar_community: ^3.2.0-dev.1
+  isar_community_flutter_libs: ^3.2.0-dev.1
 
 dev_dependencies:
   flutter_test:
@@ -53,9 +49,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_native_splash: ^2.4.6
   flutter_launcher_icons: ^0.14.4
-  isar_generator:
-    version: ^3.1.8
-    hosted: https://pub.isar-community.dev/
+  isar_community_generator: ^3.2.0-dev.1
 
 flutter_launcher_icons:
   android: true

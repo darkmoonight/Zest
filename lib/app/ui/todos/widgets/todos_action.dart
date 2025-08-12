@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:gap/gap.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:intl/intl.dart';
-import 'package:isar/isar.dart';
+import 'package:isar_community/isar.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
