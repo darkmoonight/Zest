@@ -1,0 +1,1 @@
+<p><i>ToDark</i> ermöglicht es, Aufgaben in Kategorien zu verteilen, die Sie selbst erstellen. Sie können jeder Aufgabe auch eine Zeit zuweisen und erhalten zur angegebenen Zeit Benachrichtigungen.</p><p>Es gibt zwei Themen – hell und dunkel, und Lokalisierung ist ebenfalls vorhanden.</p>
