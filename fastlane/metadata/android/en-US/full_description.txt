@@ -1,0 +1,1 @@
+<p><i>ToDark</i> allows you to distribute tasks into categories that you create yourself. You can also assign a time to each task and you will receive notifications at the specified time.</p><p>There are two themes - light and dark, and localization is also present.</p>
