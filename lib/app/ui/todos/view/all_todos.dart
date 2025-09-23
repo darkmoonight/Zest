@@ -251,13 +251,13 @@ class _AllTodosState extends State<AllTodos>
       controller: tabController,
       children: [
         TodosList(
-          calendare: false,
+          calendar: false,
           allTodos: true,
           done: false,
           searchTodo: filter,
         ),
         TodosList(
-          calendare: false,
+          calendar: false,
           allTodos: true,
           done: true,
           searchTodo: filter,

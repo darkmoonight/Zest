@@ -347,14 +347,14 @@ class _CalendarTodosState extends State<CalendarTodos>
       controller: tabController,
       children: [
         TodosList(
-          calendare: true,
+          calendar: true,
           allTodos: false,
           done: false,
           selectedDay: selectedDay,
           searchTodo: '',
         ),
         TodosList(
-          calendare: true,
+          calendar: true,
           allTodos: false,
           done: true,
           selectedDay: selectedDay,

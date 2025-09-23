@@ -12,7 +12,7 @@ class TodosList extends StatefulWidget {
     required this.done,
     this.task,
     required this.allTodos,
-    required this.calendare,
+    required this.calendar,
     this.selectedDay,
     required this.searchTodo,
   });
@@ -20,7 +20,7 @@ class TodosList extends StatefulWidget {
   final bool done;
   final Tasks? task;
   final bool allTodos;
-  final bool calendare;
+  final bool calendar;
   final DateTime? selectedDay;
   final String searchTodo;
 
@@ -69,7 +69,7 @@ class _TodosListState extends State<TodosList> {
                     todo.name.toLowerCase().contains(widget.searchTodo)),
           )
           .toList();
-    } else if (widget.calendare) {
+    } else if (widget.calendar) {
       return todoController.todos
           .where(
             (todo) =>
@@ -107,7 +107,7 @@ class _TodosListState extends State<TodosList> {
   }
 
   void _sortTodos(List<Todos> todos) {
-    if (widget.calendare) {
+    if (widget.calendar) {
       todos.sort(
         (a, b) => a.todoCompletedTime!.compareTo(b.todoCompletedTime!),
       );
@@ -126,7 +126,7 @@ class _TodosListState extends State<TodosList> {
 
   Widget _buildListEmpty() {
     return ListEmpty(
-      img: widget.calendare
+      img: widget.calendar
           ? 'assets/images/Calendar.png'
           : 'assets/images/Todo.png',
       text: widget.done ? 'completedTodo'.tr : 'addTodo'.tr,
@@ -144,7 +144,7 @@ class _TodosListState extends State<TodosList> {
       key: ValueKey(todo),
       todo: todo,
       allTodos: widget.allTodos,
-      calendare: widget.calendare,
+      calendar: widget.calendar,
       onTap: () => _onTodoCardTap(todo),
       onLongPress: () => _onTodoCardLongPress(todo),
     );

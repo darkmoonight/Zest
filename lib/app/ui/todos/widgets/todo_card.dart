@@ -14,14 +14,14 @@ class TodoCard extends StatefulWidget {
     super.key,
     required this.todo,
     required this.allTodos,
-    required this.calendare,
+    required this.calendar,
     required this.onLongPress,
     required this.onTap,
   });
 
   final Todos todo;
   final bool allTodos;
-  final bool calendare;
+  final bool calendar;
   final VoidCallback onLongPress;
   final VoidCallback onTap;
 
@@ -142,7 +142,7 @@ class _TodoCardState extends State<TodoCard> {
   }
 
   Widget _buildCategoryInfo() {
-    return (widget.allTodos || widget.calendare)
+    return (widget.allTodos || widget.calendar)
         ? Row(
             children: [
               ColorIndicator(
@@ -166,7 +166,7 @@ class _TodoCardState extends State<TodoCard> {
   }
 
   Widget _buildCompletionTime() {
-    return widget.todo.todoCompletedTime != null && !widget.calendare
+    return widget.todo.todoCompletedTime != null && !widget.calendar
         ? Text(
             _formatCompletionTime(widget.todo.todoCompletedTime!),
             style: context.textTheme.labelLarge?.copyWith(
@@ -218,7 +218,7 @@ class _TodoCardState extends State<TodoCard> {
   }
 
   Widget _buildCalendarTime() {
-    return widget.calendare
+    return widget.calendar
         ? Text(
             _formatCalendarTime(widget.todo.todoCompletedTime!),
             style: context.textTheme.labelLarge?.copyWith(

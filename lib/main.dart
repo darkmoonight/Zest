@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:display_mode/display_mode.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:zest/app/controller/isar_contoller.dart';
 import 'package:zest/app/ui/home.dart';
@@ -86,14 +86,20 @@ Future<void> initializeNotifications() async {
 }
 
 Future<void> setOptimalDisplayMode() async {
-  final List<DisplayMode> supported = await FlutterDisplayMode.supported;
-  final DisplayMode active = await FlutterDisplayMode.active;
-  final List<DisplayMode> sameResolution =
+  final List<DisplayModeJson> supported = await FlutterDisplayMode.supported;
+  final DisplayModeJson active = await FlutterDisplayMode.active;
+  final List<DisplayModeJson> sameResolution =
       supported
-          .where((m) => m.width == active.width && m.height == active.height)
+          .where(
+            (DisplayModeJson m) =>
+                m.width == active.width && m.height == active.height,
+          )
           .toList()
-        ..sort((a, b) => b.refreshRate.compareTo(a.refreshRate));
-  final DisplayMode mostOptimalMode = sameResolution.isNotEmpty
+        ..sort(
+          (DisplayModeJson a, DisplayModeJson b) =>
+              b.refreshRate.compareTo(a.refreshRate),
+        );
+  final DisplayModeJson mostOptimalMode = sameResolution.isNotEmpty
       ? sameResolution.first
       : active;
   await FlutterDisplayMode.setPreferredMode(mostOptimalMode);
@@ -122,7 +128,7 @@ class MyApp extends StatefulWidget {
     final state = context.findAncestorStateOfType<_MyAppState>()!;
 
     if (newAmoledTheme != null) state.changeAmoledTheme(newAmoledTheme);
-    if (newMaterialColor != null) state.changeMarerialTheme(newMaterialColor);
+    if (newMaterialColor != null) state.changeMaterialTheme(newMaterialColor);
     if (newTimeformat != null) state.changeTimeFormat(newTimeformat);
     if (newFirstDay != null) state.changeFirstDay(newFirstDay);
     if (newLocale != null) state.changeLocale(newLocale);
@@ -138,7 +144,7 @@ class _MyAppState extends State<MyApp> {
 
   void changeAmoledTheme(bool newAmoledTheme) =>
       setState(() => amoledTheme = newAmoledTheme);
-  void changeMarerialTheme(bool newMaterialColor) =>
+  void changeMaterialTheme(bool newMaterialColor) =>
       setState(() => materialColor = newMaterialColor);
   void changeIsImage(bool newIsImage) => setState(() => isImage = newIsImage);
   void changeTimeFormat(String newTimeformat) =>

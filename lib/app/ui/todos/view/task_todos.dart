@@ -316,14 +316,14 @@ class _TodosTaskState extends State<TodosTask>
       children: [
         TodosList(
           allTodos: false,
-          calendare: false,
+          calendar: false,
           done: false,
           task: widget.task,
           searchTodo: filter,
         ),
         TodosList(
           allTodos: false,
-          calendare: false,
+          calendar: false,
           done: true,
           task: widget.task,
           searchTodo: filter,
