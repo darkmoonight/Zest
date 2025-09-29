@@ -49,14 +49,23 @@ class _TodosListState extends State<TodosList> {
   }
 
   List<Todos> _filterTodos() {
+    final query = widget.searchTodo.trim().toLowerCase();
+
+    bool matchesSearch(Todos todo) {
+      if (query.isEmpty) return true;
+      final nameMatch = todo.name.toLowerCase().contains(query);
+      final descMatch = (todo.description).toLowerCase().contains(query);
+      final tagsMatch = todo.tags.any((t) => t.toLowerCase().contains(query));
+      return nameMatch || descMatch || tagsMatch;
+    }
+
     if (widget.task != null) {
       return todoController.todos
           .where(
             (todo) =>
                 todo.task.value?.id == widget.task?.id &&
                 todo.done == widget.done &&
-                (widget.searchTodo.isEmpty ||
-                    todo.name.toLowerCase().contains(widget.searchTodo)),
+                matchesSearch(todo),
           )
           .toList();
     } else if (widget.allTodos) {
@@ -65,8 +74,7 @@ class _TodosListState extends State<TodosList> {
             (todo) =>
                 todo.task.value?.archive == false &&
                 todo.done == widget.done &&
-                (widget.searchTodo.isEmpty ||
-                    todo.name.toLowerCase().contains(widget.searchTodo)),
+                matchesSearch(todo),
           )
           .toList();
     } else if (widget.calendar) {
@@ -76,11 +84,12 @@ class _TodosListState extends State<TodosList> {
                 todo.task.value?.archive == false &&
                 todo.todoCompletedTime != null &&
                 _isWithinSelectedDay(todo) &&
-                todo.done == widget.done,
+                todo.done == widget.done &&
+                matchesSearch(todo),
           )
           .toList();
     } else {
-      return todoController.todos;
+      return todoController.todos.where((todo) => matchesSearch(todo)).toList();
     }
   }
 

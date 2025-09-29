@@ -34,15 +34,18 @@ class _TasksListState extends State<TasksList> {
   }
 
   List<Tasks> _filterTasks() {
+    final query = widget.searchTask.trim().toLowerCase();
+
+    bool matchesSearch(Tasks task) {
+      if (query.isEmpty) return true;
+      final titleMatch = task.title.toLowerCase().contains(query);
+      final descMatch = (task.description).toLowerCase().contains(query);
+      return titleMatch || descMatch;
+    }
+
     return todoController.tasks
-        .where(
-          (task) =>
-              task.archive == widget.archived &&
-              (widget.searchTask.isEmpty ||
-                  task.title.toLowerCase().contains(widget.searchTask)),
-        )
-        .toList()
-        .obs;
+        .where((task) => task.archive == widget.archived && matchesSearch(task))
+        .toList();
   }
 
   Widget _buildListEmpty() {
@@ -57,9 +60,9 @@ class _TasksListState extends State<TasksList> {
       children: tasks.map((task) {
         final createdTodos = todoController.createdAllTodosTask(task);
         final completedTodos = todoController.completedAllTodosTask(task);
-        final percent = (completedTodos / createdTodos * 100).toStringAsFixed(
-          0,
-        );
+        final percent = (createdTodos == 0)
+            ? '0'
+            : (completedTodos / createdTodos * 100).toStringAsFixed(0);
 
         return TaskCard(
           key: ValueKey(task),
