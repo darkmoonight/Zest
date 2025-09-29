@@ -23,7 +23,7 @@ class MyTextForm extends StatelessWidget {
   final String labelText;
   final TextInputType type;
   final Icon icon;
-  final IconButton? iconButton;
+  final Widget? iconButton;
   final TextEditingController controller;
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;

@@ -67,6 +67,10 @@ class _TodosActionState extends State<TodosAction> {
       todoPriority,
       todoTags,
     );
+
+    categoryFocusNode.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   void _initializeEditMode() {
@@ -174,6 +178,8 @@ class _TodosActionState extends State<TodosAction> {
     timeTodoEdit.dispose();
     tagsTodoEdit.dispose();
     controller.dispose();
+    categoryFocusNode.dispose();
+    titleFocusNode.dispose();
     super.dispose();
   }
 
@@ -293,15 +299,30 @@ class _TodosActionState extends State<TodosAction> {
       labelText: 'selectCategory'.tr,
       type: TextInputType.text,
       icon: const Icon(IconsaxPlusLinear.folder_2),
-      iconButton: textTodoController.text.isNotEmpty
-          ? IconButton(
+      iconButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (textTodoController.text.isNotEmpty)
+            IconButton(
               icon: const Icon(IconsaxPlusLinear.close_square, size: 18),
               onPressed: () {
                 textTodoController.clear();
                 setState(() {});
               },
-            )
-          : null,
+            ),
+          IconButton(
+            icon: const Icon(IconsaxPlusLinear.arrow_down, size: 18),
+            onPressed: () {
+              if (fieldFocusNode.hasFocus) {
+                fieldFocusNode.unfocus();
+              } else {
+                fieldFocusNode.requestFocus();
+                setState(() {});
+              }
+            },
+          ),
+        ],
+      ),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'selectCategory'.tr;
@@ -314,9 +335,6 @@ class _TodosActionState extends State<TodosAction> {
   Future<Iterable<Tasks>> _buildCategoryOptions(
     TextEditingValue textEditingValue,
   ) async {
-    if (textEditingValue.text.isEmpty) {
-      return const Iterable<Tasks>.empty();
-    }
     return getTaskAll(textEditingValue.text);
   }
 
