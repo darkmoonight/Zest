@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
@@ -13,29 +14,49 @@ import 'package:get/get.dart';
 class TodosTask extends StatefulWidget {
   const TodosTask({super.key, required this.task});
   final Tasks task;
-
   @override
   State<TodosTask> createState() => _TodosTaskState();
 }
 
 class _TodosTaskState extends State<TodosTask>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final todoController = Get.put(TodoController());
   late TabController tabController;
   final TextEditingController searchTodos = TextEditingController();
   String filter = '';
+
+  late AnimationController _fabAnimationController;
+  late Animation<double> _fabAnimation;
+  bool _isFabVisible = true;
+
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     applyFilter('');
     tabController = TabController(vsync: this, length: 2);
+    _initializeFabController();
   }
 
   @override
   void dispose() {
     tabController.dispose();
+    _scrollController.dispose();
+    _fabAnimationController.dispose();
     super.dispose();
+  }
+
+  void _initializeFabController() {
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _fabAnimation = CurvedAnimation(
+      parent: _fabAnimationController,
+      curve: Curves.easeInOut,
+    );
+    _fabAnimationController.forward();
   }
 
   void applyFilter(String value) {
@@ -44,26 +65,49 @@ class _TodosTaskState extends State<TodosTask>
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Obx(
-      () => PopScope(
-        canPop: todoController.isPop.value,
-        onPopInvokedWithResult: _handlePopInvokedWithResult,
-        child: Scaffold(
-          appBar: _buildAppBar(context),
-          body: _buildBody(context),
-          floatingActionButton: _buildFloatingActionButton(context),
-        ),
-      ),
-    );
+  void _showFab() {
+    if (!_isFabVisible) {
+      setState(() {
+        _isFabVisible = true;
+      });
+      _fabAnimationController.forward();
+    }
+  }
+
+  void _hideFab() {
+    if (_isFabVisible) {
+      setState(() {
+        _isFabVisible = false;
+      });
+      _fabAnimationController.reverse();
+    }
+  }
+
+  bool _handleScrollNotification(ScrollNotification notification) {
+    if (notification is UserScrollNotification) {
+      final ScrollDirection direction = notification.direction;
+
+      if (direction == ScrollDirection.reverse) {
+        _hideFab();
+      } else if (direction == ScrollDirection.forward) {
+        _showFab();
+      }
+    } else if (notification is ScrollUpdateNotification) {
+      if (notification.scrollDelta != null) {
+        if (notification.scrollDelta! > 0) {
+          _hideFab();
+        } else if (notification.scrollDelta! < 0) {
+          _showFab();
+        }
+      }
+    }
+    return false;
   }
 
   void _handlePopInvokedWithResult(bool didPop, dynamic value) {
     if (didPop) {
       return;
     }
-
     if (todoController.isMultiSelectionTodo.isTrue) {
       todoController.doMultiSelectionTodoClear();
     }
@@ -248,7 +292,7 @@ class _TodosTaskState extends State<TodosTask>
       child: DefaultTabController(
         length: 2,
         child: NestedScrollView(
-          controller: ScrollController(),
+          controller: _scrollController,
           headerSliverBuilder: (context, innerBoxIsScrolled) {
             return [_buildSearchTextField(), _buildTabBar(context)];
           },
@@ -332,12 +376,25 @@ class _TodosTaskState extends State<TodosTask>
     );
   }
 
-  FloatingActionButton _buildFloatingActionButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        _showTodosActionBottomSheet(context, edit: false);
+  Widget? _buildFloatingActionButton(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _fabAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _fabAnimation.value,
+          child: Opacity(
+            opacity: _fabAnimation.value,
+            child: FloatingActionButton(
+              onPressed: _fabAnimation.value > 0.5
+                  ? () {
+                      _showTodosActionBottomSheet(context, edit: false);
+                    }
+                  : null,
+              child: const Icon(IconsaxPlusLinear.add),
+            ),
+          ),
+        );
       },
-      child: const Icon(IconsaxPlusLinear.add),
     );
   }
 
@@ -357,6 +414,24 @@ class _TodosTaskState extends State<TodosTask>
           category: false,
         );
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => PopScope(
+        canPop: todoController.isPop.value,
+        onPopInvokedWithResult: _handlePopInvokedWithResult,
+        child: Scaffold(
+          appBar: _buildAppBar(context),
+          body: NotificationListener<ScrollNotification>(
+            onNotification: _handleScrollNotification,
+            child: _buildBody(context),
+          ),
+          floatingActionButton: _buildFloatingActionButton(context),
+        ),
+      ),
     );
   }
 }

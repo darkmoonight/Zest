@@ -2,6 +2,7 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/ui/tasks/view/all_tasks.dart';
 import 'package:zest/app/ui/settings/view/settings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
 import 'package:zest/app/ui/todos/view/calendar_todos.dart';
@@ -17,9 +18,16 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   final themeController = Get.put(ThemeController());
   int tabIndex = 0;
+
+  late AnimationController _fabAnimationController;
+  late Animation<double> _fabAnimation;
+  bool _isFabVisible = true;
+
+  final ScrollController _scrollController = ScrollController();
 
   final List<Widget> pages = const [
     AllTasks(),
@@ -32,6 +40,26 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _initializeTabIndex();
+    _initializeFabController();
+  }
+
+  @override
+  void dispose() {
+    _fabAnimationController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _initializeFabController() {
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _fabAnimation = CurvedAnimation(
+      parent: _fabAnimationController,
+      curve: Curves.easeInOut,
+    );
+    _fabAnimationController.forward();
   }
 
   void _initializeTabIndex() {
@@ -47,6 +75,9 @@ class _HomePageState extends State<HomePage> {
   void changeTabIndex(int index) {
     setState(() {
       tabIndex = index;
+      if (index != 3 && !_isFabVisible) {
+        _showFab();
+      }
     });
   }
 
@@ -62,6 +93,47 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _showFab() {
+    if (!_isFabVisible) {
+      setState(() {
+        _isFabVisible = true;
+      });
+      _fabAnimationController.forward();
+    }
+  }
+
+  void _hideFab() {
+    if (_isFabVisible) {
+      setState(() {
+        _isFabVisible = false;
+      });
+      _fabAnimationController.reverse();
+    }
+  }
+
+  bool _handleScrollNotification(ScrollNotification notification) {
+    if (tabIndex == 3) return false;
+
+    if (notification is UserScrollNotification) {
+      final ScrollDirection direction = notification.direction;
+
+      if (direction == ScrollDirection.reverse) {
+        _hideFab();
+      } else if (direction == ScrollDirection.forward) {
+        _showFab();
+      }
+    } else if (notification is ScrollUpdateNotification) {
+      if (notification.scrollDelta != null) {
+        if (notification.scrollDelta! > 0) {
+          _hideFab();
+        } else if (notification.scrollDelta! < 0) {
+          _showFab();
+        }
+      }
+    }
+    return false;
+  }
+
   List<String> _getScreens() {
     return ['categories', 'allTodos', 'calendar'];
   }
@@ -69,8 +141,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     allScreens = _getScreens();
+
     return Scaffold(
-      body: IndexedStack(index: tabIndex, children: pages),
+      body: NotificationListener<ScrollNotification>(
+        onNotification: _handleScrollNotification,
+        child: IndexedStack(index: tabIndex, children: pages),
+      ),
       bottomNavigationBar: _buildBottomNavigationBar(),
       floatingActionButton: _buildFloatingActionButton(),
     );
@@ -128,9 +204,21 @@ class _HomePageState extends State<HomePage> {
     if (tabIndex == 3) {
       return null;
     }
-    return FloatingActionButton(
-      onPressed: _showBottomSheet,
-      child: const Icon(IconsaxPlusLinear.add),
+
+    return AnimatedBuilder(
+      animation: _fabAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _fabAnimation.value,
+          child: Opacity(
+            opacity: _fabAnimation.value,
+            child: FloatingActionButton(
+              onPressed: _fabAnimation.value > 0.5 ? _showBottomSheet : null,
+              child: const Icon(IconsaxPlusLinear.add),
+            ),
+          ),
+        );
+      },
     );
   }
 

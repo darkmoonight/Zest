@@ -71,9 +71,9 @@ Future<void> initializeApp() async {
 }
 
 Future<void> initializeTimeZone() async {
-  final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+  final TimezoneInfo timeZoneName = await FlutterTimezone.getLocalTimezone();
   tz.initializeTimeZones();
-  tz.setLocalLocation(tz.getLocation(timeZoneName));
+  tz.setLocalLocation(tz.getLocation(timeZoneName.identifier));
 }
 
 Future<void> initializeNotifications() async {
