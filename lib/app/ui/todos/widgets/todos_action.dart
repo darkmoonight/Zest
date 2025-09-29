@@ -71,6 +71,12 @@ class _TodosActionState extends State<TodosAction> {
     categoryFocusNode.addListener(() {
       if (mounted) setState(() {});
     });
+
+    if (!widget.edit) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) FocusScope.of(context).requestFocus(titleFocusNode);
+      });
+    }
   }
 
   void _initializeEditMode() {
