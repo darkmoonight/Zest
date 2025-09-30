@@ -10,9 +10,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/main.dart';
+import 'package:archive/archive.dart';
 
 class IsarController {
-  var now = DateTime.now();
   var platform = MethodChannel('directory_picker');
 
   Future<Isar> openDB() async {
@@ -71,8 +71,30 @@ class IsarController {
       await _prepareBackupFile(backUpFile);
       await isar.copyToFile(backUpFile.path);
 
+      final compressedFileName = '$backupFileName.gz';
+      final compressedFile = File('$allowedPath/$compressedFileName');
+
+      final bytes = await backUpFile.readAsBytes();
+      final encoder = GZipEncoder();
+      final compressedData = encoder.encode(bytes);
+
+      await compressedFile.writeAsBytes(compressedData);
+      await backUpFile.delete();
+
       if (Platform.isAndroid) {
-        await _handleAndroidBackup(backUpDir, backupFileName, backUpFile);
+        final backupData = await compressedFile.readAsBytes();
+        final success = await platform.invokeMethod('writeFile', {
+          'directoryUri': backUpDir,
+          'fileName': compressedFileName,
+          'fileContent': backupData,
+        });
+        await compressedFile.delete();
+
+        if (success) {
+          EasyLoading.showSuccess('successBackup'.tr);
+        } else {
+          EasyLoading.showError('error'.tr);
+        }
       } else {
         EasyLoading.showSuccess('successBackup'.tr);
       }
@@ -90,34 +112,13 @@ class IsarController {
   }
 
   String _generateBackupFileName() {
-    final timeStamp = DateFormat('yyyyMMdd_HHmmss').format(now);
+    final timeStamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
     return 'backup_zest_db$timeStamp.isar';
   }
 
   Future<void> _prepareBackupFile(File backUpFile) async {
     if (await backUpFile.exists()) {
       await backUpFile.delete();
-    }
-  }
-
-  Future<void> _handleAndroidBackup(
-    String backUpDir,
-    String backupFileName,
-    File backUpFile,
-  ) async {
-    final backupData = await backUpFile.readAsBytes();
-    final success = await platform.invokeMethod('writeFile', {
-      'directoryUri': backUpDir,
-      'fileName': backupFileName,
-      'fileContent': backupData,
-    });
-
-    await backUpFile.delete();
-
-    if (success) {
-      EasyLoading.showSuccess('successBackup'.tr);
-    } else {
-      EasyLoading.showError('error'.tr);
     }
   }
 
@@ -131,13 +132,18 @@ class IsarController {
     }
 
     try {
-      await isar.close();
-      final dbFile = File(backupFile.path);
-      final dbPath = p.join(dbDirectory.path, 'default.isar');
+      final compressedBytes = await File(backupFile.path).readAsBytes();
+      final decoder = GZipDecoder();
+      final decompressedBytes = decoder.decodeBytes(compressedBytes);
 
-      if (await dbFile.exists()) {
-        await dbFile.copy(dbPath);
-      }
+      final tempIsarPath = p.join(dbDirectory.path, 'temp.isar');
+      final tempFile = File(tempIsarPath);
+      await tempFile.writeAsBytes(decompressedBytes);
+
+      await isar.close();
+      final dbPath = p.join(dbDirectory.path, 'default.isar');
+      await tempFile.copy(dbPath);
+      await tempFile.delete();
 
       EasyLoading.showSuccess('successRestoreCategory'.tr);
       await Future.delayed(

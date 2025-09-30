@@ -17,6 +17,7 @@ dependencies:
   gap: ^3.0.1
   path: ^1.9.1
   intl: ^0.20.2
+  archive: ^4.0.7
   timezone: ^0.10.1
   # workmanager: ^0.9.0+3
   # home_widget: ^0.8.0
