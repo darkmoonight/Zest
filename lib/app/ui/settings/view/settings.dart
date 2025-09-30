@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:zest/app/controller/isar_contoller.dart';
+import 'package:zest/app/controller/isar_controller.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/settings/widgets/settings_card.dart';

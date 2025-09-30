@@ -3,7 +3,7 @@ import 'package:display_mode/display_mode.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:zest/app/controller/isar_contoller.dart';
+import 'package:zest/app/controller/isar_controller.dart';
 import 'package:zest/app/ui/home.dart';
 import 'package:zest/app/ui/onboarding.dart';
 import 'package:zest/theme/theme.dart';
