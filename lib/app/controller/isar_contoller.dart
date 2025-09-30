@@ -132,9 +132,21 @@ class IsarController {
     }
 
     try {
-      final compressedBytes = await File(backupFile.path).readAsBytes();
-      final decoder = GZipDecoder();
-      final decompressedBytes = decoder.decodeBytes(compressedBytes);
+      final selectedFile = File(backupFile.path);
+      if (!await selectedFile.exists()) {
+        EasyLoading.showInfo('errorPathRe'.tr);
+        return;
+      }
+
+      final bytes = await selectedFile.readAsBytes();
+      List<int> decompressedBytes;
+
+      try {
+        final decoder = GZipDecoder();
+        decompressedBytes = decoder.decodeBytes(bytes);
+      } catch (_) {
+        decompressedBytes = bytes;
+      }
 
       final tempIsarPath = p.join(dbDirectory.path, 'temp.isar');
       final tempFile = File(tempIsarPath);
@@ -142,8 +154,10 @@ class IsarController {
 
       await isar.close();
       final dbPath = p.join(dbDirectory.path, 'default.isar');
-      await tempFile.copy(dbPath);
-      await tempFile.delete();
+      if (await tempFile.exists()) {
+        await tempFile.copy(dbPath);
+        await tempFile.delete();
+      }
 
       EasyLoading.showSuccess('successRestoreCategory'.tr);
       await Future.delayed(
