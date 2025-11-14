@@ -18,8 +18,7 @@ class TodosTask extends StatefulWidget {
   State<TodosTask> createState() => _TodosTaskState();
 }
 
-class _TodosTaskState extends State<TodosTask>
-    with TickerProviderStateMixin {
+class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
   final todoController = Get.put(TodoController());
   late TabController tabController;
   final TextEditingController searchTodos = TextEditingController();

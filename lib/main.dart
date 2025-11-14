@@ -238,7 +238,7 @@ class _MyAppState extends State<MyApp> {
                 .map((e) => e['locale'] as Locale)
                 .toList(),
             debugShowCheckedModeBanner: false,
-            home: settings.onboard ? const HomePage() : const OnBording(),
+            home: settings.onboard ? const HomePage() : const OnBoarding(),
             builder: EasyLoading.init(),
             title: 'Zest',
           );
