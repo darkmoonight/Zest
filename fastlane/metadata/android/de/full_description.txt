@@ -1,1 +1,18 @@
-<p><i>ToDark</i> ermöglicht es, Aufgaben in Kategorien zu verteilen, die Sie selbst erstellen. Sie können jeder Aufgabe auch eine Zeit zuweisen und erhalten zur angegebenen Zeit Benachrichtigungen.</p><p>Es gibt zwei Themen – hell und dunkel, und Lokalisierung ist ebenfalls vorhanden.</p>
+<p>Die Nase voll von Aufgaben-Chaos? Zest gibt Ihnen die Kontrolle. 📱📅✅</p>
+<p>Zest bietet eine Reihe von Funktionen, um Ihren Aufgabenmanagement-Prozess zu optimieren:</p>
+<ul>
+    <li>✨ <strong>Kategorien erstellen:</strong> Organisieren Sie Ihre Aufgaben, indem Sie Kategorien erstellen, die für Sie Sinn ergeben.</li>
+    <li>✅ <strong>Aufgaben in Kategorien erstellen:</strong> Fügen Sie Aufgaben innerhalb von Kategorien für einen strukturierten Ansatz hinzu.</li>
+    <li>📋 <strong>Sortieren von Aufgaben:</strong> Kategorisieren Sie Ihre Aufgaben einfach als erledigt oder nicht erfüllt.</li>
+    <li>📦 <strong>Kategorie-Archivierung:</strong> Halten Sie Ihren Arbeitsbereich sauber, indem Sie Kategorien archivieren.</li>
+    <li>📊 <strong>Statistiken anzeigen:</strong> Gewinnen Sie Einblicke in Ihre Produktivität mit Aufgabenstatistiken.</li>
+    <li>📆 <strong>Aufgaben nach Tag anzeigen:</strong> Behalten Sie tägliche Aufgaben und Fristen im Blick.</li>
+    <li>📝 <strong>Bearbeiten:</strong> Nehmen Sie Änderungen an Ihren Aufgaben mit Leichtigkeit vor.</li>
+    <li>🔔 <strong>Benachrichtigungen:</strong> Erhalten Sie Erinnerungen, um keine wichtige Aufgabe zu verpassen.</li>
+    <li>🌐 <strong>Lokalisierung:</strong> Wählen Sie Ihre bevorzugte Sprache aus mehreren Optionen.</li>
+    <li>📂 <strong>Sicherung:</strong> Sichern Sie Ihre Daten mit Backup-Funktionalität.</li>
+    <li>🔄 <strong>Datenwiederherstellung:</strong> Stellen Sie Ihre Informationen im Falle von Pannen wieder her.</li>
+    <li>🗑️ <strong>Alle Daten löschen:</strong> Setzen Sie mit einem einzigen Knopf auf Null.</li>
+    <li>🎨 <strong>Schönes Design</strong></li>
+</ul>
+<p>Unsere App steigert nicht nur die Produktivität, sondern bietet auch ein intuitives und visuell ansprechendes Erlebnis. Genießen Sie das Beste aus beiden Welten!</p>

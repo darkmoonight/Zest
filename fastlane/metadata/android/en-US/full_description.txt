@@ -1,1 +1,18 @@
-<p><i>ToDark</i> allows you to distribute tasks into categories that you create yourself. You can also assign a time to each task and you will receive notifications at the specified time.</p><p>There are two themes - light and dark, and localization is also present.</p>
+<p>Tired of task chaos? Zest keeps you in control. 📱📅✅</p>
+<p>Zest offers a range of features to streamline your task management process:</p>
+<ul>
+    <li>✨ <strong>Creating Categories:</strong> Organize your tasks by creating categories that make sense to you.</li>
+    <li>✅ <strong>Creating Tasks in Categories:</strong> Add tasks within categories for a structured approach.</li>
+    <li>📋 <strong>Sorting of Tasks:</strong> Easily categorize your tasks as completed or unfulfilled.</li>
+    <li>📦 <strong>Category Archiving:</strong> Keep your workspace clean by archiving categories.</li>
+    <li>📊 <strong>View Statistics:</strong> Gain insights into your productivity with task statistics.</li>
+    <li>📆 <strong>View Tasks by Day:</strong> Stay on top of daily tasks and deadlines.</li>
+    <li>📝 <strong>Editing:</strong> Make changes to your tasks with ease.</li>
+    <li>🔔 <strong>Notifications:</strong> Receive reminders to never miss an important task.</li>
+    <li>🌐 <strong>Localization:</strong> Choose your preferred language from multiple options.</li>
+    <li>📂 <strong>Backup:</strong> Safeguard your data with backup functionality.</li>
+    <li>🔄 <strong>Data Recovery:</strong> Restore your information in case of mishaps.</li>
+    <li>🗑️ <strong>Delete All Data:</strong> Clear your slate with a single button.</li>
+    <li>🎨 <strong>Beautiful Design</strong></li>
+</ul>
+<p>Our app not only enhances productivity but also offers an intuitive and visually pleasing experience. Enjoy the best of both worlds!</p>
