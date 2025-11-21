@@ -1,3 +1,4 @@
+import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zest/app/controller/todo_controller.dart';
@@ -5,6 +6,7 @@ import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/tasks/widgets/task_card.dart';
 import 'package:zest/app/ui/todos/view/task_todos.dart';
 import 'package:zest/app/ui/widgets/list_empty.dart';
+import 'package:zest/main.dart';
 
 class TasksList extends StatefulWidget {
   const TasksList({
@@ -56,28 +58,46 @@ class _TasksListState extends State<TasksList> {
   }
 
   Widget _buildListView(List<Tasks> tasks) {
-    return ListView(
-      children: tasks.map((task) {
-        final createdTodos = todoController.createdAllTodosTask(task);
-        final completedTodos = todoController.completedAllTodosTask(task);
-        final percent = (createdTodos == 0)
-            ? '0'
-            : (completedTodos / createdTodos * 100).toStringAsFixed(0);
+    return AnimatedReorderableListView(
+      items: tasks,
+      itemBuilder: (BuildContext context, int index) {
+        final task = tasks[index];
+        return _buildTaskCard(task);
+      },
+      enterTransition: [SlideInDown()],
+      exitTransition: [SlideInUp()],
+      insertDuration: const Duration(milliseconds: 300),
+      removeDuration: const Duration(milliseconds: 300),
+      dragStartDelay: const Duration(milliseconds: 300),
+      onReorder: (int oldIndex, int newIndex) async {
+        final element = tasks.removeAt(oldIndex);
+        tasks.insert(newIndex, element);
+        for (int i = 0; i < tasks.length; i++) {
+          final item = tasks[i];
+          item.index = i;
+          isar.writeTxnSync(() => isar.tasks.putSync(item));
+        }
+        todoController.tasks.assignAll(tasks);
+      },
+      isSameItem: (a, b) => a.id == b.id,
+    );
+  }
 
-        return TaskCard(
-          key: ValueKey(task),
-          task: task,
-          createdTodos: createdTodos,
-          completedTodos: completedTodos,
-          percent: percent,
-          onTap: () {
-            _handleTaskTap(task);
-          },
-          onLongPress: () {
-            _handleTaskLongPress(task);
-          },
-        );
-      }).toList(),
+  Widget _buildTaskCard(Tasks task) {
+    final createdTodos = todoController.createdAllTodosTask(task);
+    final completedTodos = todoController.completedAllTodosTask(task);
+    final percent = (createdTodos == 0)
+        ? '0'
+        : (completedTodos / createdTodos * 100).toStringAsFixed(0);
+
+    return TaskCard(
+      key: ValueKey(task.id),
+      task: task,
+      createdTodos: createdTodos,
+      completedTodos: completedTodos,
+      percent: percent,
+      onTap: () => _handleTaskTap(task),
+      onDoubleTap: () => _handleTaskDoubleTap(task),
     );
   }
 
@@ -89,7 +109,7 @@ class _TasksListState extends State<TasksList> {
     }
   }
 
-  void _handleTaskLongPress(Tasks task) {
+  void _handleTaskDoubleTap(Tasks task) {
     todoController.isMultiSelectionTask.value = true;
     todoController.doMultiSelectionTask(task);
   }

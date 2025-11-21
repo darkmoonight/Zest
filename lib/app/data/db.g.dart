@@ -2691,20 +2691,21 @@ const TodosSchema = CollectionSchema(
     r'fix': PropertySchema(id: 3, name: r'fix', type: IsarType.bool),
     r'index': PropertySchema(id: 4, name: r'index', type: IsarType.long),
     r'name': PropertySchema(id: 5, name: r'name', type: IsarType.string),
+    r'parentId': PropertySchema(id: 6, name: r'parentId', type: IsarType.long),
     r'priority': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'priority',
       type: IsarType.byte,
       enumMap: _TodospriorityEnumValueMap,
     ),
-    r'tags': PropertySchema(id: 7, name: r'tags', type: IsarType.stringList),
+    r'tags': PropertySchema(id: 8, name: r'tags', type: IsarType.stringList),
     r'todoCompletedTime': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'todoCompletedTime',
       type: IsarType.dateTime,
     ),
     r'todoCompletionTime': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'todoCompletionTime',
       type: IsarType.dateTime,
     ),
@@ -2762,10 +2763,11 @@ void _todosSerialize(
   writer.writeBool(offsets[3], object.fix);
   writer.writeLong(offsets[4], object.index);
   writer.writeString(offsets[5], object.name);
-  writer.writeByte(offsets[6], object.priority.index);
-  writer.writeStringList(offsets[7], object.tags);
-  writer.writeDateTime(offsets[8], object.todoCompletedTime);
-  writer.writeDateTime(offsets[9], object.todoCompletionTime);
+  writer.writeLong(offsets[6], object.parentId);
+  writer.writeByte(offsets[7], object.priority.index);
+  writer.writeStringList(offsets[8], object.tags);
+  writer.writeDateTime(offsets[9], object.todoCompletedTime);
+  writer.writeDateTime(offsets[10], object.todoCompletionTime);
 }
 
 Todos _todosDeserialize(
@@ -2782,12 +2784,13 @@ Todos _todosDeserialize(
     id: id,
     index: reader.readLongOrNull(offsets[4]),
     name: reader.readString(offsets[5]),
+    parentId: reader.readLongOrNull(offsets[6]),
     priority:
-        _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[6])] ??
+        _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[7])] ??
         Priority.none,
-    tags: reader.readStringList(offsets[7]) ?? const [],
-    todoCompletedTime: reader.readDateTimeOrNull(offsets[8]),
-    todoCompletionTime: reader.readDateTimeOrNull(offsets[9]),
+    tags: reader.readStringList(offsets[8]) ?? const [],
+    todoCompletedTime: reader.readDateTimeOrNull(offsets[9]),
+    todoCompletionTime: reader.readDateTimeOrNull(offsets[10]),
   );
   return object;
 }
@@ -2812,14 +2815,16 @@ P _todosDeserializeProp<P>(
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
+      return (reader.readLongOrNull(offset)) as P;
+    case 7:
       return (_TodospriorityValueEnumMap[reader.readByteOrNull(offset)] ??
               Priority.none)
           as P;
-    case 7:
-      return (reader.readStringList(offset) ?? const []) as P;
     case 8:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringList(offset) ?? const []) as P;
     case 9:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 10:
       return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -3428,6 +3433,81 @@ extension TodosQueryFilter on QueryBuilder<Todos, Todos, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> parentIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'parentId'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> parentIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'parentId'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> parentIdEqualTo(
+    int? value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'parentId', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> parentIdGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'parentId',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> parentIdLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'parentId',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> parentIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'parentId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterFilterCondition> priorityEqualTo(
     Priority value,
   ) {
@@ -3926,6 +4006,18 @@ extension TodosQuerySortBy on QueryBuilder<Todos, Todos, QSortBy> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByParentId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'parentId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByParentIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'parentId', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> sortByPriority() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'priority', Sort.asc);
@@ -4048,6 +4140,18 @@ extension TodosQuerySortThenBy on QueryBuilder<Todos, Todos, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByParentId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'parentId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByParentIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'parentId', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> thenByPriority() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'priority', Sort.asc);
@@ -4126,6 +4230,12 @@ extension TodosQueryWhereDistinct on QueryBuilder<Todos, Todos, QDistinct> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QDistinct> distinctByParentId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'parentId');
+    });
+  }
+
   QueryBuilder<Todos, Todos, QDistinct> distinctByPriority() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'priority');
@@ -4191,6 +4301,12 @@ extension TodosQueryProperty on QueryBuilder<Todos, Todos, QQueryProperty> {
   QueryBuilder<Todos, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
+    });
+  }
+
+  QueryBuilder<Todos, int?, QQueryOperations> parentIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'parentId');
     });
   }
 

@@ -111,6 +111,23 @@ class _AllTasksState extends State<AllTasks>
     );
   }
 
+  Widget _buildArchiveIconButton(BuildContext context) {
+    return Visibility(
+      visible: todoController.selectedTask.isNotEmpty,
+      child: IconButton(
+        icon: Icon(
+          tabController.index == 0
+              ? IconsaxPlusLinear.archive_1
+              : IconsaxPlusLinear.refresh_left_square,
+          size: 20,
+        ),
+        onPressed: () async {
+          await _showArchiveConfirmationDialog(context);
+        },
+      ),
+    );
+  }
+
   Future<void> _showDeleteConfirmationDialog(BuildContext context) async {
     await showDialog(
       context: context,
@@ -147,23 +164,6 @@ class _AllTasksState extends State<AllTasks>
           ],
         );
       },
-    );
-  }
-
-  Widget _buildArchiveIconButton(BuildContext context) {
-    return Visibility(
-      visible: todoController.selectedTask.isNotEmpty,
-      child: IconButton(
-        icon: Icon(
-          tabController.index == 0
-              ? IconsaxPlusLinear.archive_1
-              : IconsaxPlusLinear.refresh_left_square,
-          size: 20,
-        ),
-        onPressed: () async {
-          await _showArchiveConfirmationDialog(context);
-        },
-      ),
     );
   }
 

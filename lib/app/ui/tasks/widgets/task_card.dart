@@ -11,7 +11,7 @@ class TaskCard extends StatefulWidget {
     required this.createdTodos,
     required this.completedTodos,
     required this.percent,
-    required this.onLongPress,
+    required this.onDoubleTap,
     required this.onTap,
   });
 
@@ -19,7 +19,7 @@ class TaskCard extends StatefulWidget {
   final int createdTodos;
   final int completedTodos;
   final String percent;
-  final VoidCallback onLongPress;
+  final VoidCallback onDoubleTap;
   final VoidCallback onTap;
 
   @override
@@ -33,7 +33,7 @@ class _TaskCardState extends State<TaskCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
-      onLongPress: widget.onLongPress,
+      onDoubleTap: widget.onDoubleTap,
       child: _buildCard(context),
     );
   }

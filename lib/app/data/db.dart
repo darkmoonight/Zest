@@ -54,6 +54,7 @@ class Todos {
   Priority priority;
   List<String> tags = [];
   int? index;
+  int? parentId;
 
   final task = IsarLink<Tasks>();
 
@@ -69,6 +70,7 @@ class Todos {
     this.priority = Priority.none,
     this.tags = const [],
     this.index,
+    this.parentId,
   });
 }
 

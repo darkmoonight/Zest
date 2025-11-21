@@ -15,14 +15,14 @@ class TodoCard extends StatefulWidget {
     required this.todo,
     required this.allTodos,
     required this.calendar,
-    required this.onLongPress,
+    required this.onDoubleTap,
     required this.onTap,
   });
 
   final Todos todo;
   final bool allTodos;
   final bool calendar;
-  final VoidCallback onLongPress;
+  final VoidCallback onDoubleTap;
   final VoidCallback onTap;
 
   @override
@@ -38,7 +38,7 @@ class _TodoCardState extends State<TodoCard> {
       builder: (context, innerState) {
         return GestureDetector(
           onTap: widget.onTap,
-          onLongPress: widget.onLongPress,
+          onDoubleTap: widget.onDoubleTap,
           child: _buildCard(context, innerState),
         );
       },
@@ -60,6 +60,7 @@ class _TodoCardState extends State<TodoCard> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildTodoName(),
                         _buildTodoDescription(),

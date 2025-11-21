@@ -1,3 +1,4 @@
+import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:zest/app/ui/todos/widgets/todo_card.dart';
 import 'package:zest/app/ui/todos/widgets/todos_action.dart';
 import 'package:zest/app/ui/widgets/list_empty.dart';
+import 'package:zest/main.dart';
 
 class TodosList extends StatefulWidget {
   const TodosList({
@@ -143,19 +145,39 @@ class _TodosListState extends State<TodosList> {
   }
 
   Widget _buildListView(List<Todos> todos) {
-    return ListView(
-      children: todos.map((todo) => _buildTodoCard(todo)).toList(),
+    return AnimatedReorderableListView(
+      items: todos,
+      itemBuilder: (BuildContext context, int index) {
+        final todo = todos[index];
+        return _buildTodoCard(todo);
+      },
+      enterTransition: [SlideInDown()],
+      exitTransition: [SlideInUp()],
+      insertDuration: const Duration(milliseconds: 300),
+      removeDuration: const Duration(milliseconds: 300),
+      dragStartDelay: const Duration(milliseconds: 300),
+      onReorder: (int oldIndex, int newIndex) async {
+        final element = todos.removeAt(oldIndex);
+        todos.insert(newIndex, element);
+        for (int i = 0; i < todos.length; i++) {
+          final item = todos[i];
+          item.index = i;
+          isar.writeTxnSync(() => isar.todos.putSync(item));
+        }
+        todoController.todos.assignAll(todos);
+      },
+      isSameItem: (a, b) => a.id == b.id,
     );
   }
 
   Widget _buildTodoCard(Todos todo) {
     return TodoCard(
-      key: ValueKey(todo),
+      key: ValueKey(todo.id),
       todo: todo,
       allTodos: widget.allTodos,
       calendar: widget.calendar,
       onTap: () => _onTodoCardTap(todo),
-      onLongPress: () => _onTodoCardLongPress(todo),
+      onDoubleTap: () => _onTodoCardonDoubleTap(todo),
     );
   }
 
@@ -167,7 +189,7 @@ class _TodosListState extends State<TodosList> {
     }
   }
 
-  void _onTodoCardLongPress(Todos todo) {
+  void _onTodoCardonDoubleTap(Todos todo) {
     todoController.isMultiSelectionTodo.value = true;
     todoController.doMultiSelectionTodo(todo);
   }

@@ -30,8 +30,8 @@ class TodoController extends GetxController {
   }
 
   void loadTasksAndTodos() {
-    tasks.assignAll(isar.tasks.where().findAllSync());
-    todos.assignAll(isar.todos.where().findAllSync());
+    tasks.assignAll(isar.tasks.where().sortByIndex().findAllSync());
+    todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
   }
 
   // Tasks
@@ -45,6 +45,7 @@ class TodoController extends GetxController {
       title: title,
       description: desc,
       taskColor: myColor.value32bit,
+      index: tasks.length,
     );
 
     tasks.add(taskCreate);
@@ -88,6 +89,10 @@ class TodoController extends GetxController {
       await cancelNotificationsForTask(task);
       deleteTodosForTask(task);
       deleteTaskFromDB(task);
+    }
+    for (int i = 0; i < tasks.length; i++) {
+      tasks[i].index = i;
+      isar.writeTxnSync(() => isar.tasks.putSync(tasks[i]));
     }
     EasyLoading.showSuccess(
       'categoryDelete'.tr,
@@ -207,6 +212,7 @@ class TodoController extends GetxController {
       createdTime: DateTime.now(),
       priority: priority,
       tags: tags,
+      index: todos.length,
     )..task.value = task;
 
     todos.add(todosCreate);
@@ -313,6 +319,10 @@ class TodoController extends GetxController {
     for (var todo in todoListCopy) {
       await cancelNotificationForTodo(todo);
       deleteTodoFromDB(todo);
+    }
+    for (int i = 0; i < todos.length; i++) {
+      todos[i].index = i;
+      isar.writeTxnSync(() => isar.todos.putSync(todos[i]));
     }
     EasyLoading.showSuccess(
       'todoDelete'.tr,
