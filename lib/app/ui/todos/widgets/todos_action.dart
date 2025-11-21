@@ -40,6 +40,7 @@ class _TodosActionState extends State<TodosAction> {
   List<Tasks>? task;
   final FocusNode categoryFocusNode = FocusNode();
   final FocusNode titleFocusNode = FocusNode();
+  final FocusNode tagsFocusNode = FocusNode();
   final TextEditingController textTodoController = TextEditingController();
   final TextEditingController titleTodoEdit = TextEditingController();
   final TextEditingController descTodoEdit = TextEditingController();
@@ -186,6 +187,7 @@ class _TodosActionState extends State<TodosAction> {
     controller.dispose();
     categoryFocusNode.dispose();
     titleFocusNode.dispose();
+    tagsFocusNode.dispose();
     super.dispose();
   }
 
@@ -436,6 +438,7 @@ class _TodosActionState extends State<TodosAction> {
       labelText: 'tags'.tr,
       type: TextInputType.text,
       icon: const Icon(IconsaxPlusLinear.tag),
+      focusNode: tagsFocusNode,
       onFieldSubmitted: (value) {
         setState(() {
           if (tagsTodoEdit.text.trim().isNotEmpty) {
@@ -443,6 +446,7 @@ class _TodosActionState extends State<TodosAction> {
               ..add(tagsTodoEdit.text.trim());
             tagsTodoEdit.clear();
             controller.tags.value = todoTags;
+            tagsFocusNode.requestFocus();
           }
         });
       },
