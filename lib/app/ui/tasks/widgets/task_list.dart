@@ -72,12 +72,25 @@ class _TasksListState extends State<TasksList> {
       onReorder: (int oldIndex, int newIndex) async {
         final element = tasks.removeAt(oldIndex);
         tasks.insert(newIndex, element);
-        for (int i = 0; i < tasks.length; i++) {
-          final item = tasks[i];
-          item.index = i;
-          isar.writeTxnSync(() => isar.tasks.putSync(item));
+
+        final all = todoController.tasks.toList();
+
+        int pos = 0;
+        for (int i = 0; i < all.length && pos < tasks.length; i++) {
+          if (all[i].archive == widget.archived) {
+            all[i] = tasks[pos++];
+          }
         }
-        todoController.tasks.assignAll(tasks);
+
+        isar.writeTxnSync(() {
+          for (int i = 0; i < all.length; i++) {
+            all[i].index = i;
+            isar.tasks.putSync(all[i]);
+          }
+        });
+
+        todoController.tasks.assignAll(all);
+        todoController.tasks.refresh();
       },
       isSameItem: (a, b) => a.id == b.id,
     );

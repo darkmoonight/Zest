@@ -159,12 +159,25 @@ class _TodosListState extends State<TodosList> {
       onReorder: (int oldIndex, int newIndex) async {
         final element = todos.removeAt(oldIndex);
         todos.insert(newIndex, element);
-        for (int i = 0; i < todos.length; i++) {
-          final item = todos[i];
-          item.index = i;
-          isar.writeTxnSync(() => isar.todos.putSync(item));
+
+        final all = todoController.todos.toList();
+
+        int pos = 0;
+        for (int i = 0; i < all.length && pos < todos.length; i++) {
+          if (all[i].done == widget.done) {
+            all[i] = todos[pos++];
+          }
         }
-        todoController.todos.assignAll(todos);
+
+        isar.writeTxnSync(() {
+          for (int i = 0; i < all.length; i++) {
+            all[i].index = i;
+            isar.todos.putSync(all[i]);
+          }
+        });
+
+        todoController.todos.assignAll(all);
+        todoController.todos.refresh();
       },
       isSameItem: (a, b) => a.id == b.id,
     );
