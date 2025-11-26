@@ -30,7 +30,7 @@ bool amoledTheme = false;
 bool materialColor = false;
 RxBool isImage = true.obs;
 RxString timeformat = '24'.obs;
-String firstDay = 'monday';
+RxString firstDay = 'monday'.obs;
 Locale locale = const Locale('en', 'US');
 
 final List<Map<String, dynamic>> appLanguages = [
@@ -129,10 +129,7 @@ class MyApp extends StatefulWidget {
 
     if (newAmoledTheme != null) state.changeAmoledTheme(newAmoledTheme);
     if (newMaterialColor != null) state.changeMaterialTheme(newMaterialColor);
-    if (newTimeformat != null) state.changeTimeFormat(newTimeformat);
-    if (newFirstDay != null) state.changeFirstDay(newFirstDay);
     if (newLocale != null) state.changeLocale(newLocale);
-    if (newIsImage != null) state.changeIsImage(newIsImage);
   }
 
   @override
@@ -146,11 +143,6 @@ class _MyAppState extends State<MyApp> {
       setState(() => amoledTheme = newAmoledTheme);
   void changeMaterialTheme(bool newMaterialColor) =>
       setState(() => materialColor = newMaterialColor);
-  void changeIsImage(bool newIsImage) => isImage.value = newIsImage;
-  void changeTimeFormat(String newTimeformat) =>
-      timeformat.value = newTimeformat;
-  void changeFirstDay(String newFirstDay) =>
-      setState(() => firstDay = newFirstDay);
   void changeLocale(Locale newLocale) => setState(() => locale = newLocale);
 
   @override
@@ -159,7 +151,7 @@ class _MyAppState extends State<MyApp> {
     amoledTheme = settings.amoledTheme;
     materialColor = settings.materialColor;
     timeformat.value = settings.timeformat;
-    firstDay = settings.firstDay;
+    firstDay.value = settings.firstDay;
     isImage.value = settings.isImage!;
     locale = Locale(
       settings.language!.substring(0, 2),

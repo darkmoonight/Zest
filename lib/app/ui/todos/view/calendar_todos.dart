@@ -21,8 +21,8 @@ class _CalendarTodosState extends State<CalendarTodos>
   final todoController = Get.put(TodoController());
   late TabController tabController;
   DateTime selectedDay = DateTime.now();
-  DateTime firstDay = DateTime.now().add(const Duration(days: -1000));
-  DateTime lastDay = DateTime.now().add(const Duration(days: 1000));
+  DateTime fDay = DateTime.now().add(const Duration(days: -1000));
+  DateTime lDay = DateTime.now().add(const Duration(days: 1000));
 
   @override
   void initState() {
@@ -157,35 +157,37 @@ class _CalendarTodosState extends State<CalendarTodos>
   );
 
   Widget _buildTableCalendar() => SliverToBoxAdapter(
-    child: TableCalendar(
-      calendarBuilders: CalendarBuilders(
-        markerBuilder: (context, day, events) => Obx(() {
-          var countTodos = todoController.countTotalTodosCalendar(day);
-          return countTodos != 0
-              ? selectedDay.isAtSameMomentAs(day)
-                    ? _buildSelectedDayMarker(countTodos)
-                    : _buildDayMarker(countTodos)
-              : const SizedBox.shrink();
-        }),
+    child: Obx(
+      () => TableCalendar(
+        calendarBuilders: CalendarBuilders(
+          markerBuilder: (context, day, events) => Obx(() {
+            var countTodos = todoController.countTotalTodosCalendar(day);
+            return countTodos != 0
+                ? selectedDay.isAtSameMomentAs(day)
+                      ? _buildSelectedDayMarker(countTodos)
+                      : _buildDayMarker(countTodos)
+                : const SizedBox.shrink();
+          }),
+        ),
+        startingDayOfWeek: _getFirstDayOfWeek(),
+        weekendDays: const [DateTime.sunday],
+        firstDay: fDay,
+        lastDay: lDay,
+        focusedDay: selectedDay,
+        locale: locale.languageCode,
+        availableCalendarFormats: {
+          CalendarFormat.month: 'week'.tr,
+          CalendarFormat.twoWeeks: 'month'.tr,
+          CalendarFormat.week: 'two_week'.tr,
+        },
+        selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+        onDaySelected: (selected, focused) =>
+            setState(() => selectedDay = selected),
+        onPageChanged: (focused) => setState(() => selectedDay = focused),
+        calendarFormat: _getCalendarFormat(),
+        onFormatChanged: (format) =>
+            setState(() => _updateCalendarFormat(format)),
       ),
-      startingDayOfWeek: _getFirstDayOfWeek(),
-      weekendDays: const [DateTime.sunday],
-      firstDay: firstDay,
-      lastDay: lastDay,
-      focusedDay: selectedDay,
-      locale: locale.languageCode,
-      availableCalendarFormats: {
-        CalendarFormat.month: 'week'.tr,
-        CalendarFormat.twoWeeks: 'month'.tr,
-        CalendarFormat.week: 'two_week'.tr,
-      },
-      selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-      onDaySelected: (selected, focused) =>
-          setState(() => selectedDay = selected),
-      onPageChanged: (focused) => setState(() => selectedDay = focused),
-      calendarFormat: _getCalendarFormat(),
-      onFormatChanged: (format) =>
-          setState(() => _updateCalendarFormat(format)),
     ),
   );
 
@@ -218,7 +220,7 @@ class _CalendarTodosState extends State<CalendarTodos>
   );
 
   StartingDayOfWeek _getFirstDayOfWeek() {
-    switch (settings.firstDay) {
+    switch (firstDay.value) {
       case 'monday':
         return StartingDayOfWeek.monday;
       case 'tuesday':

@@ -282,6 +282,7 @@ class _SettingsPageState extends State<SettingsPage> {
     });
     timeformat.value = format;
     setState(() {});
+    todoController.todos.refresh();
   }
 
   Widget _buildFirstDayOfWeekSettingCard(
@@ -292,7 +293,7 @@ class _SettingsPageState extends State<SettingsPage> {
     icon: const Icon(IconsaxPlusLinear.calendar_edit),
     text: 'firstDayOfWeek'.tr,
     dropdown: true,
-    dropdownName: settings.firstDay.tr,
+    dropdownName: firstDay.value.tr,
     dropdownList: <String>[
       'monday'.tr,
       'tuesday'.tr,
@@ -312,25 +313,13 @@ class _SettingsPageState extends State<SettingsPage> {
     StateSetter setState,
   ) {
     if (newValue == null) return;
+    String selectedDay = _firstDayOfWeek(newValue);
     isar.writeTxnSync(() {
-      const days = [
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-        'sunday',
-      ];
-      for (final day in days) {
-        if (newValue == day.tr) {
-          settings.firstDay = day;
-          break;
-        }
-      }
+      settings.firstDay = selectedDay;
       isar.settings.putSync(settings);
     });
-    MyApp.updateAppState(context, newFirstDay: _firstDayOfWeek(newValue));
+    firstDay.value = selectedDay;
+    setState(() {});
   }
 
   Widget _buildBackupSettingCard(BuildContext context) => SettingCard(
