@@ -36,71 +36,59 @@ class _OnBoardingState extends State<OnBoarding> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildPageView(),
-            _buildDotIndicators(),
-            _buildActionButton(),
-          ],
-        ),
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(),
+    body: SafeArea(
+      child: Column(
+        children: [
+          _buildPageView(),
+          _buildDotIndicators(),
+          _buildActionButton(),
+        ],
       ),
-    );
-  }
+    ),
+  );
 
-  Widget _buildPageView() {
-    return Expanded(
-      child: PageView.builder(
-        controller: pageController,
-        itemCount: data.length,
-        onPageChanged: (index) {
-          setState(() {
-            pageIndex = index;
-          });
-        },
-        itemBuilder: (context, index) => OnboardContent(
-          image: data[index].image,
-          title: data[index].title,
-          description: data[index].description,
-        ),
+  Widget _buildPageView() => Expanded(
+    child: PageView.builder(
+      controller: pageController,
+      itemCount: data.length,
+      onPageChanged: (index) => setState(() => pageIndex = index),
+      itemBuilder: (context, index) => OnboardContent(
+        image: data[index].image,
+        title: data[index].title,
+        description: data[index].description,
       ),
-    );
-  }
+    ),
+  );
 
-  Widget _buildDotIndicators() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        data.length,
-        (index) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
-          child: DotIndicator(isActive: index == pageIndex),
-        ),
+  Widget _buildDotIndicators() => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: List.generate(
+      data.length,
+      (index) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        child: DotIndicator(isActive: index == pageIndex),
       ),
-    );
-  }
+    ),
+  );
 
-  Widget _buildActionButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      child: MyTextButton(
-        text: pageIndex == data.length - 1 ? 'getStart'.tr : 'next'.tr,
-        onPressed: () {
-          if (pageIndex == data.length - 1) {
-            onBoardHome();
-          } else {
-            pageController.nextPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.ease,
-            );
-          }
-        },
-      ),
-    );
-  }
+  Widget _buildActionButton() => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+    child: MyTextButton(
+      text: pageIndex == data.length - 1 ? 'getStart'.tr : 'next'.tr,
+      onPressed: () {
+        if (pageIndex == data.length - 1) {
+          onBoardHome();
+        } else {
+          pageController.nextPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.ease,
+          );
+        }
+      },
+    ),
+  );
 }
 
 class DotIndicator extends StatelessWidget {
@@ -109,19 +97,17 @@ class DotIndicator extends StatelessWidget {
   final bool isActive;
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      height: 8,
-      width: 8,
-      decoration: BoxDecoration(
-        color: isActive
-            ? context.theme.colorScheme.secondary
-            : context.theme.colorScheme.secondaryContainer,
-        shape: BoxShape.circle,
-      ),
-    );
-  }
+  Widget build(BuildContext context) => AnimatedContainer(
+    duration: const Duration(milliseconds: 300),
+    height: 8,
+    width: 8,
+    decoration: BoxDecoration(
+      color: isActive
+          ? context.theme.colorScheme.secondary
+          : context.theme.colorScheme.secondaryContainer,
+      shape: BoxShape.circle,
+    ),
+  );
 }
 
 class Onboard {
@@ -163,33 +149,31 @@ class OnboardContent extends StatelessWidget {
   final String image, title, description;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Flexible(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(image, scale: 5),
-              Text(
-                title,
-                style: context.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+  Widget build(BuildContext context) => Column(
+    children: [
+      Flexible(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(image, scale: 5),
+            Text(
+              title,
+              style: context.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
-              const Gap(10),
-              SizedBox(
-                width: 300,
-                child: Text(
-                  description,
-                  style: context.textTheme.labelLarge?.copyWith(fontSize: 14),
-                  textAlign: TextAlign.center,
-                ),
+            ),
+            const Gap(10),
+            SizedBox(
+              width: 300,
+              child: Text(
+                description,
+                style: context.textTheme.labelLarge?.copyWith(fontSize: 14),
+                textAlign: TextAlign.center,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }

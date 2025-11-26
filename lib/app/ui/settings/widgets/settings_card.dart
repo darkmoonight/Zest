@@ -37,23 +37,21 @@ class SettingCard extends StatelessWidget {
   final double? elevation;
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: elevation ?? 1,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: ListTile(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        onTap: onPressed,
-        leading: icon,
-        title: Text(
-          text,
-          style: context.textTheme.titleMedium,
-          overflow: TextOverflow.visible,
-        ),
-        trailing: _buildTrailingWidget(context),
+  Widget build(BuildContext context) => Card(
+    elevation: elevation ?? 1,
+    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    child: ListTile(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      onTap: onPressed,
+      leading: icon,
+      title: Text(
+        text,
+        style: context.textTheme.titleMedium,
+        overflow: TextOverflow.visible,
       ),
-    );
-  }
+      trailing: _buildTrailingWidget(context),
+    ),
+  );
 
   Widget _buildTrailingWidget(BuildContext context) {
     if (switcher) {
@@ -70,23 +68,24 @@ class SettingCard extends StatelessWidget {
     }
   }
 
-  Widget _buildDropdownButton(BuildContext context) {
-    return DropdownButton<String>(
-      icon: const Padding(
-        padding: EdgeInsets.only(left: 7),
-        child: Icon(IconsaxPlusLinear.arrow_down),
-      ),
-      iconSize: 15,
-      alignment: AlignmentDirectional.centerEnd,
-      borderRadius: const BorderRadius.all(Radius.circular(15)),
-      underline: Container(),
-      value: dropdownName,
-      items: dropdownList!.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(value: value, child: Text(value));
-      }).toList(),
-      onChanged: dropdownChange,
-    );
-  }
+  Widget _buildDropdownButton(BuildContext context) => DropdownButton<String>(
+    icon: const Padding(
+      padding: EdgeInsets.only(left: 7),
+      child: Icon(IconsaxPlusLinear.arrow_down),
+    ),
+    iconSize: 15,
+    alignment: AlignmentDirectional.centerEnd,
+    borderRadius: const BorderRadius.all(Radius.circular(15)),
+    underline: Container(),
+    value: dropdownName,
+    items: dropdownList!
+        .map<DropdownMenuItem<String>>(
+          (String value) =>
+              DropdownMenuItem<String>(value: value, child: Text(value)),
+        )
+        .toList(),
+    onChanged: dropdownChange,
+  );
 
   Widget _buildInfoWidget(BuildContext context) {
     if (infoSettings) {

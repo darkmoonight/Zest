@@ -234,7 +234,7 @@ class TodoController extends GetxController {
 
   DateTime? parseDate(String time) {
     if (time.isEmpty) return null;
-    return timeformat == '12'
+    return timeformat.value == '12'
         ? DateFormat.yMMMEd(locale.languageCode).add_jm().parse(time)
         : DateFormat.yMMMEd(locale.languageCode).add_Hm().parse(time);
   }
@@ -342,43 +342,34 @@ class TodoController extends GetxController {
     isar.writeTxnSync(() => isar.todos.deleteSync(todo.id));
   }
 
-  int createdAllTodos() {
-    return todos.where((todo) => todo.task.value?.archive == false).length;
-  }
+  int createdAllTodos() =>
+      todos.where((todo) => todo.task.value?.archive == false).length;
 
-  int completedAllTodos() {
-    return todos
-        .where((todo) => todo.task.value?.archive == false && todo.done == true)
-        .length;
-  }
+  int completedAllTodos() => todos
+      .where((todo) => todo.task.value?.archive == false && todo.done == true)
+      .length;
 
-  int createdAllTodosTask(Tasks task) {
-    return todos.where((todo) => todo.task.value?.id == task.id).length;
-  }
+  int createdAllTodosTask(Tasks task) =>
+      todos.where((todo) => todo.task.value?.id == task.id).length;
 
-  int completedAllTodosTask(Tasks task) {
-    return todos
-        .where((todo) => todo.task.value?.id == task.id && todo.done == true)
-        .length;
-  }
+  int completedAllTodosTask(Tasks task) => todos
+      .where((todo) => todo.task.value?.id == task.id && todo.done == true)
+      .length;
 
-  int countTotalTodosCalendar(DateTime date) {
-    return todos
-        .where(
-          (todo) =>
-              todo.done == false &&
-              todo.todoCompletedTime != null &&
-              todo.task.value?.archive == false &&
-              isSameDay(date, todo.todoCompletedTime!),
-        )
-        .length;
-  }
+  int countTotalTodosCalendar(DateTime date) => todos
+      .where(
+        (todo) =>
+            todo.done == false &&
+            todo.todoCompletedTime != null &&
+            todo.task.value?.archive == false &&
+            isSameDay(date, todo.todoCompletedTime!),
+      )
+      .length;
 
-  bool isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-        date1.month == date2.month &&
-        date1.day == date2.day;
-  }
+  bool isSameDay(DateTime date1, DateTime date2) =>
+      date1.year == date2.year &&
+      date1.month == date2.month &&
+      date1.day == date2.day;
 
   void doMultiSelectionTask(Tasks task) {
     if (isMultiSelectionTask.isTrue) {

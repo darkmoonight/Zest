@@ -28,8 +28,8 @@ late Settings settings;
 
 bool amoledTheme = false;
 bool materialColor = false;
-bool isImage = true;
-String timeformat = '24';
+RxBool isImage = true.obs;
+RxString timeformat = '24'.obs;
 String firstDay = 'monday';
 Locale locale = const Locale('en', 'US');
 
@@ -146,9 +146,9 @@ class _MyAppState extends State<MyApp> {
       setState(() => amoledTheme = newAmoledTheme);
   void changeMaterialTheme(bool newMaterialColor) =>
       setState(() => materialColor = newMaterialColor);
-  void changeIsImage(bool newIsImage) => setState(() => isImage = newIsImage);
+  void changeIsImage(bool newIsImage) => isImage.value = newIsImage;
   void changeTimeFormat(String newTimeformat) =>
-      setState(() => timeformat = newTimeformat);
+      timeformat.value = newTimeformat;
   void changeFirstDay(String newFirstDay) =>
       setState(() => firstDay = newFirstDay);
   void changeLocale(Locale newLocale) => setState(() => locale = newLocale);
@@ -158,9 +158,9 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     amoledTheme = settings.amoledTheme;
     materialColor = settings.materialColor;
-    timeformat = settings.timeformat;
+    timeformat.value = settings.timeformat;
     firstDay = settings.firstDay;
-    isImage = settings.isImage!;
+    isImage.value = settings.isImage!;
     locale = Locale(
       settings.language!.substring(0, 2),
       settings.language!.substring(3),

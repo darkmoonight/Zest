@@ -10,17 +10,13 @@ class MyDelegate extends SliverPersistentHeaderDelegate {
     BuildContext context,
     double shrinkOffset,
     bool overlapsContent,
-  ) {
-    return _buildTabBarContainer();
-  }
+  ) => _buildTabBarContainer();
 
-  Widget _buildTabBarContainer() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      height: tabBar.preferredSize.height,
-      child: tabBar,
-    );
-  }
+  Widget _buildTabBarContainer() => Container(
+    margin: const EdgeInsets.symmetric(horizontal: 5),
+    height: tabBar.preferredSize.height,
+    child: tabBar,
+  );
 
   @override
   double get maxExtent => tabBar.preferredSize.height;
@@ -29,7 +25,5 @@ class MyDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => tabBar.preferredSize.height;
 
   @override
-  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
-    return false;
-  }
+  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) => false;
 }

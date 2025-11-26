@@ -62,6 +62,8 @@ class _HomePageState extends State<HomePage>
     _fabAnimationController.forward();
   }
 
+  List<String> _getScreens() => ['categories', 'allTodos', 'calendar'];
+
   void _initializeTabIndex() {
     allScreens = _getScreens();
     tabIndex = allScreens.indexOf(
@@ -95,18 +97,14 @@ class _HomePageState extends State<HomePage>
 
   void _showFab() {
     if (!_isFabVisible) {
-      setState(() {
-        _isFabVisible = true;
-      });
+      setState(() => _isFabVisible = true);
       _fabAnimationController.forward();
     }
   }
 
   void _hideFab() {
     if (_isFabVisible) {
-      setState(() {
-        _isFabVisible = false;
-      });
+      setState(() => _isFabVisible = false);
       _fabAnimationController.reverse();
     }
   }
@@ -134,71 +132,57 @@ class _HomePageState extends State<HomePage>
     return false;
   }
 
-  List<String> _getScreens() {
-    return ['categories', 'allTodos', 'calendar'];
-  }
-
   @override
-  Widget build(BuildContext context) {
-    allScreens = _getScreens();
+  Widget build(BuildContext context) => Scaffold(
+    body: NotificationListener<ScrollNotification>(
+      onNotification: _handleScrollNotification,
+      child: IndexedStack(index: tabIndex, children: pages),
+    ),
+    bottomNavigationBar: _buildBottomNavigationBar(),
+    floatingActionButton: _buildFloatingActionButton(),
+  );
 
-    return Scaffold(
-      body: NotificationListener<ScrollNotification>(
-        onNotification: _handleScrollNotification,
-        child: IndexedStack(index: tabIndex, children: pages),
-      ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButton: _buildFloatingActionButton(),
-    );
-  }
+  Widget _buildBottomNavigationBar() => GestureDetector(
+    onHorizontalDragEnd: onSwipe,
+    child: NavigationBar(
+      onDestinationSelected: changeTabIndex,
+      selectedIndex: tabIndex,
+      destinations: _buildNavigationDestinations(),
+    ),
+  );
 
-  Widget _buildBottomNavigationBar() {
-    return GestureDetector(
-      onHorizontalDragEnd: onSwipe,
-      child: NavigationBar(
-        onDestinationSelected: changeTabIndex,
-        selectedIndex: tabIndex,
-        destinations: _buildNavigationDestinations(),
-      ),
-    );
-  }
-
-  List<NavigationDestination> _buildNavigationDestinations() {
-    return [
-      _buildNavigationDestination(
-        icon: IconsaxPlusLinear.folder_2,
-        selectedIcon: IconsaxPlusBold.folder_2,
-        label: allScreens[0].tr,
-      ),
-      _buildNavigationDestination(
-        icon: IconsaxPlusLinear.task_square,
-        selectedIcon: IconsaxPlusBold.task_square,
-        label: allScreens[1].tr,
-      ),
-      _buildNavigationDestination(
-        icon: IconsaxPlusLinear.calendar,
-        selectedIcon: IconsaxPlusBold.calendar,
-        label: allScreens[2].tr,
-      ),
-      _buildNavigationDestination(
-        icon: IconsaxPlusLinear.category,
-        selectedIcon: IconsaxPlusBold.category,
-        label: 'settings'.tr,
-      ),
-    ];
-  }
+  List<NavigationDestination> _buildNavigationDestinations() => [
+    _buildNavigationDestination(
+      icon: IconsaxPlusLinear.folder_2,
+      selectedIcon: IconsaxPlusBold.folder_2,
+      label: allScreens[0].tr,
+    ),
+    _buildNavigationDestination(
+      icon: IconsaxPlusLinear.task_square,
+      selectedIcon: IconsaxPlusBold.task_square,
+      label: allScreens[1].tr,
+    ),
+    _buildNavigationDestination(
+      icon: IconsaxPlusLinear.calendar,
+      selectedIcon: IconsaxPlusBold.calendar,
+      label: allScreens[2].tr,
+    ),
+    _buildNavigationDestination(
+      icon: IconsaxPlusLinear.category,
+      selectedIcon: IconsaxPlusBold.category,
+      label: 'settings'.tr,
+    ),
+  ];
 
   NavigationDestination _buildNavigationDestination({
     required IconData icon,
     required IconData selectedIcon,
     required String label,
-  }) {
-    return NavigationDestination(
-      icon: Icon(icon),
-      selectedIcon: Icon(selectedIcon),
-      label: label,
-    );
-  }
+  }) => NavigationDestination(
+    icon: Icon(icon),
+    selectedIcon: Icon(selectedIcon),
+    label: label,
+  );
 
   Widget? _buildFloatingActionButton() {
     if (tabIndex == 3) {
@@ -207,31 +191,25 @@ class _HomePageState extends State<HomePage>
 
     return AnimatedBuilder(
       animation: _fabAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _fabAnimation.value,
-          child: Opacity(
-            opacity: _fabAnimation.value,
-            child: FloatingActionButton(
-              onPressed: _fabAnimation.value > 0.5 ? _showBottomSheet : null,
-              child: const Icon(IconsaxPlusLinear.add),
-            ),
+      builder: (context, child) => Transform.scale(
+        scale: _fabAnimation.value,
+        child: Opacity(
+          opacity: _fabAnimation.value,
+          child: FloatingActionButton(
+            onPressed: _fabAnimation.value > 0.5 ? _showBottomSheet : null,
+            child: const Icon(IconsaxPlusLinear.add),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
-  void _showBottomSheet() {
-    showModalBottomSheet(
-      enableDrag: false,
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return tabIndex == 0
-            ? TasksAction(text: 'create'.tr, edit: false)
-            : TodosAction(text: 'create'.tr, edit: false, category: true);
-      },
-    );
-  }
+  void _showBottomSheet() => showModalBottomSheet(
+    enableDrag: false,
+    context: context,
+    isScrollControlled: true,
+    builder: (BuildContext context) => tabIndex == 0
+        ? TasksAction(text: 'create'.tr, edit: false)
+        : TodosAction(text: 'create'.tr, edit: false, category: true),
+  );
 }

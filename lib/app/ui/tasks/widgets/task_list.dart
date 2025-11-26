@@ -25,15 +25,13 @@ class _TasksListState extends State<TasksList> {
   final todoController = Get.put(TodoController());
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 50),
-      child: Obx(() {
-        final tasks = _filterTasks();
-        return tasks.isEmpty ? _buildListEmpty() : _buildListView(tasks);
-      }),
-    );
-  }
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 50),
+    child: Obx(() {
+      final tasks = _filterTasks();
+      return tasks.isEmpty ? _buildListEmpty() : _buildListView(tasks);
+    }),
+  );
 
   List<Tasks> _filterTasks() {
     final query = widget.searchTask.trim().toLowerCase();
@@ -50,51 +48,47 @@ class _TasksListState extends State<TasksList> {
         .toList();
   }
 
-  Widget _buildListEmpty() {
-    return ListEmpty(
-      img: 'assets/images/Category.png',
-      text: widget.archived ? 'addArchiveCategory'.tr : 'addCategory'.tr,
-    );
-  }
+  Widget _buildListEmpty() => ListEmpty(
+    img: 'assets/images/Category.png',
+    text: widget.archived ? 'addArchiveCategory'.tr : 'addCategory'.tr,
+  );
 
-  Widget _buildListView(List<Tasks> tasks) {
-    return AnimatedReorderableListView(
-      items: tasks,
-      itemBuilder: (BuildContext context, int index) {
-        final task = tasks[index];
-        return _buildTaskCard(task);
-      },
-      enterTransition: [SlideInDown()],
-      exitTransition: [SlideInUp()],
-      insertDuration: const Duration(milliseconds: 300),
-      removeDuration: const Duration(milliseconds: 300),
-      dragStartDelay: const Duration(milliseconds: 300),
-      onReorder: (int oldIndex, int newIndex) async {
-        final element = tasks.removeAt(oldIndex);
-        tasks.insert(newIndex, element);
+  Widget _buildListView(List<Tasks> tasks) => AnimatedReorderableListView(
+    items: tasks,
+    itemBuilder: (BuildContext context, int index) {
+      final task = tasks[index];
+      return _buildTaskCard(task);
+    },
+    enterTransition: [SlideInDown()],
+    exitTransition: [SlideInUp()],
+    insertDuration: const Duration(milliseconds: 300),
+    removeDuration: const Duration(milliseconds: 300),
+    dragStartDelay: const Duration(milliseconds: 300),
+    onReorder: (int oldIndex, int newIndex) async {
+      final element = tasks.removeAt(oldIndex);
+      tasks.insert(newIndex, element);
 
-        final all = todoController.tasks.toList();
+      final all = todoController.tasks.toList();
 
-        int pos = 0;
-        for (int i = 0; i < all.length && pos < tasks.length; i++) {
-          if (all[i].archive == widget.archived) {
-            all[i] = tasks[pos++];
-          }
+      int pos = 0;
+      for (int i = 0; i < all.length && pos < tasks.length; i++) {
+        if (all[i].archive == widget.archived) {
+          all[i] = tasks[pos++];
         }
+      }
 
-        isar.writeTxnSync(() {
-          for (int i = 0; i < all.length; i++) {
-            all[i].index = i;
-            isar.tasks.putSync(all[i]);
-          }
-        });
+      isar.writeTxnSync(() {
+        for (int i = 0; i < all.length; i++) {
+          all[i].index = i;
+          isar.tasks.putSync(all[i]);
+        }
+      });
 
-        todoController.tasks.assignAll(all);
-        todoController.tasks.refresh();
-      },
-      isSameItem: (a, b) => a.id == b.id,
-    );
-  }
+      todoController.tasks.assignAll(all);
+      todoController.tasks.refresh();
+    },
+    isSameItem: (a, b) => a.id == b.id,
+  );
 
   Widget _buildTaskCard(Tasks task) {
     final createdTodos = todoController.createdAllTodosTask(task);

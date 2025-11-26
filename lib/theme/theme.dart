@@ -14,6 +14,7 @@ ColorScheme colorSchemeLight = ColorScheme.fromSeed(
   seedColor: Colors.indigo,
   brightness: Brightness.light,
 );
+
 ColorScheme colorSchemeDark = ColorScheme.fromSeed(
   seedColor: Colors.indigo,
   brightness: Brightness.dark,
@@ -23,29 +24,25 @@ ThemeData lightTheme(
   Color? color,
   ColorScheme? colorScheme,
   bool edgeToEdgeAvailable,
-) {
-  return _buildTheme(
-    baseTheme: baseLight,
-    brightness: Brightness.light,
-    color: color,
-    colorScheme: colorScheme,
-    edgeToEdgeAvailable: edgeToEdgeAvailable,
-  );
-}
+) => _buildTheme(
+  baseTheme: baseLight,
+  brightness: Brightness.light,
+  color: color,
+  colorScheme: colorScheme,
+  edgeToEdgeAvailable: edgeToEdgeAvailable,
+);
 
 ThemeData darkTheme(
   Color? color,
   ColorScheme? colorScheme,
   bool edgeToEdgeAvailable,
-) {
-  return _buildTheme(
-    baseTheme: baseDark,
-    brightness: Brightness.dark,
-    color: color,
-    colorScheme: colorScheme,
-    edgeToEdgeAvailable: edgeToEdgeAvailable,
-  );
-}
+) => _buildTheme(
+  baseTheme: baseDark,
+  brightness: Brightness.dark,
+  color: color,
+  colorScheme: colorScheme,
+  edgeToEdgeAvailable: edgeToEdgeAvailable,
+);
 
 ThemeData _buildTheme({
   required ThemeData baseTheme,
@@ -87,93 +84,84 @@ AppBarTheme _buildAppBarTheme(
   ColorScheme? colorScheme,
   bool edgeToEdgeAvailable,
   Brightness brightness,
-) {
-  return AppBarTheme(
-    backgroundColor: color,
-    foregroundColor: colorScheme?.onSurface,
-    shadowColor: Colors.transparent,
-    surfaceTintColor: Colors.transparent,
-    elevation: 0,
-    systemOverlayStyle: SystemUiOverlayStyle(
-      statusBarIconBrightness: brightness == Brightness.light
-          ? Brightness.dark
-          : Brightness.light,
-      statusBarColor: Colors.transparent,
-      systemStatusBarContrastEnforced: false,
-      systemNavigationBarContrastEnforced: false,
-      systemNavigationBarDividerColor: Colors.transparent,
-      systemNavigationBarIconBrightness: brightness == Brightness.light
-          ? Brightness.dark
-          : Brightness.light,
-      systemNavigationBarColor: edgeToEdgeAvailable
+) => AppBarTheme(
+  backgroundColor: color,
+  foregroundColor: colorScheme?.onSurface,
+  shadowColor: Colors.transparent,
+  surfaceTintColor: Colors.transparent,
+  elevation: 0,
+  systemOverlayStyle: SystemUiOverlayStyle(
+    statusBarIconBrightness: brightness == Brightness.light
+        ? Brightness.dark
+        : Brightness.light,
+    statusBarColor: Colors.transparent,
+    systemStatusBarContrastEnforced: false,
+    systemNavigationBarContrastEnforced: false,
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarIconBrightness: brightness == Brightness.light
+        ? Brightness.dark
+        : Brightness.light,
+    systemNavigationBarColor: edgeToEdgeAvailable
+        ? Colors.transparent
+        : colorScheme?.surface,
+  ),
+);
+
+ChipThemeData _buildChipTheme(Color? color, ColorScheme? colorScheme) =>
+    ChipThemeData(
+      side: BorderSide.none,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: color == oledColor
           ? Colors.transparent
-          : colorScheme?.surface,
-    ),
-  );
-}
+          : colorScheme?.surfaceTint,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      shadowColor: Colors.transparent,
+    );
 
-ChipThemeData _buildChipTheme(Color? color, ColorScheme? colorScheme) {
-  return ChipThemeData(
-    side: BorderSide.none,
-    backgroundColor: Colors.transparent,
-    surfaceTintColor: color == oledColor
-        ? Colors.transparent
-        : colorScheme?.surfaceTint,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-    shadowColor: Colors.transparent,
-  );
-}
-
-CardThemeData _buildCardTheme(Color? color, ColorScheme? colorScheme) {
-  return CardThemeData(
-    color: color,
-    surfaceTintColor: color == oledColor
-        ? Colors.transparent
-        : colorScheme?.surfaceTint,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    shadowColor: Colors.transparent,
-  );
-}
+CardThemeData _buildCardTheme(Color? color, ColorScheme? colorScheme) =>
+    CardThemeData(
+      color: color,
+      surfaceTintColor: color == oledColor
+          ? Colors.transparent
+          : colorScheme?.surfaceTint,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shadowColor: Colors.transparent,
+    );
 
 BottomSheetThemeData _buildBottomSheetTheme(
   Color? color,
   ColorScheme? colorScheme,
-) {
-  return BottomSheetThemeData(
-    backgroundColor: color,
-    surfaceTintColor: color == oledColor
-        ? Colors.transparent
-        : colorScheme?.surfaceTint,
-  );
-}
+) => BottomSheetThemeData(
+  backgroundColor: color,
+  surfaceTintColor: color == oledColor
+      ? Colors.transparent
+      : colorScheme?.surfaceTint,
+);
 
 NavigationBarThemeData _buildNavigationBarTheme(
   Color? color,
   ColorScheme? colorScheme,
-) {
-  return NavigationBarThemeData(
-    backgroundColor: color,
-    surfaceTintColor: color == oledColor
-        ? Colors.transparent
-        : colorScheme?.surfaceTint,
-    labelTextStyle: WidgetStateProperty.all(
-      const TextStyle(overflow: TextOverflow.ellipsis, fontSize: 12),
-    ),
-  );
-}
+) => NavigationBarThemeData(
+  backgroundColor: color,
+  surfaceTintColor: color == oledColor
+      ? Colors.transparent
+      : colorScheme?.surfaceTint,
+  labelTextStyle: WidgetStateProperty.all(
+    const TextStyle(overflow: TextOverflow.ellipsis, fontSize: 12),
+  ),
+);
 
-InputDecorationTheme _buildInputDecorationTheme(ThemeData baseTheme) {
-  return InputDecorationTheme(
-    labelStyle: WidgetStateTextStyle.resolveWith((Set<WidgetState> states) {
-      return const TextStyle(fontSize: 14);
-    }),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(20),
-      borderSide: BorderSide(color: baseTheme.disabledColor),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(20),
-      borderSide: BorderSide(color: baseTheme.disabledColor),
-    ),
-  );
-}
+InputDecorationTheme _buildInputDecorationTheme(ThemeData baseTheme) =>
+    InputDecorationTheme(
+      labelStyle: WidgetStateTextStyle.resolveWith(
+        (Set<WidgetState> states) => const TextStyle(fontSize: 14),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20),
+        borderSide: BorderSide(color: baseTheme.disabledColor),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20),
+        borderSide: BorderSide(color: baseTheme.disabledColor),
+      ),
+    );

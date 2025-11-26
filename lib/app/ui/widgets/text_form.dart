@@ -36,38 +36,32 @@ class MyTextForm extends StatelessWidget {
   final int? maxLine;
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: elevation,
-      margin: margin,
-      child: _buildTextFormField(context),
-    );
-  }
+  Widget build(BuildContext context) => Card(
+    elevation: elevation,
+    margin: margin,
+    child: _buildTextFormField(context),
+  );
 
-  Widget _buildTextFormField(BuildContext context) {
-    return TextFormField(
-      focusNode: focusNode,
-      readOnly: readOnly,
-      onChanged: onChanged,
-      onTap: readOnly ? onTap : null,
-      onFieldSubmitted: onFieldSubmitted,
-      controller: controller,
-      keyboardType: type,
-      style: context.textTheme.labelLarge,
-      decoration: _buildInputDecoration(),
-      validator: validator,
-      maxLines: maxLine,
-    );
-  }
+  Widget _buildTextFormField(BuildContext context) => TextFormField(
+    focusNode: focusNode,
+    readOnly: readOnly,
+    onChanged: onChanged,
+    onTap: readOnly ? onTap : null,
+    onFieldSubmitted: onFieldSubmitted,
+    controller: controller,
+    keyboardType: type,
+    style: context.textTheme.labelLarge,
+    decoration: _buildInputDecoration(),
+    validator: validator,
+    maxLines: maxLine,
+  );
 
-  InputDecoration _buildInputDecoration() {
-    return InputDecoration(
-      prefixIcon: icon,
-      suffixIcon: iconButton,
-      labelText: labelText,
-      border: InputBorder.none,
-      focusedBorder: InputBorder.none,
-      enabledBorder: InputBorder.none,
-    );
-  }
+  InputDecoration _buildInputDecoration() => InputDecoration(
+    prefixIcon: icon,
+    suffixIcon: iconButton,
+    labelText: labelText,
+    border: InputBorder.none,
+    focusedBorder: InputBorder.none,
+    enabledBorder: InputBorder.none,
+  );
 }

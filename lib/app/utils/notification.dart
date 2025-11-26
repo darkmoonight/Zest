@@ -49,7 +49,6 @@ class NotificationShow {
     return NotificationDetails(android: androidNotificationDetails);
   }
 
-  tz.TZDateTime _getScheduledTime(DateTime date) {
-    return tz.TZDateTime.from(date, tz.local);
-  }
+  tz.TZDateTime _getScheduledTime(DateTime date) =>
+      tz.TZDateTime.from(date, tz.local);
 }

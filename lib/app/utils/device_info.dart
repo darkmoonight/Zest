@@ -6,9 +6,7 @@ class DeviceFeature {
 
   static final DeviceFeature _singleton = DeviceFeature._internal();
 
-  factory DeviceFeature() {
-    return _singleton;
-  }
+  factory DeviceFeature() => _singleton;
 
   final _deviceInfoPlugin = DeviceInfoPlugin();
 
@@ -24,8 +22,6 @@ class DeviceFeature {
     }
   }
 
-  bool isEdgeToEdgeAvailable() {
-    return _androidDeviceInfo != null &&
-        _androidDeviceInfo!.version.sdkInt > 28;
-  }
+  bool isEdgeToEdgeAvailable() =>
+      _androidDeviceInfo != null && _androidDeviceInfo!.version.sdkInt > 28;
 }

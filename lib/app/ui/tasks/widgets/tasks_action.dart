@@ -136,102 +136,92 @@ class _TasksActionState extends State<TasksAction> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: onPopInvokedWithResult,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-        child: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildTitle(),
-                  _buildTitleInput(),
-                  _buildDescriptionInput(),
-                  _buildAttributes(),
-                  _buildSubmitButton(),
-                  const Gap(10),
-                ],
-              ),
+  Widget build(BuildContext context) => PopScope(
+    canPop: false,
+    onPopInvokedWithResult: onPopInvokedWithResult,
+    child: Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildTitle(),
+                _buildTitleInput(),
+                _buildDescriptionInput(),
+                _buildAttributes(),
+                _buildSubmitButton(),
+                const Gap(10),
+              ],
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
 
-  Widget _buildTitle() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 14, bottom: 7),
-      child: Text(
-        widget.text,
-        style: context.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-        textAlign: TextAlign.center,
+  Widget _buildTitle() => Padding(
+    padding: const EdgeInsets.only(top: 14, bottom: 7),
+    child: Text(
+      widget.text,
+      style: context.textTheme.titleLarge?.copyWith(
+        fontWeight: FontWeight.bold,
+        fontSize: 20,
       ),
-    );
-  }
+      textAlign: TextAlign.center,
+    ),
+  );
 
-  Widget _buildTitleInput() {
-    return MyTextForm(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      controller: titleCategoryEdit,
-      focusNode: titleFocusNode,
-      labelText: 'name'.tr,
-      type: TextInputType.text,
-      icon: const Icon(IconsaxPlusLinear.edit),
-      onChanged: (value) => controller.title.value = value,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'validateName'.tr;
-        }
-        return null;
-      },
-    );
-  }
+  Widget _buildTitleInput() => MyTextForm(
+    elevation: 4,
+    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    controller: titleCategoryEdit,
+    focusNode: titleFocusNode,
+    labelText: 'name'.tr,
+    type: TextInputType.text,
+    icon: const Icon(IconsaxPlusLinear.edit),
+    onChanged: (value) => controller.title.value = value,
+    validator: (value) {
+      if (value == null || value.isEmpty) {
+        return 'validateName'.tr;
+      }
+      return null;
+    },
+  );
 
-  Widget _buildDescriptionInput() {
-    return MyTextForm(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      controller: descCategoryEdit,
-      labelText: 'description'.tr,
-      type: TextInputType.multiline,
-      icon: const Icon(IconsaxPlusLinear.note_text),
-      maxLine: null,
-      onChanged: (value) => controller.description.value = value,
-    );
-  }
+  Widget _buildDescriptionInput() => MyTextForm(
+    elevation: 4,
+    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    controller: descCategoryEdit,
+    labelText: 'description'.tr,
+    type: TextInputType.multiline,
+    icon: const Icon(IconsaxPlusLinear.note_text),
+    maxLine: null,
+    onChanged: (value) => controller.description.value = value,
+  );
 
-  Widget _buildColorInput() {
-    return ActionChip(
-      elevation: 4,
-      avatar: ColorIndicator(
-        height: 15,
-        width: 15,
-        borderRadius: 20,
-        color: myColor,
-        onSelectFocus: false,
-      ),
-      label: Text(
-        'color'.tr,
-        style: context.textTheme.labelLarge,
-        overflow: TextOverflow.visible,
-      ),
-      onPressed: _showColorPicker,
-    );
-  }
+  Widget _buildColorInput() => ActionChip(
+    elevation: 4,
+    avatar: ColorIndicator(
+      height: 15,
+      width: 15,
+      borderRadius: 20,
+      color: myColor,
+      onSelectFocus: false,
+    ),
+    label: Text(
+      'color'.tr,
+      style: context.textTheme.labelLarge,
+      overflow: TextOverflow.visible,
+    ),
+    onPressed: _showColorPicker,
+  );
 
   Future<void> _showColorPicker() async {
     final Color newColor = await showColorPickerDialog(
@@ -253,28 +243,22 @@ class _TasksActionState extends State<TasksAction> {
     });
   }
 
-  Widget _buildAttributes() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-      child: Row(children: [_buildColorInput()]),
-    );
-  }
+  Widget _buildAttributes() => SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+    child: Row(children: [_buildColorInput()]),
+  );
 
-  Widget _buildSubmitButton() {
-    return ValueListenableBuilder(
-      valueListenable: controller.canCompose,
-      builder: (context, canCompose, _) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          child: MyTextButton(
-            text: 'ready'.tr,
-            onPressed: canCompose ? onPressed : null,
-          ),
-        );
-      },
-    );
-  }
+  Widget _buildSubmitButton() => ValueListenableBuilder(
+    valueListenable: controller.canCompose,
+    builder: (context, canCompose, _) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: MyTextButton(
+        text: 'ready'.tr,
+        onPressed: canCompose ? onPressed : null,
+      ),
+    ),
+  );
 }
 
 class _EditingController extends ChangeNotifier {
@@ -303,12 +287,10 @@ class _EditingController extends ChangeNotifier {
   final _canCompose = ValueNotifier(false);
   ValueListenable<bool> get canCompose => _canCompose;
 
-  void _updateCanCompose() {
-    _canCompose.value =
-        (title.value != initialTitle) ||
-        (description.value != initialDescription) ||
-        (color.value != initialColor);
-  }
+  void _updateCanCompose() => _canCompose.value =
+      (title.value != initialTitle) ||
+      (description.value != initialDescription) ||
+      (color.value != initialColor);
 
   @override
   void dispose() {
