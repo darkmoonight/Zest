@@ -6,6 +6,7 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
+import 'package:zest/app/ui/todos/view/todo_todos.dart';
 import 'package:zest/app/utils/notification.dart';
 import 'package:zest/main.dart';
 
@@ -35,11 +36,48 @@ class TodoCard extends StatefulWidget {
 
 class _TodoCardState extends State<TodoCard> {
   final todoController = Get.put(TodoController());
+  bool tappedRightSide = false;
 
   @override
   Widget build(BuildContext context) => StatefulBuilder(
     builder: (context, innerState) => GestureDetector(
-      onTap: widget.onTap,
+      behavior: HitTestBehavior.opaque,
+
+      onTapDown: (details) {
+        final box = context.findRenderObject() as RenderBox;
+        final local = details.localPosition;
+        final width = box.size.width;
+
+        const rightZoneFraction = 0.15;
+        final rightZoneStart = width * (1 - rightZoneFraction);
+
+        tappedRightSide = local.dx >= rightZoneStart;
+
+        if (tappedRightSide) {
+          Get.key.currentState!.push(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  TodosTodo(key: ValueKey(widget.todo.id), todo: widget.todo),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 1),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+              transitionDuration: const Duration(milliseconds: 300),
+            ),
+          );
+        }
+      },
+      onTapUp: (_) {
+        if (!tappedRightSide) {
+          widget.onTap();
+        }
+      },
       onDoubleTap: widget.onDoubleTap,
       child: _buildCard(context, innerState),
     ),
