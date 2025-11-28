@@ -15,6 +15,8 @@ class TodoCard extends StatefulWidget {
     required this.todo,
     required this.allTodos,
     required this.calendar,
+    required this.createdTodos,
+    required this.completedTodos,
     required this.onDoubleTap,
     required this.onTap,
   });
@@ -22,6 +24,8 @@ class TodoCard extends StatefulWidget {
   final Todos todo;
   final bool allTodos;
   final bool calendar;
+  final int createdTodos;
+  final int completedTodos;
   final VoidCallback onDoubleTap;
   final VoidCallback onTap;
 
@@ -185,11 +189,16 @@ class _TodoCardState extends State<TodoCard> {
     padding: const EdgeInsets.only(right: 10),
     child: Column(
       mainAxisSize: MainAxisSize.min,
-      children: [_buildCalendarTime(), const Gap(5), _buildFixedIcon()],
+      spacing: 5,
+      children: [
+        ?_buildCalendarTime(),
+        ?_buildFixedIcon(),
+        _buildTrailingText(),
+      ],
     ),
   );
 
-  Widget _buildCalendarTime() => widget.calendar
+  Widget? _buildCalendarTime() => widget.calendar
       ? Text(
           _formatCalendarTime(widget.todo.todoCompletedTime!),
           style: context.textTheme.labelLarge?.copyWith(
@@ -197,19 +206,24 @@ class _TodoCardState extends State<TodoCard> {
             fontSize: 12,
           ),
         )
-      : const Offstage();
+      : null;
 
   String _formatCalendarTime(DateTime time) => timeformat.value == '12'
       ? DateFormat.jm(locale.languageCode).format(time)
       : DateFormat.Hm(locale.languageCode).format(time);
 
-  Widget _buildFixedIcon() => widget.todo.fix
+  Widget? _buildFixedIcon() => widget.todo.fix
       ? const Icon(
           IconsaxPlusLinear.attach_square,
           size: 20,
           color: Colors.grey,
         )
-      : const Offstage();
+      : null;
+
+  Widget _buildTrailingText() => Text(
+    '${widget.completedTodos}/${widget.createdTodos}',
+    style: context.textTheme.labelMedium?.copyWith(color: Colors.grey),
+  );
 }
 
 class _TagsChip extends StatelessWidget {

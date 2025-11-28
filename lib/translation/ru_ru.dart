@@ -118,5 +118,6 @@ class RuRu {
     'noPriority': 'Нет приоритета',
     'tags': 'Теги',
     'ready': 'Готово',
+    'subTask': 'Подзадачи',
   };
 }

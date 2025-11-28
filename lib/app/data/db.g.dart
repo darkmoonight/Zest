@@ -2717,6 +2717,19 @@ const TodosSchema = CollectionSchema(
   idName: r'id',
   indexes: {},
   links: {
+    r'parent': LinkSchema(
+      id: 6308854949126399580,
+      name: r'parent',
+      target: r'Todos',
+      single: true,
+    ),
+    r'children': LinkSchema(
+      id: 7196993719779404499,
+      name: r'children',
+      target: r'Todos',
+      single: false,
+      linkName: r'parent',
+    ),
     r'task': LinkSchema(
       id: 984463211636766827,
       name: r'task',
@@ -2844,11 +2857,13 @@ Id _todosGetId(Todos object) {
 }
 
 List<IsarLinkBase<dynamic>> _todosGetLinks(Todos object) {
-  return [object.task];
+  return [object.parent, object.children, object.task];
 }
 
 void _todosAttach(IsarCollection<dynamic> col, Id id, Todos object) {
   object.id = id;
+  object.parent.attach(col, col.isar.collection<Todos>(), r'parent', id);
+  object.children.attach(col, col.isar.collection<Todos>(), r'children', id);
   object.task.attach(col, col.isar.collection<Tasks>(), r'task', id);
 }
 
@@ -3840,6 +3855,83 @@ extension TodosQueryFilter on QueryBuilder<Todos, Todos, QFilterCondition> {
 extension TodosQueryObject on QueryBuilder<Todos, Todos, QFilterCondition> {}
 
 extension TodosQueryLinks on QueryBuilder<Todos, Todos, QFilterCondition> {
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> parent(
+    FilterQuery<Todos> q,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'parent');
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> parentIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'parent', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> children(
+    FilterQuery<Todos> q,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'children');
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> childrenLengthEqualTo(
+    int length,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'children', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> childrenIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'children', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> childrenIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'children', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> childrenLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'children', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> childrenLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'children', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> childrenLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(
+        r'children',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterFilterCondition> task(FilterQuery<Tasks> q) {
     return QueryBuilder.apply(this, (query) {
       return query.link(q, r'task');

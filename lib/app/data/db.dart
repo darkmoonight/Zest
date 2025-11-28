@@ -55,6 +55,11 @@ class Todos {
   List<String> tags = [];
   int? index;
 
+  final parent = IsarLink<Todos>();
+
+  @Backlink(to: 'parent')
+  final children = IsarLinks<Todos>();
+
   final task = IsarLink<Tasks>();
 
   Todos({

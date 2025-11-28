@@ -13,6 +13,7 @@ class TodosList extends StatefulWidget {
     super.key,
     required this.done,
     this.task,
+    this.todo,
     required this.allTodos,
     required this.calendar,
     this.selectedDay,
@@ -21,6 +22,7 @@ class TodosList extends StatefulWidget {
 
   final bool done;
   final Tasks? task;
+  final Todos? todo;
   final bool allTodos;
   final bool calendar;
   final DateTime? selectedDay;
@@ -60,36 +62,40 @@ class _TodosListState extends State<TodosList> {
     }
 
     if (widget.task != null) {
-      return todoController.todos
-          .where(
-            (todo) =>
-                todo.task.value?.id == widget.task?.id &&
-                todo.done == widget.done &&
-                matchesSearch(todo),
-          )
-          .toList();
+      return todoController.todos.where((todo) {
+        final inSameTask = todo.task.value?.id == widget.task!.id;
+        final isRoot = todo.parent.value == null;
+        final matchesDone = todo.done == widget.done;
+        return inSameTask && isRoot && matchesDone && matchesSearch(todo);
+      }).toList();
+    } else if (widget.todo != null) {
+      return todoController.todos.where((todo) {
+        final isChild = todo.parent.value?.id == widget.todo!.id;
+        final matchesDone = todo.done == widget.done;
+        return isChild && matchesDone && matchesSearch(todo);
+      }).toList();
     } else if (widget.allTodos) {
-      return todoController.todos
-          .where(
-            (todo) =>
-                todo.task.value?.archive == false &&
-                todo.done == widget.done &&
-                matchesSearch(todo),
-          )
-          .toList();
+      return todoController.todos.where((todo) {
+        final isRoot = todo.parent.value == null;
+        final matchesDone = todo.done == widget.done;
+        return isRoot && matchesDone && matchesSearch(todo);
+      }).toList();
     } else if (widget.calendar) {
-      return todoController.todos
-          .where(
-            (todo) =>
-                todo.task.value?.archive == false &&
-                todo.todoCompletedTime != null &&
-                _isWithinSelectedDay(todo) &&
-                todo.done == widget.done &&
-                matchesSearch(todo),
-          )
-          .toList();
+      return todoController.todos.where((todo) {
+        final notArchived = todo.task.value?.archive == false;
+        final hasTime = todo.todoCompletedTime != null;
+        final inSelectedDay = hasTime && _isWithinSelectedDay(todo);
+        final matchesDone = todo.done == widget.done;
+        return notArchived &&
+            hasTime &&
+            inSelectedDay &&
+            matchesDone &&
+            matchesSearch(todo);
+      }).toList();
     } else {
-      return todoController.todos.where((todo) => matchesSearch(todo)).toList();
+      return todoController.todos.where((todo) {
+        return matchesSearch(todo);
+      }).toList();
     }
   }
 
@@ -176,14 +182,21 @@ class _TodosListState extends State<TodosList> {
     isSameItem: (a, b) => a.id == b.id,
   );
 
-  Widget _buildTodoCard(Todos todo) => TodoCard(
-    key: ValueKey(todo.id),
-    todo: todo,
-    allTodos: widget.allTodos,
-    calendar: widget.calendar,
-    onTap: () => _handleTodoTap(todo),
-    onDoubleTap: () => _handleTodoDoubleTap(todo),
-  );
+  Widget _buildTodoCard(Todos todo) {
+    final createdTodos = todoController.createdAllTodosTodo(todo);
+    final completedTodos = todoController.completedAllTodosTodo(todo);
+
+    return TodoCard(
+      key: ValueKey(todo.id),
+      todo: todo,
+      allTodos: widget.allTodos,
+      calendar: widget.calendar,
+      createdTodos: createdTodos,
+      completedTodos: completedTodos,
+      onTap: () => _handleTodoTap(todo),
+      onDoubleTap: () => _handleTodoDoubleTap(todo),
+    );
+  }
 
   void _handleTodoTap(Todos todo) {
     if (todoController.isMultiSelectionTodo.isTrue) {

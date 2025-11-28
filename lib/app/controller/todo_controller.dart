@@ -196,8 +196,9 @@ class TodoController extends GetxController {
     String time,
     bool pined,
     Priority priority,
-    List<String> tags,
-  ) async {
+    List<String> tags, {
+    Todos? parent,
+  }) async {
     final date = parseDate(time);
     if (await isTodoDuplicate(task, title, date)) {
       EasyLoading.showError('duplicateTodo'.tr, duration: duration);
@@ -215,11 +216,20 @@ class TodoController extends GetxController {
       index: todos.length,
     )..task.value = task;
 
-    todos.add(todosCreate);
+    if (parent != null) {
+      todosCreate.parent.value = parent;
+    }
+
     isar.writeTxnSync(() {
       isar.todos.putSync(todosCreate);
       todosCreate.task.saveSync();
+      if (parent != null) {
+        todosCreate.parent.saveSync();
+      }
     });
+
+    todos.add(todosCreate);
+    todos.refresh();
 
     if (date != null && now.isBefore(date)) {
       NotificationShow().showNotification(
@@ -364,6 +374,13 @@ class TodoController extends GetxController {
             todo.task.value?.archive == false &&
             isSameDay(date, todo.todoCompletedTime!),
       )
+      .length;
+
+  int createdAllTodosTodo(Todos parent) =>
+      todos.where((child) => child.parent.value?.id == parent.id).length;
+
+  int completedAllTodosTodo(Todos parent) => todos
+      .where((child) => child.parent.value?.id == parent.id && child.done)
       .length;
 
   bool isSameDay(DateTime date1, DateTime date2) =>
