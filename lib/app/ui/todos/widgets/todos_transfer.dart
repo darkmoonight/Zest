@@ -167,12 +167,7 @@ class _TodosTransferState extends State<TodosTransfer> {
 
   Future<Iterable<Tasks>> _buildOptions(
     TextEditingValue textEditingValue,
-  ) async {
-    if (textEditingValue.text.isEmpty) {
-      return const Iterable<Tasks>.empty();
-    }
-    return getTaskAll(textEditingValue.text);
-  }
+  ) async => await getTaskAll(textEditingValue.text);
 
   void _onSelected(Tasks selection) {
     transferTodoController.text = selection.title;

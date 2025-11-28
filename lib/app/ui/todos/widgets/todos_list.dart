@@ -1,8 +1,8 @@
-import 'package:animated_reorderable_list/animated_reorderable_list.dart';
-import 'package:zest/app/data/db.dart';
-import 'package:zest/app/controller/todo_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:reorderables/reorderables.dart';
+import 'package:zest/app/controller/todo_controller.dart';
+import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/todos/widgets/todo_card.dart';
 import 'package:zest/app/ui/todos/widgets/todos_action.dart';
 import 'package:zest/app/ui/widgets/list_empty.dart';
@@ -145,41 +145,40 @@ class _TodosListState extends State<TodosList> {
     text: widget.done ? 'completedTodo'.tr : 'addTodo'.tr,
   );
 
-  Widget _buildListView(List<Todos> todos) => AnimatedReorderableListView(
-    items: todos,
-    itemBuilder: (BuildContext context, int index) {
-      final todo = todos[index];
-      return _buildTodoCard(todo);
-    },
-    enterTransition: [SlideInDown()],
-    exitTransition: [SlideInUp()],
-    insertDuration: const Duration(milliseconds: 300),
-    removeDuration: const Duration(milliseconds: 300),
-    dragStartDelay: const Duration(milliseconds: 300),
-    onReorder: (int oldIndex, int newIndex) async {
-      final element = todos.removeAt(oldIndex);
-      todos.insert(newIndex, element);
+  Widget _buildListView(List<Todos> todos) => CustomScrollView(
+    slivers: <Widget>[
+      ReorderableSliverList(
+        delegate: ReorderableSliverChildBuilderDelegate(
+          (context, index) => _buildTodoCard(todos[index]),
+          childCount: todos.length,
+        ),
+        onReorder: (int oldIndex, int newIndex) {
+          final element = todos.removeAt(oldIndex);
+          todos.insert(newIndex, element);
 
-      final all = todoController.todos.toList();
+          final all = todoController.todos.toList();
 
-      int pos = 0;
-      for (int i = 0; i < all.length && pos < todos.length; i++) {
-        if (all[i].done == widget.done) {
-          all[i] = todos[pos++];
-        }
-      }
+          final filteredIds = todos.map((t) => t.id).toSet();
 
-      isar.writeTxnSync(() {
-        for (int i = 0; i < all.length; i++) {
-          all[i].index = i;
-          isar.todos.putSync(all[i]);
-        }
-      });
+          int pos = 0;
+          for (int i = 0; i < all.length && pos < todos.length; i++) {
+            if (filteredIds.contains(all[i].id)) {
+              all[i] = todos[pos++];
+            }
+          }
 
-      todoController.todos.assignAll(all);
-      todoController.todos.refresh();
-    },
-    isSameItem: (a, b) => a.id == b.id,
+          isar.writeTxnSync(() {
+            for (int i = 0; i < all.length; i++) {
+              all[i].index = i;
+              isar.todos.putSync(all[i]);
+            }
+          });
+
+          todoController.todos.assignAll(all);
+          todoController.todos.refresh();
+        },
+      ),
+    ],
   );
 
   Widget _buildTodoCard(Todos todo) {

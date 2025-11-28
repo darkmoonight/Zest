@@ -374,7 +374,7 @@ class _TodosActionState extends State<TodosAction> {
       alignment: Alignment.topCenter,
       child: Material(
         borderRadius: BorderRadius.circular(20),
-        elevation: 4.0,
+        elevation: 4,
         child: ListView.builder(
           padding: EdgeInsets.zero,
           shrinkWrap: true,
