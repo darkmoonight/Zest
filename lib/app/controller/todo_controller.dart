@@ -284,8 +284,80 @@ class TodoController extends GetxController {
   }
 
   Future<void> updateTodoCheck(Todos todo) async {
-    isar.writeTxnSync(() => isar.todos.putSync(todo));
+    if (todo.done) {
+      await _setDoneForSubtree(todo, true);
+    } else {
+      await _setDoneSingle(todo, false);
+    }
+  }
+
+  Future<void> _setDoneForSubtree(Todos root, bool done) async {
+    final ids = <int>{};
+    final stack = <Todos>[root];
+
+    while (stack.isNotEmpty) {
+      final node = stack.removeLast();
+      if (!ids.add(node.id)) continue;
+      final children = isar.todos
+          .filter()
+          .parent((q) => q.idEqualTo(node.id))
+          .findAllSync();
+      for (var c in children) {
+        if (!ids.contains(c.id)) stack.add(c);
+      }
+    }
+
+    if (ids.isEmpty) return;
+
+    final nowLocal = DateTime.now();
+    final toCancel = <int>[];
+
+    isar.writeTxnSync(() {
+      for (var id in ids) {
+        final t = isar.todos.getSync(id);
+        if (t == null) continue;
+        t.done = done;
+        isar.todos.putSync(t);
+        if (t.todoCompletedTime != null &&
+            t.todoCompletedTime!.isAfter(nowLocal)) {
+          toCancel.add(t.id);
+        }
+      }
+    });
+
+    todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
     todos.refresh();
+
+    for (var id in toCancel) {
+      await flutterLocalNotificationsPlugin.cancel(id);
+    }
+  }
+
+  Future<void> _setDoneSingle(Todos todo, bool done) async {
+    final nowLocal = DateTime.now();
+    isar.writeTxnSync(() {
+      todo.done = done;
+      isar.todos.putSync(todo);
+    });
+
+    todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
+    todos.refresh();
+
+    if (todo.todoCompletedTime != null &&
+        todo.todoCompletedTime!.isAfter(nowLocal)) {
+      if (done) {
+        await flutterLocalNotificationsPlugin.cancel(todo.id);
+      } else {
+        if (!todo.done) {
+          NotificationShow().showNotification(
+            todo.id,
+            todo.name,
+            todo.description,
+            todo.todoCompletedTime,
+          );
+        }
+      }
+    }
   }
 
   Future<void> updateTodo(
