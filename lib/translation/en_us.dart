@@ -119,5 +119,6 @@ class EnUs {
     'tags': 'Tags',
     'ready': 'Done',
     'subTask': 'Subtasks',
+    'selectTodoParent': 'Choose a todo',
   };
 }

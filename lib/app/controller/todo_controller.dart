@@ -42,7 +42,6 @@ class TodoController extends GetxController {
   // ------------------------
   // Tasks
   // ------------------------
-
   Future<void> addTask(String title, String desc, Color myColor) async {
     if (await isTaskDuplicate(title)) {
       EasyLoading.showError('duplicateCategory'.tr, duration: duration);
@@ -56,8 +55,11 @@ class TodoController extends GetxController {
       index: tasks.length,
     );
 
-    tasks.add(taskCreate);
     isar.writeTxnSync(() => isar.tasks.putSync(taskCreate));
+
+    tasks.add(taskCreate);
+    tasks.refresh();
+
     EasyLoading.showSuccess('createCategory'.tr, duration: duration);
   }
 
@@ -213,7 +215,6 @@ class TodoController extends GetxController {
   // ------------------------
   // Todos
   // ------------------------
-
   Future<Todos?> addTodo(
     Tasks task,
     String title,
@@ -225,11 +226,6 @@ class TodoController extends GetxController {
     Todos? parent,
   }) async {
     final date = parseDate(time);
-
-    if (await isTodoDuplicate(task, title, date)) {
-      EasyLoading.showError('duplicateTodo'.tr, duration: duration);
-      return null;
-    }
 
     final todoCreate = Todos(
       name: title,
@@ -341,7 +337,7 @@ class TodoController extends GetxController {
     }
   }
 
-  Future<void> transferTodos(List<Todos> todoList, Tasks task) async {
+  Future<void> moveTodos(List<Todos> todoList, Tasks task) async {
     final copy = List<Todos>.from(todoList);
 
     final idsToUpdate = <int>{};
@@ -380,6 +376,53 @@ class TodoController extends GetxController {
 
     loadTasksAndTodos();
 
+    EasyLoading.showSuccess('updateTodo'.tr, duration: duration);
+  }
+
+  Future<void> moveTodosToParent(List<Todos> rootList, Todos? newParent) async {
+    final copy = List<Todos>.from(rootList);
+    final idsToUpdate = <int>{};
+
+    final Tasks? newTask = newParent?.task.value;
+
+    for (final root in copy) {
+      final stack = <Todos>[root];
+      while (stack.isNotEmpty) {
+        final node = stack.removeLast();
+        if (!idsToUpdate.add(node.id)) continue;
+        final children = isar.todos
+            .filter()
+            .parent((q) => q.idEqualTo(node.id))
+            .findAllSync();
+        for (var c in children) {
+          if (!idsToUpdate.contains(c.id)) stack.add(c);
+        }
+      }
+    }
+
+    if (idsToUpdate.isEmpty) return;
+
+    isar.writeTxnSync(() {
+      for (var id in idsToUpdate) {
+        final t = isar.todos.getSync(id);
+        if (t == null) continue;
+
+        if (copy.any((r) => r.id == id)) {
+          t.parent.value = newParent;
+        }
+
+        if (newTask != null) {
+          t.task.value = newTask;
+        }
+
+        isar.todos.putSync(t);
+
+        t.task.saveSync();
+        if (t.parent.value != null) t.parent.saveSync();
+      }
+    });
+
+    loadTasksAndTodos();
     EasyLoading.showSuccess('updateTodo'.tr, duration: duration);
   }
 
@@ -449,7 +492,6 @@ class TodoController extends GetxController {
   // ------------------------
   // Counters / Helpers
   // ------------------------
-
   int createdAllTodos() =>
       todos.where((todo) => todo.task.value?.archive == false).length;
 

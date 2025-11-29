@@ -119,5 +119,6 @@ class RuRu {
     'tags': 'Теги',
     'ready': 'Готово',
     'subTask': 'Подзадачи',
+    'selectTodoParent': 'Выберите задачу',
   };
 }

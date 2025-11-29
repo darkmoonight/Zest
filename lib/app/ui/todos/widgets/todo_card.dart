@@ -1,6 +1,5 @@
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:intl/intl.dart';
@@ -171,6 +170,7 @@ class _TodoCardState extends State<TodoCard> {
 
   Widget _buildCategoryInfo() => (widget.allTodos || widget.calendar)
       ? Row(
+          spacing: 5,
           children: [
             ColorIndicator(
               height: 8,
@@ -179,7 +179,6 @@ class _TodoCardState extends State<TodoCard> {
               color: Color(widget.todo.task.value!.taskColor),
               onSelectFocus: false,
             ),
-            const Gap(5),
             Text(
               widget.todo.task.value!.title,
               style: context.textTheme.bodyLarge?.copyWith(
