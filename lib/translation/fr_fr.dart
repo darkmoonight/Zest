@@ -122,5 +122,7 @@ class FrFr {
     'noPriority': 'Aucune priorité',
     'tags': 'Étiquettes',
     'ready': 'Terminé',
+    'subTask': 'Sous-tâches',
+    'selectTodoParent': 'Choisissez une tâche',
   };
 }

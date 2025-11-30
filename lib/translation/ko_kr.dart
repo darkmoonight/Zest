@@ -114,5 +114,7 @@ class KoKr {
     'noPriority': '우선순위 없음',
     'tags': '태그',
     'ready': '완료',
+    'subTask': '하위 작업',
+    'selectTodoParent': '할 일을 선택하세요',
   };
 }

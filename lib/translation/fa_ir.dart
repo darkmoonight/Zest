@@ -120,5 +120,7 @@ class FaIr {
     'noPriority': 'بدون اولویت',
     'tags': 'برچسب‌ها',
     'ready': 'انجام شد',
+    'subTask': 'زیروظایف',
+    'selectTodoParent': 'یک وظیفه را انتخاب کنید',
   };
 }

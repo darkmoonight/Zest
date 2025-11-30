@@ -114,5 +114,7 @@ class ZhCN {
     'noPriority': '无优先级',
     'tags': '标签',
     'ready': '完成',
+    'subTask': '子任务',
+    'selectTodoParent': '选择一个待办事项',
   };
 }

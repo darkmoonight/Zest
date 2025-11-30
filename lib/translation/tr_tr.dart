@@ -120,5 +120,7 @@ class TrTr {
     'noPriority': 'Öncelik yok',
     'tags': 'Etiketler',
     'ready': 'Tamamlandı',
+    'subTask': 'Alt görevler',
+    'selectTodoParent': 'Bir görev seçin',
   };
 }

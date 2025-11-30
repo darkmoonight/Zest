@@ -119,5 +119,7 @@ class DeDe {
     'noPriority': 'Keine Priorität',
     'tags': 'Tags',
     'ready': 'Fertig',
+    'subTask': 'Unteraufgaben',
+    'selectTodoParent': 'Wählen Sie eine Aufgabe',
   };
 }

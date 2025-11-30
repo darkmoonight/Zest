@@ -120,5 +120,7 @@ class PlPl {
     'noPriority': 'Bez priorytetu',
     'tags': 'Etykiety',
     'ready': 'Ukończone',
+    'subTask': 'Podzadania',
+    'selectTodoParent': 'Wybierz zadanie',
   };
 }

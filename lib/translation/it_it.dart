@@ -119,5 +119,7 @@ class ItIt {
     'noPriority': 'Nessuna priorità',
     'tags': 'Tag',
     'ready': 'Fatto',
+    'subTask': 'Sottocompiti',
+    'selectTodoParent': 'Scegli un\'attività',
   };
 }

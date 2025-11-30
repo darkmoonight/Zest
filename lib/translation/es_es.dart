@@ -122,5 +122,7 @@ class EsEs {
     'noPriority': 'Sin prioridad',
     'tags': 'Etiquetas',
     'ready': 'Hecho',
+    'subTask': 'Subtareas',
+    'selectTodoParent': 'Selecciona una tarea',
   };
 }

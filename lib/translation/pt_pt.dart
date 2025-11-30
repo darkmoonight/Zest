@@ -119,5 +119,7 @@ class PtPt {
     'noPriority': 'Sem prioridade',
     'tags': 'Etiquetas',
     'ready': 'Feito',
+    'subTask': 'Subtarefas',
+    'selectTodoParent': 'Escolha uma tarefa',
   };
 }
