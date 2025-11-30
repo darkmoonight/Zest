@@ -1,6 +1,6 @@
-import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:reorderables/reorderables.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/tasks/widgets/task_card.dart';
@@ -53,41 +53,40 @@ class _TasksListState extends State<TasksList> {
     text: widget.archived ? 'addArchiveCategory'.tr : 'addCategory'.tr,
   );
 
-  Widget _buildListView(List<Tasks> tasks) => AnimatedReorderableListView(
-    items: tasks,
-    itemBuilder: (BuildContext context, int index) {
-      final task = tasks[index];
-      return _buildTaskCard(task);
-    },
-    enterTransition: [SlideInDown()],
-    exitTransition: [SlideInUp()],
-    insertDuration: const Duration(milliseconds: 300),
-    removeDuration: const Duration(milliseconds: 300),
-    dragStartDelay: const Duration(milliseconds: 300),
-    onReorder: (int oldIndex, int newIndex) async {
-      final element = tasks.removeAt(oldIndex);
-      tasks.insert(newIndex, element);
+  Widget _buildListView(List<Tasks> tasks) => CustomScrollView(
+    slivers: <Widget>[
+      ReorderableSliverList(
+        delegate: ReorderableSliverChildBuilderDelegate(
+          (context, index) => _buildTaskCard(tasks[index]),
+          childCount: tasks.length,
+        ),
+        onReorder: (int oldIndex, int newIndex) async {
+          final element = tasks.removeAt(oldIndex);
+          tasks.insert(newIndex, element);
 
-      final all = todoController.tasks.toList();
+          final all = todoController.tasks.toList();
 
-      int pos = 0;
-      for (int i = 0; i < all.length && pos < tasks.length; i++) {
-        if (all[i].archive == widget.archived) {
-          all[i] = tasks[pos++];
-        }
-      }
+          final filteredIds = tasks.map((t) => t.id).toSet();
 
-      isar.writeTxnSync(() {
-        for (int i = 0; i < all.length; i++) {
-          all[i].index = i;
-          isar.tasks.putSync(all[i]);
-        }
-      });
+          int pos = 0;
+          for (int i = 0; i < all.length && pos < tasks.length; i++) {
+            if (filteredIds.contains(all[i].id)) {
+              all[i] = tasks[pos++];
+            }
+          }
 
-      todoController.tasks.assignAll(all);
-      todoController.tasks.refresh();
-    },
-    isSameItem: (a, b) => a.id == b.id,
+          isar.writeTxnSync(() {
+            for (int i = 0; i < all.length; i++) {
+              all[i].index = i;
+              isar.tasks.putSync(all[i]);
+            }
+          });
+
+          todoController.tasks.assignAll(all);
+          todoController.tasks.refresh();
+        },
+      ),
+    ],
   );
 
   Widget _buildTaskCard(Tasks task) {

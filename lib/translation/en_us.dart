@@ -118,5 +118,7 @@ class EnUs {
     'noPriority': 'No priority',
     'tags': 'Tags',
     'ready': 'Done',
+    'subTask': 'Subtasks',
+    'selectTodoParent': 'Choose a todo',
   };
 }

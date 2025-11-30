@@ -1,8 +1,8 @@
-import 'package:animated_reorderable_list/animated_reorderable_list.dart';
-import 'package:zest/app/data/db.dart';
-import 'package:zest/app/controller/todo_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:reorderables/reorderables.dart';
+import 'package:zest/app/controller/todo_controller.dart';
+import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/todos/widgets/todo_card.dart';
 import 'package:zest/app/ui/todos/widgets/todos_action.dart';
 import 'package:zest/app/ui/widgets/list_empty.dart';
@@ -13,6 +13,7 @@ class TodosList extends StatefulWidget {
     super.key,
     required this.done,
     this.task,
+    this.todo,
     required this.allTodos,
     required this.calendar,
     this.selectedDay,
@@ -21,6 +22,7 @@ class TodosList extends StatefulWidget {
 
   final bool done;
   final Tasks? task;
+  final Todos? todo;
   final bool allTodos;
   final bool calendar;
   final DateTime? selectedDay;
@@ -60,36 +62,40 @@ class _TodosListState extends State<TodosList> {
     }
 
     if (widget.task != null) {
-      return todoController.todos
-          .where(
-            (todo) =>
-                todo.task.value?.id == widget.task?.id &&
-                todo.done == widget.done &&
-                matchesSearch(todo),
-          )
-          .toList();
+      return todoController.todos.where((todo) {
+        final inSameTask = todo.task.value?.id == widget.task!.id;
+        final isRoot = todo.parent.value == null;
+        final matchesDone = todo.done == widget.done;
+        return inSameTask && isRoot && matchesDone && matchesSearch(todo);
+      }).toList();
+    } else if (widget.todo != null) {
+      return todoController.todos.where((todo) {
+        final isChild = todo.parent.value?.id == widget.todo!.id;
+        final matchesDone = todo.done == widget.done;
+        return isChild && matchesDone && matchesSearch(todo);
+      }).toList();
     } else if (widget.allTodos) {
-      return todoController.todos
-          .where(
-            (todo) =>
-                todo.task.value?.archive == false &&
-                todo.done == widget.done &&
-                matchesSearch(todo),
-          )
-          .toList();
+      return todoController.todos.where((todo) {
+        final isRoot = todo.parent.value == null;
+        final matchesDone = todo.done == widget.done;
+        return isRoot && matchesDone && matchesSearch(todo);
+      }).toList();
     } else if (widget.calendar) {
-      return todoController.todos
-          .where(
-            (todo) =>
-                todo.task.value?.archive == false &&
-                todo.todoCompletedTime != null &&
-                _isWithinSelectedDay(todo) &&
-                todo.done == widget.done &&
-                matchesSearch(todo),
-          )
-          .toList();
+      return todoController.todos.where((todo) {
+        final notArchived = todo.task.value?.archive == false;
+        final hasTime = todo.todoCompletedTime != null;
+        final inSelectedDay = hasTime && _isWithinSelectedDay(todo);
+        final matchesDone = todo.done == widget.done;
+        return notArchived &&
+            hasTime &&
+            inSelectedDay &&
+            matchesDone &&
+            matchesSearch(todo);
+      }).toList();
     } else {
-      return todoController.todos.where((todo) => matchesSearch(todo)).toList();
+      return todoController.todos.where((todo) {
+        return matchesSearch(todo);
+      }).toList();
     }
   }
 
@@ -139,51 +145,57 @@ class _TodosListState extends State<TodosList> {
     text: widget.done ? 'completedTodo'.tr : 'addTodo'.tr,
   );
 
-  Widget _buildListView(List<Todos> todos) => AnimatedReorderableListView(
-    items: todos,
-    itemBuilder: (BuildContext context, int index) {
-      final todo = todos[index];
-      return _buildTodoCard(todo);
-    },
-    enterTransition: [SlideInDown()],
-    exitTransition: [SlideInUp()],
-    insertDuration: const Duration(milliseconds: 300),
-    removeDuration: const Duration(milliseconds: 300),
-    dragStartDelay: const Duration(milliseconds: 300),
-    onReorder: (int oldIndex, int newIndex) async {
-      final element = todos.removeAt(oldIndex);
-      todos.insert(newIndex, element);
+  Widget _buildListView(List<Todos> todos) => CustomScrollView(
+    slivers: <Widget>[
+      ReorderableSliverList(
+        delegate: ReorderableSliverChildBuilderDelegate(
+          (context, index) => _buildTodoCard(todos[index]),
+          childCount: todos.length,
+        ),
+        onReorder: (int oldIndex, int newIndex) {
+          final element = todos.removeAt(oldIndex);
+          todos.insert(newIndex, element);
 
-      final all = todoController.todos.toList();
+          final all = todoController.todos.toList();
 
-      int pos = 0;
-      for (int i = 0; i < all.length && pos < todos.length; i++) {
-        if (all[i].done == widget.done) {
-          all[i] = todos[pos++];
-        }
-      }
+          final filteredIds = todos.map((t) => t.id).toSet();
 
-      isar.writeTxnSync(() {
-        for (int i = 0; i < all.length; i++) {
-          all[i].index = i;
-          isar.todos.putSync(all[i]);
-        }
-      });
+          int pos = 0;
+          for (int i = 0; i < all.length && pos < todos.length; i++) {
+            if (filteredIds.contains(all[i].id)) {
+              all[i] = todos[pos++];
+            }
+          }
 
-      todoController.todos.assignAll(all);
-      todoController.todos.refresh();
-    },
-    isSameItem: (a, b) => a.id == b.id,
+          isar.writeTxnSync(() {
+            for (int i = 0; i < all.length; i++) {
+              all[i].index = i;
+              isar.todos.putSync(all[i]);
+            }
+          });
+
+          todoController.todos.assignAll(all);
+          todoController.todos.refresh();
+        },
+      ),
+    ],
   );
 
-  Widget _buildTodoCard(Todos todo) => TodoCard(
-    key: ValueKey(todo.id),
-    todo: todo,
-    allTodos: widget.allTodos,
-    calendar: widget.calendar,
-    onTap: () => _handleTodoTap(todo),
-    onDoubleTap: () => _handleTodoDoubleTap(todo),
-  );
+  Widget _buildTodoCard(Todos todo) {
+    final createdTodos = todoController.createdAllTodosTodo(todo);
+    final completedTodos = todoController.completedAllTodosTodo(todo);
+
+    return TodoCard(
+      key: ValueKey(todo.id),
+      todo: todo,
+      allTodos: widget.allTodos,
+      calendar: widget.calendar,
+      createdTodos: createdTodos,
+      completedTodos: completedTodos,
+      onTap: () => _handleTodoTap(todo),
+      onDoubleTap: () => _handleTodoDoubleTap(todo),
+    );
+  }
 
   void _handleTodoTap(Todos todo) {
     if (todoController.isMultiSelectionTodo.isTrue) {

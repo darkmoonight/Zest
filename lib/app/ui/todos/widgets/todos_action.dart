@@ -6,6 +6,7 @@ import 'package:isar_community/isar.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
+import 'package:zest/app/ui/todos/view/todo_todos.dart';
 import 'package:zest/app/utils/show_dialog.dart';
 import 'package:zest/app/ui/widgets/button.dart';
 import 'package:zest/app/ui/widgets/text_form.dart';
@@ -152,26 +153,45 @@ class _TodosActionState extends State<TodosAction> {
         todoPriority,
         todoTags,
       );
-    } else if (widget.category) {
-      todoController.addTodo(
-        selectedTask!,
-        titleTodoEdit.text,
-        descTodoEdit.text,
-        timeTodoEdit.text,
-        todoPined,
-        todoPriority,
-        todoTags,
-      );
     } else {
-      todoController.addTodo(
-        widget.task!,
-        titleTodoEdit.text,
-        descTodoEdit.text,
-        timeTodoEdit.text,
-        todoPined,
-        todoPriority,
-        todoTags,
-      );
+      if (widget.category) {
+        todoController.addTodo(
+          selectedTask!,
+          titleTodoEdit.text,
+          descTodoEdit.text,
+          timeTodoEdit.text,
+          todoPined,
+          todoPriority,
+          todoTags,
+        );
+      } else if (widget.todo != null) {
+        final parentTodo = widget.todo!;
+        final parentTask = parentTodo.task.value;
+        if (parentTask == null) {
+          return;
+        }
+
+        todoController.addTodo(
+          parentTask,
+          titleTodoEdit.text,
+          descTodoEdit.text,
+          timeTodoEdit.text,
+          todoPined,
+          todoPriority,
+          todoTags,
+          parent: parentTodo,
+        );
+      } else {
+        todoController.addTodo(
+          widget.task!,
+          titleTodoEdit.text,
+          descTodoEdit.text,
+          timeTodoEdit.text,
+          todoPined,
+          todoPriority,
+          todoTags,
+        );
+      }
     }
   }
 
@@ -354,7 +374,7 @@ class _TodosActionState extends State<TodosAction> {
       alignment: Alignment.topCenter,
       child: Material(
         borderRadius: BorderRadius.circular(20),
-        elevation: 4.0,
+        elevation: 4,
         child: ListView.builder(
           padding: EdgeInsets.zero,
           shrinkWrap: true,
@@ -434,12 +454,44 @@ class _TodosActionState extends State<TodosAction> {
     child: Row(
       spacing: 10,
       children: [
+        ?_buildSubTask(),
         _buildDateTimeWidget(),
         _buildPriorityWidget(),
         _buildFixedWidget(),
       ],
     ),
   );
+
+  Widget? _buildSubTask() => widget.edit
+      ? RawChip(
+          elevation: 4,
+          avatar: const Icon(IconsaxPlusLinear.task_square),
+          label: Text('subTask'.tr),
+          onPressed: () {
+            Get.back();
+            Get.key.currentState!.push(
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    TodosTodo(
+                      key: ValueKey(widget.todo!.id),
+                      todo: widget.todo!,
+                    ),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                      return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 1),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      );
+                    },
+                transitionDuration: const Duration(milliseconds: 300),
+              ),
+            );
+          },
+        )
+      : null;
 
   Widget _buildDateTimeWidget() => RawChip(
     elevation: 4,

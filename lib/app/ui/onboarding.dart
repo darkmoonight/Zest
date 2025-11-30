@@ -1,4 +1,3 @@
-import 'package:gap/gap.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/home.dart';
 import 'package:zest/app/ui/widgets/button.dart';
@@ -153,6 +152,7 @@ class OnboardContent extends StatelessWidget {
     children: [
       Flexible(
         child: Column(
+          spacing: 10,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(image, scale: 5),
@@ -162,7 +162,6 @@ class OnboardContent extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const Gap(10),
             SizedBox(
               width: 300,
               child: Text(

@@ -117,5 +117,7 @@ class ArAr {
     'noPriority': 'بدون أولوية',
     'tags': 'العلامات',
     'ready': 'تم',
+    'subTask': 'المهام الفرعية',
+    'selectTodoParent': 'اختر مهمة',
   };
 }

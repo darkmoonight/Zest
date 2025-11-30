@@ -115,5 +115,7 @@ class ViVn {
     'noPriority': 'Không ưu tiên',
     'tags': 'Thẻ',
     'ready': 'Xong',
+    'subTask': 'Các công việc phụ',
+    'selectTodoParent': 'Chọn một việc cần làm',
   };
 }

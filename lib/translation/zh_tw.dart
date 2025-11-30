@@ -114,5 +114,7 @@ class ZhTw {
     'noPriority': '無優先順序',
     'tags': '標籤',
     'ready': '完成',
+    'subTask': '子任務',
+    'selectTodoParent': '選擇一個待辦事項',
   };
 }
