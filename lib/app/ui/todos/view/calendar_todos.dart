@@ -157,37 +157,35 @@ class _CalendarTodosState extends State<CalendarTodos>
   );
 
   Widget _buildTableCalendar() => SliverToBoxAdapter(
-    child: Obx(
-      () => TableCalendar(
-        calendarBuilders: CalendarBuilders(
-          markerBuilder: (context, day, events) => Obx(() {
-            var countTodos = todoController.countTotalTodosCalendar(day);
-            return countTodos != 0
-                ? selectedDay.isAtSameMomentAs(day)
-                      ? _buildSelectedDayMarker(countTodos)
-                      : _buildDayMarker(countTodos)
-                : const SizedBox.shrink();
-          }),
-        ),
-        startingDayOfWeek: _getFirstDayOfWeek(),
-        weekendDays: const [DateTime.sunday],
-        firstDay: fDay,
-        lastDay: lDay,
-        focusedDay: selectedDay,
-        locale: locale.languageCode,
-        availableCalendarFormats: {
-          CalendarFormat.month: 'week'.tr,
-          CalendarFormat.twoWeeks: 'month'.tr,
-          CalendarFormat.week: 'two_week'.tr,
-        },
-        selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-        onDaySelected: (selected, focused) =>
-            setState(() => selectedDay = selected),
-        onPageChanged: (focused) => setState(() => selectedDay = focused),
-        calendarFormat: _getCalendarFormat(),
-        onFormatChanged: (format) =>
-            setState(() => _updateCalendarFormat(format)),
+    child: TableCalendar(
+      calendarBuilders: CalendarBuilders(
+        markerBuilder: (context, day, events) => Obx(() {
+          var countTodos = todoController.countTotalTodosCalendar(day);
+          return countTodos != 0
+              ? selectedDay.isAtSameMomentAs(day)
+                    ? _buildSelectedDayMarker(countTodos)
+                    : _buildDayMarker(countTodos)
+              : const SizedBox.shrink();
+        }),
       ),
+      startingDayOfWeek: _getFirstDayOfWeek(),
+      weekendDays: const [DateTime.sunday],
+      firstDay: fDay,
+      lastDay: lDay,
+      focusedDay: selectedDay,
+      locale: locale.languageCode,
+      availableCalendarFormats: {
+        CalendarFormat.month: 'week'.tr,
+        CalendarFormat.twoWeeks: 'month'.tr,
+        CalendarFormat.week: 'two_week'.tr,
+      },
+      selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+      onDaySelected: (selected, focused) =>
+          setState(() => selectedDay = selected),
+      onPageChanged: (focused) => setState(() => selectedDay = focused),
+      onFormatChanged: (format) =>
+          setState(() => _updateCalendarFormat(format)),
+      calendarFormat: _getCalendarFormat(),
     ),
   );
 
@@ -254,12 +252,16 @@ class _CalendarTodosState extends State<CalendarTodos>
   }
 
   void _updateCalendarFormat(CalendarFormat format) => isar.writeTxnSync(() {
-    if (format == CalendarFormat.week) {
-      settings.calendarFormat = 'week';
-    } else if (format == CalendarFormat.twoWeeks) {
-      settings.calendarFormat = 'twoWeeks';
-    } else if (format == CalendarFormat.month) {
-      settings.calendarFormat = 'month';
+    switch (format) {
+      case CalendarFormat.week:
+        settings.calendarFormat = 'week';
+        break;
+      case CalendarFormat.twoWeeks:
+        settings.calendarFormat = 'twoWeeks';
+        break;
+      case CalendarFormat.month:
+        settings.calendarFormat = 'month';
+        break;
     }
     isar.settings.putSync(settings);
   });
