@@ -121,5 +121,12 @@ class ItIt {
     'ready': 'Fatto',
     'subTask': 'Sottocompiti',
     'selectTodoParent': 'Scegli un\'attività',
+    'sortByNameAsc': 'Per nome (crescente)',
+    'sortByNameDesc': 'Per nome (decrescente)',
+    'sortByDateAsc': 'Per data (più vecchie prima)',
+    'sortByDateDesc': 'Per data (più recenti prima)',
+    'sortByPriorityAsc': 'Per priorità (bassa a alta)',
+    'sortByPriorityDesc': 'Per priorità (alta a bassa)',
+    'sortByIndex': 'Predefinito',
   };
 }

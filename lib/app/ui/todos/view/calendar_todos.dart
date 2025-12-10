@@ -24,6 +24,8 @@ class _CalendarTodosState extends State<CalendarTodos>
   DateTime fDay = DateTime.now().add(const Duration(days: -1000));
   DateTime lDay = DateTime.now().add(const Duration(days: 1000));
 
+  SortOption _sortOption = SortOption.none;
+
   @override
   void initState() {
     super.initState();
@@ -270,20 +272,67 @@ class _CalendarTodosState extends State<CalendarTodos>
     handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
     sliver: SliverPersistentHeader(
       delegate: MyDelegate(
-        TabBar(
-          tabAlignment: TabAlignment.start,
-          controller: tabController,
-          isScrollable: true,
-          dividerColor: Colors.transparent,
-          splashFactory: NoSplash.splashFactory,
-          overlayColor: WidgetStateProperty.resolveWith<Color?>(
-            (states) => Colors.transparent,
-          ),
-          tabs: [
-            Tab(text: 'doing'.tr),
-            Tab(text: 'done'.tr),
+        child: Row(
+          children: [
+            Expanded(
+              child: TabBar(
+                tabAlignment: TabAlignment.start,
+                controller: tabController,
+                isScrollable: true,
+                dividerColor: Colors.transparent,
+                splashFactory: NoSplash.splashFactory,
+                overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                  (Set<WidgetState> states) => Colors.transparent,
+                ),
+                tabs: [
+                  Tab(text: 'doing'.tr),
+                  Tab(text: 'done'.tr),
+                ],
+              ),
+            ),
+            PopupMenuButton<SortOption>(
+              tooltip: 'sort'.tr,
+              icon: const Icon(IconsaxPlusLinear.sort),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              onSelected: (SortOption option) {
+                setState(() => _sortOption = option);
+              },
+              itemBuilder: (context) => <PopupMenuEntry<SortOption>>[
+                PopupMenuItem(
+                  value: SortOption.none,
+                  child: Text('sortByIndex'.tr),
+                ),
+                PopupMenuItem(
+                  value: SortOption.alphaAsc,
+                  child: Text('sortByNameAsc'.tr),
+                ),
+                PopupMenuItem(
+                  value: SortOption.alphaDesc,
+                  child: Text('sortByNameDesc'.tr),
+                ),
+                PopupMenuItem(
+                  value: SortOption.dateAsc,
+                  child: Text('sortByDateAsc'.tr),
+                ),
+                PopupMenuItem(
+                  value: SortOption.dateDesc,
+                  child: Text('sortByDateDesc'.tr),
+                ),
+                PopupMenuItem(
+                  value: SortOption.priorityAsc,
+                  child: Text('sortByPriorityAsc'.tr),
+                ),
+                PopupMenuItem(
+                  value: SortOption.priorityDesc,
+                  child: Text('sortByPriorityDesc'.tr),
+                ),
+              ],
+            ),
           ],
         ),
+        height: kTextTabBarHeight,
       ),
       floating: true,
       pinned: true,
@@ -299,6 +348,7 @@ class _CalendarTodosState extends State<CalendarTodos>
         done: false,
         selectedDay: selectedDay,
         searchTodo: '',
+        sortOption: _sortOption,
       ),
       TodosList(
         allTodos: false,
@@ -306,6 +356,7 @@ class _CalendarTodosState extends State<CalendarTodos>
         done: true,
         selectedDay: selectedDay,
         searchTodo: '',
+        sortOption: _sortOption,
       ),
     ],
   );

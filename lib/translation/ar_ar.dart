@@ -119,5 +119,12 @@ class ArAr {
     'ready': 'تم',
     'subTask': 'المهام الفرعية',
     'selectTodoParent': 'اختر مهمة',
+    'sortByNameAsc': 'حسب الاسم (تصاعدي)',
+    'sortByNameDesc': 'حسب الاسم (تنازلي)',
+    'sortByDateAsc': 'حسب التاريخ (الأقدم أولاً)',
+    'sortByDateDesc': 'حسب التاريخ (الأحدث أولاً)',
+    'sortByPriorityAsc': 'حسب الأولوية (من منخفض إلى مرتفع)',
+    'sortByPriorityDesc': 'حسب الأولوية (من مرتفع إلى منخفض)',
+    'sortByIndex': 'الافتراضي',
   };
 }

@@ -116,5 +116,12 @@ class ZhTw {
     'ready': '完成',
     'subTask': '子任務',
     'selectTodoParent': '選擇一個待辦事項',
+    'sortByNameAsc': '按名稱（升序）',
+    'sortByNameDesc': '按名稱（降序）',
+    'sortByDateAsc': '按日期（最早優先）',
+    'sortByDateDesc': '按日期（最新優先）',
+    'sortByPriorityAsc': '按優先順序（由低到高）',
+    'sortByPriorityDesc': '按優先順序（由高到低）',
+    'sortByIndex': '預設排序',
   };
 }

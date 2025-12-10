@@ -250,7 +250,7 @@ class _AllTasksState extends State<AllTasks>
     handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
     sliver: SliverPersistentHeader(
       delegate: MyDelegate(
-        TabBar(
+        child: TabBar(
           tabAlignment: TabAlignment.start,
           controller: tabController,
           isScrollable: true,

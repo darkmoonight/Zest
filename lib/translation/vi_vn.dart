@@ -117,5 +117,12 @@ class ViVn {
     'ready': 'Xong',
     'subTask': 'Các công việc phụ',
     'selectTodoParent': 'Chọn một việc cần làm',
+    'sortByNameAsc': 'Theo tên (tăng dần)',
+    'sortByNameDesc': 'Theo tên (giảm dần)',
+    'sortByDateAsc': 'Theo ngày (cũ nhất trước)',
+    'sortByDateDesc': 'Theo ngày (mới nhất trước)',
+    'sortByPriorityAsc': 'Theo mức ưu tiên (thấp đến cao)',
+    'sortByPriorityDesc': 'Theo mức ưu tiên (cao đến thấp)',
+    'sortByIndex': 'Mặc định',
   };
 }

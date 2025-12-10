@@ -8,6 +8,16 @@ import 'package:zest/app/ui/todos/widgets/todos_action.dart';
 import 'package:zest/app/ui/widgets/list_empty.dart';
 import 'package:zest/main.dart';
 
+enum SortOption {
+  none,
+  alphaAsc,
+  alphaDesc,
+  dateAsc,
+  dateDesc,
+  priorityAsc,
+  priorityDesc,
+}
+
 class TodosList extends StatefulWidget {
   const TodosList({
     super.key,
@@ -18,6 +28,7 @@ class TodosList extends StatefulWidget {
     required this.calendar,
     this.selectedDay,
     required this.searchTodo,
+    this.sortOption,
   });
 
   final bool done;
@@ -27,6 +38,7 @@ class TodosList extends StatefulWidget {
   final bool calendar;
   final DateTime? selectedDay;
   final String searchTodo;
+  final SortOption? sortOption;
 
   @override
   State<TodosList> createState() => _TodosListState();
@@ -121,20 +133,60 @@ class _TodosListState extends State<TodosList> {
       );
 
   void _sortTodos(List<Todos> todos) {
-    if (widget.calendar) {
-      todos.sort(
-        (a, b) => a.todoCompletedTime!.compareTo(b.todoCompletedTime!),
-      );
-    } else {
-      todos.sort((a, b) {
-        if (a.fix && !b.fix) {
-          return -1;
-        } else if (!a.fix && b.fix) {
-          return 1;
-        } else {
+    final opt = widget.sortOption ?? SortOption.none;
+
+    int comparePriority(Todos a, Todos b) =>
+        a.priority.index.compareTo(b.priority.index);
+
+    int compareName(Todos a, Todos b) =>
+        a.name.toLowerCase().compareTo(b.name.toLowerCase());
+
+    int compareDate(
+      Todos a,
+      Todos b, {
+      bool ascending = true,
+      bool ignoreTimeOfDay = false,
+    }) {
+      final da = a.todoCompletedTime;
+      final db = b.todoCompletedTime;
+
+      if (da == null && db == null) return 0;
+      if (da == null) return 1;
+      if (db == null) return -1;
+
+      final va = ignoreTimeOfDay ? DateTime(da.year, da.month, da.day) : da;
+      final vb = ignoreTimeOfDay ? DateTime(db.year, db.month, db.day) : db;
+
+      final cmp = va.compareTo(vb);
+      return ascending ? cmp : -cmp;
+    }
+
+    switch (opt) {
+      case SortOption.alphaAsc:
+        todos.sort((a, b) => compareName(a, b));
+        break;
+      case SortOption.alphaDesc:
+        todos.sort((a, b) => compareName(b, a));
+        break;
+      case SortOption.dateAsc:
+        todos.sort((a, b) => compareDate(a, b, ascending: true));
+        break;
+      case SortOption.dateDesc:
+        todos.sort((a, b) => compareDate(a, b, ascending: false));
+        break;
+      case SortOption.priorityAsc:
+        todos.sort((a, b) => comparePriority(b, a));
+        break;
+      case SortOption.priorityDesc:
+        todos.sort((a, b) => comparePriority(a, b));
+        break;
+      case SortOption.none:
+        todos.sort((a, b) {
+          if (a.fix && !b.fix) return -1;
+          if (!a.fix && b.fix) return 1;
           return 0;
-        }
-      });
+        });
+        break;
     }
   }
 

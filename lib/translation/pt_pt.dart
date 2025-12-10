@@ -121,5 +121,12 @@ class PtPt {
     'ready': 'Feito',
     'subTask': 'Subtarefas',
     'selectTodoParent': 'Escolha uma tarefa',
+    'sortByNameAsc': 'Por nome (ascendente)',
+    'sortByNameDesc': 'Por nome (descendente)',
+    'sortByDateAsc': 'Por data (mais antigas primeiro)',
+    'sortByDateDesc': 'Por data (mais recentes primeiro)',
+    'sortByPriorityAsc': 'Por prioridade (baixa para alta)',
+    'sortByPriorityDesc': 'Por prioridade (alta para baixa)',
+    'sortByIndex': 'Padrão',
   };
 }
