@@ -121,5 +121,12 @@ class DeDe {
     'ready': 'Fertig',
     'subTask': 'Unteraufgaben',
     'selectTodoParent': 'Wählen Sie eine Aufgabe',
+    'sortByNameAsc': 'Nach Name (aufsteigend)',
+    'sortByNameDesc': 'Nach Name (absteigend)',
+    'sortByDateAsc': 'Nach Datum (älteste zuerst)',
+    'sortByDateDesc': 'Nach Datum (neueste zuerst)',
+    'sortByPriorityAsc': 'Nach Priorität (niedrig zu hoch)',
+    'sortByPriorityDesc': 'Nach Priorität (hoch zu niedrig)',
+    'sortByIndex': 'Standard',
   };
 }

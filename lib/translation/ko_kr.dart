@@ -116,5 +116,12 @@ class KoKr {
     'ready': '완료',
     'subTask': '하위 작업',
     'selectTodoParent': '할 일을 선택하세요',
+    'sortByNameAsc': '이름순 (오름차순)',
+    'sortByNameDesc': '이름순 (내림차순)',
+    'sortByDateAsc': '날짜순 (오래된 순)',
+    'sortByDateDesc': '날짜순 (최신 순)',
+    'sortByPriorityAsc': '우선순위 (낮음→높음)',
+    'sortByPriorityDesc': '우선순위 (높음→낮음)',
+    'sortByIndex': '기본값',
   };
 }

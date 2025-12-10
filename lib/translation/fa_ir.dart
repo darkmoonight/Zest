@@ -122,5 +122,12 @@ class FaIr {
     'ready': 'انجام شد',
     'subTask': 'زیروظایف',
     'selectTodoParent': 'یک وظیفه را انتخاب کنید',
+    'sortByNameAsc': 'بر اساس نام (صعودی)',
+    'sortByNameDesc': 'بر اساس نام (نزولی)',
+    'sortByDateAsc': 'بر اساس تاریخ (قدیمی‌ترین اول)',
+    'sortByDateDesc': 'بر اساس تاریخ (جدیدترین اول)',
+    'sortByPriorityAsc': 'بر اساس اولویت (کم به زیاد)',
+    'sortByPriorityDesc': 'بر اساس اولویت (زیاد به کم)',
+    'sortByIndex': 'پیش‌فرض',
   };
 }

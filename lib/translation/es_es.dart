@@ -124,5 +124,12 @@ class EsEs {
     'ready': 'Hecho',
     'subTask': 'Subtareas',
     'selectTodoParent': 'Selecciona una tarea',
+    'sortByNameAsc': 'Por nombre (ascendente)',
+    'sortByNameDesc': 'Por nombre (descendente)',
+    'sortByDateAsc': 'Por fecha (más antiguas primero)',
+    'sortByDateDesc': 'Por fecha (más recientes primero)',
+    'sortByPriorityAsc': 'Por prioridad (de baja a alta)',
+    'sortByPriorityDesc': 'Por prioridad (de alta a baja)',
+    'sortByIndex': 'Predeterminado',
   };
 }

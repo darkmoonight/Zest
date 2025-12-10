@@ -124,5 +124,12 @@ class FrFr {
     'ready': 'Terminé',
     'subTask': 'Sous-tâches',
     'selectTodoParent': 'Choisissez une tâche',
+    'sortByNameAsc': 'Par nom (croissant)',
+    'sortByNameDesc': 'Par nom (décroissant)',
+    'sortByDateAsc': 'Par date (les plus anciennes d’abord)',
+    'sortByDateDesc': 'Par date (les plus récentes d’abord)',
+    'sortByPriorityAsc': 'Par priorité (faible à élevée)',
+    'sortByPriorityDesc': 'Par priorité (élevée à faible)',
+    'sortByIndex': 'Par défaut',
   };
 }

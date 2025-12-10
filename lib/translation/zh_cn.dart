@@ -116,5 +116,12 @@ class ZhCN {
     'ready': '完成',
     'subTask': '子任务',
     'selectTodoParent': '选择一个待办事项',
+    'sortByNameAsc': '按名称（升序）',
+    'sortByNameDesc': '按名称（降序）',
+    'sortByDateAsc': '按日期（最早优先）',
+    'sortByDateDesc': '按日期（最新优先）',
+    'sortByPriorityAsc': '按优先级（由低到高）',
+    'sortByPriorityDesc': '按优先级（由高到低）',
+    'sortByIndex': '默认排序',
   };
 }

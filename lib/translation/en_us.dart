@@ -120,5 +120,12 @@ class EnUs {
     'ready': 'Done',
     'subTask': 'Subtasks',
     'selectTodoParent': 'Choose a todo',
+    'sortByNameAsc': 'By name (ascending)',
+    'sortByNameDesc': 'By name (descending)',
+    'sortByDateAsc': 'By date (oldest first)',
+    'sortByDateDesc': 'By date (newest first)',
+    'sortByPriorityAsc': 'By priority (low to high)',
+    'sortByPriorityDesc': 'By priority (high to low)',
+    'sortByIndex': 'Default order',
   };
 }

@@ -122,5 +122,12 @@ class PlPl {
     'ready': 'Ukończone',
     'subTask': 'Podzadania',
     'selectTodoParent': 'Wybierz zadanie',
+    'sortByNameAsc': 'Według nazwy (rosnąco)',
+    'sortByNameDesc': 'Według nazwy (malejąco)',
+    'sortByDateAsc': 'Według daty (najstarsze pierwsze)',
+    'sortByDateDesc': 'Według daty (najnowsze pierwsze)',
+    'sortByPriorityAsc': 'Według priorytetu (niski → wysoki)',
+    'sortByPriorityDesc': 'Według priorytetu (wysoki → niski)',
+    'sortByIndex': 'Domyślnie',
   };
 }

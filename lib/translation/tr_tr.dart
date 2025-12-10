@@ -122,5 +122,12 @@ class TrTr {
     'ready': 'Tamamlandı',
     'subTask': 'Alt görevler',
     'selectTodoParent': 'Bir görev seçin',
+    'sortByNameAsc': 'Ada göre (artan)',
+    'sortByNameDesc': 'Ada göre (azalan)',
+    'sortByDateAsc': 'Tarihe göre (en eski önce)',
+    'sortByDateDesc': 'Tarihe göre (en yeni önce)',
+    'sortByPriorityAsc': 'Önceliğe göre (düşükten yükseğe)',
+    'sortByPriorityDesc': 'Önceliğe göre (yüksekten düşüğe)',
+    'sortByIndex': 'Varsayılan',
   };
 }
