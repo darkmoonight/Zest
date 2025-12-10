@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:zest/app/data/db.dart';
+import 'package:zest/app/ui/todos/widgets/sort_option.dart';
 import 'package:zest/app/ui/todos/widgets/todos_list.dart';
 import 'package:zest/app/ui/todos/widgets/todos_transfer.dart';
 import 'package:zest/app/ui/widgets/my_delegate.dart';
@@ -36,25 +37,6 @@ class _CalendarTodosState extends State<CalendarTodos>
   void dispose() {
     tabController.dispose();
     super.dispose();
-  }
-
-  String _sortLabel(SortOption opt) {
-    switch (opt) {
-      case SortOption.alphaAsc:
-        return 'sortByNameAsc'.tr;
-      case SortOption.alphaDesc:
-        return 'sortByNameDesc'.tr;
-      case SortOption.dateAsc:
-        return 'sortByDateAsc'.tr;
-      case SortOption.dateDesc:
-        return 'sortByDateDesc'.tr;
-      case SortOption.priorityAsc:
-        return 'sortByDateAsc'.tr;
-      case SortOption.priorityDesc:
-        return 'sortByDateDesc'.tr;
-      case SortOption.none:
-        return 'sortByIndex'.tr;
-    }
   }
 
   @override
@@ -309,7 +291,7 @@ class _CalendarTodosState extends State<CalendarTodos>
                 ],
               ),
             ),
-            Text(_sortLabel(_sortOption), style: context.textTheme.labelLarge),
+            Text(_sortOption.label(), style: context.textTheme.labelLarge),
             PopupMenuButton<SortOption>(
               tooltip: 'sort'.tr,
               icon: const Icon(IconsaxPlusLinear.sort),

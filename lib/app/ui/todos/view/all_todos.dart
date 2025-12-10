@@ -1,5 +1,6 @@
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/controller/todo_controller.dart';
+import 'package:zest/app/ui/todos/widgets/sort_option.dart';
 import 'package:zest/app/ui/todos/widgets/todos_list.dart';
 import 'package:zest/app/ui/todos/widgets/todos_transfer.dart';
 import 'package:zest/app/ui/widgets/my_delegate.dart';
@@ -38,25 +39,6 @@ class _AllTodosState extends State<AllTodos>
 
   void applyFilter(String value) =>
       setState(() => filter = value.toLowerCase());
-
-  String _sortLabel(SortOption opt) {
-    switch (opt) {
-      case SortOption.alphaAsc:
-        return 'sortByNameAsc'.tr;
-      case SortOption.alphaDesc:
-        return 'sortByNameDesc'.tr;
-      case SortOption.dateAsc:
-        return 'sortByDateAsc'.tr;
-      case SortOption.dateDesc:
-        return 'sortByDateDesc'.tr;
-      case SortOption.priorityAsc:
-        return 'sortByDateAsc'.tr;
-      case SortOption.priorityDesc:
-        return 'sortByDateDesc'.tr;
-      case SortOption.none:
-        return 'sortByIndex'.tr;
-    }
-  }
 
   @override
   Widget build(BuildContext context) => Obx(
@@ -224,7 +206,7 @@ class _AllTodosState extends State<AllTodos>
                 ],
               ),
             ),
-            Text(_sortLabel(_sortOption), style: context.textTheme.labelLarge),
+            Text(_sortOption.label(), style: context.textTheme.labelLarge),
             PopupMenuButton<SortOption>(
               tooltip: 'sort'.tr,
               icon: const Icon(IconsaxPlusLinear.sort),
