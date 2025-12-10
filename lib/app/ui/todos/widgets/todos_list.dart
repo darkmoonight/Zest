@@ -141,13 +141,24 @@ class _TodosListState extends State<TodosList> {
     int compareName(Todos a, Todos b) =>
         a.name.toLowerCase().compareTo(b.name.toLowerCase());
 
-    int compareDate(Todos a, Todos b) {
+    int compareDate(
+      Todos a,
+      Todos b, {
+      bool ascending = true,
+      bool ignoreTimeOfDay = false,
+    }) {
       final da = a.todoCompletedTime;
       final db = b.todoCompletedTime;
+
       if (da == null && db == null) return 0;
       if (da == null) return 1;
       if (db == null) return -1;
-      return da.compareTo(db);
+
+      final va = ignoreTimeOfDay ? DateTime(da.year, da.month, da.day) : da;
+      final vb = ignoreTimeOfDay ? DateTime(db.year, db.month, db.day) : db;
+
+      final cmp = va.compareTo(vb);
+      return ascending ? cmp : -cmp;
     }
 
     switch (opt) {
@@ -158,16 +169,16 @@ class _TodosListState extends State<TodosList> {
         todos.sort((a, b) => compareName(b, a));
         break;
       case SortOption.dateAsc:
-        todos.sort((a, b) => compareDate(a, b));
+        todos.sort((a, b) => compareDate(a, b, ascending: true));
         break;
       case SortOption.dateDesc:
-        todos.sort((a, b) => compareDate(b, a));
+        todos.sort((a, b) => compareDate(a, b, ascending: false));
         break;
       case SortOption.priorityAsc:
-        todos.sort((a, b) => comparePriority(a, b));
+        todos.sort((a, b) => comparePriority(b, a));
         break;
       case SortOption.priorityDesc:
-        todos.sort((a, b) => comparePriority(b, a));
+        todos.sort((a, b) => comparePriority(a, b));
         break;
       case SortOption.none:
         todos.sort((a, b) {

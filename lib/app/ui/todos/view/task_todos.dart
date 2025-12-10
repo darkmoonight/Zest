@@ -3,7 +3,6 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
-import 'package:zest/app/ui/todos/widgets/sort_option.dart';
 import 'package:zest/app/ui/todos/widgets/todos_action.dart';
 import 'package:zest/app/ui/todos/widgets/todos_list.dart';
 import 'package:zest/app/ui/todos/widgets/todos_transfer.dart';
@@ -310,7 +309,6 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
                 ],
               ),
             ),
-            Text(_sortOption.label(), style: context.textTheme.labelLarge),
             PopupMenuButton<SortOption>(
               tooltip: 'sort'.tr,
               icon: const Icon(IconsaxPlusLinear.sort),
@@ -327,11 +325,11 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
                 ),
                 PopupMenuItem(
                   value: SortOption.alphaAsc,
-                  child: Text('sortByNameAsc'),
+                  child: Text('sortByNameAsc'.tr),
                 ),
                 PopupMenuItem(
                   value: SortOption.alphaDesc,
-                  child: Text('sortByNameDesc'),
+                  child: Text('sortByNameDesc'.tr),
                 ),
                 PopupMenuItem(
                   value: SortOption.dateAsc,

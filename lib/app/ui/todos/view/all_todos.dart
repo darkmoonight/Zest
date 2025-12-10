@@ -1,6 +1,5 @@
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/controller/todo_controller.dart';
-import 'package:zest/app/ui/todos/widgets/sort_option.dart';
 import 'package:zest/app/ui/todos/widgets/todos_list.dart';
 import 'package:zest/app/ui/todos/widgets/todos_transfer.dart';
 import 'package:zest/app/ui/widgets/my_delegate.dart';
@@ -206,7 +205,6 @@ class _AllTodosState extends State<AllTodos>
                 ],
               ),
             ),
-            Text(_sortOption.label(), style: context.textTheme.labelLarge),
             PopupMenuButton<SortOption>(
               tooltip: 'sort'.tr,
               icon: const Icon(IconsaxPlusLinear.sort),
@@ -223,11 +221,11 @@ class _AllTodosState extends State<AllTodos>
                 ),
                 PopupMenuItem(
                   value: SortOption.alphaAsc,
-                  child: Text('sortByNameAsc'),
+                  child: Text('sortByNameAsc'.tr),
                 ),
                 PopupMenuItem(
                   value: SortOption.alphaDesc,
-                  child: Text('sortByNameDesc'),
+                  child: Text('sortByNameDesc'.tr),
                 ),
                 PopupMenuItem(
                   value: SortOption.dateAsc,

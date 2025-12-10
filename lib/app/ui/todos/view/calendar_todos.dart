@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:zest/app/data/db.dart';
-import 'package:zest/app/ui/todos/widgets/sort_option.dart';
 import 'package:zest/app/ui/todos/widgets/todos_list.dart';
 import 'package:zest/app/ui/todos/widgets/todos_transfer.dart';
 import 'package:zest/app/ui/widgets/my_delegate.dart';
@@ -291,7 +290,6 @@ class _CalendarTodosState extends State<CalendarTodos>
                 ],
               ),
             ),
-            Text(_sortOption.label(), style: context.textTheme.labelLarge),
             PopupMenuButton<SortOption>(
               tooltip: 'sort'.tr,
               icon: const Icon(IconsaxPlusLinear.sort),
@@ -308,11 +306,11 @@ class _CalendarTodosState extends State<CalendarTodos>
                 ),
                 PopupMenuItem(
                   value: SortOption.alphaAsc,
-                  child: Text('sortByNameAsc'),
+                  child: Text('sortByNameAsc'.tr),
                 ),
                 PopupMenuItem(
                   value: SortOption.alphaDesc,
-                  child: Text('sortByNameDesc'),
+                  child: Text('sortByNameDesc'.tr),
                 ),
                 PopupMenuItem(
                   value: SortOption.dateAsc,
