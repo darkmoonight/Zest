@@ -1,29 +1,25 @@
 import 'package:flutter/material.dart';
 
 class MyDelegate extends SliverPersistentHeaderDelegate {
-  MyDelegate(this.tabBar);
+  final Widget child;
+  final double height;
 
-  final TabBar tabBar;
+  MyDelegate({required this.child, this.height = 48.0});
 
   @override
   Widget build(
     BuildContext context,
     double shrinkOffset,
     bool overlapsContent,
-  ) => _buildTabBarContainer();
-
-  Widget _buildTabBarContainer() => Container(
-    margin: const EdgeInsets.symmetric(horizontal: 5),
-    height: tabBar.preferredSize.height,
-    child: tabBar,
-  );
+  ) => Container(child: child);
 
   @override
-  double get maxExtent => tabBar.preferredSize.height;
+  double get maxExtent => height;
 
   @override
-  double get minExtent => tabBar.preferredSize.height;
+  double get minExtent => height;
 
   @override
-  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) => false;
+  bool shouldRebuild(covariant MyDelegate oldDelegate) =>
+      child != oldDelegate.child || height != oldDelegate.height;
 }
