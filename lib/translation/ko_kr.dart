@@ -123,5 +123,6 @@ class KoKr {
     'sortByPriorityAsc': '우선순위 (낮음→높음)',
     'sortByPriorityDesc': '우선순위 (높음→낮음)',
     'sortByIndex': '기본값',
+    'sort': '정렬',
   };
 }

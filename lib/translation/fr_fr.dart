@@ -131,5 +131,6 @@ class FrFr {
     'sortByPriorityAsc': 'Par priorité (faible à élevée)',
     'sortByPriorityDesc': 'Par priorité (élevée à faible)',
     'sortByIndex': 'Par défaut',
+    'sort': 'Trier',
   };
 }

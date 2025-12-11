@@ -129,5 +129,6 @@ class TrTr {
     'sortByPriorityAsc': 'Önceliğe göre (düşükten yükseğe)',
     'sortByPriorityDesc': 'Önceliğe göre (yüksekten düşüğe)',
     'sortByIndex': 'Varsayılan',
+    'sort': 'Sırala',
   };
 }

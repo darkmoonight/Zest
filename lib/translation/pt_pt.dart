@@ -128,5 +128,6 @@ class PtPt {
     'sortByPriorityAsc': 'Por prioridade (baixa para alta)',
     'sortByPriorityDesc': 'Por prioridade (alta para baixa)',
     'sortByIndex': 'Padrão',
+    'sort': 'Ordenar',
   };
 }

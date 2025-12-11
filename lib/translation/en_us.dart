@@ -127,5 +127,6 @@ class EnUs {
     'sortByPriorityAsc': 'By priority (low to high)',
     'sortByPriorityDesc': 'By priority (high to low)',
     'sortByIndex': 'Default order',
+    'sort': 'Sort',
   };
 }

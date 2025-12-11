@@ -129,5 +129,6 @@ class FaIr {
     'sortByPriorityAsc': 'بر اساس اولویت (کم به زیاد)',
     'sortByPriorityDesc': 'بر اساس اولویت (زیاد به کم)',
     'sortByIndex': 'پیش‌فرض',
+    'sort': 'مرتب‌سازی',
   };
 }

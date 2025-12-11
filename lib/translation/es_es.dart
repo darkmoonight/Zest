@@ -131,5 +131,6 @@ class EsEs {
     'sortByPriorityAsc': 'Por prioridad (de baja a alta)',
     'sortByPriorityDesc': 'Por prioridad (de alta a baja)',
     'sortByIndex': 'Predeterminado',
+    'sort': 'Ordenar',
   };
 }

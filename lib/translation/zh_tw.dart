@@ -123,5 +123,6 @@ class ZhTw {
     'sortByPriorityAsc': '按優先順序（由低到高）',
     'sortByPriorityDesc': '按優先順序（由高到低）',
     'sortByIndex': '預設排序',
+    'sort': '排序',
   };
 }

@@ -128,5 +128,6 @@ class ItIt {
     'sortByPriorityAsc': 'Per priorità (bassa a alta)',
     'sortByPriorityDesc': 'Per priorità (alta a bassa)',
     'sortByIndex': 'Predefinito',
+    'sort': 'Ordina',
   };
 }

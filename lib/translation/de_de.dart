@@ -128,5 +128,6 @@ class DeDe {
     'sortByPriorityAsc': 'Nach Priorität (niedrig zu hoch)',
     'sortByPriorityDesc': 'Nach Priorität (hoch zu niedrig)',
     'sortByIndex': 'Standard',
+    'sort': 'Sortieren',
   };
 }

@@ -311,7 +311,7 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
             ),
             PopupMenuButton<SortOption>(
               tooltip: 'sort'.tr,
-              icon: const Icon(IconsaxPlusLinear.sort),
+              icon: const Icon(IconsaxPlusLinear.sort, size: 20),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),

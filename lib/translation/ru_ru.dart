@@ -127,5 +127,6 @@ class RuRu {
     'sortByPriorityAsc': 'По приоритету (от низкого к высокому)',
     'sortByPriorityDesc': 'По приоритету (от высокого к низкому)',
     'sortByIndex': 'По умолчанию',
+    'sort': 'Сортировка',
   };
 }
