@@ -132,5 +132,6 @@ class FrFr {
     'sortByPriorityDesc': 'Par priorité (élevée à faible)',
     'sortByIndex': 'Par défaut',
     'sort': 'Trier',
+    'screenPrivacy': 'Confidentialité de l’écran',
   };
 }

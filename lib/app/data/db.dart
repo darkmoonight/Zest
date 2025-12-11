@@ -12,6 +12,7 @@ class Settings {
   bool materialColor = true;
   bool amoledTheme = false;
   bool? isImage = true;
+  bool? screenPrivacy = false;
   String? language;
   String firstDay = 'monday';
   String calendarFormat = 'week';

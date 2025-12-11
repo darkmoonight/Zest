@@ -124,5 +124,6 @@ class KoKr {
     'sortByPriorityDesc': '우선순위 (높음→낮음)',
     'sortByIndex': '기본값',
     'sort': '정렬',
+    'screenPrivacy': '화면 개인정보 보호',
   };
 }

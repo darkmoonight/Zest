@@ -130,5 +130,6 @@ class FaIr {
     'sortByPriorityDesc': 'بر اساس اولویت (زیاد به کم)',
     'sortByIndex': 'پیش‌فرض',
     'sort': 'مرتب‌سازی',
+    'screenPrivacy': 'حریم خصوصی صفحه',
   };
 }

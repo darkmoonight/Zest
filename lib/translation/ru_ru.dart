@@ -128,5 +128,6 @@ class RuRu {
     'sortByPriorityDesc': 'По приоритету (от высокого к низкому)',
     'sortByIndex': 'По умолчанию',
     'sort': 'Сортировка',
+    'screenPrivacy': 'Конфиденциальность экрана',
   };
 }

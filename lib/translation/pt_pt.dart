@@ -129,5 +129,6 @@ class PtPt {
     'sortByPriorityDesc': 'Por prioridade (alta para baixa)',
     'sortByIndex': 'Padrão',
     'sort': 'Ordenar',
+    'screenPrivacy': 'Privacidade do ecrã',
   };
 }

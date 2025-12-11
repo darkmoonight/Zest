@@ -125,5 +125,6 @@ class ViVn {
     'sortByPriorityDesc': 'Theo mức ưu tiên (cao đến thấp)',
     'sortByIndex': 'Mặc định',
     'sort': 'Sắp xếp',
+    'screenPrivacy': 'Quyền riêng tư màn hình',
   };
 }

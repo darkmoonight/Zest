@@ -19,6 +19,7 @@ import 'app/data/db.dart';
 import 'translation/translation.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:flag_secure/flag_secure.dart';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -68,6 +69,15 @@ Future<void> initializeApp() async {
   await initializeNotifications();
   await IsarController().openDB();
   await initSettings();
+  try {
+    if (settings.screenPrivacy == true) {
+      await FlagSecure.set();
+    } else {
+      await FlagSecure.unset();
+    }
+  } on PlatformException {
+    // ignore
+  }
 }
 
 Future<void> initializeTimeZone() async {
@@ -110,6 +120,7 @@ Future<void> initSettings() async {
   settings.language ??= '${Get.deviceLocale}';
   settings.theme ??= 'system';
   settings.isImage ??= true;
+  settings.screenPrivacy ??= false;
   isar.writeTxnSync(() => isar.settings.putSync(settings));
 }
 

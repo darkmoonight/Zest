@@ -129,5 +129,6 @@ class ItIt {
     'sortByPriorityDesc': 'Per priorità (alta a bassa)',
     'sortByIndex': 'Predefinito',
     'sort': 'Ordina',
+    'screenPrivacy': 'Privacy dello schermo',
   };
 }

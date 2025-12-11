@@ -129,5 +129,6 @@ class DeDe {
     'sortByPriorityDesc': 'Nach Priorität (hoch zu niedrig)',
     'sortByIndex': 'Standard',
     'sort': 'Sortieren',
+    'screenPrivacy': 'Bildschirm-Privatsphäre',
   };
 }

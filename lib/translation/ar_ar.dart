@@ -127,5 +127,6 @@ class ArAr {
     'sortByPriorityDesc': 'حسب الأولوية (من مرتفع إلى منخفض)',
     'sortByIndex': 'الافتراضي',
     'sort': 'ترتیب',
+    'screenPrivacy': 'خصوصية الشاشة',
   };
 }

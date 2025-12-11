@@ -1,4 +1,6 @@
+import 'package:flag_secure/flag_secure.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -245,6 +247,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               _buildTimeFormatSettingCard(context, setState),
               _buildFirstDayOfWeekSettingCard(context, setState),
+              _buildScreenPrivacySettingCard(context, setState),
               _buildBackupSettingCard(context),
               _buildRestoreSettingCard(context),
               _buildDeleteAllDBSettingCard(context),
@@ -254,6 +257,34 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
     ),
+  );
+
+  Widget _buildScreenPrivacySettingCard(
+    BuildContext context,
+    StateSetter setState,
+  ) => SettingCard(
+    elevation: 4,
+    icon: const Icon(IconsaxPlusLinear.security_safe),
+    text: 'screenPrivacy'.tr,
+    switcher: true,
+    value: settings.screenPrivacy ?? false,
+    onChange: (value) async {
+      try {
+        if (value == true) {
+          await FlagSecure.set();
+        } else {
+          await FlagSecure.unset();
+        }
+        isar.writeTxnSync(() {
+          settings.screenPrivacy = value;
+          isar.settings.putSync(settings);
+        });
+        setState(() {});
+      } on PlatformException {
+        // ignore
+      }
+      setState(() {});
+    },
   );
 
   Widget _buildTimeFormatSettingCard(

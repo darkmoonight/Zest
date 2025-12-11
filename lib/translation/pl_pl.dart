@@ -130,5 +130,6 @@ class PlPl {
     'sortByPriorityDesc': 'Według priorytetu (wysoki → niski)',
     'sortByIndex': 'Domyślnie',
     'sort': 'Sortuj',
+    'screenPrivacy': 'Prywatność ekranu',
   };
 }

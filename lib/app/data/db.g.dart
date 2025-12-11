@@ -49,9 +49,14 @@ const SettingsSchema = CollectionSchema(
       type: IsarType.bool,
     ),
     r'onboard': PropertySchema(id: 7, name: r'onboard', type: IsarType.bool),
-    r'theme': PropertySchema(id: 8, name: r'theme', type: IsarType.string),
+    r'screenPrivacy': PropertySchema(
+      id: 8,
+      name: r'screenPrivacy',
+      type: IsarType.bool,
+    ),
+    r'theme': PropertySchema(id: 9, name: r'theme', type: IsarType.string),
     r'timeformat': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'timeformat',
       type: IsarType.string,
     ),
@@ -111,8 +116,9 @@ void _settingsSerialize(
   writer.writeString(offsets[5], object.language);
   writer.writeBool(offsets[6], object.materialColor);
   writer.writeBool(offsets[7], object.onboard);
-  writer.writeString(offsets[8], object.theme);
-  writer.writeString(offsets[9], object.timeformat);
+  writer.writeBool(offsets[8], object.screenPrivacy);
+  writer.writeString(offsets[9], object.theme);
+  writer.writeString(offsets[10], object.timeformat);
 }
 
 Settings _settingsDeserialize(
@@ -131,8 +137,9 @@ Settings _settingsDeserialize(
   object.language = reader.readStringOrNull(offsets[5]);
   object.materialColor = reader.readBool(offsets[6]);
   object.onboard = reader.readBool(offsets[7]);
-  object.theme = reader.readStringOrNull(offsets[8]);
-  object.timeformat = reader.readString(offsets[9]);
+  object.screenPrivacy = reader.readBoolOrNull(offsets[8]);
+  object.theme = reader.readStringOrNull(offsets[9]);
+  object.timeformat = reader.readString(offsets[10]);
   return object;
 }
 
@@ -160,8 +167,10 @@ P _settingsDeserializeProp<P>(
     case 7:
       return (reader.readBool(offset)) as P;
     case 8:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBoolOrNull(offset)) as P;
     case 9:
+      return (reader.readStringOrNull(offset)) as P;
+    case 10:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -972,6 +981,34 @@ extension SettingsQueryFilter
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  screenPrivacyIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'screenPrivacy'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  screenPrivacyIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'screenPrivacy'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> screenPrivacyEqualTo(
+    bool? value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'screenPrivacy', value: value),
+      );
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterFilterCondition> themeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1385,6 +1422,18 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByScreenPrivacy() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenPrivacy', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByScreenPrivacyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenPrivacy', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByTheme() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'theme', Sort.asc);
@@ -1520,6 +1569,18 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByScreenPrivacy() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenPrivacy', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByScreenPrivacyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenPrivacy', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByTheme() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'theme', Sort.asc);
@@ -1609,6 +1670,12 @@ extension SettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Settings, Settings, QDistinct> distinctByScreenPrivacy() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'screenPrivacy');
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByTheme({
     bool caseSensitive = true,
   }) {
@@ -1679,6 +1746,12 @@ extension SettingsQueryProperty
   QueryBuilder<Settings, bool, QQueryOperations> onboardProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'onboard');
+    });
+  }
+
+  QueryBuilder<Settings, bool?, QQueryOperations> screenPrivacyProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'screenPrivacy');
     });
   }
 

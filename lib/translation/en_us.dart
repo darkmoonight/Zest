@@ -128,5 +128,6 @@ class EnUs {
     'sortByPriorityDesc': 'By priority (high to low)',
     'sortByIndex': 'Default order',
     'sort': 'Sort',
+    'screenPrivacy': 'Screen privacy',
   };
 }
