@@ -283,7 +283,6 @@ class _SettingsPageState extends State<SettingsPage> {
       } on PlatformException {
         // ignore
       }
-      setState(() {});
     },
   );
 
