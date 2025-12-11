@@ -125,6 +125,7 @@ class _TodosActionState extends State<TodosAction> {
     timeTodoEdit.clear();
     textTodoController.clear();
     tagsTodoEdit.clear();
+    todoTags = [];
   }
 
   void onPressed() {
@@ -218,9 +219,40 @@ class _TodosActionState extends State<TodosAction> {
     }).toList();
   }
 
+  Iterable<String> _getAllTags(String pattern) {
+    final allTodos = isar.todos.where().findAllSync();
+    final Set<String> tagsSet = {};
+    for (final t in allTodos) {
+      for (final tag in t.tags) {
+        final trimmed = tag.trim();
+        if (trimmed.isNotEmpty) tagsSet.add(trimmed);
+      }
+    }
+    final List<String> tagsList = tagsSet.toList();
+    if (pattern.trim().isEmpty) return tagsList;
+    final q = pattern.toLowerCase();
+    return tagsList.where((e) => e.toLowerCase().contains(q));
+  }
+
+  void _addTag(String value) {
+    final tag = value.trim();
+    if (tag.isEmpty) return;
+    if (!todoTags.contains(tag)) {
+      setState(() {
+        todoTags = List<String>.from(todoTags)..add(tag);
+        controller.tags.value = todoTags;
+      });
+    }
+  }
+
+  void _onTagSelected(String tag) {
+    _addTag(tag);
+    tagsTodoEdit.clear();
+    tagsFocusNode.unfocus();
+  }
+
   Widget _buildChips() {
     List<Widget> chips = [];
-
     for (int i = 0; i < todoTags.length; i++) {
       Padding actionChip = Padding(
         padding: const EdgeInsets.only(right: 5, top: 2),
@@ -234,10 +266,8 @@ class _TodosActionState extends State<TodosAction> {
           }),
         ),
       );
-
       chips.add(actionChip);
     }
-
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -430,23 +460,74 @@ class _TodosActionState extends State<TodosAction> {
     onChanged: (value) => controller.description.value = value,
   );
 
-  Widget _buildTagsInput() => MyTextForm(
+  Widget _buildTagsInput() => RawAutocomplete<String>(
+    focusNode: tagsFocusNode,
+    textEditingController: tagsTodoEdit,
+    fieldViewBuilder: _buildTagsFieldView,
+    optionsBuilder: _buildTagOptions,
+    onSelected: (String selection) => _onTagSelected(selection),
+    optionsViewBuilder: _buildTagOptionsView,
+  );
+
+  Widget _buildTagsFieldView(
+    BuildContext context,
+    TextEditingController fieldTextEditingController,
+    FocusNode fieldFocusNode,
+    VoidCallback onFieldSubmitted,
+  ) => MyTextForm(
     elevation: 4,
     margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    controller: tagsTodoEdit,
+    controller: fieldTextEditingController,
     labelText: 'tags'.tr,
     type: TextInputType.text,
     icon: const Icon(IconsaxPlusLinear.tag),
     focusNode: tagsFocusNode,
-    onFieldSubmitted: (value) => setState(() {
-      if (tagsTodoEdit.text.trim().isNotEmpty) {
-        todoTags = List<String>.from(todoTags)..add(tagsTodoEdit.text.trim());
-        tagsTodoEdit.clear();
-        controller.tags.value = todoTags;
-        tagsFocusNode.requestFocus();
-      }
-    }),
+    onFieldSubmitted: (value) {
+      _addTag(value);
+      fieldTextEditingController.clear();
+      tagsFocusNode.requestFocus();
+    },
   );
+
+  Future<Iterable<String>> _buildTagOptions(
+    TextEditingValue textEditingValue,
+  ) async => _getAllTags(textEditingValue.text);
+
+  Widget _buildTagOptionsView(
+    BuildContext context,
+    AutocompleteOnSelected<String> onSelected,
+    Iterable<String> options,
+  ) {
+    final list = options.toList();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Material(
+          borderRadius: BorderRadius.circular(12),
+          elevation: 4,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 200),
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              itemCount: list.length,
+              itemBuilder: (BuildContext context, int index) {
+                final tag = list[index];
+                return InkWell(
+                  onTap: () => onSelected(tag),
+                  child: ListTile(
+                    title: Text(tag, style: context.textTheme.bodyMedium),
+                    leading: const Icon(IconsaxPlusLinear.tag),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildAttributes() => SingleChildScrollView(
     scrollDirection: Axis.horizontal,
@@ -503,9 +584,7 @@ class _TodosActionState extends State<TodosAction> {
     onDeleted: () {
       timeTodoEdit.clear();
       setState(() {
-        if (widget.edit) {
-          controller.time.value = timeTodoEdit.text;
-        }
+        if (widget.edit) controller.time.value = timeTodoEdit.text;
       });
     },
     onPressed: _showDateTimePicker,
