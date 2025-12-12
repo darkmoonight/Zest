@@ -23,7 +23,7 @@ dependencies:
   flag_secure: ^2.0.2
   # workmanager: ^0.9.0+3
   # home_widget: ^0.8.1
-  # quick_actions: ^1.1.0
+  quick_actions: ^1.1.0
   restart_app: ^1.3.2
   reorderables: ^0.6.0
   google_fonts: ^6.3.3

@@ -15,10 +15,10 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
+class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   final themeController = Get.put(ThemeController());
   int tabIndex = 0;
@@ -80,6 +80,14 @@ class _HomePageState extends State<HomePage>
       if (index != 3 && !_isFabVisible) {
         _showFab();
       }
+    });
+  }
+
+  Future<void> openCreateForTab(int index) async {
+    changeTabIndex(index);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _showBottomSheet();
     });
   }
 

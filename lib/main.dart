@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:display_mode/display_mode.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flag_secure/flag_secure.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:zest/app/controller/isar_controller.dart';
 import 'package:zest/app/ui/home.dart';
 import 'package:zest/app/ui/onboarding.dart';
+import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
+import 'package:zest/app/ui/todos/view/calendar_todos.dart';
 import 'package:zest/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -16,10 +19,12 @@ import 'package:isar_community/isar.dart';
 import 'package:zest/theme/theme_controller.dart';
 import 'package:zest/app/utils/device_info.dart';
 import 'app/data/db.dart';
+import 'app/ui/todos/view/all_todos.dart';
 import 'translation/translation.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:flag_secure/flag_secure.dart';
+import 'package:quick_actions/quick_actions.dart';
+import 'package:zest/app/ui/todos/widgets/todos_action.dart';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -137,7 +142,6 @@ class MyApp extends StatefulWidget {
     Locale? newLocale,
   }) async {
     final state = context.findAncestorStateOfType<_MyAppState>()!;
-
     if (newAmoledTheme != null) state.changeAmoledTheme(newAmoledTheme);
     if (newMaterialColor != null) state.changeMaterialTheme(newMaterialColor);
     if (newLocale != null) state.changeLocale(newLocale);
@@ -149,12 +153,21 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final themeController = Get.put(ThemeController());
+  final QuickActions _quickActions = const QuickActions();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<HomePageState> _homeKey = GlobalKey<HomePageState>();
+  String? _pendingShortcut;
 
   void changeAmoledTheme(bool newAmoledTheme) =>
       setState(() => amoledTheme = newAmoledTheme);
   void changeMaterialTheme(bool newMaterialColor) =>
       setState(() => materialColor = newMaterialColor);
-  void changeLocale(Locale newLocale) => setState(() => locale = newLocale);
+  void changeLocale(Locale newLocale) {
+    setState(() => locale = newLocale);
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _setQuickActionsItems(),
+    );
+  }
 
   @override
   void initState() {
@@ -168,6 +181,116 @@ class _MyAppState extends State<MyApp> {
       settings.language!.substring(0, 2),
       settings.language!.substring(3),
     );
+    _initQuickActions();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _tryHandlePending());
+  }
+
+  void _initQuickActions() {
+    _quickActions.initialize((String shortcutType) {
+      _pendingShortcut = shortcutType;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _tryHandlePending());
+    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _setQuickActionsItems(),
+    );
+  }
+
+  void _setQuickActionsItems() {
+    final items = <ShortcutItem>[
+      ShortcutItem(
+        type: 'action_new_categories',
+        localizedTitle: 'addCategory'.tr,
+        icon: 'ic_shortcut_new_categories',
+      ),
+      ShortcutItem(
+        type: 'action_new_todo',
+        localizedTitle: 'addTodo'.tr,
+        icon: 'ic_shortcut_new_todo',
+      ),
+      ShortcutItem(
+        type: 'action_all_todos',
+        localizedTitle: 'allTodos'.tr,
+        icon: 'ic_shortcut_all_todos',
+      ),
+      ShortcutItem(
+        type: 'action_calendar_todos',
+        localizedTitle: 'calendar'.tr,
+        icon: 'ic_shortcut_calendar_todos',
+      ),
+    ];
+    _quickActions.setShortcutItems(items);
+  }
+
+  void _tryHandlePending() {
+    if (_pendingShortcut == null) return;
+    final ctx = _navigatorKey.currentContext;
+    if (ctx == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _tryHandlePending());
+      return;
+    }
+    final hasMaterialLocalizations =
+        Localizations.of<MaterialLocalizations>(ctx, MaterialLocalizations) !=
+        null;
+    if (!hasMaterialLocalizations) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _tryHandlePending());
+      return;
+    }
+    final type = _pendingShortcut!;
+    _pendingShortcut = null;
+    _handleShortcutWithContext(type, ctx);
+  }
+
+  void _handleShortcutWithContext(String type, BuildContext ctx) {
+    switch (type) {
+      case 'action_new_categories':
+        if (_homeKey.currentState != null) {
+          _homeKey.currentState!.openCreateForTab(0);
+        } else {
+          showModalBottomSheet(
+            enableDrag: false,
+            context: context,
+            isScrollControlled: true,
+            builder: (BuildContext context) =>
+                TasksAction(text: 'create'.tr, edit: false),
+          );
+        }
+        break;
+      case 'action_new_todo':
+        if (_homeKey.currentState != null) {
+          _homeKey.currentState!.openCreateForTab(1);
+        } else {
+          showModalBottomSheet(
+            enableDrag: false,
+            context: context,
+            isScrollControlled: true,
+            builder: (BuildContext context) =>
+                TodosAction(text: 'create'.tr, edit: false, category: true),
+          );
+        }
+        break;
+      case 'action_all_todos':
+        if (_homeKey.currentState != null) {
+          _homeKey.currentState!.changeTabIndex(1);
+          _navigatorKey.currentState?.popUntil((r) => r.isFirst);
+        } else {
+          _navigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (_) => const AllTodos()),
+          );
+        }
+        break;
+      case 'action_calendar_todos':
+        if (_homeKey.currentState != null) {
+          _homeKey.currentState!.changeTabIndex(2);
+          _navigatorKey.currentState?.popUntil((r) => r.isFirst);
+        } else {
+          _navigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (_) => const CalendarTodos()),
+          );
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   @override
@@ -196,6 +319,7 @@ class _MyAppState extends State<MyApp> {
           );
 
           return GetMaterialApp(
+            navigatorKey: _navigatorKey,
             theme: materialColor
                 ? lightColorScheme != null
                       ? lightMaterialTheme
@@ -241,7 +365,9 @@ class _MyAppState extends State<MyApp> {
                 .map((e) => e['locale'] as Locale)
                 .toList(),
             debugShowCheckedModeBanner: false,
-            home: settings.onboard ? const HomePage() : const OnBoarding(),
+            home: settings.onboard
+                ? HomePage(key: _homeKey)
+                : const OnBoarding(),
             builder: EasyLoading.init(),
             title: 'Zest',
           );

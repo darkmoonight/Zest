@@ -40,7 +40,6 @@ class _TodosActionState extends State<TodosAction> {
   Tasks? selectedTask;
   List<Tasks>? task;
   final FocusNode categoryFocusNode = FocusNode();
-  final FocusNode titleFocusNode = FocusNode();
   final FocusNode tagsFocusNode = FocusNode();
   final TextEditingController textTodoController = TextEditingController();
   final TextEditingController titleTodoEdit = TextEditingController();
@@ -73,12 +72,6 @@ class _TodosActionState extends State<TodosAction> {
     categoryFocusNode.addListener(() {
       if (mounted) setState(() {});
     });
-
-    if (!widget.edit) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) FocusScope.of(context).requestFocus(titleFocusNode);
-      });
-    }
   }
 
   void _initializeEditMode() {
@@ -205,7 +198,6 @@ class _TodosActionState extends State<TodosAction> {
     tagsTodoEdit.dispose();
     controller.dispose();
     categoryFocusNode.dispose();
-    titleFocusNode.dispose();
     tagsFocusNode.dispose();
     super.dispose();
   }
@@ -389,8 +381,6 @@ class _TodosActionState extends State<TodosAction> {
       if (widget.edit) controller.task.value = selectedTask;
     });
 
-    FocusScope.of(context).requestFocus(titleFocusNode);
-
     categoryFocusNode.unfocus();
   }
 
@@ -438,8 +428,8 @@ class _TodosActionState extends State<TodosAction> {
     labelText: 'name'.tr,
     type: TextInputType.multiline,
     icon: const Icon(IconsaxPlusLinear.edit),
-    focusNode: titleFocusNode,
     onChanged: (value) => controller.title.value = value,
+    autofocus: !widget.edit,
     validator: (value) {
       if (value == null || value.isEmpty) {
         return 'validateName'.tr;

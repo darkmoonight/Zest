@@ -18,6 +18,7 @@ class MyTextForm extends StatelessWidget {
     this.elevation,
     this.focusNode,
     this.maxLine = 1,
+    this.autofocus = false,
   });
 
   final String labelText;
@@ -34,6 +35,7 @@ class MyTextForm extends StatelessWidget {
   final double? elevation;
   final FocusNode? focusNode;
   final int? maxLine;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -54,6 +56,7 @@ class MyTextForm extends StatelessWidget {
     decoration: _buildInputDecoration(),
     validator: validator,
     maxLines: maxLine,
+    autofocus: autofocus,
   );
 
   InputDecoration _buildInputDecoration() => InputDecoration(

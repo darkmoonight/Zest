@@ -37,7 +37,6 @@ class _TasksActionState extends State<TasksAction> {
   final TextEditingController descCategoryEdit = TextEditingController();
 
   late final _EditingController controller;
-  final FocusNode titleFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -50,12 +49,6 @@ class _TasksActionState extends State<TasksAction> {
       descCategoryEdit.text,
       myColor,
     );
-
-    if (!widget.edit) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) FocusScope.of(context).requestFocus(titleFocusNode);
-      });
-    }
   }
 
   void _initializeEditMode() {
@@ -131,7 +124,6 @@ class _TasksActionState extends State<TasksAction> {
     titleCategoryEdit.dispose();
     descCategoryEdit.dispose();
     controller.dispose();
-    titleFocusNode.dispose();
     super.dispose();
   }
 
@@ -182,11 +174,11 @@ class _TasksActionState extends State<TasksAction> {
     elevation: 4,
     margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     controller: titleCategoryEdit,
-    focusNode: titleFocusNode,
     labelText: 'name'.tr,
     type: TextInputType.text,
     icon: const Icon(IconsaxPlusLinear.edit),
     onChanged: (value) => controller.title.value = value,
+    autofocus: !widget.edit,
     validator: (value) {
       if (value == null || value.isEmpty) {
         return 'validateName'.tr;
