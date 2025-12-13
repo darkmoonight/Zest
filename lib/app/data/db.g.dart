@@ -54,9 +54,15 @@ const SettingsSchema = CollectionSchema(
       name: r'screenPrivacy',
       type: IsarType.bool,
     ),
-    r'theme': PropertySchema(id: 9, name: r'theme', type: IsarType.string),
+    r'sortOption': PropertySchema(
+      id: 9,
+      name: r'sortOption',
+      type: IsarType.byte,
+      enumMap: _SettingssortOptionEnumValueMap,
+    ),
+    r'theme': PropertySchema(id: 10, name: r'theme', type: IsarType.string),
     r'timeformat': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'timeformat',
       type: IsarType.string,
     ),
@@ -117,8 +123,9 @@ void _settingsSerialize(
   writer.writeBool(offsets[6], object.materialColor);
   writer.writeBool(offsets[7], object.onboard);
   writer.writeBool(offsets[8], object.screenPrivacy);
-  writer.writeString(offsets[9], object.theme);
-  writer.writeString(offsets[10], object.timeformat);
+  writer.writeByte(offsets[9], object.sortOption.index);
+  writer.writeString(offsets[10], object.theme);
+  writer.writeString(offsets[11], object.timeformat);
 }
 
 Settings _settingsDeserialize(
@@ -138,8 +145,11 @@ Settings _settingsDeserialize(
   object.materialColor = reader.readBool(offsets[6]);
   object.onboard = reader.readBool(offsets[7]);
   object.screenPrivacy = reader.readBoolOrNull(offsets[8]);
-  object.theme = reader.readStringOrNull(offsets[9]);
-  object.timeformat = reader.readString(offsets[10]);
+  object.sortOption =
+      _SettingssortOptionValueEnumMap[reader.readByteOrNull(offsets[9])] ??
+      SortOption.none;
+  object.theme = reader.readStringOrNull(offsets[10]);
+  object.timeformat = reader.readString(offsets[11]);
   return object;
 }
 
@@ -169,13 +179,38 @@ P _settingsDeserializeProp<P>(
     case 8:
       return (reader.readBoolOrNull(offset)) as P;
     case 9:
-      return (reader.readStringOrNull(offset)) as P;
+      return (_SettingssortOptionValueEnumMap[reader.readByteOrNull(offset)] ??
+              SortOption.none)
+          as P;
     case 10:
+      return (reader.readStringOrNull(offset)) as P;
+    case 11:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
+
+const _SettingssortOptionEnumValueMap = {
+  'none': 0,
+  'alphaAsc': 1,
+  'alphaDesc': 2,
+  'dateAsc': 3,
+  'dateDesc': 4,
+  'priorityAsc': 5,
+  'priorityDesc': 6,
+  'random': 7,
+};
+const _SettingssortOptionValueEnumMap = {
+  0: SortOption.none,
+  1: SortOption.alphaAsc,
+  2: SortOption.alphaDesc,
+  3: SortOption.dateAsc,
+  4: SortOption.dateDesc,
+  5: SortOption.priorityAsc,
+  6: SortOption.priorityDesc,
+  7: SortOption.random,
+};
 
 Id _settingsGetId(Settings object) {
   return object.id;
@@ -1009,6 +1044,65 @@ extension SettingsQueryFilter
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> sortOptionEqualTo(
+    SortOption value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'sortOption', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> sortOptionGreaterThan(
+    SortOption value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'sortOption',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> sortOptionLessThan(
+    SortOption value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'sortOption',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> sortOptionBetween(
+    SortOption lower,
+    SortOption upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'sortOption',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterFilterCondition> themeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1434,6 +1528,18 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortBySortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOption', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortBySortOptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOption', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByTheme() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'theme', Sort.asc);
@@ -1581,6 +1687,18 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenBySortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOption', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenBySortOptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOption', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByTheme() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'theme', Sort.asc);
@@ -1676,6 +1794,12 @@ extension SettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Settings, Settings, QDistinct> distinctBySortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'sortOption');
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByTheme({
     bool caseSensitive = true,
   }) {
@@ -1752,6 +1876,12 @@ extension SettingsQueryProperty
   QueryBuilder<Settings, bool?, QQueryOperations> screenPrivacyProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'screenPrivacy');
+    });
+  }
+
+  QueryBuilder<Settings, SortOption, QQueryOperations> sortOptionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'sortOption');
     });
   }
 

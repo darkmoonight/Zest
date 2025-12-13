@@ -17,6 +17,19 @@ class Settings {
   String firstDay = 'monday';
   String calendarFormat = 'week';
   String defaultScreen = 'categories';
+  @enumerated
+  SortOption sortOption = SortOption.none;
+}
+
+enum SortOption {
+  none,
+  alphaAsc,
+  alphaDesc,
+  dateAsc,
+  dateDesc,
+  priorityAsc,
+  priorityDesc,
+  random,
 }
 
 @collection

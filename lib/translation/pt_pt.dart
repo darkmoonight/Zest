@@ -128,6 +128,7 @@ class PtPt {
     'sortByPriorityAsc': 'Por prioridade (baixa para alta)',
     'sortByPriorityDesc': 'Por prioridade (alta para baixa)',
     'sortByIndex': 'Padrão',
+    'sortByRandom': 'Por aleatório',
     'sort': 'Ordenar',
     'screenPrivacy': 'Privacidade do ecrã',
   };

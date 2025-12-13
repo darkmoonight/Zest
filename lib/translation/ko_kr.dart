@@ -123,6 +123,7 @@ class KoKr {
     'sortByPriorityAsc': '우선순위 (낮음→높음)',
     'sortByPriorityDesc': '우선순위 (높음→낮음)',
     'sortByIndex': '기본값',
+    'sortByRandom': '무작위로',
     'sort': '정렬',
     'screenPrivacy': '화면 개인정보 보호',
   };

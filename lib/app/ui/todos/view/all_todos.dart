@@ -1,11 +1,13 @@
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/controller/todo_controller.dart';
+import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/todos/widgets/todos_list.dart';
 import 'package:zest/app/ui/todos/widgets/todos_transfer.dart';
 import 'package:zest/app/ui/widgets/my_delegate.dart';
 import 'package:zest/app/ui/widgets/text_form.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:zest/main.dart';
 
 class AllTodos extends StatefulWidget {
   const AllTodos({super.key});
@@ -26,6 +28,7 @@ class _AllTodosState extends State<AllTodos>
   @override
   void initState() {
     super.initState();
+    _sortOption = settings.sortOption;
     applyFilter('');
     tabController = TabController(vsync: this, length: 2);
   }
@@ -213,6 +216,8 @@ class _AllTodosState extends State<AllTodos>
               ),
               onSelected: (SortOption option) {
                 setState(() => _sortOption = option);
+                settings.sortOption = option;
+                isar.writeTxnSync(() => isar.settings.putSync(settings));
               },
               itemBuilder: (context) => <PopupMenuEntry<SortOption>>[
                 PopupMenuItem(
@@ -242,6 +247,10 @@ class _AllTodosState extends State<AllTodos>
                 PopupMenuItem(
                   value: SortOption.priorityDesc,
                   child: Text('sortByPriorityDesc'.tr),
+                ),
+                PopupMenuItem(
+                  value: SortOption.random,
+                  child: Text('sortByRandom'.tr),
                 ),
               ],
             ),

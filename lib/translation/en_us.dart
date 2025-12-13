@@ -127,6 +127,7 @@ class EnUs {
     'sortByPriorityAsc': 'By priority (low to high)',
     'sortByPriorityDesc': 'By priority (high to low)',
     'sortByIndex': 'Default order',
+    'sortByRandom': 'By random',
     'sort': 'Sort',
     'screenPrivacy': 'Screen privacy',
   };

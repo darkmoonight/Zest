@@ -129,6 +129,7 @@ class TrTr {
     'sortByPriorityAsc': 'Önceliğe göre (düşükten yükseğe)',
     'sortByPriorityDesc': 'Önceliğe göre (yüksekten düşüğe)',
     'sortByIndex': 'Varsayılan',
+    'sortByRandom': 'Rastgele',
     'sort': 'Sırala',
     'screenPrivacy': 'Ekran gizliliği',
   };

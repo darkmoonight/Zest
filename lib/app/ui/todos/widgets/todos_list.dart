@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:reorderables/reorderables.dart';
@@ -7,16 +8,6 @@ import 'package:zest/app/ui/todos/widgets/todo_card.dart';
 import 'package:zest/app/ui/todos/widgets/todos_action.dart';
 import 'package:zest/app/ui/widgets/list_empty.dart';
 import 'package:zest/main.dart';
-
-enum SortOption {
-  none,
-  alphaAsc,
-  alphaDesc,
-  dateAsc,
-  dateDesc,
-  priorityAsc,
-  priorityDesc,
-}
 
 class TodosList extends StatefulWidget {
   const TodosList({
@@ -147,12 +138,8 @@ class _TodosListState extends State<TodosList> {
       bool ascending = true,
       bool ignoreTimeOfDay = false,
     }) {
-      final da = a.todoCompletedTime;
-      final db = b.todoCompletedTime;
-
-      if (da == null && db == null) return 0;
-      if (da == null) return 1;
-      if (db == null) return -1;
+      final da = a.createdTime;
+      final db = b.createdTime;
 
       final va = ignoreTimeOfDay ? DateTime(da.year, da.month, da.day) : da;
       final vb = ignoreTimeOfDay ? DateTime(db.year, db.month, db.day) : db;
@@ -179,6 +166,9 @@ class _TodosListState extends State<TodosList> {
         break;
       case SortOption.priorityDesc:
         todos.sort((a, b) => comparePriority(a, b));
+        break;
+      case SortOption.random:
+        todos.shuffle(Random());
         break;
       case SortOption.none:
         todos.sort((a, b) {

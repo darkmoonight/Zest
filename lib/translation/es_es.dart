@@ -131,6 +131,7 @@ class EsEs {
     'sortByPriorityAsc': 'Por prioridad (de baja a alta)',
     'sortByPriorityDesc': 'Por prioridad (de alta a baja)',
     'sortByIndex': 'Predeterminado',
+    'sortByRandom': 'Por azar',
     'sort': 'Ordenar',
     'screenPrivacy': 'Privacidad de la pantalla',
   };

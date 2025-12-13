@@ -131,6 +131,7 @@ class FrFr {
     'sortByPriorityAsc': 'Par priorité (faible à élevée)',
     'sortByPriorityDesc': 'Par priorité (élevée à faible)',
     'sortByIndex': 'Par défaut',
+    'sortByRandom': 'Au hasard',
     'sort': 'Trier',
     'screenPrivacy': 'Confidentialité de l’écran',
   };

@@ -123,6 +123,7 @@ class ZhCN {
     'sortByPriorityAsc': '按优先级（由低到高）',
     'sortByPriorityDesc': '按优先级（由高到低）',
     'sortByIndex': '默认排序',
+    'sortByRandom': '随机',
     'sort': '排序',
     'screenPrivacy': '屏幕隐私',
   };

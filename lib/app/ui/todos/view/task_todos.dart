@@ -10,6 +10,7 @@ import 'package:zest/app/ui/widgets/my_delegate.dart';
 import 'package:zest/app/ui/widgets/text_form.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:zest/main.dart';
 
 class TodosTask extends StatefulWidget {
   const TodosTask({super.key, required this.task});
@@ -35,6 +36,7 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _sortOption = settings.sortOption;
     applyFilter('');
     tabController = TabController(vsync: this, length: 2);
     _initializeFabController();
@@ -317,6 +319,8 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
               ),
               onSelected: (SortOption option) {
                 setState(() => _sortOption = option);
+                settings.sortOption = option;
+                isar.writeTxnSync(() => isar.settings.putSync(settings));
               },
               itemBuilder: (context) => <PopupMenuEntry<SortOption>>[
                 PopupMenuItem(
@@ -346,6 +350,10 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
                 PopupMenuItem(
                   value: SortOption.priorityDesc,
                   child: Text('sortByPriorityDesc'.tr),
+                ),
+                PopupMenuItem(
+                  value: SortOption.random,
+                  child: Text('sortByRandom'.tr),
                 ),
               ],
             ),

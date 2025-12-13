@@ -29,6 +29,7 @@ class _CalendarTodosState extends State<CalendarTodos>
   @override
   void initState() {
     super.initState();
+    _sortOption = settings.sortOption;
     tabController = TabController(vsync: this, length: 2);
   }
 
@@ -298,6 +299,8 @@ class _CalendarTodosState extends State<CalendarTodos>
               ),
               onSelected: (SortOption option) {
                 setState(() => _sortOption = option);
+                settings.sortOption = option;
+                isar.writeTxnSync(() => isar.settings.putSync(settings));
               },
               itemBuilder: (context) => <PopupMenuEntry<SortOption>>[
                 PopupMenuItem(
@@ -327,6 +330,10 @@ class _CalendarTodosState extends State<CalendarTodos>
                 PopupMenuItem(
                   value: SortOption.priorityDesc,
                   child: Text('sortByPriorityDesc'.tr),
+                ),
+                PopupMenuItem(
+                  value: SortOption.random,
+                  child: Text('sortByRandom'.tr),
                 ),
               ],
             ),

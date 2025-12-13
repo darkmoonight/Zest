@@ -128,6 +128,7 @@ class ItIt {
     'sortByPriorityAsc': 'Per priorità (bassa a alta)',
     'sortByPriorityDesc': 'Per priorità (alta a bassa)',
     'sortByIndex': 'Predefinito',
+    'sortByRandom': 'Casualmente',
     'sort': 'Ordina',
     'screenPrivacy': 'Privacy dello schermo',
   };

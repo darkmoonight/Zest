@@ -126,6 +126,7 @@ class ArAr {
     'sortByPriorityAsc': 'حسب الأولوية (من منخفض إلى مرتفع)',
     'sortByPriorityDesc': 'حسب الأولوية (من مرتفع إلى منخفض)',
     'sortByIndex': 'الافتراضي',
+    'sortByRandom': 'بالصدفة',
     'sort': 'ترتیب',
     'screenPrivacy': 'خصوصية الشاشة',
   };

@@ -124,6 +124,7 @@ class ViVn {
     'sortByPriorityAsc': 'Theo mức ưu tiên (thấp đến cao)',
     'sortByPriorityDesc': 'Theo mức ưu tiên (cao đến thấp)',
     'sortByIndex': 'Mặc định',
+    'sortByRandom': 'Theo ngẫu nhiên',
     'sort': 'Sắp xếp',
     'screenPrivacy': 'Quyền riêng tư màn hình',
   };
