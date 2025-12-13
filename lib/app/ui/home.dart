@@ -83,10 +83,6 @@ class HomePageState extends State<HomePage>
     });
   }
 
-  Future<void> openCreateForTab(int index) async {
-    changeTabIndex(index);
-  }
-
   void onSwipe(DragEndDetails details) {
     if (details.primaryVelocity! < 0) {
       if (tabIndex < pages.length - 1) {
