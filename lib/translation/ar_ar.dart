@@ -129,5 +129,6 @@ class ArAr {
     'sortByRandom': 'بالصدفة',
     'sort': 'ترتیب',
     'screenPrivacy': 'خصوصية الشاشة',
+    'created': 'تم الإنشاء',
   };
 }

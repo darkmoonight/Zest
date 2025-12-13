@@ -132,5 +132,6 @@ class PlPl {
     'sortByRandom': 'Przez los',
     'sort': 'Sortuj',
     'screenPrivacy': 'Prywatność ekranu',
+    'created': 'Utworzono',
   };
 }

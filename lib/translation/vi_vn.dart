@@ -127,5 +127,6 @@ class ViVn {
     'sortByRandom': 'Theo ngẫu nhiên',
     'sort': 'Sắp xếp',
     'screenPrivacy': 'Quyền riêng tư màn hình',
+    'created': 'Đã tạo',
   };
 }

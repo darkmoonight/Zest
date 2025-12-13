@@ -132,5 +132,6 @@ class FaIr {
     'sortByRandom': 'به طور تصادفی',
     'sort': 'مرتب‌سازی',
     'screenPrivacy': 'حریم خصوصی صفحه',
+    'created': 'ایجاد شده',
   };
 }

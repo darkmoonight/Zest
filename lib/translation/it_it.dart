@@ -131,5 +131,6 @@ class ItIt {
     'sortByRandom': 'Casualmente',
     'sort': 'Ordina',
     'screenPrivacy': 'Privacy dello schermo',
+    'created': 'Creato',
   };
 }

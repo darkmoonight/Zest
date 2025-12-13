@@ -130,5 +130,6 @@ class RuRu {
     'sortByRandom': 'Случайно',
     'sort': 'Сортировка',
     'screenPrivacy': 'Конфиденциальность экрана',
+    'created': 'Создано',
   };
 }

@@ -131,5 +131,6 @@ class DeDe {
     'sortByRandom': 'Zufällig',
     'sort': 'Sortieren',
     'screenPrivacy': 'Bildschirm-Privatsphäre',
+    'created': 'Erstellt',
   };
 }

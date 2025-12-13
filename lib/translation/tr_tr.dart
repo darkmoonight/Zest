@@ -132,5 +132,6 @@ class TrTr {
     'sortByRandom': 'Rastgele',
     'sort': 'Sırala',
     'screenPrivacy': 'Ekran gizliliği',
+    'created': 'Oluşturuldu',
   };
 }

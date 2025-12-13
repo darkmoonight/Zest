@@ -126,5 +126,6 @@ class ZhCN {
     'sortByRandom': '随机',
     'sort': '排序',
     'screenPrivacy': '屏幕隐私',
+    'created': '创建',
   };
 }

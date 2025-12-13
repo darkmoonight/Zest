@@ -126,5 +126,6 @@ class ZhTw {
     'sortByRandom': '隨機',
     'sort': '排序',
     'screenPrivacy': '螢幕隱私',
+    'created': '建立',
   };
 }

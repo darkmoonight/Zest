@@ -134,5 +134,6 @@ class FrFr {
     'sortByRandom': 'Au hasard',
     'sort': 'Trier',
     'screenPrivacy': 'Confidentialité de l’écran',
+    'created': 'Créé',
   };
 }

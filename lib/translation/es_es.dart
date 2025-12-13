@@ -134,5 +134,6 @@ class EsEs {
     'sortByRandom': 'Por azar',
     'sort': 'Ordenar',
     'screenPrivacy': 'Privacidad de la pantalla',
+    'created': 'Creado',
   };
 }

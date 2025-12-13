@@ -131,5 +131,6 @@ class PtPt {
     'sortByRandom': 'Por aleatório',
     'sort': 'Ordenar',
     'screenPrivacy': 'Privacidade do ecrã',
+    'created': 'Criado',
   };
 }

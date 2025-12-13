@@ -126,5 +126,6 @@ class KoKr {
     'sortByRandom': '무작위로',
     'sort': '정렬',
     'screenPrivacy': '화면 개인정보 보호',
+    'created': '생성됨',
   };
 }

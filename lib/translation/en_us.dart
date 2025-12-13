@@ -130,5 +130,6 @@ class EnUs {
     'sortByRandom': 'By random',
     'sort': 'Sort',
     'screenPrivacy': 'Screen privacy',
+    'created': 'Created',
   };
 }
