@@ -191,13 +191,15 @@ class _TodoCardState extends State<TodoCard> {
         )
       : const Offstage();
 
-  Widget _buildCreatedTime() => Text(
-    '${'created'.tr}: ${_formatCompletionTime(widget.todo.createdTime)}',
-    style: context.textTheme.labelLarge?.copyWith(
-      color: context.theme.colorScheme.secondary,
-      fontSize: 10,
-    ),
-  );
+  Widget _buildCreatedTime() => widget.todo.createdTime.year >= 2000
+      ? Text(
+          '${'created'.tr}: ${_formatCompletionTime(widget.todo.createdTime)}',
+          style: context.textTheme.labelLarge?.copyWith(
+            color: context.theme.colorScheme.secondary,
+            fontSize: 10,
+          ),
+        )
+      : const Offstage();
 
   Widget _buildCompletionTime() =>
       widget.todo.todoCompletedTime != null && !widget.calendar
