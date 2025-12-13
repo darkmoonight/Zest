@@ -157,6 +157,7 @@ class _MyAppState extends State<MyApp> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final GlobalKey<HomePageState> _homeKey = GlobalKey<HomePageState>();
   String? _pendingShortcut;
+  bool _isShowingBottomSheet = false;
 
   void changeAmoledTheme(bool newAmoledTheme) =>
       setState(() => amoledTheme = newAmoledTheme);
@@ -240,31 +241,43 @@ class _MyAppState extends State<MyApp> {
     _handleShortcutWithContext(type, ctx);
   }
 
+  Future<void> _showCreateSheet(BuildContext ctx, Widget sheet) async {
+    if (_isShowingBottomSheet) return;
+    _isShowingBottomSheet = true;
+    await showModalBottomSheet(
+      enableDrag: false,
+      context: ctx,
+      isScrollControlled: true,
+      builder: (BuildContext context) => sheet,
+    );
+    _isShowingBottomSheet = false;
+  }
+
   void _handleShortcutWithContext(String type, BuildContext ctx) {
     switch (type) {
       case 'action_new_categories':
         if (_homeKey.currentState != null) {
-          _homeKey.currentState!.openCreateForTab(0);
+          _homeKey.currentState!.changeTabIndex(0);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showCreateSheet(ctx, TasksAction(text: 'create'.tr, edit: false));
+          });
         } else {
-          showModalBottomSheet(
-            enableDrag: false,
-            context: context,
-            isScrollControlled: true,
-            builder: (BuildContext context) =>
-                TasksAction(text: 'create'.tr, edit: false),
-          );
+          _showCreateSheet(ctx, TasksAction(text: 'create'.tr, edit: false));
         }
         break;
       case 'action_new_todo':
         if (_homeKey.currentState != null) {
-          _homeKey.currentState!.openCreateForTab(1);
+          _homeKey.currentState!.changeTabIndex(1);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showCreateSheet(
+              ctx,
+              TodosAction(text: 'create'.tr, edit: false, category: true),
+            );
+          });
         } else {
-          showModalBottomSheet(
-            enableDrag: false,
-            context: context,
-            isScrollControlled: true,
-            builder: (BuildContext context) =>
-                TodosAction(text: 'create'.tr, edit: false, category: true),
+          _showCreateSheet(
+            ctx,
+            TodosAction(text: 'create'.tr, edit: false, category: true),
           );
         }
         break;

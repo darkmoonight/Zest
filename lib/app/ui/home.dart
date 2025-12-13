@@ -85,10 +85,6 @@ class HomePageState extends State<HomePage>
 
   Future<void> openCreateForTab(int index) async {
     changeTabIndex(index);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _showBottomSheet();
-    });
   }
 
   void onSwipe(DragEndDetails details) {
