@@ -37,6 +37,22 @@ class TodosList extends StatefulWidget {
 
 class _TodosListState extends State<TodosList> {
   final todoController = Get.put(TodoController());
+  late Map<int, double> randomScores;
+
+  @override
+  void initState() {
+    super.initState();
+    randomScores = {};
+  }
+
+  @override
+  void didUpdateWidget(covariant TodosList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.sortOption == SortOption.random &&
+        oldWidget.sortOption != widget.sortOption) {
+      randomScores.clear();
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -168,7 +184,12 @@ class _TodosListState extends State<TodosList> {
         todos.sort((a, b) => comparePriority(a, b));
         break;
       case SortOption.random:
-        todos.shuffle(Random());
+        for (var todo in todos) {
+          randomScores.putIfAbsent(todo.id, () => Random().nextDouble());
+        }
+        todos.sort(
+          (a, b) => randomScores[a.id]!.compareTo(randomScores[b.id]!),
+        );
         break;
       case SortOption.none:
         todos.sort((a, b) {

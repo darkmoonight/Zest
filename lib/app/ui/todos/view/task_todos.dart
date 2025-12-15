@@ -27,7 +27,6 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
 
   late AnimationController _fabAnimationController;
   late Animation<double> _fabAnimation;
-  bool _isFabVisible = true;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -66,15 +65,13 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
       setState(() => filter = value.toLowerCase());
 
   void _showFab() {
-    if (!_isFabVisible) {
-      setState(() => _isFabVisible = true);
+    if (!_fabAnimationController.isCompleted) {
       _fabAnimationController.forward();
     }
   }
 
   void _hideFab() {
-    if (_isFabVisible) {
-      setState(() => _isFabVisible = false);
+    if (!_fabAnimationController.isDismissed) {
       _fabAnimationController.reverse();
     }
   }
@@ -82,19 +79,10 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
   bool _handleScrollNotification(ScrollNotification notification) {
     if (notification is UserScrollNotification) {
       final ScrollDirection direction = notification.direction;
-
       if (direction == ScrollDirection.reverse) {
         _hideFab();
       } else if (direction == ScrollDirection.forward) {
         _showFab();
-      }
-    } else if (notification is ScrollUpdateNotification) {
-      if (notification.scrollDelta != null) {
-        if (notification.scrollDelta! > 0) {
-          _hideFab();
-        } else if (notification.scrollDelta! < 0) {
-          _showFab();
-        }
       }
     }
     return false;

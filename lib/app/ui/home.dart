@@ -25,7 +25,6 @@ class HomePageState extends State<HomePage>
 
   late AnimationController _fabAnimationController;
   late Animation<double> _fabAnimation;
-  bool _isFabVisible = true;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -77,7 +76,7 @@ class HomePageState extends State<HomePage>
   void changeTabIndex(int index) {
     setState(() {
       tabIndex = index;
-      if (index != 3 && !_isFabVisible) {
+      if (index != 3) {
         _showFab();
       }
     });
@@ -96,15 +95,13 @@ class HomePageState extends State<HomePage>
   }
 
   void _showFab() {
-    if (!_isFabVisible) {
-      setState(() => _isFabVisible = true);
+    if (!_fabAnimationController.isCompleted) {
       _fabAnimationController.forward();
     }
   }
 
   void _hideFab() {
-    if (_isFabVisible) {
-      setState(() => _isFabVisible = false);
+    if (!_fabAnimationController.isDismissed) {
       _fabAnimationController.reverse();
     }
   }
@@ -114,19 +111,10 @@ class HomePageState extends State<HomePage>
 
     if (notification is UserScrollNotification) {
       final ScrollDirection direction = notification.direction;
-
       if (direction == ScrollDirection.reverse) {
         _hideFab();
       } else if (direction == ScrollDirection.forward) {
         _showFab();
-      }
-    } else if (notification is ScrollUpdateNotification) {
-      if (notification.scrollDelta != null) {
-        if (notification.scrollDelta! > 0) {
-          _hideFab();
-        } else if (notification.scrollDelta! < 0) {
-          _showFab();
-        }
       }
     }
     return false;
