@@ -557,7 +557,7 @@ class _TodosActionState extends State<TodosAction> {
                         child: child,
                       );
                     },
-                transitionDuration: const Duration(milliseconds: 300),
+                transitionDuration: const Duration(milliseconds: 240),
               ),
             );
           },

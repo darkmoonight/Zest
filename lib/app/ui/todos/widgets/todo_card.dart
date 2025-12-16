@@ -67,7 +67,7 @@ class _TodoCardState extends State<TodoCard> {
                       child: child,
                     );
                   },
-              transitionDuration: const Duration(milliseconds: 300),
+              transitionDuration: const Duration(milliseconds: 240),
             ),
           );
         }

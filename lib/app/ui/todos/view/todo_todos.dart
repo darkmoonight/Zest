@@ -34,7 +34,6 @@ class _TodosTodoState extends State<TodosTodo> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _sortOption = settings.sortOption;
     applyFilter('');
     tabController = TabController(vsync: this, length: 2);
     _initializeFabController();

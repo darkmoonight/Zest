@@ -191,47 +191,40 @@ class _TodosListState extends State<TodosList>
       return ascending ? cmp : -cmp;
     }
 
-    switch (opt) {
-      case SortOption.alphaAsc:
-        todos.sort((a, b) => compareName(a, b));
-        break;
-      case SortOption.alphaDesc:
-        todos.sort((a, b) => compareName(b, a));
-        break;
-      case SortOption.dateAsc:
-        todos.sort((a, b) => compareDate(a, b, ascending: true));
-        break;
-      case SortOption.dateDesc:
-        todos.sort((a, b) => compareDate(a, b, ascending: false));
-        break;
-      case SortOption.dateNotifAsc:
-        todos.sort((a, b) => compareDateNotif(a, b, ascending: true));
-        break;
-      case SortOption.dateNotifDesc:
-        todos.sort((a, b) => compareDateNotif(a, b, ascending: false));
-        break;
-      case SortOption.priorityAsc:
-        todos.sort((a, b) => comparePriority(b, a));
-        break;
-      case SortOption.priorityDesc:
-        todos.sort((a, b) => comparePriority(a, b));
-        break;
-      case SortOption.random:
-        for (var todo in todos) {
-          randomScores.putIfAbsent(todo.id, () => Random().nextDouble());
-        }
-        todos.sort(
-          (a, b) => randomScores[a.id]!.compareTo(randomScores[b.id]!),
-        );
-        break;
-      case SortOption.none:
-        todos.sort((a, b) {
-          if (a.fix && !b.fix) return -1;
-          if (!a.fix && b.fix) return 1;
-          return 0;
-        });
-        break;
+    if (opt == SortOption.random) {
+      for (var todo in todos) {
+        randomScores.putIfAbsent(todo.id, () => Random().nextDouble());
+      }
     }
+
+    todos.sort((a, b) {
+      if (a.fix != b.fix) {
+        return a.fix ? -1 : 1;
+      }
+
+      switch (opt) {
+        case SortOption.alphaAsc:
+          return compareName(a, b);
+        case SortOption.alphaDesc:
+          return compareName(b, a);
+        case SortOption.dateAsc:
+          return compareDate(a, b, ascending: true);
+        case SortOption.dateDesc:
+          return compareDate(a, b, ascending: false);
+        case SortOption.dateNotifAsc:
+          return compareDateNotif(a, b, ascending: true);
+        case SortOption.dateNotifDesc:
+          return compareDateNotif(a, b, ascending: false);
+        case SortOption.priorityAsc:
+          return comparePriority(b, a);
+        case SortOption.priorityDesc:
+          return comparePriority(a, b);
+        case SortOption.random:
+          return randomScores[a.id]!.compareTo(randomScores[b.id]!);
+        case SortOption.none:
+          return 0;
+      }
+    });
   }
 
   Widget _buildListEmpty() => ListEmpty(
