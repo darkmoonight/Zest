@@ -35,9 +35,13 @@ class TodosList extends StatefulWidget {
   State<TodosList> createState() => _TodosListState();
 }
 
-class _TodosListState extends State<TodosList> {
+class _TodosListState extends State<TodosList>
+    with AutomaticKeepAliveClientMixin<TodosList> {
   final todoController = Get.put(TodoController());
   late Map<int, double> randomScores;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -55,13 +59,16 @@ class _TodosListState extends State<TodosList> {
   }
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 50),
-    child: Obx(() {
-      final todos = _getFilteredTodos();
-      return todos.isEmpty ? _buildListEmpty() : _buildListView(todos);
-    }),
-  );
+  Widget build(BuildContext context) {
+    super.build(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 50),
+      child: Obx(() {
+        final todos = _getFilteredTodos();
+        return todos.isEmpty ? _buildListEmpty() : _buildListView(todos);
+      }),
+    );
+  }
 
   List<Todos> _getFilteredTodos() {
     List<Todos> filteredList = _filterTodos();
