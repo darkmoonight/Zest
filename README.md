@@ -42,7 +42,6 @@ Our app not only enhances productivity but also offers an intuitive and visually
 
 If Zest has become an indispensable part of your life, consider supporting us through donations:
 
-[![DonationAlerts](https://img.shields.io/badge/DonationAlerts-orange?style=for-the-badge)](https://www.donationalerts.com/r/darkmoonight)
 [![ЮMoney](https://img.shields.io/badge/ЮMoney-violet?style=for-the-badge)](https://yoomoney.ru/to/4100117672775961)
 
 ### 📥 Get Zest Now
