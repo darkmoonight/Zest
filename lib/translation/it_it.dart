@@ -125,6 +125,8 @@ class ItIt {
     'sortByNameDesc': 'Per nome (decrescente)',
     'sortByDateAsc': 'Per data (più vecchie prima)',
     'sortByDateDesc': 'Per data (più recenti prima)',
+    'sortByDateNotifAsc': 'Per notifica (il più presto per primo)',
+    'sortByDateNotifDesc': 'Per notifica (il più recente per primo)',
     'sortByPriorityAsc': 'Per priorità (bassa a alta)',
     'sortByPriorityDesc': 'Per priorità (alta a bassa)',
     'sortByIndex': 'Predefinito',

@@ -126,6 +126,8 @@ class FaIr {
     'sortByNameDesc': 'بر اساس نام (نزولی)',
     'sortByDateAsc': 'بر اساس تاریخ (قدیمی‌ترین اول)',
     'sortByDateDesc': 'بر اساس تاریخ (جدیدترین اول)',
+    'sortByDateNotifAsc': 'بر اساس اعلان (زودترین اول)',
+    'sortByDateNotifDesc': 'بر اساس اعلان (جدیدترین اول)',
     'sortByPriorityAsc': 'بر اساس اولویت (کم به زیاد)',
     'sortByPriorityDesc': 'بر اساس اولویت (زیاد به کم)',
     'sortByIndex': 'پیش‌فرض',

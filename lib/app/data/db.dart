@@ -27,6 +27,8 @@ enum SortOption {
   alphaDesc,
   dateAsc,
   dateDesc,
+  dateNotifAsc,
+  dateNotifDesc,
   priorityAsc,
   priorityDesc,
   random,

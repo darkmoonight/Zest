@@ -124,6 +124,8 @@ class EnUs {
     'sortByNameDesc': 'By name (descending)',
     'sortByDateAsc': 'By date (oldest first)',
     'sortByDateDesc': 'By date (newest first)',
+    'sortByDateNotifAsc': 'By notification (soonest first)',
+    'sortByDateNotifDesc': 'By notification (latest first)',
     'sortByPriorityAsc': 'By priority (low to high)',
     'sortByPriorityDesc': 'By priority (high to low)',
     'sortByIndex': 'Default order',

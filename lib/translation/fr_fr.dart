@@ -128,6 +128,8 @@ class FrFr {
     'sortByNameDesc': 'Par nom (décroissant)',
     'sortByDateAsc': 'Par date (les plus anciennes d’abord)',
     'sortByDateDesc': 'Par date (les plus récentes d’abord)',
+    'sortByDateNotifAsc': 'Par notification (le plus tôt en premier)',
+    'sortByDateNotifDesc': 'Par notification (le plus récent en premier)',
     'sortByPriorityAsc': 'Par priorité (faible à élevée)',
     'sortByPriorityDesc': 'Par priorité (élevée à faible)',
     'sortByIndex': 'Par défaut',

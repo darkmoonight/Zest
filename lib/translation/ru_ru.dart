@@ -124,6 +124,8 @@ class RuRu {
     'sortByNameDesc': 'По имени (убывание)',
     'sortByDateAsc': 'По дате (сначала старые)',
     'sortByDateDesc': 'По дате (сначала новые)',
+    'sortByDateNotifAsc': 'По уведомлению (сначала ранние)',
+    'sortByDateNotifDesc': 'По уведомлению (сначала поздние)',
     'sortByPriorityAsc': 'По приоритету (от низкого к высокому)',
     'sortByPriorityDesc': 'По приоритету (от высокого к низкому)',
     'sortByIndex': 'По умолчанию',

@@ -197,9 +197,11 @@ const _SettingssortOptionEnumValueMap = {
   'alphaDesc': 2,
   'dateAsc': 3,
   'dateDesc': 4,
-  'priorityAsc': 5,
-  'priorityDesc': 6,
-  'random': 7,
+  'dateNotifAsc': 5,
+  'dateNotifDesc': 6,
+  'priorityAsc': 7,
+  'priorityDesc': 8,
+  'random': 9,
 };
 const _SettingssortOptionValueEnumMap = {
   0: SortOption.none,
@@ -207,9 +209,11 @@ const _SettingssortOptionValueEnumMap = {
   2: SortOption.alphaDesc,
   3: SortOption.dateAsc,
   4: SortOption.dateDesc,
-  5: SortOption.priorityAsc,
-  6: SortOption.priorityDesc,
-  7: SortOption.random,
+  5: SortOption.dateNotifAsc,
+  6: SortOption.dateNotifDesc,
+  7: SortOption.priorityAsc,
+  8: SortOption.priorityDesc,
+  9: SortOption.random,
 };
 
 Id _settingsGetId(Settings object) {

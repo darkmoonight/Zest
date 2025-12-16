@@ -125,6 +125,8 @@ class DeDe {
     'sortByNameDesc': 'Nach Name (absteigend)',
     'sortByDateAsc': 'Nach Datum (älteste zuerst)',
     'sortByDateDesc': 'Nach Datum (neueste zuerst)',
+    'sortByDateNotifAsc': 'Nach Benachrichtigung (zuerst die frühesten)',
+    'sortByDateNotifDesc': 'Nach Benachrichtigung (zuerst die neuesten)',
     'sortByPriorityAsc': 'Nach Priorität (niedrig zu hoch)',
     'sortByPriorityDesc': 'Nach Priorität (hoch zu niedrig)',
     'sortByIndex': 'Standard',

@@ -120,6 +120,8 @@ class ZhCN {
     'sortByNameDesc': '按名称（降序）',
     'sortByDateAsc': '按日期（最早优先）',
     'sortByDateDesc': '按日期（最新优先）',
+    'sortByDateNotifAsc': '按通知（最早优先）',
+    'sortByDateNotifDesc': '按通知（最新优先）',
     'sortByPriorityAsc': '按优先级（由低到高）',
     'sortByPriorityDesc': '按优先级（由高到低）',
     'sortByIndex': '默认排序',

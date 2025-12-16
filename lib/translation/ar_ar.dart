@@ -123,6 +123,8 @@ class ArAr {
     'sortByNameDesc': 'حسب الاسم (تنازلي)',
     'sortByDateAsc': 'حسب التاريخ (الأقدم أولاً)',
     'sortByDateDesc': 'حسب التاريخ (الأحدث أولاً)',
+    'sortByDateNotifAsc': 'بإشعار (أقرب أولاً)',
+    'sortByDateNotifDesc': 'بإشعار (أحدث أولاً)',
     'sortByPriorityAsc': 'حسب الأولوية (من منخفض إلى مرتفع)',
     'sortByPriorityDesc': 'حسب الأولوية (من مرتفع إلى منخفض)',
     'sortByIndex': 'الافتراضي',

@@ -171,6 +171,26 @@ class _TodosListState extends State<TodosList>
       return ascending ? cmp : -cmp;
     }
 
+    int compareDateNotif(
+      Todos a,
+      Todos b, {
+      bool ascending = true,
+      bool ignoreTimeOfDay = false,
+    }) {
+      final da = a.todoCompletedTime;
+      final db = b.todoCompletedTime;
+
+      if (da == null && db == null) return 0;
+      if (da == null) return 1;
+      if (db == null) return -1;
+
+      final va = ignoreTimeOfDay ? DateTime(da.year, da.month, da.day) : da;
+      final vb = ignoreTimeOfDay ? DateTime(db.year, db.month, db.day) : db;
+
+      final cmp = va.compareTo(vb);
+      return ascending ? cmp : -cmp;
+    }
+
     switch (opt) {
       case SortOption.alphaAsc:
         todos.sort((a, b) => compareName(a, b));
@@ -183,6 +203,12 @@ class _TodosListState extends State<TodosList>
         break;
       case SortOption.dateDesc:
         todos.sort((a, b) => compareDate(a, b, ascending: false));
+        break;
+      case SortOption.dateNotifAsc:
+        todos.sort((a, b) => compareDateNotif(a, b, ascending: true));
+        break;
+      case SortOption.dateNotifDesc:
+        todos.sort((a, b) => compareDateNotif(a, b, ascending: false));
         break;
       case SortOption.priorityAsc:
         todos.sort((a, b) => comparePriority(b, a));

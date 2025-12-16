@@ -128,6 +128,8 @@ class EsEs {
     'sortByNameDesc': 'Por nombre (descendente)',
     'sortByDateAsc': 'Por fecha (más antiguas primero)',
     'sortByDateDesc': 'Por fecha (más recientes primero)',
+    'sortByDateNotifAsc': 'Por notificación (primero lo más pronto)',
+    'sortByDateNotifDesc': 'Por notificación (primero lo más reciente)',
     'sortByPriorityAsc': 'Por prioridad (de baja a alta)',
     'sortByPriorityDesc': 'Por prioridad (de alta a baja)',
     'sortByIndex': 'Predeterminado',

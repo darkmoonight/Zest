@@ -332,6 +332,14 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
                   child: Text('sortByDateDesc'.tr),
                 ),
                 PopupMenuItem(
+                  value: SortOption.dateNotifAsc,
+                  child: Text('sortByDateNotifAsc'.tr),
+                ),
+                PopupMenuItem(
+                  value: SortOption.dateNotifDesc,
+                  child: Text('sortByDateNotifDesc'.tr),
+                ),
+                PopupMenuItem(
                   value: SortOption.priorityAsc,
                   child: Text('sortByPriorityAsc'.tr),
                 ),

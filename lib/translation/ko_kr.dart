@@ -120,6 +120,8 @@ class KoKr {
     'sortByNameDesc': '이름순 (내림차순)',
     'sortByDateAsc': '날짜순 (오래된 순)',
     'sortByDateDesc': '날짜순 (최신 순)',
+    'sortByDateNotifAsc': '알림 기준 (가장 빠른 먼저)',
+    'sortByDateNotifDesc': '알림 기준 (가장 최근 먼저)',
     'sortByPriorityAsc': '우선순위 (낮음→높음)',
     'sortByPriorityDesc': '우선순위 (높음→낮음)',
     'sortByIndex': '기본값',

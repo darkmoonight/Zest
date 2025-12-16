@@ -125,6 +125,8 @@ class PtPt {
     'sortByNameDesc': 'Por nome (descendente)',
     'sortByDateAsc': 'Por data (mais antigas primeiro)',
     'sortByDateDesc': 'Por data (mais recentes primeiro)',
+    'sortByDateNotifAsc': 'Por notificação (mais cedo primeiro)',
+    'sortByDateNotifDesc': 'Por notificação (mais recente primeiro)',
     'sortByPriorityAsc': 'Por prioridade (baixa para alta)',
     'sortByPriorityDesc': 'Por prioridade (alta para baixa)',
     'sortByIndex': 'Padrão',

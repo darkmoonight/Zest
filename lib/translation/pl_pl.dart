@@ -126,6 +126,8 @@ class PlPl {
     'sortByNameDesc': 'Według nazwy (malejąco)',
     'sortByDateAsc': 'Według daty (najstarsze pierwsze)',
     'sortByDateDesc': 'Według daty (najnowsze pierwsze)',
+    'sortByDateNotifAsc': 'Według powiadomienia (najwcześniej najpierw)',
+    'sortByDateNotifDesc': 'Według powiadomienia (najpóźniej najpierw)',
     'sortByPriorityAsc': 'Według priorytetu (niski → wysoki)',
     'sortByPriorityDesc': 'Według priorytetu (wysoki → niski)',
     'sortByIndex': 'Domyślnie',

@@ -121,6 +121,8 @@ class ViVn {
     'sortByNameDesc': 'Theo tên (giảm dần)',
     'sortByDateAsc': 'Theo ngày (cũ nhất trước)',
     'sortByDateDesc': 'Theo ngày (mới nhất trước)',
+    'sortByDateNotifAsc': 'Theo thông báo (sớm nhất trước)',
+    'sortByDateNotifDesc': 'Theo thông báo (mới nhất trước)',
     'sortByPriorityAsc': 'Theo mức ưu tiên (thấp đến cao)',
     'sortByPriorityDesc': 'Theo mức ưu tiên (cao đến thấp)',
     'sortByIndex': 'Mặc định',

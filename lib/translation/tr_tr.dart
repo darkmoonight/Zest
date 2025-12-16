@@ -126,6 +126,8 @@ class TrTr {
     'sortByNameDesc': 'Ada göre (azalan)',
     'sortByDateAsc': 'Tarihe göre (en eski önce)',
     'sortByDateDesc': 'Tarihe göre (en yeni önce)',
+    'sortByDateNotifAsc': 'Bildirimle (en erken önce)',
+    'sortByDateNotifDesc': 'Bildirimle (en son önce)',
     'sortByPriorityAsc': 'Önceliğe göre (düşükten yükseğe)',
     'sortByPriorityDesc': 'Önceliğe göre (yüksekten düşüğe)',
     'sortByIndex': 'Varsayılan',
