@@ -2884,34 +2884,40 @@ const TodosSchema = CollectionSchema(
   name: r'Todos',
   id: 6051122207432693743,
   properties: {
-    r'createdTime': PropertySchema(
+    r'childrenSortOption': PropertySchema(
       id: 0,
+      name: r'childrenSortOption',
+      type: IsarType.byte,
+      enumMap: _TodoschildrenSortOptionEnumValueMap,
+    ),
+    r'createdTime': PropertySchema(
+      id: 1,
       name: r'createdTime',
       type: IsarType.dateTime,
     ),
     r'description': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'description',
       type: IsarType.string,
     ),
-    r'done': PropertySchema(id: 2, name: r'done', type: IsarType.bool),
-    r'fix': PropertySchema(id: 3, name: r'fix', type: IsarType.bool),
-    r'index': PropertySchema(id: 4, name: r'index', type: IsarType.long),
-    r'name': PropertySchema(id: 5, name: r'name', type: IsarType.string),
+    r'done': PropertySchema(id: 3, name: r'done', type: IsarType.bool),
+    r'fix': PropertySchema(id: 4, name: r'fix', type: IsarType.bool),
+    r'index': PropertySchema(id: 5, name: r'index', type: IsarType.long),
+    r'name': PropertySchema(id: 6, name: r'name', type: IsarType.string),
     r'priority': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'priority',
       type: IsarType.byte,
       enumMap: _TodospriorityEnumValueMap,
     ),
-    r'tags': PropertySchema(id: 7, name: r'tags', type: IsarType.stringList),
+    r'tags': PropertySchema(id: 8, name: r'tags', type: IsarType.stringList),
     r'todoCompletedTime': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'todoCompletedTime',
       type: IsarType.dateTime,
     ),
     r'todoCompletionTime': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'todoCompletionTime',
       type: IsarType.dateTime,
     ),
@@ -2976,16 +2982,17 @@ void _todosSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.createdTime);
-  writer.writeString(offsets[1], object.description);
-  writer.writeBool(offsets[2], object.done);
-  writer.writeBool(offsets[3], object.fix);
-  writer.writeLong(offsets[4], object.index);
-  writer.writeString(offsets[5], object.name);
-  writer.writeByte(offsets[6], object.priority.index);
-  writer.writeStringList(offsets[7], object.tags);
-  writer.writeDateTime(offsets[8], object.todoCompletedTime);
-  writer.writeDateTime(offsets[9], object.todoCompletionTime);
+  writer.writeByte(offsets[0], object.childrenSortOption.index);
+  writer.writeDateTime(offsets[1], object.createdTime);
+  writer.writeString(offsets[2], object.description);
+  writer.writeBool(offsets[3], object.done);
+  writer.writeBool(offsets[4], object.fix);
+  writer.writeLong(offsets[5], object.index);
+  writer.writeString(offsets[6], object.name);
+  writer.writeByte(offsets[7], object.priority.index);
+  writer.writeStringList(offsets[8], object.tags);
+  writer.writeDateTime(offsets[9], object.todoCompletedTime);
+  writer.writeDateTime(offsets[10], object.todoCompletionTime);
 }
 
 Todos _todosDeserialize(
@@ -2995,20 +3002,23 @@ Todos _todosDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Todos(
-    createdTime: reader.readDateTime(offsets[0]),
-    description: reader.readStringOrNull(offsets[1]) ?? '',
-    done: reader.readBoolOrNull(offsets[2]) ?? false,
-    fix: reader.readBoolOrNull(offsets[3]) ?? false,
+    createdTime: reader.readDateTime(offsets[1]),
+    description: reader.readStringOrNull(offsets[2]) ?? '',
+    done: reader.readBoolOrNull(offsets[3]) ?? false,
+    fix: reader.readBoolOrNull(offsets[4]) ?? false,
     id: id,
-    index: reader.readLongOrNull(offsets[4]),
-    name: reader.readString(offsets[5]),
+    index: reader.readLongOrNull(offsets[5]),
+    name: reader.readString(offsets[6]),
     priority:
-        _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[6])] ??
+        _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[7])] ??
         Priority.none,
-    tags: reader.readStringList(offsets[7]) ?? const [],
-    todoCompletedTime: reader.readDateTimeOrNull(offsets[8]),
-    todoCompletionTime: reader.readDateTimeOrNull(offsets[9]),
+    tags: reader.readStringList(offsets[8]) ?? const [],
+    todoCompletedTime: reader.readDateTimeOrNull(offsets[9]),
+    todoCompletionTime: reader.readDateTimeOrNull(offsets[10]),
   );
+  object.childrenSortOption =
+      _TodoschildrenSortOptionValueEnumMap[reader.readByteOrNull(offsets[0])] ??
+      SortOption.none;
   return object;
 }
 
@@ -3020,32 +3030,62 @@ P _todosDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTime(offset)) as P;
+      return (_TodoschildrenSortOptionValueEnumMap[reader.readByteOrNull(
+                offset,
+              )] ??
+              SortOption.none)
+          as P;
     case 1:
-      return (reader.readStringOrNull(offset) ?? '') as P;
+      return (reader.readDateTime(offset)) as P;
     case 2:
-      return (reader.readBoolOrNull(offset) ?? false) as P;
+      return (reader.readStringOrNull(offset) ?? '') as P;
     case 3:
       return (reader.readBoolOrNull(offset) ?? false) as P;
     case 4:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
       return (_TodospriorityValueEnumMap[reader.readByteOrNull(offset)] ??
               Priority.none)
           as P;
-    case 7:
-      return (reader.readStringList(offset) ?? const []) as P;
     case 8:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringList(offset) ?? const []) as P;
     case 9:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 10:
       return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
+const _TodoschildrenSortOptionEnumValueMap = {
+  'none': 0,
+  'alphaAsc': 1,
+  'alphaDesc': 2,
+  'dateAsc': 3,
+  'dateDesc': 4,
+  'dateNotifAsc': 5,
+  'dateNotifDesc': 6,
+  'priorityAsc': 7,
+  'priorityDesc': 8,
+  'random': 9,
+};
+const _TodoschildrenSortOptionValueEnumMap = {
+  0: SortOption.none,
+  1: SortOption.alphaAsc,
+  2: SortOption.alphaDesc,
+  3: SortOption.dateAsc,
+  4: SortOption.dateDesc,
+  5: SortOption.dateNotifAsc,
+  6: SortOption.dateNotifDesc,
+  7: SortOption.priorityAsc,
+  8: SortOption.priorityDesc,
+  9: SortOption.random,
+};
 const _TodospriorityEnumValueMap = {
   'high': 0,
   'medium': 1,
@@ -3153,6 +3193,63 @@ extension TodosQueryWhere on QueryBuilder<Todos, Todos, QWhereClause> {
 }
 
 extension TodosQueryFilter on QueryBuilder<Todos, Todos, QFilterCondition> {
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> childrenSortOptionEqualTo(
+    SortOption value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'childrenSortOption', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  childrenSortOptionGreaterThan(SortOption value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'childrenSortOption',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> childrenSortOptionLessThan(
+    SortOption value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'childrenSortOption',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> childrenSortOptionBetween(
+    SortOption lower,
+    SortOption upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'childrenSortOption',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterFilterCondition> createdTimeEqualTo(
     DateTime value,
   ) {
@@ -4153,6 +4250,18 @@ extension TodosQueryLinks on QueryBuilder<Todos, Todos, QFilterCondition> {
 }
 
 extension TodosQuerySortBy on QueryBuilder<Todos, Todos, QSortBy> {
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByChildrenSortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'childrenSortOption', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByChildrenSortOptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'childrenSortOption', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> sortByCreatedTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdTime', Sort.asc);
@@ -4263,6 +4372,18 @@ extension TodosQuerySortBy on QueryBuilder<Todos, Todos, QSortBy> {
 }
 
 extension TodosQuerySortThenBy on QueryBuilder<Todos, Todos, QSortThenBy> {
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByChildrenSortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'childrenSortOption', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByChildrenSortOptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'childrenSortOption', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> thenByCreatedTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdTime', Sort.asc);
@@ -4385,6 +4506,12 @@ extension TodosQuerySortThenBy on QueryBuilder<Todos, Todos, QSortThenBy> {
 }
 
 extension TodosQueryWhereDistinct on QueryBuilder<Todos, Todos, QDistinct> {
+  QueryBuilder<Todos, Todos, QDistinct> distinctByChildrenSortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'childrenSortOption');
+    });
+  }
+
   QueryBuilder<Todos, Todos, QDistinct> distinctByCreatedTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdTime');
@@ -4454,6 +4581,13 @@ extension TodosQueryProperty on QueryBuilder<Todos, Todos, QQueryProperty> {
   QueryBuilder<Todos, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Todos, SortOption, QQueryOperations>
+  childrenSortOptionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'childrenSortOption');
     });
   }
 

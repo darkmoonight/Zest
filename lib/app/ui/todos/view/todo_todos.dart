@@ -34,6 +34,7 @@ class _TodosTodoState extends State<TodosTodo> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _sortOption = widget.todo.childrenSortOption;
     applyFilter('');
     tabController = TabController(vsync: this, length: 2);
     _initializeFabController();
@@ -277,8 +278,8 @@ class _TodosTodoState extends State<TodosTodo> with TickerProviderStateMixin {
               ),
               onSelected: (SortOption option) {
                 setState(() => _sortOption = option);
-                settings.sortOption = option;
-                isar.writeTxnSync(() => isar.settings.putSync(settings));
+                widget.todo.childrenSortOption = option;
+                isar.writeTxnSync(() => isar.todos.putSync(widget.todo));
               },
               itemBuilder: (context) => <PopupMenuEntry<SortOption>>[
                 PopupMenuItem(

@@ -70,6 +70,8 @@ class Todos {
   Priority priority;
   List<String> tags = [];
   int? index;
+  @enumerated
+  SortOption childrenSortOption = SortOption.none;
 
   final parent = IsarLink<Todos>();
 
