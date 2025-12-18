@@ -317,6 +317,7 @@ class TodoController extends GetxController {
         final t = isar.todos.getSync(id);
         if (t == null) continue;
         t.done = done;
+        t.todoCompletionTime = done ? nowLocal : null;
         isar.todos.putSync(t);
         if (t.todoCompletedTime != null &&
             t.todoCompletedTime!.isAfter(nowLocal)) {
@@ -327,6 +328,20 @@ class TodoController extends GetxController {
 
     todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
     todos.refresh();
+
+    selectedTodo.assignAll(
+      selectedTodo
+          .map((old) => todos.firstWhere((t) => t.id == old.id))
+          .toList(),
+    );
+    selectedTodo.refresh();
+
+    selectedTodo.removeWhere((s) => ids.contains(s.id));
+    selectedTodo.refresh();
+
+    if (selectedTodo.isEmpty) {
+      doMultiSelectionTodoClear();
+    }
 
     for (var id in toCancel) {
       await flutterLocalNotificationsPlugin.cancel(id);
@@ -342,6 +357,20 @@ class TodoController extends GetxController {
 
     todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
     todos.refresh();
+
+    selectedTodo.assignAll(
+      selectedTodo
+          .map((old) => todos.firstWhere((t) => t.id == old.id))
+          .toList(),
+    );
+    selectedTodo.refresh();
+
+    selectedTodo.removeWhere((s) => s.id == todo.id);
+    selectedTodo.refresh();
+
+    if (selectedTodo.isEmpty) {
+      doMultiSelectionTodoClear();
+    }
 
     if (todo.todoCompletedTime != null &&
         todo.todoCompletedTime!.isAfter(nowLocal)) {
