@@ -250,19 +250,33 @@ class _AllTasksState extends State<AllTasks>
     handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
     sliver: SliverPersistentHeader(
       delegate: MyDelegate(
-        child: TabBar(
-          tabAlignment: TabAlignment.start,
-          controller: tabController,
-          isScrollable: true,
-          dividerColor: Colors.transparent,
-          splashFactory: NoSplash.splashFactory,
-          overlayColor: WidgetStateProperty.resolveWith<Color?>(
-            (Set<WidgetState> states) => Colors.transparent,
+        child: Obx(
+          () => Row(
+            children: [
+              Expanded(
+                child: TabBar(
+                  tabAlignment: TabAlignment.start,
+                  controller: tabController,
+                  isScrollable: true,
+                  dividerColor: Colors.transparent,
+                  splashFactory: NoSplash.splashFactory,
+                  overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                    (Set<WidgetState> states) => Colors.transparent,
+                  ),
+                  tabs: [
+                    Tab(text: 'active'.tr),
+                    Tab(text: 'archived'.tr),
+                  ],
+                ),
+              ),
+              if (todoController.isMultiSelectionTask.isTrue)
+                Checkbox(
+                  value: _areAllSelectedInCurrentTab(),
+                  onChanged: (val) => _selectAllInCurrentTab(val!),
+                  shape: const CircleBorder(),
+                ),
+            ],
           ),
-          tabs: [
-            Tab(text: 'active'.tr),
-            Tab(text: 'archived'.tr),
-          ],
         ),
       ),
       floating: true,
@@ -277,4 +291,21 @@ class _AllTasksState extends State<AllTasks>
       TasksList(archived: true, searchTask: filter),
     ],
   );
+
+  bool _areAllSelectedInCurrentTab() {
+    final isArchived = tabController.index == 1;
+    return todoController.areAllTasksSelected(
+      archived: isArchived,
+      searchQuery: filter,
+    );
+  }
+
+  void _selectAllInCurrentTab(bool select) {
+    final isArchived = tabController.index == 1;
+    todoController.selectAllTasks(
+      select: select,
+      archived: isArchived,
+      searchQuery: filter,
+    );
+  }
 }

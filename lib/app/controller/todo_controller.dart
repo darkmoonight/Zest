@@ -673,4 +673,158 @@ class TodoController extends GetxController {
     isMultiSelectionTodo.value = false;
     isPop.value = true;
   }
+
+  // ------------------------
+  // Selection helpers
+  // ------------------------
+  List<Todos> getFilteredTodos({
+    required bool done,
+    String searchQuery = '',
+    DateTime? selectedDay,
+    Tasks? task,
+    Todos? parent,
+  }) {
+    final int contextCount =
+        (selectedDay != null ? 1 : 0) +
+        (task != null ? 1 : 0) +
+        (parent != null ? 1 : 0);
+    if (contextCount > 1) {
+      throw ArgumentError(
+        'Specify only one context: selectedDay, task, or parent.',
+      );
+    }
+    final bool isRootMode = contextCount == 0;
+
+    final lowerQuery = searchQuery.trim().toLowerCase();
+
+    bool matchesSearch(Todos t) {
+      if (lowerQuery.isEmpty) return true;
+      return t.name.toLowerCase().contains(lowerQuery) ||
+          t.description.toLowerCase().contains(lowerQuery) ||
+          t.tags.any((tag) => tag.toLowerCase().contains(lowerQuery));
+    }
+
+    return todos.where((todo) {
+      if (todo.done != done) return false;
+      if (!matchesSearch(todo)) return false;
+
+      if (isRootMode) {
+        return todo.parent.value == null;
+      } else if (selectedDay != null) {
+        final time = todo.todoCompletedTime;
+        if (todo.task.value?.archive == true || time == null) return false;
+        return time.isAfter(
+              DateTime(selectedDay.year, selectedDay.month, selectedDay.day),
+            ) &&
+            time.isBefore(
+              DateTime(
+                selectedDay.year,
+                selectedDay.month,
+                selectedDay.day + 1,
+              ),
+            );
+      } else if (task != null) {
+        return todo.task.value?.id == task.id && todo.parent.value == null;
+      } else if (parent != null) {
+        return todo.parent.value?.id == parent.id;
+      }
+      return false;
+    }).toList();
+  }
+
+  bool areAllSelected({
+    required bool done,
+    String searchQuery = '',
+    DateTime? selectedDay,
+    Tasks? task,
+    Todos? parent,
+  }) {
+    final filtered = getFilteredTodos(
+      done: done,
+      searchQuery: searchQuery,
+      selectedDay: selectedDay,
+      task: task,
+      parent: parent,
+    );
+    return filtered.isNotEmpty &&
+        filtered.every((todo) => selectedTodo.contains(todo));
+  }
+
+  void selectAll({
+    required bool select,
+    required bool done,
+    String searchQuery = '',
+    DateTime? selectedDay,
+    Tasks? task,
+    Todos? parent,
+  }) {
+    final filtered = getFilteredTodos(
+      done: done,
+      searchQuery: searchQuery,
+      selectedDay: selectedDay,
+      task: task,
+      parent: parent,
+    );
+    for (final todo in filtered) {
+      if (select != selectedTodo.contains(todo)) {
+        doMultiSelectionTodo(todo);
+      }
+    }
+  }
+
+  List<Tasks> getFilteredTasks({
+    required bool archived,
+    String searchQuery = '',
+  }) {
+    final lowerQuery = searchQuery.trim().toLowerCase();
+
+    bool matchesSearch(Tasks t) {
+      if (lowerQuery.isEmpty) return true;
+      return t.title.toLowerCase().contains(lowerQuery) ||
+          t.description.toLowerCase().contains(lowerQuery);
+    }
+
+    return tasks.where((task) {
+      if (task.archive != archived) return false;
+      return matchesSearch(task);
+    }).toList();
+  }
+
+  bool areAllTasksSelected({required bool archived, String searchQuery = ''}) {
+    final filtered = getFilteredTasks(
+      archived: archived,
+      searchQuery: searchQuery,
+    );
+    return filtered.isNotEmpty &&
+        filtered.every((task) => selectedTask.contains(task));
+  }
+
+  void selectAllTasks({
+    required bool select,
+    required bool archived,
+    String searchQuery = '',
+  }) {
+    final filtered = getFilteredTasks(
+      archived: archived,
+      searchQuery: searchQuery,
+    );
+
+    if (select) {
+      if (!isMultiSelectionTask.isTrue) {
+        isMultiSelectionTask.value = true;
+        isPop.value = false;
+      }
+      for (final t in filtered) {
+        if (!selectedTask.contains(t)) selectedTask.add(t);
+      }
+    } else {
+      for (final t in filtered) {
+        if (selectedTask.contains(t)) selectedTask.remove(t);
+      }
+      if (selectedTask.isEmpty) {
+        isMultiSelectionTask.value = false;
+        isPop.value = true;
+      }
+    }
+  }
 }

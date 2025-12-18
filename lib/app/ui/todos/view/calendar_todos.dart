@@ -273,79 +273,87 @@ class _CalendarTodosState extends State<CalendarTodos>
     handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
     sliver: SliverPersistentHeader(
       delegate: MyDelegate(
-        child: Row(
-          children: [
-            Expanded(
-              child: TabBar(
-                tabAlignment: TabAlignment.start,
-                controller: tabController,
-                isScrollable: true,
-                dividerColor: Colors.transparent,
-                splashFactory: NoSplash.splashFactory,
-                overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                  (Set<WidgetState> states) => Colors.transparent,
+        child: Obx(
+          () => Row(
+            children: [
+              Expanded(
+                child: TabBar(
+                  tabAlignment: TabAlignment.start,
+                  controller: tabController,
+                  isScrollable: true,
+                  dividerColor: Colors.transparent,
+                  splashFactory: NoSplash.splashFactory,
+                  overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                    (Set<WidgetState> states) => Colors.transparent,
+                  ),
+                  tabs: [
+                    Tab(text: 'doing'.tr),
+                    Tab(text: 'done'.tr),
+                  ],
                 ),
-                tabs: [
-                  Tab(text: 'doing'.tr),
-                  Tab(text: 'done'.tr),
+              ),
+              PopupMenuButton<SortOption>(
+                tooltip: 'sort'.tr,
+                icon: const Icon(IconsaxPlusLinear.sort, size: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                onSelected: (SortOption option) {
+                  setState(() => _sortOption = option);
+                  settings.sortOption = option;
+                  isar.writeTxnSync(() => isar.settings.putSync(settings));
+                },
+                itemBuilder: (context) => <PopupMenuEntry<SortOption>>[
+                  PopupMenuItem(
+                    value: SortOption.none,
+                    child: Text('sortByIndex'.tr),
+                  ),
+                  PopupMenuItem(
+                    value: SortOption.alphaAsc,
+                    child: Text('sortByNameAsc'.tr),
+                  ),
+                  PopupMenuItem(
+                    value: SortOption.alphaDesc,
+                    child: Text('sortByNameDesc'.tr),
+                  ),
+                  PopupMenuItem(
+                    value: SortOption.dateAsc,
+                    child: Text('sortByDateAsc'.tr),
+                  ),
+                  PopupMenuItem(
+                    value: SortOption.dateDesc,
+                    child: Text('sortByDateDesc'.tr),
+                  ),
+                  PopupMenuItem(
+                    value: SortOption.dateNotifAsc,
+                    child: Text('sortByDateNotifAsc'.tr),
+                  ),
+                  PopupMenuItem(
+                    value: SortOption.dateNotifDesc,
+                    child: Text('sortByDateNotifDesc'.tr),
+                  ),
+                  PopupMenuItem(
+                    value: SortOption.priorityAsc,
+                    child: Text('sortByPriorityAsc'.tr),
+                  ),
+                  PopupMenuItem(
+                    value: SortOption.priorityDesc,
+                    child: Text('sortByPriorityDesc'.tr),
+                  ),
+                  PopupMenuItem(
+                    value: SortOption.random,
+                    child: Text('sortByRandom'.tr),
+                  ),
                 ],
               ),
-            ),
-            PopupMenuButton<SortOption>(
-              tooltip: 'sort'.tr,
-              icon: const Icon(IconsaxPlusLinear.sort, size: 20),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              onSelected: (SortOption option) {
-                setState(() => _sortOption = option);
-                settings.sortOption = option;
-                isar.writeTxnSync(() => isar.settings.putSync(settings));
-              },
-              itemBuilder: (context) => <PopupMenuEntry<SortOption>>[
-                PopupMenuItem(
-                  value: SortOption.none,
-                  child: Text('sortByIndex'.tr),
+              if (todoController.isMultiSelectionTodo.isTrue)
+                Checkbox(
+                  value: _areAllSelectedInCurrentTab(),
+                  onChanged: (val) => _selectAllInCurrentTab(val!),
+                  shape: const CircleBorder(),
                 ),
-                PopupMenuItem(
-                  value: SortOption.alphaAsc,
-                  child: Text('sortByNameAsc'.tr),
-                ),
-                PopupMenuItem(
-                  value: SortOption.alphaDesc,
-                  child: Text('sortByNameDesc'.tr),
-                ),
-                PopupMenuItem(
-                  value: SortOption.dateAsc,
-                  child: Text('sortByDateAsc'.tr),
-                ),
-                PopupMenuItem(
-                  value: SortOption.dateDesc,
-                  child: Text('sortByDateDesc'.tr),
-                ),
-                PopupMenuItem(
-                  value: SortOption.dateNotifAsc,
-                  child: Text('sortByDateNotifAsc'.tr),
-                ),
-                PopupMenuItem(
-                  value: SortOption.dateNotifDesc,
-                  child: Text('sortByDateNotifDesc'.tr),
-                ),
-                PopupMenuItem(
-                  value: SortOption.priorityAsc,
-                  child: Text('sortByPriorityAsc'.tr),
-                ),
-                PopupMenuItem(
-                  value: SortOption.priorityDesc,
-                  child: Text('sortByPriorityDesc'.tr),
-                ),
-                PopupMenuItem(
-                  value: SortOption.random,
-                  child: Text('sortByRandom'.tr),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
         height: kTextTabBarHeight,
       ),
@@ -375,4 +383,21 @@ class _CalendarTodosState extends State<CalendarTodos>
       ),
     ],
   );
+
+  bool _areAllSelectedInCurrentTab() {
+    final isDone = tabController.index == 1;
+    return todoController.areAllSelected(
+      done: isDone,
+      selectedDay: selectedDay,
+    );
+  }
+
+  void _selectAllInCurrentTab(bool select) {
+    final isDone = tabController.index == 1;
+    todoController.selectAll(
+      select: select,
+      done: isDone,
+      selectedDay: selectedDay,
+    );
+  }
 }
