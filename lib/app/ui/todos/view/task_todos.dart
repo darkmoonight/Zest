@@ -65,15 +65,19 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
       setState(() => filter = value.toLowerCase());
 
   void _showFab() {
-    if (!_fabAnimationController.isCompleted) {
-      _fabAnimationController.forward();
-    }
+    _fabAnimationController.animateTo(
+      1.0,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+    );
   }
 
   void _hideFab() {
-    if (!_fabAnimationController.isDismissed) {
-      _fabAnimationController.reverse();
-    }
+    _fabAnimationController.animateTo(
+      0.0,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeIn,
+    );
   }
 
   bool _handleScrollNotification(ScrollNotification notification) {
