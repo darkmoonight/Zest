@@ -129,5 +129,6 @@ class KoKr {
     'sort': '정렬',
     'screenPrivacy': '화면 개인정보 보호',
     'created': '생성됨',
+    'markAsDone': '완료로 표시',
   };
 }

@@ -135,5 +135,6 @@ class PlPl {
     'sort': 'Sortuj',
     'screenPrivacy': 'Prywatność ekranu',
     'created': 'Utworzono',
+    'markAsDone': 'Zaznacz jako ukończone',
   };
 }

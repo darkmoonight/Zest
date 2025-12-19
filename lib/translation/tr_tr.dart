@@ -135,5 +135,6 @@ class TrTr {
     'sort': 'Sırala',
     'screenPrivacy': 'Ekran gizliliği',
     'created': 'Oluşturuldu',
+    'markAsDone': 'Yapıldı olarak işaretle',
   };
 }

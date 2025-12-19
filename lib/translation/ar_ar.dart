@@ -132,5 +132,6 @@ class ArAr {
     'sort': 'ترتیب',
     'screenPrivacy': 'خصوصية الشاشة',
     'created': 'تم الإنشاء',
+    'markAsDone': 'وضع علامة كمنجز',
   };
 }

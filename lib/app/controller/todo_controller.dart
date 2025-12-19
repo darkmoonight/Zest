@@ -27,6 +27,8 @@ class TodoController extends GetxController {
   void onInit() {
     super.onInit();
     loadTasksAndTodos();
+    isar.tasks.watchLazy().listen((_) => loadTasksAndTodos());
+    isar.todos.watchLazy().listen((_) => loadTasksAndTodos());
   }
 
   // ------------------------
@@ -141,8 +143,6 @@ class TodoController extends GetxController {
     for (var root in list) {
       await _deleteTodoRecursive(root);
     }
-
-    loadTasksAndTodos();
   }
 
   void deleteTaskFromDB(Tasks task) {
@@ -156,7 +156,6 @@ class TodoController extends GetxController {
       await cancelNotificationsForTask(task);
       archiveTaskInDB(task);
     }
-    loadTasksAndTodos();
     EasyLoading.showSuccess(
       'categoryArchive'.tr,
       duration: const Duration(seconds: 2),
@@ -178,7 +177,6 @@ class TodoController extends GetxController {
       await createNotificationsForTask(task);
       noArchiveTaskInDB(task);
     }
-    loadTasksAndTodos();
     EasyLoading.showSuccess(
       'noCategoryArchive'.tr,
       duration: const Duration(seconds: 2),
@@ -475,8 +473,6 @@ class TodoController extends GetxController {
       }
     });
 
-    loadTasksAndTodos();
-
     EasyLoading.showSuccess('updateTodo'.tr, duration: duration);
   }
 
@@ -523,7 +519,6 @@ class TodoController extends GetxController {
       }
     });
 
-    loadTasksAndTodos();
     EasyLoading.showSuccess('updateTodo'.tr, duration: duration);
   }
 

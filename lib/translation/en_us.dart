@@ -133,5 +133,6 @@ class EnUs {
     'sort': 'Sort',
     'screenPrivacy': 'Screen privacy',
     'created': 'Created',
+    'markAsDone': 'Mark as Done',
   };
 }

@@ -134,5 +134,6 @@ class PtPt {
     'sort': 'Ordenar',
     'screenPrivacy': 'Privacidade do ecrã',
     'created': 'Criado',
+    'markAsDone': 'Marcar como feito',
   };
 }

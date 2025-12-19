@@ -137,5 +137,6 @@ class FrFr {
     'sort': 'Trier',
     'screenPrivacy': 'Confidentialité de l’écran',
     'created': 'Créé',
+    'markAsDone': 'Marquer comme fait',
   };
 }

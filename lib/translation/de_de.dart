@@ -134,5 +134,6 @@ class DeDe {
     'sort': 'Sortieren',
     'screenPrivacy': 'Bildschirm-Privatsphäre',
     'created': 'Erstellt',
+    'markAsDone': 'Als erledigt markieren',
   };
 }

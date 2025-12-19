@@ -137,5 +137,6 @@ class EsEs {
     'sort': 'Ordenar',
     'screenPrivacy': 'Privacidad de la pantalla',
     'created': 'Creado',
+    'markAsDone': 'Marcar como hecho',
   };
 }

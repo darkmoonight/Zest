@@ -135,5 +135,6 @@ class FaIr {
     'sort': 'مرتب‌سازی',
     'screenPrivacy': 'حریم خصوصی صفحه',
     'created': 'ایجاد شده',
+    'markAsDone': 'علامت به عنوان انجام‌شده',
   };
 }

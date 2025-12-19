@@ -129,5 +129,6 @@ class ZhCN {
     'sort': '排序',
     'screenPrivacy': '屏幕隐私',
     'created': '创建',
+    'markAsDone': '标记为完成',
   };
 }

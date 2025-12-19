@@ -130,5 +130,6 @@ class ViVn {
     'sort': 'Sắp xếp',
     'screenPrivacy': 'Quyền riêng tư màn hình',
     'created': 'Đã tạo',
+    'markAsDone': 'Đánh dấu là đã hoàn thành',
   };
 }

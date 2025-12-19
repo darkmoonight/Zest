@@ -4,6 +4,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flag_secure/flag_secure.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:zest/app/controller/isar_controller.dart';
 import 'package:zest/app/ui/home.dart';
 import 'package:zest/app/ui/onboarding.dart';
@@ -92,12 +93,78 @@ Future<void> initializeTimeZone() async {
 }
 
 Future<void> initializeNotifications() async {
+  const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
   const initializationSettings = InitializationSettings(
-    android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-    linux: LinuxInitializationSettings(defaultActionName: 'Zest'),
-    iOS: DarwinInitializationSettings(),
+    android: androidSettings,
   );
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse response) async =>
+        await handleNotificationResponse(response),
+    onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+  );
+}
+
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse response) =>
+    handleNotificationResponse(response);
+
+Future<void> handleNotificationResponse(NotificationResponse response) async {
+  try {
+    final payload = response.payload;
+    final actionId = response.actionId;
+
+    if (actionId == 'mark_done' && payload != null) {
+      final todoId = int.tryParse(payload);
+
+      if (todoId != null) {
+        await markTodoAsDone(todoId);
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
+Future<void> markTodoAsDone(int todoId) async {
+  try {
+    Isar? isarInstance;
+
+    if (Isar.instanceNames.isEmpty) {
+      final dir = await getApplicationSupportDirectory();
+
+      isarInstance = await Isar.open(
+        [TasksSchema, TodosSchema, SettingsSchema],
+        directory: dir.path,
+        inspector: true,
+      );
+    } else {
+      isarInstance = Isar.getInstance();
+    }
+
+    if (isarInstance == null) {
+      return;
+    }
+
+    final todo = await isarInstance.todos.get(todoId);
+
+    if (todo == null) {
+      return;
+    }
+
+    if (!todo.done) {
+      await isarInstance.writeTxn(() async {
+        todo.done = true;
+        todo.todoCompletedTime = DateTime.now();
+        await isarInstance!.todos.put(todo);
+      });
+      await flutterLocalNotificationsPlugin.cancel(todoId);
+      await isarInstance.close();
+    }
+  } catch (e) {
+    // ignore
+  }
 }
 
 Future<void> setOptimalDisplayMode() async {

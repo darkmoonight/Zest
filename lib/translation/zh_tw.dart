@@ -129,5 +129,6 @@ class ZhTw {
     'sort': '排序',
     'screenPrivacy': '螢幕隱私',
     'created': '建立',
+    'markAsDone': '標記為完成',
   };
 }

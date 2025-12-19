@@ -134,5 +134,6 @@ class ItIt {
     'sort': 'Ordina',
     'screenPrivacy': 'Privacy dello schermo',
     'created': 'Creato',
+    'markAsDone': 'Contrassegna come completato',
   };
 }

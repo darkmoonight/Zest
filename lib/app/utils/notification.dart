@@ -1,11 +1,13 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:zest/main.dart';
+import 'package:get/get.dart';
 
 class NotificationShow {
   final String _channelId = 'Zest';
   final String _channelName = 'DARK NIGHT';
-  final String _payload = 'notification-payload';
+
+  static const String actionIdMarkDone = 'mark_done';
 
   Future<void> showNotification(
     int id,
@@ -24,7 +26,7 @@ class NotificationShow {
       scheduledTime,
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      payload: _payload,
+      payload: '$id',
     );
   }
 
@@ -45,6 +47,9 @@ class NotificationShow {
       _channelName,
       priority: Priority.high,
       importance: Importance.max,
+      actions: <AndroidNotificationAction>[
+        AndroidNotificationAction(actionIdMarkDone, 'markAsDone'.tr),
+      ],
     );
     return NotificationDetails(android: androidNotificationDetails);
   }
