@@ -16,7 +16,7 @@ class NotificationShow {
     DateTime? date,
   ) async {
     await _requestNotificationPermission();
-    final notificationDetails = _buildNotificationDetails();
+    final notificationDetails = _buildNotificationDetails(title, body);
     final scheduledTime = _getScheduledTime(date!);
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
@@ -41,12 +41,20 @@ class NotificationShow {
     }
   }
 
-  NotificationDetails _buildNotificationDetails() {
+  NotificationDetails _buildNotificationDetails(String title, String body) {
     final androidNotificationDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
       priority: Priority.high,
       importance: Importance.max,
+      styleInformation: BigTextStyleInformation(
+        body,
+        contentTitle: title,
+        summaryText: null,
+        htmlFormatBigText: true,
+        htmlFormatContentTitle: true,
+        htmlFormatSummaryText: true,
+      ),
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(actionIdMarkDone, 'markAsDone'.tr),
       ],
