@@ -19,6 +19,7 @@ class Settings {
   String defaultScreen = 'categories';
   @enumerated
   SortOption sortOption = SortOption.none;
+  int snoozeDuration = 10;
 }
 
 enum SortOption {

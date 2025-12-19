@@ -133,5 +133,8 @@ class ArAr {
     'screenPrivacy': 'خصوصية الشاشة',
     'created': 'تم الإنشاء',
     'markAsDone': 'وضع علامة كمنجز',
+    'snooze': 'غفوة',
+    'snoozeDuration': 'مدة الغفوة',
+    'min': 'دقيقة',
   };
 }

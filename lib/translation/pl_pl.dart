@@ -136,5 +136,8 @@ class PlPl {
     'screenPrivacy': 'Prywatność ekranu',
     'created': 'Utworzono',
     'markAsDone': 'Zaznacz jako ukończone',
+    'snooze': 'Drzemka',
+    'snoozeDuration': 'Czas drzemki',
+    'min': 'min',
   };
 }

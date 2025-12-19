@@ -130,5 +130,8 @@ class KoKr {
     'screenPrivacy': '화면 개인정보 보호',
     'created': '생성됨',
     'markAsDone': '완료로 표시',
+    'snooze': '스누즈',
+    'snoozeDuration': '스누즈 기간',
+    'min': '분',
   };
 }

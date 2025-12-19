@@ -134,5 +134,8 @@ class EnUs {
     'screenPrivacy': 'Screen privacy',
     'created': 'Created',
     'markAsDone': 'Mark as Done',
+    'snooze': 'Snooze',
+    'snoozeDuration': 'Snooze Duration',
+    'min': 'min',
   };
 }

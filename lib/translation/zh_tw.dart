@@ -130,5 +130,8 @@ class ZhTw {
     'screenPrivacy': '螢幕隱私',
     'created': '建立',
     'markAsDone': '標記為完成',
+    'snooze': '稍後提醒',
+    'snoozeDuration': '稍後提醒時長',
+    'min': '分鐘',
   };
 }

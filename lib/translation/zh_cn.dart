@@ -130,5 +130,8 @@ class ZhCN {
     'screenPrivacy': '屏幕隐私',
     'created': '创建',
     'markAsDone': '标记为完成',
+    'snooze': '稍后提醒',
+    'snoozeDuration': '稍后提醒时长',
+    'min': '分钟',
   };
 }

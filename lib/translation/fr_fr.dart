@@ -138,5 +138,8 @@ class FrFr {
     'screenPrivacy': 'Confidentialité de l’écran',
     'created': 'Créé',
     'markAsDone': 'Marquer comme fait',
+    'snooze': 'Rappel',
+    'snoozeDuration': 'Durée du rappel',
+    'min': 'min',
   };
 }

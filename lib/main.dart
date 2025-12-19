@@ -21,6 +21,7 @@ import 'package:zest/theme/theme_controller.dart';
 import 'package:zest/app/utils/device_info.dart';
 import 'app/data/db.dart';
 import 'app/ui/todos/view/all_todos.dart';
+import 'app/utils/notification.dart';
 import 'translation/translation.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -39,6 +40,7 @@ RxBool isImage = true.obs;
 RxString timeformat = '24'.obs;
 RxString firstDay = 'monday'.obs;
 Locale locale = const Locale('en', 'US');
+RxInt snoozeDuration = 5.obs;
 
 final List<Map<String, dynamic>> appLanguages = [
   {'name': 'العربية', 'locale': const Locale('ar', 'AR')},
@@ -111,17 +113,64 @@ void notificationTapBackground(NotificationResponse response) =>
     handleNotificationResponse(response);
 
 Future<void> handleNotificationResponse(NotificationResponse response) async {
+  await initializeTimeZone();
   try {
     final payload = response.payload;
     final actionId = response.actionId;
 
-    if (actionId == 'mark_done' && payload != null) {
-      final todoId = int.tryParse(payload);
+    if (payload == null) return;
 
-      if (todoId != null) {
+    final todoId = int.tryParse(payload);
+    if (todoId == null) return;
+
+    switch (actionId) {
+      case 'mark_done':
         await markTodoAsDone(todoId);
-      }
+        break;
+      case 'snooze':
+        await snoozeTodo(todoId);
+        break;
+      default:
+        break;
     }
+  } catch (e) {
+    // ignore
+  }
+}
+
+Future<void> snoozeTodo(int todoId) async {
+  try {
+    Isar? isarInstance;
+
+    if (Isar.instanceNames.isEmpty) {
+      final dir = await getApplicationSupportDirectory();
+      isarInstance = await Isar.open(
+        [TasksSchema, TodosSchema, SettingsSchema],
+        directory: dir.path,
+        inspector: true,
+      );
+    } else {
+      isarInstance = Isar.getInstance();
+    }
+
+    if (isarInstance == null) return;
+
+    final todo = await isarInstance.todos.get(todoId);
+    if (todo == null) return;
+
+    final title = todo.name;
+    final body = todo.description;
+
+    await NotificationShow().snoozeNotification(todoId, title, body);
+
+    await isarInstance.writeTxn(() async {
+      todo.todoCompletedTime = DateTime.now().add(
+        Duration(minutes: snoozeDuration.value),
+      );
+      await isarInstance!.todos.put(todo);
+    });
+
+    await isarInstance.close();
   } catch (e) {
     // ignore
   }
@@ -143,20 +192,15 @@ Future<void> markTodoAsDone(int todoId) async {
       isarInstance = Isar.getInstance();
     }
 
-    if (isarInstance == null) {
-      return;
-    }
+    if (isarInstance == null) return;
 
     final todo = await isarInstance.todos.get(todoId);
-
-    if (todo == null) {
-      return;
-    }
+    if (todo == null) return;
 
     if (!todo.done) {
       await isarInstance.writeTxn(() async {
         todo.done = true;
-        todo.todoCompletedTime = DateTime.now();
+        todo.todoCompletionTime = DateTime.now();
         await isarInstance!.todos.put(todo);
       });
       await flutterLocalNotificationsPlugin.cancel(todoId);
@@ -193,6 +237,9 @@ Future<void> initSettings() async {
   settings.theme ??= 'system';
   settings.isImage ??= true;
   settings.screenPrivacy ??= false;
+  if (settings.snoozeDuration == 0 || settings.snoozeDuration < 0) {
+    settings.snoozeDuration = 10;
+  }
   isar.writeTxnSync(() => isar.settings.putSync(settings));
 }
 
@@ -245,6 +292,7 @@ class _MyAppState extends State<MyApp> {
     timeformat.value = settings.timeformat;
     firstDay.value = settings.firstDay;
     isImage.value = settings.isImage!;
+    snoozeDuration.value = settings.snoozeDuration;
     locale = Locale(
       settings.language!.substring(0, 2),
       settings.language!.substring(3),

@@ -135,5 +135,8 @@ class ItIt {
     'screenPrivacy': 'Privacy dello schermo',
     'created': 'Creato',
     'markAsDone': 'Contrassegna come completato',
+    'snooze': 'Posponi',
+    'snoozeDuration': 'Durata posponi',
+    'min': 'min',
   };
 }

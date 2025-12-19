@@ -135,5 +135,8 @@ class DeDe {
     'screenPrivacy': 'Bildschirm-Privatsphäre',
     'created': 'Erstellt',
     'markAsDone': 'Als erledigt markieren',
+    'snooze': 'Schlummern',
+    'snoozeDuration': 'Schlummerdauer',
+    'min': 'Min.',
   };
 }

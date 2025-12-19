@@ -135,5 +135,8 @@ class PtPt {
     'screenPrivacy': 'Privacidade do ecrã',
     'created': 'Criado',
     'markAsDone': 'Marcar como feito',
+    'snooze': 'Adiar',
+    'snoozeDuration': 'Duração do adiamento',
+    'min': 'min',
   };
 }

@@ -136,5 +136,8 @@ class FaIr {
     'screenPrivacy': 'حریم خصوصی صفحه',
     'created': 'ایجاد شده',
     'markAsDone': 'علامت به عنوان انجام‌شده',
+    'snooze': 'چرت',
+    'snoozeDuration': 'مدت چرت',
+    'min': 'دقیقه',
   };
 }

@@ -136,5 +136,8 @@ class TrTr {
     'screenPrivacy': 'Ekran gizliliği',
     'created': 'Oluşturuldu',
     'markAsDone': 'Yapıldı olarak işaretle',
+    'snooze': 'Ertele',
+    'snoozeDuration': 'Erteleme Süresi',
+    'min': 'dak',
   };
 }

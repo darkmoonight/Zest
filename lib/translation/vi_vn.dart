@@ -131,5 +131,8 @@ class ViVn {
     'screenPrivacy': 'Quyền riêng tư màn hình',
     'created': 'Đã tạo',
     'markAsDone': 'Đánh dấu là đã hoàn thành',
+    'snooze': 'Báo lại',
+    'snoozeDuration': 'Thời gian báo lại',
+    'min': 'phút',
   };
 }

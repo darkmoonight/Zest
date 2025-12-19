@@ -90,6 +90,7 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           _buildAppearanceCard(context),
           _buildFunctionsCard(context),
+          _buildSnoozeDropdownCard(context),
           _buildDefaultScreenCard(context),
           _buildLanguageCard(context),
           _buildGroupsCard(context),
@@ -409,6 +410,32 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ],
     ),
+  );
+
+  Widget _buildSnoozeDropdownCard(BuildContext context) => SettingCard(
+    icon: const Icon(IconsaxPlusLinear.timer_1),
+    text: 'snoozeDuration'.tr,
+    dropdown: true,
+    dropdownName: '${settings.snoozeDuration} ${'min'.tr}',
+    dropdownList: <String>[
+      '5 ${'min'.tr}',
+      '10 ${'min'.tr}',
+      '15 ${'min'.tr}',
+      '20 ${'min'.tr}',
+      '30 ${'min'.tr}',
+      '45 ${'min'.tr}',
+      '60 ${'min'.tr}',
+    ],
+    dropdownChange: (String? newValue) {
+      if (newValue == null) return;
+      final duration = int.tryParse(newValue.split(' ')[0]) ?? 10;
+      isar.writeTxnSync(() {
+        settings.snoozeDuration = duration;
+        isar.settings.putSync(settings);
+      });
+      snoozeDuration.value = duration;
+      setState(() {});
+    },
   );
 
   Widget _buildDefaultScreenCard(BuildContext context) => SettingCard(

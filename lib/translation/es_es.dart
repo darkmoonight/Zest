@@ -138,5 +138,8 @@ class EsEs {
     'screenPrivacy': 'Privacidad de la pantalla',
     'created': 'Creado',
     'markAsDone': 'Marcar como hecho',
+    'snooze': 'Posponer',
+    'snoozeDuration': 'Duración de posposición',
+    'min': 'min',
   };
 }
