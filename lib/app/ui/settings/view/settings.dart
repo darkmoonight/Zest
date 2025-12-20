@@ -433,7 +433,6 @@ class _SettingsPageState extends State<SettingsPage> {
         settings.snoozeDuration = duration;
         isar.settings.putSync(settings);
       });
-      snoozeDuration.value = duration;
       setState(() {});
     },
   );

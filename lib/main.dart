@@ -40,7 +40,6 @@ RxBool isImage = true.obs;
 RxString timeformat = '24'.obs;
 RxString firstDay = 'monday'.obs;
 Locale locale = const Locale('en', 'US');
-RxInt snoozeDuration = 5.obs;
 
 final List<Map<String, dynamic>> appLanguages = [
   {'name': 'العربية', 'locale': const Locale('ar', 'AR')},
@@ -154,6 +153,7 @@ Future<void> snoozeTodo(int todoId) async {
     }
 
     if (isarInstance == null) return;
+    settings = isarInstance.settings.where().findFirstSync() ?? Settings();
 
     final todo = await isarInstance.todos.get(todoId);
     if (todo == null) return;
@@ -161,11 +161,27 @@ Future<void> snoozeTodo(int todoId) async {
     final title = todo.name;
     final body = todo.description;
 
-    await NotificationShow().snoozeNotification(todoId, title, body);
+    final translations = Translation().keys;
+    final localeCode = settings.language ?? 'en_US';
+    final langMap = translations[localeCode] ?? translations['en_US']!;
+
+    String translate(String key) => langMap[key] ?? key;
+
+    final snoozeText =
+        '${translate('snooze')} ${settings.snoozeDuration} ${translate('min')}';
+    final markDoneText = translate('markAsDone');
+
+    await NotificationShow().snoozeNotification(
+      todoId,
+      title,
+      body,
+      snoozeActionText: snoozeText,
+      markDoneActionText: markDoneText,
+    );
 
     await isarInstance.writeTxn(() async {
       todo.todoCompletedTime = DateTime.now().add(
-        Duration(minutes: snoozeDuration.value),
+        Duration(minutes: settings.snoozeDuration),
       );
       await isarInstance!.todos.put(todo);
     });
@@ -292,7 +308,6 @@ class _MyAppState extends State<MyApp> {
     timeformat.value = settings.timeformat;
     firstDay.value = settings.firstDay;
     isImage.value = settings.isImage!;
-    snoozeDuration.value = settings.snoozeDuration;
     locale = Locale(
       settings.language!.substring(0, 2),
       settings.language!.substring(3),

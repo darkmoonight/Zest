@@ -16,12 +16,19 @@ class NotificationShow {
     String body,
     DateTime? date, {
     bool requestPermission = true,
+    String? markDoneActionText,
+    String? snoozeActionText,
   }) async {
     if (requestPermission) {
       await _requestNotificationPermission();
     }
 
-    final notificationDetails = _buildNotificationDetails(title, body);
+    final notificationDetails = _buildNotificationDetails(
+      title,
+      body,
+      markDoneActionText: markDoneActionText,
+      snoozeActionText: snoozeActionText,
+    );
     final scheduledTime = _getScheduledTime(date!);
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
@@ -45,13 +52,20 @@ class NotificationShow {
     await platform.requestNotificationsPermission();
   }
 
-  NotificationDetails _buildNotificationDetails(String title, String body) {
+  NotificationDetails _buildNotificationDetails(
+    String title,
+    String body, {
+    String? markDoneActionText,
+    String? snoozeActionText,
+  }) {
+    final markText = markDoneActionText ?? 'markAsDone'.tr;
+    final snoozeText =
+        snoozeActionText ??
+        '${'snooze'.tr} ${settings.snoozeDuration} ${'min'.tr}';
+
     final actions = <AndroidNotificationAction>[
-      AndroidNotificationAction(actionIdMarkDone, 'markAsDone'.tr),
-      AndroidNotificationAction(
-        actionIdSnooze,
-        '${'snooze'.tr} ${snoozeDuration.value} ${'min'.tr}',
-      ),
+      AndroidNotificationAction(actionIdMarkDone, markText),
+      AndroidNotificationAction(actionIdSnooze, snoozeText),
     ];
 
     final androidNotificationDetails = AndroidNotificationDetails(
@@ -75,8 +89,14 @@ class NotificationShow {
   tz.TZDateTime _getScheduledTime(DateTime date) =>
       tz.TZDateTime.from(date, tz.local);
 
-  Future<void> snoozeNotification(int id, String title, String body) async {
-    final snoozeMinutes = snoozeDuration.value;
+  Future<void> snoozeNotification(
+    int id,
+    String title,
+    String body, {
+    String? markDoneActionText,
+    String? snoozeActionText,
+  }) async {
+    final snoozeMinutes = settings.snoozeDuration;
     final newDateTime = DateTime.now().add(Duration(minutes: snoozeMinutes));
     await flutterLocalNotificationsPlugin.cancel(id);
     await showNotification(
@@ -85,6 +105,8 @@ class NotificationShow {
       body,
       newDateTime,
       requestPermission: false,
+      markDoneActionText: markDoneActionText,
+      snoozeActionText: snoozeActionText,
     );
   }
 }
