@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -8,6 +9,15 @@ import 'package:zest/app/data/db.dart';
 import 'package:zest/app/utils/notification.dart';
 import 'package:zest/main.dart';
 
+extension FirstWhereOrNull<E> on Iterable<E> {
+  E? firstWhereOrNull(bool Function(E) test) {
+    for (final e in this) {
+      if (test(e)) return e;
+    }
+    return null;
+  }
+}
+
 class TodoController extends GetxController {
   final tasks = <Tasks>[].obs;
   final todos = <Todos>[].obs;
@@ -16,6 +26,7 @@ class TodoController extends GetxController {
   final isMultiSelectionTask = false.obs;
 
   final selectedTodo = <Todos>[].obs;
+  final selectedTodoIds = <int>{}.obs;
   final isMultiSelectionTodo = false.obs;
 
   final isPop = true.obs;
@@ -23,22 +34,70 @@ class TodoController extends GetxController {
   final duration = const Duration(milliseconds: 500);
   DateTime now = DateTime.now();
 
+  Timer? _loadDebounce;
+
   @override
   void onInit() {
     super.onInit();
     loadTasksAndTodos();
-    isar.tasks.watchLazy().listen((_) => loadTasksAndTodos());
-    isar.todos.watchLazy().listen((_) => loadTasksAndTodos());
+
+    isar.tasks.watchLazy().listen((_) {
+      _loadDebounce?.cancel();
+      _loadDebounce = Timer(
+        const Duration(milliseconds: 150),
+        loadTasksAndTodos,
+      );
+    });
+
+    isar.todos.watchLazy().listen((_) {
+      _loadDebounce?.cancel();
+      _loadDebounce = Timer(
+        const Duration(milliseconds: 150),
+        loadTasksAndTodos,
+      );
+    });
+  }
+
+  @override
+  void onClose() {
+    _loadDebounce?.cancel();
+    super.onClose();
   }
 
   // ------------------------
   // Load
   // ------------------------
   void loadTasksAndTodos() {
-    tasks.assignAll(isar.tasks.where().sortByIndex().findAllSync());
-    todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
+    final preservedSelectedIds = selectedTodoIds.toSet();
+
+    final newTasks = isar.tasks.where().sortByIndex().findAllSync();
+    final newTodos = isar.todos.where().sortByIndex().findAllSync();
+
+    tasks.assignAll(newTasks);
+    todos.assignAll(newTodos);
     tasks.refresh();
     todos.refresh();
+
+    final restored = <Todos>[];
+    for (final id in preservedSelectedIds) {
+      final match = todos.firstWhereOrNull((t) => t.id == id);
+      if (match != null) {
+        restored.add(match);
+      } else {
+        preservedSelectedIds.remove(id);
+      }
+    }
+
+    selectedTodo.assignAll(restored);
+    selectedTodo.refresh();
+
+    selectedTodoIds.assignAll(selectedTodo.map((e) => e.id).toSet());
+    if (selectedTodo.isEmpty) {
+      doMultiSelectionTodoClear();
+    } else {
+      isMultiSelectionTodo.value = true;
+      isPop.value = false;
+    }
   }
 
   // ------------------------
@@ -289,6 +348,31 @@ class TodoController extends GetxController {
     }
   }
 
+  // ------------------------
+  // Private helpers for selection sync
+  // ------------------------
+  void _resyncSelectedTodoFromIds() {
+    final updated = <Todos>[];
+    for (final id in selectedTodoIds) {
+      final match = todos.firstWhereOrNull((t) => t.id == id);
+      if (match != null) updated.add(match);
+    }
+    selectedTodo.assignAll(updated);
+    selectedTodo.refresh();
+    if (selectedTodo.isEmpty) {
+      isMultiSelectionTodo.value = false;
+      isPop.value = true;
+      selectedTodoIds.clear();
+    } else {
+      isMultiSelectionTodo.value = true;
+      isPop.value = false;
+      selectedTodoIds.assignAll(selectedTodo.map((e) => e.id).toSet());
+    }
+  }
+
+  // ------------------------
+  // Set done for subtree
+  // ------------------------
   Future<void> _setDoneForSubtree(Todos root, bool done) async {
     final ids = <int>{};
     final stack = <Todos>[root];
@@ -327,63 +411,53 @@ class TodoController extends GetxController {
     todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
     todos.refresh();
 
-    selectedTodo.assignAll(
-      selectedTodo
-          .map((old) => todos.firstWhere((t) => t.id == old.id))
-          .toList(),
-    );
-    selectedTodo.refresh();
-
-    selectedTodo.removeWhere((s) => ids.contains(s.id));
-    selectedTodo.refresh();
-
-    if (selectedTodo.isEmpty) {
-      doMultiSelectionTodoClear();
-    }
+    selectedTodoIds.removeWhere((id) => ids.contains(id));
+    _resyncSelectedTodoFromIds();
 
     for (var id in toCancel) {
-      await flutterLocalNotificationsPlugin.cancel(id);
+      try {
+        await flutterLocalNotificationsPlugin.cancel(id);
+      } catch (_) {
+        // ignore
+      }
     }
   }
 
+  // ------------------------
+  // Set done for single todos (safe)
+  // ------------------------
   Future<void> _setDoneSingle(Todos todo, bool done) async {
     final nowLocal = DateTime.now();
     isar.writeTxnSync(() {
       todo.done = done;
+      todo.todoCompletionTime = done ? nowLocal : null;
       isar.todos.putSync(todo);
     });
 
     todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
     todos.refresh();
 
-    selectedTodo.assignAll(
-      selectedTodo
-          .map((old) => todos.firstWhere((t) => t.id == old.id))
-          .toList(),
-    );
-    selectedTodo.refresh();
-
-    selectedTodo.removeWhere((s) => s.id == todo.id);
-    selectedTodo.refresh();
-
-    if (selectedTodo.isEmpty) {
-      doMultiSelectionTodoClear();
-    }
+    selectedTodoIds.remove(todo.id);
+    _resyncSelectedTodoFromIds();
 
     if (todo.todoCompletedTime != null &&
         todo.todoCompletedTime!.isAfter(nowLocal)) {
       if (done) {
-        await flutterLocalNotificationsPlugin.cancel(todo.id);
+        try {
+          await flutterLocalNotificationsPlugin.cancel(todo.id);
+        } catch (_) {}
       } else {
-        if (!todo.done) {
-          NotificationShow().showNotification(
-            todo.id,
-            todo.name,
-            todo.description,
-            todo.todoCompletedTime,
-          );
-        }
+        NotificationShow().showNotification(
+          todo.id,
+          todo.name,
+          todo.description,
+          todo.todoCompletedTime,
+        );
       }
+    } else {
+      try {
+        await flutterLocalNotificationsPlugin.cancel(todo.id);
+      } catch (_) {}
     }
   }
 
@@ -530,6 +604,11 @@ class TodoController extends GetxController {
       await _deleteTodoRecursive(todo);
     }
 
+    for (final t in copy) {
+      selectedTodoIds.remove(t.id);
+    }
+    _resyncSelectedTodoFromIds();
+
     reindexTodos();
     EasyLoading.showSuccess(
       'todoDelete'.tr,
@@ -578,11 +657,17 @@ class TodoController extends GetxController {
 
     todos.removeWhere((t) => idsToDelete.contains(t.id));
     todos.refresh();
+
+    selectedTodoIds.removeWhere((id) => idsToDelete.contains(id));
+    _resyncSelectedTodoFromIds();
   }
 
   void deleteTodoFromDB(Todos todo) {
     todos.removeWhere((t) => t.id == todo.id);
     isar.writeTxnSync(() => isar.todos.deleteSync(todo.id));
+
+    selectedTodoIds.remove(todo.id);
+    _resyncSelectedTodoFromIds();
   }
 
   // ------------------------
@@ -652,7 +737,30 @@ class TodoController extends GetxController {
   }
 
   // ------------------------
-  // Multi-selection helpers
+  // Multi-selection helpers (todos)
+  // ------------------------
+  void doMultiSelectionTodo(Todos todo) {
+    if (isMultiSelectionTodo.isTrue) {
+      isPop.value = false;
+      if (selectedTodoIds.contains(todo.id)) {
+        selectedTodoIds.remove(todo.id);
+      } else {
+        selectedTodoIds.add(todo.id);
+      }
+      _resyncSelectedTodoFromIds();
+    }
+  }
+
+  void doMultiSelectionTodoClear() {
+    selectedTodoIds.clear();
+    selectedTodo.clear();
+    selectedTodo.refresh();
+    isMultiSelectionTodo.value = false;
+    isPop.value = true;
+  }
+
+  // ------------------------
+  // Multi-selection helpers (tasks)
   // ------------------------
   void doMultiSelectionTask(Tasks task) {
     if (isMultiSelectionTask.isTrue) {
@@ -673,28 +781,6 @@ class TodoController extends GetxController {
   void doMultiSelectionTaskClear() {
     selectedTask.clear();
     isMultiSelectionTask.value = false;
-    isPop.value = true;
-  }
-
-  void doMultiSelectionTodo(Todos todo) {
-    if (isMultiSelectionTodo.isTrue) {
-      isPop.value = false;
-      if (selectedTodo.contains(todo)) {
-        selectedTodo.remove(todo);
-      } else {
-        selectedTodo.add(todo);
-      }
-
-      if (selectedTodo.isEmpty) {
-        isMultiSelectionTodo.value = false;
-        isPop.value = true;
-      }
-    }
-  }
-
-  void doMultiSelectionTodoClear() {
-    selectedTodo.clear();
-    isMultiSelectionTodo.value = false;
     isPop.value = true;
   }
 
@@ -771,7 +857,7 @@ class TodoController extends GetxController {
       parent: parent,
     );
     return filtered.isNotEmpty &&
-        filtered.every((todo) => selectedTodo.contains(todo));
+        filtered.every((todo) => selectedTodoIds.contains(todo.id));
   }
 
   void selectAll({
@@ -789,11 +875,24 @@ class TodoController extends GetxController {
       task: task,
       parent: parent,
     );
-    for (final todo in filtered) {
-      if (select != selectedTodo.contains(todo)) {
-        doMultiSelectionTodo(todo);
+    if (select) {
+      if (!isMultiSelectionTodo.isTrue) {
+        isMultiSelectionTodo.value = true;
+        isPop.value = false;
+      }
+      for (final todo in filtered) {
+        selectedTodoIds.add(todo.id);
+      }
+    } else {
+      for (final todo in filtered) {
+        selectedTodoIds.remove(todo.id);
+      }
+      if (selectedTodoIds.isEmpty) {
+        isMultiSelectionTodo.value = false;
+        isPop.value = true;
       }
     }
+    _resyncSelectedTodoFromIds();
   }
 
   List<Tasks> getFilteredTasks({
