@@ -1,5 +1,6 @@
 import 'package:flutter/rendering.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:zest/app/controller/fab_controller.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
@@ -25,9 +26,7 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
   final TextEditingController searchTodos = TextEditingController();
   String filter = '';
 
-  late AnimationController _fabAnimationController;
-  late Animation<double> _fabAnimation;
-
+  final fabController = Get.find<FabController>();
   final ScrollController _scrollController = ScrollController();
 
   SortOption _sortOption = SortOption.none;
@@ -38,55 +37,27 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
     _sortOption = settings.sortOption;
     applyFilter('');
     tabController = TabController(vsync: this, length: 2);
-    _initializeFabController();
   }
 
   @override
   void dispose() {
     tabController.dispose();
     _scrollController.dispose();
-    _fabAnimationController.dispose();
     super.dispose();
-  }
-
-  void _initializeFabController() {
-    _fabAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-    _fabAnimation = CurvedAnimation(
-      parent: _fabAnimationController,
-      curve: Curves.easeInOut,
-    );
-    _fabAnimationController.forward();
   }
 
   void applyFilter(String value) =>
       setState(() => filter = value.toLowerCase());
 
-  void _showFab() {
-    _fabAnimationController.animateTo(
-      1.0,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-    );
-  }
-
-  void _hideFab() {
-    _fabAnimationController.animateTo(
-      0.0,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeIn,
-    );
-  }
-
   bool _handleScrollNotification(ScrollNotification notification) {
+    if (notification.depth > 0) return false;
+
     if (notification is UserScrollNotification) {
       final ScrollDirection direction = notification.direction;
       if (direction == ScrollDirection.reverse) {
-        _hideFab();
+        fabController.hide();
       } else if (direction == ScrollDirection.forward) {
-        _showFab();
+        fabController.show();
       }
     }
     return false;
@@ -397,18 +368,15 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
   );
 
   Widget? _buildFloatingActionButton(BuildContext context) => AnimatedBuilder(
-    animation: _fabAnimation,
+    animation: fabController.animation,
     builder: (context, child) => Transform.scale(
-      scale: _fabAnimation.value,
-      child: Opacity(
-        opacity: _fabAnimation.value,
-        child: FloatingActionButton(
-          onPressed: _fabAnimation.value > 0.5
-              ? () => _showTodosActionBottomSheet(context, edit: false)
-              : null,
-          child: const Icon(IconsaxPlusLinear.add),
-        ),
-      ),
+      scale: fabController.animation.value,
+      child: Opacity(opacity: fabController.animation.value, child: child),
+    ),
+
+    child: FloatingActionButton(
+      onPressed: () => _showTodosActionBottomSheet(context, edit: false),
+      child: const Icon(IconsaxPlusLinear.add),
     ),
   );
 
@@ -419,9 +387,6 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
     enableDrag: false,
     context: context,
     isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
     builder: (BuildContext context) => TodosAction(
       text: 'create'.tr,
       edit: edit,

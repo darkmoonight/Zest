@@ -1,4 +1,5 @@
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:zest/app/controller/fab_controller.dart';
 import 'package:zest/app/ui/tasks/view/all_tasks.dart';
 import 'package:zest/app/ui/settings/view/settings.dart';
 import 'package:flutter/material.dart';
@@ -23,10 +24,8 @@ class HomePageState extends State<HomePage>
   final themeController = Get.put(ThemeController());
   int tabIndex = 0;
 
-  late AnimationController _fabAnimationController;
-  late Animation<double> _fabAnimation;
-
   final ScrollController _scrollController = ScrollController();
+  final fabController = Get.put(FabController(), permanent: true);
 
   final List<Widget> pages = const [
     AllTasks(),
@@ -39,26 +38,12 @@ class HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     _initializeTabIndex();
-    _initializeFabController();
   }
 
   @override
   void dispose() {
-    _fabAnimationController.dispose();
     _scrollController.dispose();
     super.dispose();
-  }
-
-  void _initializeFabController() {
-    _fabAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-    _fabAnimation = CurvedAnimation(
-      parent: _fabAnimationController,
-      curve: Curves.easeInOut,
-    );
-    _fabAnimationController.forward();
   }
 
   List<String> _getScreens() => ['categories', 'allTodos', 'calendar'];
@@ -76,9 +61,6 @@ class HomePageState extends State<HomePage>
   void changeTabIndex(int index) {
     setState(() {
       tabIndex = index;
-      if (index != 3) {
-        _showFab();
-      }
     });
   }
 
@@ -94,33 +76,16 @@ class HomePageState extends State<HomePage>
     }
   }
 
-  void _showFab() {
-    _fabAnimationController.animateTo(
-      1.0,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-    );
-  }
-
-  void _hideFab() {
-    _fabAnimationController.animateTo(
-      0.0,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeIn,
-    );
-  }
-
   bool _handleScrollNotification(ScrollNotification notification) {
     if (tabIndex == 3) return false;
-
     if (notification.depth > 0) return false;
 
     if (notification is UserScrollNotification) {
       final ScrollDirection direction = notification.direction;
       if (direction == ScrollDirection.reverse) {
-        _hideFab();
+        fabController.hide();
       } else if (direction == ScrollDirection.forward) {
-        _showFab();
+        fabController.show();
       }
     }
     return false;
@@ -179,21 +144,17 @@ class HomePageState extends State<HomePage>
   );
 
   Widget? _buildFloatingActionButton() {
-    if (tabIndex == 3) {
-      return null;
-    }
+    if (tabIndex == 3) return null;
 
     return AnimatedBuilder(
-      animation: _fabAnimation,
+      animation: fabController.animation,
       builder: (context, child) => Transform.scale(
-        scale: _fabAnimation.value,
-        child: Opacity(
-          opacity: _fabAnimation.value,
-          child: FloatingActionButton(
-            onPressed: _fabAnimation.value > 0.5 ? _showBottomSheet : null,
-            child: const Icon(IconsaxPlusLinear.add),
-          ),
-        ),
+        scale: fabController.animation.value,
+        child: Opacity(opacity: fabController.animation.value, child: child),
+      ),
+      child: FloatingActionButton(
+        onPressed: _showBottomSheet,
+        child: const Icon(IconsaxPlusLinear.add),
       ),
     );
   }
