@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/controller/fab_controller.dart';
 import 'package:zest/app/ui/tasks/view/all_tasks.dart';
@@ -38,10 +39,18 @@ class HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     _initializeTabIndex();
+    ever(fabController.isVisible, (_) {
+      if (mounted) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          setState(() {});
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
+    fabController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -61,6 +70,9 @@ class HomePageState extends State<HomePage>
   void changeTabIndex(int index) {
     setState(() {
       tabIndex = index;
+      if (index != 3) {
+        fabController.show();
+      }
     });
   }
 
@@ -144,18 +156,10 @@ class HomePageState extends State<HomePage>
   );
 
   Widget? _buildFloatingActionButton() {
-    if (tabIndex == 3) return null;
-
-    return AnimatedBuilder(
-      animation: fabController.animation,
-      builder: (context, child) => Transform.scale(
-        scale: fabController.animation.value,
-        child: Opacity(opacity: fabController.animation.value, child: child),
-      ),
-      child: FloatingActionButton(
-        onPressed: _showBottomSheet,
-        child: const Icon(IconsaxPlusLinear.add),
-      ),
+    if (tabIndex == 3 || !fabController.isVisible.value) return null;
+    return FloatingActionButton(
+      onPressed: _showBottomSheet,
+      child: const Icon(IconsaxPlusLinear.add),
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/controller/todo_controller.dart';
+import 'package:zest/app/controller/fab_controller.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/todos/widgets/todos_list.dart';
 import 'package:zest/app/ui/todos/widgets/todos_transfer.dart';
@@ -8,6 +9,7 @@ import 'package:zest/app/ui/widgets/text_form.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zest/main.dart';
+import 'package:flutter/rendering.dart';
 
 class AllTodos extends StatefulWidget {
   const AllTodos({super.key});
@@ -19,6 +21,7 @@ class AllTodos extends StatefulWidget {
 class _AllTodosState extends State<AllTodos>
     with SingleTickerProviderStateMixin {
   final todoController = Get.put(TodoController());
+  final fabController = Get.find<FabController>();
   late TabController tabController;
   final TextEditingController searchTodos = TextEditingController();
   String filter = '';
@@ -31,16 +34,48 @@ class _AllTodosState extends State<AllTodos>
     _sortOption = settings.sortOption;
     applyFilter('');
     tabController = TabController(vsync: this, length: 2);
+    tabController.addListener(_onTabChanged);
   }
 
   @override
   void dispose() {
+    tabController.removeListener(_onTabChanged);
     tabController.dispose();
     super.dispose();
   }
 
+  void _onTabChanged() {
+    if (!mounted) return;
+    if (tabController.index == 1) {
+      fabController.hide();
+    } else {
+      fabController.show();
+    }
+  }
+
   void applyFilter(String value) =>
       setState(() => filter = value.toLowerCase());
+
+  bool _handleScrollNotification(ScrollNotification notification) {
+    if (notification.depth > 0) return false;
+
+    if (notification is UserScrollNotification) {
+      final direction = notification.direction;
+
+      if (tabController.index == 1) {
+        if (direction == ScrollDirection.reverse) {
+          fabController.hide();
+        }
+      } else {
+        if (direction == ScrollDirection.reverse) {
+          fabController.hide();
+        } else if (direction == ScrollDirection.forward) {
+          fabController.show();
+        }
+      }
+    }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) => Obx(
@@ -150,17 +185,21 @@ class _AllTodosState extends State<AllTodos>
     ),
   );
 
-  Widget _buildBody(BuildContext context) => DefaultTabController(
-    length: 2,
-    child: NestedScrollView(
-      controller: ScrollController(),
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        _buildSearchTextField(),
-        _buildTabBar(context),
-      ],
-      body: _buildTabBarView(),
-    ),
-  );
+  Widget _buildBody(BuildContext context) =>
+      NotificationListener<ScrollNotification>(
+        onNotification: _handleScrollNotification,
+        child: DefaultTabController(
+          length: 2,
+          child: NestedScrollView(
+            controller: ScrollController(),
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              _buildSearchTextField(),
+              _buildTabBar(context),
+            ],
+            body: _buildTabBarView(),
+          ),
+        ),
+      );
 
   Widget _buildSearchTextField() => SliverToBoxAdapter(
     child: MyTextForm(

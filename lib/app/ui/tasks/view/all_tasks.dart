@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/controller/todo_controller.dart';
+import 'package:zest/app/controller/fab_controller.dart';
 import 'package:zest/app/ui/tasks/widgets/task_list.dart';
 import 'package:zest/app/ui/widgets/my_delegate.dart';
 import 'package:zest/app/ui/tasks/widgets/statistics.dart';
 import 'package:zest/app/ui/widgets/text_form.dart';
+import 'package:flutter/rendering.dart';
 
 class AllTasks extends StatefulWidget {
   const AllTasks({super.key});
@@ -17,6 +19,7 @@ class AllTasks extends StatefulWidget {
 class _AllTasksState extends State<AllTasks>
     with SingleTickerProviderStateMixin {
   final todoController = Get.put(TodoController());
+  final fabController = Get.find<FabController>();
   late TabController tabController;
   final TextEditingController searchTasks = TextEditingController();
   String filter = '';
@@ -26,16 +29,48 @@ class _AllTasksState extends State<AllTasks>
     super.initState();
     applyFilter('');
     tabController = TabController(vsync: this, length: 2);
+    tabController.addListener(_onTabChanged);
   }
 
   @override
   void dispose() {
+    tabController.removeListener(_onTabChanged);
     tabController.dispose();
     super.dispose();
   }
 
+  void _onTabChanged() {
+    if (!mounted) return;
+    if (tabController.index == 1) {
+      fabController.hide();
+    } else {
+      fabController.show();
+    }
+  }
+
   void applyFilter(String value) =>
       setState(() => filter = value.toLowerCase());
+
+  bool _handleScrollNotification(ScrollNotification notification) {
+    if (notification.depth > 0) return false;
+
+    if (notification is UserScrollNotification) {
+      final direction = notification.direction;
+
+      if (tabController.index == 1) {
+        if (direction == ScrollDirection.reverse) {
+          fabController.hide();
+        }
+      } else {
+        if (direction == ScrollDirection.reverse) {
+          fabController.hide();
+        } else if (direction == ScrollDirection.forward) {
+          fabController.show();
+        }
+      }
+    }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) => Obx(() {
@@ -197,16 +232,19 @@ class _AllTasksState extends State<AllTasks>
     int createdTodos,
     int completedTodos,
     String percent,
-  ) => DefaultTabController(
-    length: 2,
-    child: NestedScrollView(
-      controller: ScrollController(),
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        _buildSearchTextField(),
-        _buildStatistics(createdTodos, completedTodos, percent),
-        _buildTabBar(context),
-      ],
-      body: _buildTabBarView(),
+  ) => NotificationListener<ScrollNotification>(
+    onNotification: _handleScrollNotification,
+    child: DefaultTabController(
+      length: 2,
+      child: NestedScrollView(
+        controller: ScrollController(),
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          _buildSearchTextField(),
+          _buildStatistics(createdTodos, completedTodos, percent),
+          _buildTabBar(context),
+        ],
+        body: _buildTabBarView(),
+      ),
     ),
   );
 

@@ -36,13 +36,25 @@ class _TodosTodoState extends State<TodosTodo> with TickerProviderStateMixin {
     _sortOption = widget.todo.childrenSortOption;
     applyFilter('');
     tabController = TabController(vsync: this, length: 2);
+    tabController.addListener(_onTabChanged);
   }
 
   @override
   void dispose() {
+    tabController.removeListener(_onTabChanged);
     tabController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (!mounted) return;
+
+    if (tabController.index == 1) {
+      fabController.hide();
+    } else {
+      fabController.show();
+    }
   }
 
   void applyFilter(String value) =>
@@ -52,18 +64,26 @@ class _TodosTodoState extends State<TodosTodo> with TickerProviderStateMixin {
     if (notification.depth > 0) return false;
 
     if (notification is UserScrollNotification) {
-      final ScrollDirection direction = notification.direction;
-      if (direction == ScrollDirection.reverse) {
-        fabController.hide();
-      } else if (direction == ScrollDirection.forward) {
-        fabController.show();
+      final direction = notification.direction;
+
+      if (tabController.index == 1) {
+        if (direction == ScrollDirection.reverse) {
+          fabController.hide();
+        }
+      } else {
+        if (direction == ScrollDirection.reverse) {
+          fabController.hide();
+        } else if (direction == ScrollDirection.forward) {
+          fabController.show();
+        }
       }
     }
-    return false;
+    return true;
   }
 
   void _handlePopInvokedWithResult(bool didPop, dynamic value) {
     if (didPop) {
+      fabController.show();
       return;
     }
     if (todoController.isMultiSelectionTodo.isTrue) {
@@ -338,18 +358,13 @@ class _TodosTodoState extends State<TodosTodo> with TickerProviderStateMixin {
     ],
   );
 
-  Widget? _buildFloatingActionButton(BuildContext context) => AnimatedBuilder(
-    animation: fabController.animation,
-    builder: (context, child) => Transform.scale(
-      scale: fabController.animation.value,
-      child: Opacity(opacity: fabController.animation.value, child: child),
-    ),
-
-    child: FloatingActionButton(
+  Widget? _buildFloatingActionButton(BuildContext context) {
+    if (!fabController.isVisible.value) return null;
+    return FloatingActionButton(
       onPressed: () => _showTodosActionBottomSheet(context, edit: false),
       child: const Icon(IconsaxPlusLinear.add),
-    ),
-  );
+    );
+  }
 
   void _showTodosActionBottomSheet(
     BuildContext context, {

@@ -1,5 +1,6 @@
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/controller/todo_controller.dart';
+import 'package:zest/app/controller/fab_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -8,6 +9,7 @@ import 'package:zest/app/ui/todos/widgets/todos_list.dart';
 import 'package:zest/app/ui/todos/widgets/todos_transfer.dart';
 import 'package:zest/app/ui/widgets/my_delegate.dart';
 import 'package:zest/main.dart';
+import 'package:flutter/rendering.dart';
 
 class CalendarTodos extends StatefulWidget {
   const CalendarTodos({super.key});
@@ -19,6 +21,7 @@ class CalendarTodos extends StatefulWidget {
 class _CalendarTodosState extends State<CalendarTodos>
     with SingleTickerProviderStateMixin {
   final todoController = Get.put(TodoController());
+  final fabController = Get.find<FabController>();
   late TabController tabController;
   DateTime selectedDay = DateTime.now();
   DateTime focusedDay = DateTime.now();
@@ -32,12 +35,44 @@ class _CalendarTodosState extends State<CalendarTodos>
     super.initState();
     _sortOption = settings.sortOption;
     tabController = TabController(vsync: this, length: 2);
+    tabController.addListener(_onTabChanged);
   }
 
   @override
   void dispose() {
+    tabController.removeListener(_onTabChanged);
     tabController.dispose();
     super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (!mounted) return;
+    if (tabController.index == 1) {
+      fabController.hide();
+    } else {
+      fabController.show();
+    }
+  }
+
+  bool _handleScrollNotification(ScrollNotification notification) {
+    if (notification.depth > 0) return false;
+
+    if (notification is UserScrollNotification) {
+      final direction = notification.direction;
+
+      if (tabController.index == 1) {
+        if (direction == ScrollDirection.reverse) {
+          fabController.hide();
+        }
+      } else {
+        if (direction == ScrollDirection.reverse) {
+          fabController.hide();
+        } else if (direction == ScrollDirection.forward) {
+          fabController.show();
+        }
+      }
+    }
+    return true;
   }
 
   @override
@@ -148,17 +183,21 @@ class _CalendarTodosState extends State<CalendarTodos>
     ),
   );
 
-  Widget _buildBody(BuildContext context) => DefaultTabController(
-    length: 2,
-    child: NestedScrollView(
-      controller: ScrollController(),
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        _buildTableCalendar(),
-        _buildTabBar(context),
-      ],
-      body: _buildTabBarView(),
-    ),
-  );
+  Widget _buildBody(BuildContext context) =>
+      NotificationListener<ScrollNotification>(
+        onNotification: _handleScrollNotification,
+        child: DefaultTabController(
+          length: 2,
+          child: NestedScrollView(
+            controller: ScrollController(),
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              _buildTableCalendar(),
+              _buildTabBar(context),
+            ],
+            body: _buildTabBarView(),
+          ),
+        ),
+      );
 
   Widget _buildTableCalendar() => SliverToBoxAdapter(
     child: TableCalendar(
