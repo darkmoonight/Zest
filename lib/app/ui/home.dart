@@ -113,6 +113,8 @@ class HomePageState extends State<HomePage>
   bool _handleScrollNotification(ScrollNotification notification) {
     if (tabIndex == 3) return false;
 
+    if (notification.depth > 0) return false;
+
     if (notification is UserScrollNotification) {
       final ScrollDirection direction = notification.direction;
       if (direction == ScrollDirection.reverse) {

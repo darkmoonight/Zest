@@ -21,6 +21,7 @@ class _CalendarTodosState extends State<CalendarTodos>
   final todoController = Get.put(TodoController());
   late TabController tabController;
   DateTime selectedDay = DateTime.now();
+  DateTime focusedDay = DateTime.now();
   DateTime fDay = DateTime.now().add(const Duration(days: -1000));
   DateTime lDay = DateTime.now().add(const Duration(days: 1000));
 
@@ -165,7 +166,7 @@ class _CalendarTodosState extends State<CalendarTodos>
         markerBuilder: (context, day, events) => Obx(() {
           var countTodos = todoController.countTotalTodosCalendar(day);
           return countTodos != 0
-              ? selectedDay.isAtSameMomentAs(day)
+              ? isSameDay(selectedDay, day)
                     ? _buildSelectedDayMarker(countTodos)
                     : _buildDayMarker(countTodos)
               : const SizedBox.shrink();
@@ -175,7 +176,7 @@ class _CalendarTodosState extends State<CalendarTodos>
       weekendDays: const [DateTime.sunday],
       firstDay: fDay,
       lastDay: lDay,
-      focusedDay: selectedDay,
+      focusedDay: focusedDay,
       locale: locale.languageCode,
       availableCalendarFormats: {
         CalendarFormat.month: 'week'.tr,
@@ -183,9 +184,11 @@ class _CalendarTodosState extends State<CalendarTodos>
         CalendarFormat.week: 'two_week'.tr,
       },
       selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-      onDaySelected: (selected, focused) =>
-          setState(() => selectedDay = selected),
-      onPageChanged: (focused) => setState(() => selectedDay = focused),
+      onDaySelected: (selected, focused) => setState(() {
+        selectedDay = selected;
+        focusedDay = focused;
+      }),
+      onPageChanged: (focused) => setState(() => focusedDay = focused),
       onFormatChanged: (format) =>
           setState(() => _updateCalendarFormat(format)),
       calendarFormat: _getCalendarFormat(),
