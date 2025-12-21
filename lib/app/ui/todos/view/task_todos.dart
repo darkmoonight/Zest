@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/controller/fab_controller.dart';
 import 'package:zest/app/data/db.dart';
@@ -11,6 +10,7 @@ import 'package:zest/app/ui/widgets/my_delegate.dart';
 import 'package:zest/app/ui/widgets/text_form.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:zest/app/utils/scroll_fab_handler.dart';
 import 'package:zest/main.dart';
 
 class TodosTask extends StatefulWidget {
@@ -59,27 +59,6 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
 
   void applyFilter(String value) =>
       setState(() => filter = value.toLowerCase());
-
-  bool _handleScrollNotification(ScrollNotification notification) {
-    if (notification.depth > 0) return false;
-
-    if (notification is UserScrollNotification) {
-      final direction = notification.direction;
-
-      if (tabController.index == 1) {
-        if (direction == ScrollDirection.reverse) {
-          fabController.hide();
-        }
-      } else {
-        if (direction == ScrollDirection.reverse) {
-          fabController.hide();
-        } else if (direction == ScrollDirection.forward) {
-          fabController.show();
-        }
-      }
-    }
-    return true;
-  }
 
   void _handlePopInvokedWithResult(bool didPop, dynamic value) {
     if (didPop) {
@@ -417,7 +396,11 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
       child: Scaffold(
         appBar: _buildAppBar(context),
         body: NotificationListener<ScrollNotification>(
-          onNotification: _handleScrollNotification,
+          onNotification: (notification) => handleScrollFabVisibility(
+            notification: notification,
+            tabController: tabController,
+            fabController: fabController,
+          ),
           child: _buildBody(context),
         ),
         floatingActionButton: _buildFloatingActionButton(context),

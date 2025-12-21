@@ -8,8 +8,8 @@ import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/todos/widgets/todos_list.dart';
 import 'package:zest/app/ui/todos/widgets/todos_transfer.dart';
 import 'package:zest/app/ui/widgets/my_delegate.dart';
+import 'package:zest/app/utils/scroll_fab_handler.dart';
 import 'package:zest/main.dart';
-import 'package:flutter/rendering.dart';
 
 class CalendarTodos extends StatefulWidget {
   const CalendarTodos({super.key});
@@ -52,27 +52,6 @@ class _CalendarTodosState extends State<CalendarTodos>
     } else {
       fabController.show();
     }
-  }
-
-  bool _handleScrollNotification(ScrollNotification notification) {
-    if (notification.depth > 0) return false;
-
-    if (notification is UserScrollNotification) {
-      final direction = notification.direction;
-
-      if (tabController.index == 1) {
-        if (direction == ScrollDirection.reverse) {
-          fabController.hide();
-        }
-      } else {
-        if (direction == ScrollDirection.reverse) {
-          fabController.hide();
-        } else if (direction == ScrollDirection.forward) {
-          fabController.show();
-        }
-      }
-    }
-    return true;
   }
 
   @override
@@ -185,7 +164,11 @@ class _CalendarTodosState extends State<CalendarTodos>
 
   Widget _buildBody(BuildContext context) =>
       NotificationListener<ScrollNotification>(
-        onNotification: _handleScrollNotification,
+        onNotification: (notification) => handleScrollFabVisibility(
+          notification: notification,
+          tabController: tabController,
+          fabController: fabController,
+        ),
         child: DefaultTabController(
           length: 2,
           child: NestedScrollView(

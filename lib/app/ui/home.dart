@@ -4,7 +4,6 @@ import 'package:zest/app/controller/fab_controller.dart';
 import 'package:zest/app/ui/tasks/view/all_tasks.dart';
 import 'package:zest/app/ui/settings/view/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
 import 'package:zest/app/ui/todos/view/calendar_todos.dart';
@@ -70,9 +69,6 @@ class HomePageState extends State<HomePage>
   void changeTabIndex(int index) {
     setState(() {
       tabIndex = index;
-      if (index != 3) {
-        fabController.show();
-      }
     });
   }
 
@@ -88,27 +84,9 @@ class HomePageState extends State<HomePage>
     }
   }
 
-  bool _handleScrollNotification(ScrollNotification notification) {
-    if (tabIndex == 3) return false;
-    if (notification.depth > 0) return false;
-
-    if (notification is UserScrollNotification) {
-      final ScrollDirection direction = notification.direction;
-      if (direction == ScrollDirection.reverse) {
-        fabController.hide();
-      } else if (direction == ScrollDirection.forward) {
-        fabController.show();
-      }
-    }
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: NotificationListener<ScrollNotification>(
-      onNotification: _handleScrollNotification,
-      child: IndexedStack(index: tabIndex, children: pages),
-    ),
+    body: IndexedStack(index: tabIndex, children: pages),
     bottomNavigationBar: _buildBottomNavigationBar(),
     floatingActionButton: _buildFloatingActionButton(),
   );
