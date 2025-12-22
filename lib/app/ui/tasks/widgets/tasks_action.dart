@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
+import 'package:zest/app/ui/widgets/header_compact.dart';
 import 'package:zest/app/utils/show_dialog.dart';
 import 'package:zest/app/ui/widgets/button.dart';
 import 'package:zest/app/ui/widgets/text_form.dart';
@@ -158,17 +159,7 @@ class _TasksActionState extends State<TasksAction> {
     ),
   );
 
-  Widget _buildTitle() => Padding(
-    padding: const EdgeInsets.only(top: 14, bottom: 7),
-    child: Text(
-      widget.text,
-      style: context.textTheme.titleLarge?.copyWith(
-        fontWeight: FontWeight.bold,
-        fontSize: 20,
-      ),
-      textAlign: TextAlign.center,
-    ),
-  );
+  Widget _buildTitle() => buildBottomSheetHeaderCompact(context, widget.text);
 
   Widget _buildTitleInput() => MyTextForm(
     elevation: 4,

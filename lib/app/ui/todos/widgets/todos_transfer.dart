@@ -6,6 +6,7 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/data/db.dart';
+import 'package:zest/app/ui/widgets/header_compact.dart';
 import 'package:zest/app/utils/show_dialog.dart';
 import 'package:zest/app/ui/widgets/button.dart';
 import 'package:zest/app/ui/widgets/text_form.dart';
@@ -386,17 +387,7 @@ class _TodosTransferState extends State<TodosTransfer> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 14, bottom: 7),
-                  child: Text(
-                    widget.text,
-                    style: context.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+                buildBottomSheetHeaderCompact(context, widget.text),
                 _buildModeToggle(),
                 if (_mode == TransferMode.category) _buildTaskField(context),
                 if (_mode == TransferMode.todo) _buildTodoField(context),

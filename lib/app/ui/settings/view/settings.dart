@@ -14,6 +14,7 @@ import 'package:zest/app/ui/settings/widgets/settings_card.dart';
 import 'package:zest/main.dart';
 import 'package:zest/theme/theme_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:zest/app/ui/widgets/header_compact.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -116,16 +117,7 @@ class _SettingsPageState extends State<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                child: Text(
-                  'appearance'.tr,
-                  style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
-                ),
-              ),
+              buildBottomSheetHeaderCompact(context, 'appearance'.tr),
               _buildThemeSettingCard(context, setState),
               _buildAmoledThemeSettingCard(context, setState),
               _buildMaterialColorSettingCard(context, setState),
@@ -234,16 +226,7 @@ class _SettingsPageState extends State<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                child: Text(
-                  'dateTime'.tr,
-                  style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
-                ),
-              ),
+              buildBottomSheetHeaderCompact(context, 'dateTime'.tr),
               _buildTimeFormatSettingCard(context, setState),
               _buildFirstDayOfWeekSettingCard(context, setState),
               _buildSnoozeDropdownCard(context, setState),
@@ -354,36 +337,28 @@ class _SettingsPageState extends State<SettingsPage> {
     onPressed: () => _showPrivacySecurityBottomSheet(context),
   );
 
-  void _showPrivacySecurityBottomSheet(
-    BuildContext context,
-  ) => showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: StatefulBuilder(
-        builder: (BuildContext context, setState) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                child: Text(
-                  'privacySecurity'.tr,
-                  style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
-                ),
+  void _showPrivacySecurityBottomSheet(BuildContext context) =>
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
+          child: StatefulBuilder(
+            builder: (BuildContext context, setState) => SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  buildBottomSheetHeaderCompact(context, 'privacySecurity'.tr),
+                  _buildScreenPrivacySettingCard(context, setState),
+                  const Gap(10),
+                ],
               ),
-              _buildScreenPrivacySettingCard(context, setState),
-              const Gap(10),
-            ],
+            ),
           ),
         ),
-      ),
-    ),
-  );
+      );
 
   Widget _buildScreenPrivacySettingCard(
     BuildContext context,
@@ -418,37 +393,29 @@ class _SettingsPageState extends State<SettingsPage> {
     onPressed: () => _showAppPreferencesBottomSheet(context),
   );
 
-  void _showAppPreferencesBottomSheet(
-    BuildContext context,
-  ) => showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: StatefulBuilder(
-        builder: (BuildContext context, setState) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                child: Text(
-                  'appPreferences'.tr,
-                  style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
-                ),
+  void _showAppPreferencesBottomSheet(BuildContext context) =>
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
+          child: StatefulBuilder(
+            builder: (BuildContext context, setState) => SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  buildBottomSheetHeaderCompact(context, 'appPreferences'.tr),
+                  _buildDefaultScreenSettingCard(context, setState),
+                  _buildLanguageSettingCard(context, setState),
+                  const Gap(10),
+                ],
               ),
-              _buildDefaultScreenSettingCard(context, setState),
-              _buildLanguageSettingCard(context, setState),
-              const Gap(10),
-            ],
+            ),
           ),
         ),
-      ),
-    ),
-  );
+      );
 
   Widget _buildDefaultScreenSettingCard(
     BuildContext context,
@@ -503,38 +470,30 @@ class _SettingsPageState extends State<SettingsPage> {
     onPressed: () => _showDataManagementBottomSheet(context),
   );
 
-  void _showDataManagementBottomSheet(
-    BuildContext context,
-  ) => showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: StatefulBuilder(
-        builder: (BuildContext context, setState) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                child: Text(
-                  'dataManagement'.tr,
-                  style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
-                ),
+  void _showDataManagementBottomSheet(BuildContext context) =>
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
+          child: StatefulBuilder(
+            builder: (BuildContext context, setState) => SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  buildBottomSheetHeaderCompact(context, 'dataManagement'.tr),
+                  _buildBackupSettingCard(context),
+                  _buildRestoreSettingCard(context),
+                  _buildDeleteAllDBSettingCard(context),
+                  const Gap(10),
+                ],
               ),
-              _buildBackupSettingCard(context),
-              _buildRestoreSettingCard(context),
-              _buildDeleteAllDBSettingCard(context),
-              const Gap(10),
-            ],
+            ),
           ),
         ),
-      ),
-    ),
-  );
+      );
 
   Widget _buildBackupSettingCard(BuildContext context) => SettingCard(
     elevation: 4,
@@ -611,16 +570,7 @@ class _SettingsPageState extends State<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                child: Text(
-                  'groups'.tr,
-                  style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
-                ),
-              ),
+              buildBottomSheetHeaderCompact(context, 'groups'.tr),
               SettingCard(
                 elevation: 4,
                 icon: const Icon(LineAwesomeIcons.discord),
@@ -657,16 +607,7 @@ class _SettingsPageState extends State<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                child: Text(
-                  'aboutApp'.tr,
-                  style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
-                ),
-              ),
+              buildBottomSheetHeaderCompact(context, 'aboutApp'.tr),
               _buildLicenseCard(context),
               _buildVersionCard(context),
               _buildGitHubCard(context),
