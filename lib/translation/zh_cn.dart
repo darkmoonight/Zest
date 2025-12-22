@@ -133,5 +133,10 @@ class ZhCN {
     'snooze': '稍后提醒',
     'snoozeDuration': '稍后提醒时长',
     'min': '分钟',
+    'dateTime': '日期和时间',
+    'privacySecurity': '隐私与安全',
+    'appPreferences': '应用偏好',
+    'dataManagement': '数据管理',
+    'aboutApp': '关于应用',
   };
 }

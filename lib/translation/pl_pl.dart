@@ -139,5 +139,10 @@ class PlPl {
     'snooze': 'Drzemka',
     'snoozeDuration': 'Czas drzemki',
     'min': 'min',
+    'dateTime': 'Data i godzina',
+    'privacySecurity': 'Prywatność i bezpieczeństwo',
+    'appPreferences': 'Preferencje aplikacji',
+    'dataManagement': 'Zarządzanie danymi',
+    'aboutApp': 'O aplikacji',
   };
 }

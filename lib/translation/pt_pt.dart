@@ -138,5 +138,10 @@ class PtPt {
     'snooze': 'Adiar',
     'snoozeDuration': 'Duração do adiamento',
     'min': 'min',
+    'dateTime': 'Data e Hora',
+    'privacySecurity': 'Privacidade e Segurança',
+    'appPreferences': 'Preferências da Aplicação',
+    'dataManagement': 'Gestão de Dados',
+    'aboutApp': 'Sobre a Aplicação',
   };
 }

@@ -141,5 +141,10 @@ class EsEs {
     'snooze': 'Posponer',
     'snoozeDuration': 'Duración de posposición',
     'min': 'min',
+    'dateTime': 'Fecha y hora',
+    'privacySecurity': 'Privacidad y seguridad',
+    'appPreferences': 'Preferencias de la aplicación',
+    'dataManagement': 'Gestión de datos',
+    'aboutApp': 'Acerca de la aplicación',
   };
 }

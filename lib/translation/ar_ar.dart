@@ -136,5 +136,10 @@ class ArAr {
     'snooze': 'غفوة',
     'snoozeDuration': 'مدة الغفوة',
     'min': 'دقيقة',
+    'dateTime': 'التاريخ والوقت',
+    'privacySecurity': 'الخصوصية والأمان',
+    'appPreferences': 'تفضيلات التطبيق',
+    'dataManagement': 'إدارة البيانات',
+    'aboutApp': 'حول التطبيق',
   };
 }

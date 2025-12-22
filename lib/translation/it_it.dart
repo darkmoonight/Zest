@@ -138,5 +138,10 @@ class ItIt {
     'snooze': 'Posponi',
     'snoozeDuration': 'Durata posponi',
     'min': 'min',
+    'dateTime': 'Data e ora',
+    'privacySecurity': 'Privacy e sicurezza',
+    'appPreferences': 'Preferenze dell\'app',
+    'dataManagement': 'Gestione dati',
+    'aboutApp': 'Informazioni sull\'app',
   };
 }

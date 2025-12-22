@@ -137,5 +137,10 @@ class RuRu {
     'snooze': 'Отложить',
     'snoozeDuration': 'Продолжительность отсрочки',
     'min': 'мин',
+    'dateTime': 'Дата и время',
+    'privacySecurity': 'Конфиденциальность и безопасность',
+    'appPreferences': 'Настройки приложения',
+    'dataManagement': 'Управление данными',
+    'aboutApp': 'О приложении',
   };
 }

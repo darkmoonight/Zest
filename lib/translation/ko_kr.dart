@@ -133,5 +133,10 @@ class KoKr {
     'snooze': '스누즈',
     'snoozeDuration': '스누즈 기간',
     'min': '분',
+    'dateTime': '날짜 및 시간',
+    'privacySecurity': '개인정보 보호 및 보안',
+    'appPreferences': '앱 환경설정',
+    'dataManagement': '데이터 관리',
+    'aboutApp': '앱 정보',
   };
 }

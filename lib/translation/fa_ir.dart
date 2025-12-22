@@ -139,5 +139,10 @@ class FaIr {
     'snooze': 'چرت',
     'snoozeDuration': 'مدت چرت',
     'min': 'دقیقه',
+    'dateTime': 'تاریخ و زمان',
+    'privacySecurity': 'حریم خصوصی و امنیت',
+    'appPreferences': 'تنظیمات برنامه',
+    'dataManagement': 'مدیریت داده‌ها',
+    'aboutApp': 'درباره برنامه',
   };
 }

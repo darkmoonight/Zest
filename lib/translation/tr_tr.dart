@@ -139,5 +139,10 @@ class TrTr {
     'snooze': 'Ertele',
     'snoozeDuration': 'Erteleme Süresi',
     'min': 'dak',
+    'dateTime': 'Tarih ve Saat',
+    'privacySecurity': 'Gizlilik ve Güvenlik',
+    'appPreferences': 'Uygulama Tercihleri',
+    'dataManagement': 'Veri Yönetimi',
+    'aboutApp': 'Uygulama Hakkında',
   };
 }

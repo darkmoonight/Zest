@@ -141,5 +141,10 @@ class FrFr {
     'snooze': 'Rappel',
     'snoozeDuration': 'Durée du rappel',
     'min': 'min',
+    'dateTime': 'Date et heure',
+    'privacySecurity': 'Confidentialité et sécurité',
+    'appPreferences': 'Préférences de l\'application',
+    'dataManagement': 'Gestion des données',
+    'aboutApp': 'À propos de l\'application',
   };
 }

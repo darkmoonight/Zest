@@ -89,14 +89,12 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         children: [
           _buildAppearanceCard(context),
-          _buildFunctionsCard(context),
-          _buildSnoozeDropdownCard(context),
-          _buildDefaultScreenCard(context),
-          _buildLanguageCard(context),
-          _buildGroupsCard(context),
-          _buildLicenseCard(context),
-          _buildVersionCard(context),
-          _buildGitHubCard(context),
+          _buildDateTimeCard(context),
+          _buildPrivacySecurityCard(context),
+          _buildAppPreferencesCard(context),
+          _buildDataManagementCard(context),
+          _buildCommunityCard(context),
+          _buildAboutAppCard(context),
         ],
       ),
     ),
@@ -220,13 +218,13 @@ class _SettingsPageState extends State<SettingsPage> {
     },
   );
 
-  Widget _buildFunctionsCard(BuildContext context) => SettingCard(
-    icon: const Icon(IconsaxPlusLinear.code_1),
-    text: 'functions'.tr,
-    onPressed: () => _showFunctionsBottomSheet(context),
+  Widget _buildDateTimeCard(BuildContext context) => SettingCard(
+    icon: const Icon(IconsaxPlusLinear.calendar_2),
+    text: 'dateTime'.tr,
+    onPressed: () => _showDateTimeBottomSheet(context),
   );
 
-  void _showFunctionsBottomSheet(BuildContext context) => showModalBottomSheet(
+  void _showDateTimeBottomSheet(BuildContext context) => showModalBottomSheet(
     context: context,
     builder: (BuildContext context) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
@@ -242,49 +240,19 @@ class _SettingsPageState extends State<SettingsPage> {
                   vertical: 15,
                 ),
                 child: Text(
-                  'functions'.tr,
+                  'dateTime'.tr,
                   style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
                 ),
               ),
               _buildTimeFormatSettingCard(context, setState),
               _buildFirstDayOfWeekSettingCard(context, setState),
-              _buildScreenPrivacySettingCard(context, setState),
-              _buildBackupSettingCard(context),
-              _buildRestoreSettingCard(context),
-              _buildDeleteAllDBSettingCard(context),
+              _buildSnoozeDropdownCard(context, setState),
               const Gap(10),
             ],
           ),
         ),
       ),
     ),
-  );
-
-  Widget _buildScreenPrivacySettingCard(
-    BuildContext context,
-    StateSetter setState,
-  ) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.security_safe),
-    text: 'screenPrivacy'.tr,
-    switcher: true,
-    value: settings.screenPrivacy ?? false,
-    onChange: (value) async {
-      try {
-        if (value == true) {
-          await FlagSecure.set();
-        } else {
-          await FlagSecure.unset();
-        }
-        isar.writeTxnSync(() {
-          settings.screenPrivacy = value;
-          isar.settings.putSync(settings);
-        });
-        setState(() {});
-      } on PlatformException {
-        // ignore
-      }
-    },
   );
 
   Widget _buildTimeFormatSettingCard(
@@ -353,6 +321,221 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {});
   }
 
+  Widget _buildSnoozeDropdownCard(BuildContext context, StateSetter setState) =>
+      SettingCard(
+        elevation: 4,
+        icon: const Icon(IconsaxPlusLinear.timer_1),
+        text: 'snoozeDuration'.tr,
+        dropdown: true,
+        dropdownName: '${settings.snoozeDuration} ${'min'.tr}',
+        dropdownList: <String>[
+          '5 ${'min'.tr}',
+          '10 ${'min'.tr}',
+          '15 ${'min'.tr}',
+          '20 ${'min'.tr}',
+          '30 ${'min'.tr}',
+          '45 ${'min'.tr}',
+          '60 ${'min'.tr}',
+        ],
+        dropdownChange: (String? newValue) {
+          if (newValue == null) return;
+          final duration = int.tryParse(newValue.split(' ')[0]) ?? 10;
+          isar.writeTxnSync(() {
+            settings.snoozeDuration = duration;
+            isar.settings.putSync(settings);
+          });
+          setState(() {});
+        },
+      );
+
+  Widget _buildPrivacySecurityCard(BuildContext context) => SettingCard(
+    icon: const Icon(IconsaxPlusLinear.security),
+    text: 'privacySecurity'.tr,
+    onPressed: () => _showPrivacySecurityBottomSheet(context),
+  );
+
+  void _showPrivacySecurityBottomSheet(
+    BuildContext context,
+  ) => showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: StatefulBuilder(
+        builder: (BuildContext context, setState) => SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
+                child: Text(
+                  'privacySecurity'.tr,
+                  style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
+                ),
+              ),
+              _buildScreenPrivacySettingCard(context, setState),
+              const Gap(10),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Widget _buildScreenPrivacySettingCard(
+    BuildContext context,
+    StateSetter setState,
+  ) => SettingCard(
+    elevation: 4,
+    icon: const Icon(IconsaxPlusLinear.security_safe),
+    text: 'screenPrivacy'.tr,
+    switcher: true,
+    value: settings.screenPrivacy ?? false,
+    onChange: (value) async {
+      try {
+        if (value == true) {
+          await FlagSecure.set();
+        } else {
+          await FlagSecure.unset();
+        }
+        isar.writeTxnSync(() {
+          settings.screenPrivacy = value;
+          isar.settings.putSync(settings);
+        });
+        setState(() {});
+      } on PlatformException {
+        // ignore
+      }
+    },
+  );
+
+  Widget _buildAppPreferencesCard(BuildContext context) => SettingCard(
+    icon: const Icon(IconsaxPlusLinear.mobile),
+    text: 'appPreferences'.tr,
+    onPressed: () => _showAppPreferencesBottomSheet(context),
+  );
+
+  void _showAppPreferencesBottomSheet(
+    BuildContext context,
+  ) => showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: StatefulBuilder(
+        builder: (BuildContext context, setState) => SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
+                child: Text(
+                  'appPreferences'.tr,
+                  style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
+                ),
+              ),
+              _buildDefaultScreenSettingCard(context, setState),
+              _buildLanguageSettingCard(context, setState),
+              const Gap(10),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Widget _buildDefaultScreenSettingCard(
+    BuildContext context,
+    StateSetter setState,
+  ) => SettingCard(
+    elevation: 4,
+    icon: const Icon(IconsaxPlusLinear.mobile),
+    text: 'defaultScreen'.tr,
+    dropdown: true,
+    dropdownName: settings.defaultScreen.isNotEmpty
+        ? settings.defaultScreen.tr
+        : allScreens[0].tr,
+    dropdownList: allScreens.map((screen) => screen.tr).toList(),
+    dropdownChange: (String? newValue) {
+      if (newValue == null) return;
+      final selectedScreen = allScreens.firstWhere(
+        (screen) => screen.tr == newValue,
+        orElse: () => allScreens[0],
+      );
+      _updateDefaultScreen(selectedScreen);
+      setState(() {});
+    },
+  );
+
+  Widget _buildLanguageSettingCard(
+    BuildContext context,
+    StateSetter setState,
+  ) => SettingCard(
+    elevation: 4,
+    icon: const Icon(IconsaxPlusLinear.language_square),
+    text: 'language'.tr,
+    dropdown: true,
+    dropdownName: appLanguages.firstWhere(
+      (element) => (element['locale'] == locale),
+      orElse: () => {'name': ''},
+    )['name'],
+    dropdownList: appLanguages.map((lang) => lang['name'] as String).toList(),
+    dropdownChange: (String? newValue) {
+      if (newValue == null) return;
+      final selectedLang = appLanguages.firstWhere(
+        (lang) => lang['name'] == newValue,
+      );
+      MyApp.updateAppState(context, newLocale: selectedLang['locale']);
+      _updateLanguage(selectedLang['locale']);
+      setState(() {});
+    },
+  );
+
+  Widget _buildDataManagementCard(BuildContext context) => SettingCard(
+    icon: const Icon(IconsaxPlusLinear.cloud),
+    text: 'dataManagement'.tr,
+    onPressed: () => _showDataManagementBottomSheet(context),
+  );
+
+  void _showDataManagementBottomSheet(
+    BuildContext context,
+  ) => showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: StatefulBuilder(
+        builder: (BuildContext context, setState) => SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
+                child: Text(
+                  'dataManagement'.tr,
+                  style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
+                ),
+              ),
+              _buildBackupSettingCard(context),
+              _buildRestoreSettingCard(context),
+              _buildDeleteAllDBSettingCard(context),
+              const Gap(10),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
   Widget _buildBackupSettingCard(BuildContext context) => SettingCard(
     elevation: 4,
     icon: const Icon(IconsaxPlusLinear.cloud_plus),
@@ -412,152 +595,13 @@ class _SettingsPageState extends State<SettingsPage> {
     ),
   );
 
-  Widget _buildSnoozeDropdownCard(BuildContext context) => SettingCard(
-    icon: const Icon(IconsaxPlusLinear.timer_1),
-    text: 'snoozeDuration'.tr,
-    dropdown: true,
-    dropdownName: '${settings.snoozeDuration} ${'min'.tr}',
-    dropdownList: <String>[
-      '5 ${'min'.tr}',
-      '10 ${'min'.tr}',
-      '15 ${'min'.tr}',
-      '20 ${'min'.tr}',
-      '30 ${'min'.tr}',
-      '45 ${'min'.tr}',
-      '60 ${'min'.tr}',
-    ],
-    dropdownChange: (String? newValue) {
-      if (newValue == null) return;
-      final duration = int.tryParse(newValue.split(' ')[0]) ?? 10;
-      isar.writeTxnSync(() {
-        settings.snoozeDuration = duration;
-        isar.settings.putSync(settings);
-      });
-      setState(() {});
-    },
-  );
-
-  Widget _buildDefaultScreenCard(BuildContext context) => SettingCard(
-    icon: const Icon(IconsaxPlusLinear.mobile),
-    text: 'defaultScreen'.tr,
-    info: true,
-    infoSettings: true,
-    textInfo: settings.defaultScreen.isNotEmpty
-        ? settings.defaultScreen.tr
-        : allScreens[0].tr,
-    onPressed: () => _showDefaultScreenBottomSheet(context),
-  );
-
-  void _showDefaultScreenBottomSheet(
-    BuildContext context,
-  ) => showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: StatefulBuilder(
-        builder: (BuildContext context, setState) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Text(
-                'defaultScreen'.tr,
-                style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const BouncingScrollPhysics(),
-              itemCount: allScreens.length,
-              itemBuilder: (context, index) => Card(
-                elevation: 4,
-                margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                child: ListTile(
-                  title: Text(
-                    allScreens[index].tr,
-                    style: context.textTheme.labelLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                  onTap: () {
-                    _updateDefaultScreen(allScreens[index]);
-                    Get.back();
-                  },
-                ),
-              ),
-            ),
-            const Gap(10),
-          ],
-        ),
-      ),
-    ),
-  );
-
-  Widget _buildLanguageCard(BuildContext context) => SettingCard(
-    icon: const Icon(IconsaxPlusLinear.language_square),
-    text: 'language'.tr,
-    info: true,
-    infoSettings: true,
-    textInfo: appLanguages.firstWhere(
-      (element) => (element['locale'] == locale),
-      orElse: () => {'name': ''},
-    )['name'],
-    onPressed: () => _showLanguageBottomSheet(context),
-  );
-
-  void _showLanguageBottomSheet(BuildContext context) => showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: StatefulBuilder(
-        builder: (BuildContext context, setState) => ListView(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Text(
-                'language'.tr,
-                style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const BouncingScrollPhysics(),
-              itemCount: appLanguages.length,
-              itemBuilder: (context, index) => Card(
-                elevation: 4,
-                margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                child: ListTile(
-                  title: Text(
-                    appLanguages[index]['name'],
-                    style: context.textTheme.labelLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                  onTap: () {
-                    MyApp.updateAppState(
-                      context,
-                      newLocale: appLanguages[index]['locale'],
-                    );
-                    _updateLanguage(appLanguages[index]['locale']);
-                    Get.back();
-                  },
-                ),
-              ),
-            ),
-            const Gap(10),
-          ],
-        ),
-      ),
-    ),
-  );
-
-  Widget _buildGroupsCard(BuildContext context) => SettingCard(
+  Widget _buildCommunityCard(BuildContext context) => SettingCard(
     icon: const Icon(IconsaxPlusLinear.link_square),
     text: 'groups'.tr,
-    onPressed: () => _showGroupsBottomSheet(context),
+    onPressed: () => _showCommunityBottomSheet(context),
   );
 
-  void _showGroupsBottomSheet(BuildContext context) => showModalBottomSheet(
+  void _showCommunityBottomSheet(BuildContext context) => showModalBottomSheet(
     context: context,
     builder: (BuildContext context) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
@@ -597,7 +641,45 @@ class _SettingsPageState extends State<SettingsPage> {
     ),
   );
 
+  Widget _buildAboutAppCard(BuildContext context) => SettingCard(
+    icon: const Icon(IconsaxPlusLinear.info_circle),
+    text: 'aboutApp'.tr,
+    onPressed: () => _showAboutAppBottomSheet(context),
+  );
+
+  void _showAboutAppBottomSheet(BuildContext context) => showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: StatefulBuilder(
+        builder: (BuildContext context, setState) => SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
+                child: Text(
+                  'aboutApp'.tr,
+                  style: context.textTheme.titleLarge?.copyWith(fontSize: 20),
+                ),
+              ),
+              _buildLicenseCard(context),
+              _buildVersionCard(context),
+              _buildGitHubCard(context),
+              const Gap(10),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
   Widget _buildLicenseCard(BuildContext context) => SettingCard(
+    elevation: 4,
     icon: const Icon(IconsaxPlusLinear.document),
     text: 'license'.tr,
     onPressed: () {
@@ -621,6 +703,7 @@ class _SettingsPageState extends State<SettingsPage> {
   );
 
   Widget _buildVersionCard(BuildContext context) => SettingCard(
+    elevation: 4,
     icon: const Icon(IconsaxPlusLinear.hierarchy_square_2),
     text: 'version'.tr,
     info: true,
@@ -628,6 +711,7 @@ class _SettingsPageState extends State<SettingsPage> {
   );
 
   Widget _buildGitHubCard(BuildContext context) => SettingCard(
+    elevation: 4,
     icon: const Icon(LineAwesomeIcons.github),
     text: '${'project'.tr} GitHub',
     onPressed: () => _urlLauncher('https://github.com/darkmoonight/Zest'),

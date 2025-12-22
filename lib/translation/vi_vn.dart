@@ -134,5 +134,10 @@ class ViVn {
     'snooze': 'Báo lại',
     'snoozeDuration': 'Thời gian báo lại',
     'min': 'phút',
+    'dateTime': 'Ngày và Giờ',
+    'privacySecurity': 'Quyền riêng tư và Bảo mật',
+    'appPreferences': 'Tùy chọn Ứng dụng',
+    'dataManagement': 'Quản lý Dữ liệu',
+    'aboutApp': 'Về Ứng dụng',
   };
 }

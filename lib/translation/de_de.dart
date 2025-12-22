@@ -138,5 +138,10 @@ class DeDe {
     'snooze': 'Schlummern',
     'snoozeDuration': 'Schlummerdauer',
     'min': 'Min.',
+    'dateTime': 'Datum und Uhrzeit',
+    'privacySecurity': 'Datenschutz und Sicherheit',
+    'appPreferences': 'App-Einstellungen',
+    'dataManagement': 'Datenmanagement',
+    'aboutApp': 'Über die App',
   };
 }

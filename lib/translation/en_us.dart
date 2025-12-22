@@ -137,5 +137,10 @@ class EnUs {
     'snooze': 'Snooze',
     'snoozeDuration': 'Snooze Duration',
     'min': 'min',
+    'dateTime': 'Date & Time',
+    'privacySecurity': 'Privacy & Security',
+    'appPreferences': 'App Preferences',
+    'dataManagement': 'Data Management',
+    'aboutApp': 'About App',
   };
 }

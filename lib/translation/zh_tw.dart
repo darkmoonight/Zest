@@ -133,5 +133,10 @@ class ZhTw {
     'snooze': '稍後提醒',
     'snoozeDuration': '稍後提醒時長',
     'min': '分鐘',
+    'dateTime': '日期與時間',
+    'privacySecurity': '隱私與安全',
+    'appPreferences': '應用程式偏好',
+    'dataManagement': '資料管理',
+    'aboutApp': '關於應用程式',
   };
 }
