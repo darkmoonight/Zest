@@ -24,8 +24,9 @@ class HomePageState extends State<HomePage>
   final themeController = Get.put(ThemeController());
   int tabIndex = 0;
 
-  final ScrollController _scrollController = ScrollController();
   final fabController = Get.put(FabController(), permanent: true);
+
+  late PageController pageController;
 
   final List<Widget> pages = const [
     AllTasks(),
@@ -38,6 +39,7 @@ class HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     _initializeTabIndex();
+    pageController = PageController(initialPage: tabIndex);
     ever(fabController.isVisible, (_) {
       if (mounted) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -50,7 +52,7 @@ class HomePageState extends State<HomePage>
   @override
   void dispose() {
     fabController.dispose();
-    _scrollController.dispose();
+    pageController.dispose();
     super.dispose();
   }
 
@@ -67,37 +69,112 @@ class HomePageState extends State<HomePage>
   }
 
   void changeTabIndex(int index) {
-    setState(() {
-      tabIndex = index;
-    });
-  }
-
-  void onSwipe(DragEndDetails details) {
-    if (details.primaryVelocity! < 0) {
-      if (tabIndex < pages.length - 1) {
-        changeTabIndex(tabIndex + 1);
-      }
-    } else if (details.primaryVelocity! > 0) {
-      if (tabIndex > 0) {
-        changeTabIndex(tabIndex - 1);
-      }
+    if (tabIndex != index) {
+      pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+      setState(() {
+        tabIndex = index;
+      });
     }
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    body: IndexedStack(index: tabIndex, children: pages),
-    bottomNavigationBar: _buildBottomNavigationBar(),
-    floatingActionButton: _buildFloatingActionButton(),
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final width = constraints.maxWidth;
+      final isLargeScreen = width >= 600;
+      final isExtraLarge = width >= 1200;
+
+      final content = PageView(
+        controller: pageController,
+        physics: isLargeScreen ? const NeverScrollableScrollPhysics() : null,
+        onPageChanged: (index) {
+          setState(() {
+            tabIndex = index;
+          });
+        },
+        children: pages,
+      );
+
+      final body = isLargeScreen
+          ? Row(
+              children: [
+                _buildNavigationRail(isExtraLarge),
+                const VerticalDivider(thickness: 1, width: 1),
+                Expanded(child: content),
+              ],
+            )
+          : content;
+
+      return Scaffold(
+        body: body,
+        bottomNavigationBar: isLargeScreen ? null : _buildBottomNavigationBar(),
+        floatingActionButton: _buildFloatingActionButton(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      );
+    },
   );
 
-  Widget _buildBottomNavigationBar() => GestureDetector(
-    onHorizontalDragEnd: onSwipe,
-    child: NavigationBar(
-      onDestinationSelected: changeTabIndex,
-      selectedIndex: tabIndex,
-      destinations: _buildNavigationDestinations(),
+  Widget _buildNavigationRail(bool isExtended) => NavigationRail(
+    selectedIndex: tabIndex,
+    extended: isExtended,
+    groupAlignment: -1.0,
+    onDestinationSelected: changeTabIndex,
+    labelType: isExtended
+        ? NavigationRailLabelType.none
+        : NavigationRailLabelType.all,
+    leading: Column(
+      children: [
+        const SizedBox(height: 16),
+        CircleAvatar(
+          radius: 20,
+          backgroundColor: context.theme.colorScheme.primary,
+          child: Icon(Icons.person, color: context.theme.colorScheme.onPrimary),
+        ),
+        const SizedBox(height: 16),
+      ],
     ),
+    destinations: [
+      _buildRailDestination(
+        IconsaxPlusLinear.folder_2,
+        IconsaxPlusBold.folder_2,
+        allScreens[0].tr,
+      ),
+      _buildRailDestination(
+        IconsaxPlusLinear.task_square,
+        IconsaxPlusBold.task_square,
+        allScreens[1].tr,
+      ),
+      _buildRailDestination(
+        IconsaxPlusLinear.calendar,
+        IconsaxPlusBold.calendar,
+        allScreens[2].tr,
+      ),
+      _buildRailDestination(
+        IconsaxPlusLinear.category,
+        IconsaxPlusBold.category,
+        'settings'.tr,
+      ),
+    ],
+  );
+
+  NavigationRailDestination _buildRailDestination(
+    IconData icon,
+    IconData selectedIcon,
+    String label,
+  ) => NavigationRailDestination(
+    icon: Badge(isLabelVisible: false, child: Icon(icon)),
+    selectedIcon: Icon(selectedIcon),
+    label: Text(label),
+  );
+
+  Widget _buildBottomNavigationBar() => NavigationBar(
+    onDestinationSelected: changeTabIndex,
+    selectedIndex: tabIndex,
+    destinations: _buildNavigationDestinations(),
   );
 
   List<NavigationDestination> _buildNavigationDestinations() => [
@@ -141,12 +218,32 @@ class HomePageState extends State<HomePage>
     );
   }
 
-  void _showBottomSheet() => showModalBottomSheet(
-    enableDrag: false,
-    context: context,
-    isScrollControlled: true,
-    builder: (BuildContext context) => tabIndex == 0
+  void _showBottomSheet() {
+    final width = MediaQuery.of(context).size.width;
+    final isLargeScreen = width >= 600;
+    final widget = tabIndex == 0
         ? TasksAction(text: 'create'.tr, edit: false)
-        : TodosAction(text: 'create'.tr, edit: false, category: true),
-  );
+        : TodosAction(text: 'create'.tr, edit: false, category: true);
+
+    if (isLargeScreen) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: width * 0.4, minWidth: 300),
+              child: widget,
+            ),
+          );
+        },
+      );
+    } else {
+      showModalBottomSheet(
+        enableDrag: false,
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext context) => widget,
+      );
+    }
+  }
 }

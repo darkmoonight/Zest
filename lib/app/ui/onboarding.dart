@@ -47,11 +47,10 @@ class _OnBoardingState extends State<OnBoarding> {
                   ? const EdgeInsets.symmetric(horizontal: 100, vertical: 20)
                   : const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               child: Column(
+                spacing: 20,
                 children: [
                   _buildPageView(),
-                  const SizedBox(height: 20),
                   _buildDotIndicators(isLargeScreen),
-                  const SizedBox(height: 20),
                   _buildActionButton(isLargeScreen),
                 ],
               ),
@@ -203,6 +202,7 @@ class OnboardContent extends StatelessWidget {
           },
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            spacing: 10,
             children: [
               Text(
                 title,
@@ -212,7 +212,6 @@ class OnboardContent extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 10),
               SizedBox(
                 width: isLargeScreen
                     ? constraints.maxWidth * 0.4
@@ -233,16 +232,17 @@ class OnboardContent extends StatelessWidget {
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 40,
             children: [
               Expanded(child: Center(child: imageWidget)),
-              const SizedBox(width: 40),
               Expanded(child: Center(child: textColumn)),
             ],
           );
         } else {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [imageWidget, const SizedBox(height: 20), textColumn],
+            spacing: 20,
+            children: [imageWidget, textColumn],
           );
         }
       },
