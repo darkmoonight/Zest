@@ -1,10 +1,8 @@
-import 'dart:io';
-import 'package:display_mode/display_mode.dart';
-import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flag_secure/flag_secure.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:dynamic_color/dynamic_color.dart'; // Прямой импорт для всех платформ
 import 'package:zest/app/controller/isar_controller.dart';
 import 'package:zest/app/ui/home.dart';
 import 'package:zest/app/ui/onboarding.dart';
@@ -25,11 +23,12 @@ import 'app/utils/notification.dart';
 import 'translation/translation.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:quick_actions/quick_actions.dart';
 import 'package:zest/app/ui/todos/widgets/todos_action.dart';
+import 'platform/platform_features.dart'
+    if (dart.library.io) 'platform/platform_features_mobile.dart'
+    hide DynamicColorBuilder;
 
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 
 late Isar isar;
 late Settings settings;
@@ -69,41 +68,54 @@ void main() async {
 
 Future<void> initializeApp() async {
   DeviceFeature().init();
-  if (Platform.isAndroid) {
-    await setOptimalDisplayMode();
-  }
+  await PlatformFeatures.initialize();
   await initializeTimeZone();
   await initializeNotifications();
   await IsarController().openDB();
   await initSettings();
-  try {
-    if (settings.screenPrivacy == true) {
-      await FlagSecure.set();
-    } else {
-      await FlagSecure.unset();
-    }
-  } on PlatformException {
-    // ignore
-  }
+  await PlatformFeatures.setScreenPrivacy(settings.screenPrivacy ?? false);
 }
 
 Future<void> initializeTimeZone() async {
-  final TimezoneInfo timeZoneName = await FlutterTimezone.getLocalTimezone();
-  tz.initializeTimeZones();
-  tz.setLocalLocation(tz.getLocation(timeZoneName.identifier));
+  try {
+    final TimezoneInfo timeZoneName = await FlutterTimezone.getLocalTimezone();
+    tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation(timeZoneName.identifier));
+  } catch (e) {
+    tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('UTC'));
+  }
 }
 
 Future<void> initializeNotifications() async {
+  if (!PlatformFeatures.supportsNotifications) return;
+
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
   const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-  const initializationSettings = InitializationSettings(
-    android: androidSettings,
+  const iosSettings = DarwinInitializationSettings(
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestSoundPermission: true,
+  );
+  const linuxSettings = LinuxInitializationSettings(
+    defaultActionName: 'Open notification',
   );
 
-  await flutterLocalNotificationsPlugin.initialize(
+  const initializationSettings = InitializationSettings(
+    android: androidSettings,
+    iOS: iosSettings,
+    macOS: iosSettings,
+    linux: linuxSettings,
+  );
+
+  await flutterLocalNotificationsPlugin!.initialize(
     initializationSettings,
     onDidReceiveNotificationResponse: (NotificationResponse response) async =>
         await handleNotificationResponse(response),
-    onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+    onDidReceiveBackgroundNotificationResponse: kIsWeb
+        ? null
+        : notificationTapBackground,
   );
 }
 
@@ -133,7 +145,7 @@ Future<void> handleNotificationResponse(NotificationResponse response) async {
         break;
     }
   } catch (e) {
-    // ignore
+    debugPrint('Error handling notification: $e');
   }
 }
 
@@ -188,7 +200,7 @@ Future<void> snoozeTodo(int todoId) async {
 
     await isarInstance.close();
   } catch (e) {
-    // ignore
+    debugPrint('Error snoozing todo: $e');
   }
 }
 
@@ -219,32 +231,16 @@ Future<void> markTodoAsDone(int todoId) async {
         todo.todoCompletionTime = DateTime.now();
         await isarInstance!.todos.put(todo);
       });
-      await flutterLocalNotificationsPlugin.cancel(todoId);
+
+      if (flutterLocalNotificationsPlugin != null) {
+        await flutterLocalNotificationsPlugin!.cancel(todoId);
+      }
+
       await isarInstance.close();
     }
   } catch (e) {
-    // ignore
+    debugPrint('Error marking todo as done: $e');
   }
-}
-
-Future<void> setOptimalDisplayMode() async {
-  final List<DisplayModeJson> supported = await FlutterDisplayMode.supported;
-  final DisplayModeJson active = await FlutterDisplayMode.active;
-  final List<DisplayModeJson> sameResolution =
-      supported
-          .where(
-            (DisplayModeJson m) =>
-                m.width == active.width && m.height == active.height,
-          )
-          .toList()
-        ..sort(
-          (DisplayModeJson a, DisplayModeJson b) =>
-              b.refreshRate.compareTo(a.refreshRate),
-        );
-  final DisplayModeJson mostOptimalMode = sameResolution.isNotEmpty
-      ? sameResolution.first
-      : active;
-  await FlutterDisplayMode.setPreferredMode(mostOptimalMode);
 }
 
 Future<void> initSettings() async {
@@ -283,7 +279,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final themeController = Get.put(ThemeController());
-  final QuickActions _quickActions = const QuickActions();
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final GlobalKey<HomePageState> _homeKey = GlobalKey<HomePageState>();
   String? _pendingShortcut;
@@ -317,39 +312,44 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _initQuickActions() {
-    _quickActions.initialize((String shortcutType) {
-      _pendingShortcut = shortcutType;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _tryHandlePending());
-    });
+    PlatformFeatures.initializeQuickActions(
+      onShortcut: (String shortcutType) {
+        _pendingShortcut = shortcutType;
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _tryHandlePending(),
+        );
+      },
+    );
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _setQuickActionsItems(),
     );
   }
 
   void _setQuickActionsItems() {
-    final items = <ShortcutItem>[
-      ShortcutItem(
+    if (!PlatformFeatures.supportsQuickActions) return;
+
+    PlatformFeatures.setQuickActionItems([
+      QuickActionItem(
         type: 'action_new_categories',
         localizedTitle: 'addCategory'.tr,
         icon: 'ic_shortcut_new_categories',
       ),
-      ShortcutItem(
+      QuickActionItem(
         type: 'action_new_todo',
         localizedTitle: 'addTodo'.tr,
         icon: 'ic_shortcut_new_todo',
       ),
-      ShortcutItem(
+      QuickActionItem(
         type: 'action_all_todos',
         localizedTitle: 'allTodos'.tr,
         icon: 'ic_shortcut_all_todos',
       ),
-      ShortcutItem(
+      QuickActionItem(
         type: 'action_calendar_todos',
         localizedTitle: 'calendar'.tr,
         icon: 'ic_shortcut_calendar_todos',
       ),
-    ];
-    _quickActions.setShortcutItems(items);
+    ]);
   }
 
   void _tryHandlePending() {
@@ -439,83 +439,82 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     final edgeToEdgeAvailable = DeviceFeature().isEdgeToEdgeAvailable();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+    if (PlatformFeatures.isMobile) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: DynamicColorBuilder(
         builder: (lightColorScheme, darkColorScheme) {
-          final lightMaterialTheme = lightTheme(
-            lightColorScheme?.surface,
+          return _buildMaterialApp(
+            edgeToEdgeAvailable,
             lightColorScheme,
-            edgeToEdgeAvailable,
-          );
-          final darkMaterialTheme = darkTheme(
-            darkColorScheme?.surface,
             darkColorScheme,
-            edgeToEdgeAvailable,
           );
-          final darkMaterialThemeOled = darkTheme(
-            oledColor,
-            darkColorScheme,
-            edgeToEdgeAvailable,
-          );
+        },
+      ),
+    );
+  }
 
-          return GetMaterialApp(
-            navigatorKey: _navigatorKey,
-            theme: materialColor
-                ? lightColorScheme != null
-                      ? lightMaterialTheme
-                      : lightTheme(
-                          lightColor,
-                          colorSchemeLight,
-                          edgeToEdgeAvailable,
-                        )
-                : lightTheme(lightColor, colorSchemeLight, edgeToEdgeAvailable),
-            darkTheme: amoledTheme
-                ? materialColor
-                      ? darkColorScheme != null
-                            ? darkMaterialThemeOled
-                            : darkTheme(
-                                oledColor,
-                                colorSchemeDark,
-                                edgeToEdgeAvailable,
-                              )
+  Widget _buildMaterialApp(
+    bool edgeToEdgeAvailable,
+    ColorScheme? lightColorScheme,
+    ColorScheme? darkColorScheme,
+  ) {
+    final lightMaterialTheme = lightTheme(
+      lightColorScheme?.surface,
+      lightColorScheme,
+      edgeToEdgeAvailable,
+    );
+    final darkMaterialTheme = darkTheme(
+      darkColorScheme?.surface,
+      darkColorScheme,
+      edgeToEdgeAvailable,
+    );
+    final darkMaterialThemeOled = darkTheme(
+      oledColor,
+      darkColorScheme,
+      edgeToEdgeAvailable,
+    );
+
+    return GetMaterialApp(
+      navigatorKey: _navigatorKey,
+      theme: materialColor
+          ? lightColorScheme != null
+                ? lightMaterialTheme
+                : lightTheme(lightColor, colorSchemeLight, edgeToEdgeAvailable)
+          : lightTheme(lightColor, colorSchemeLight, edgeToEdgeAvailable),
+      darkTheme: amoledTheme
+          ? materialColor
+                ? darkColorScheme != null
+                      ? darkMaterialThemeOled
                       : darkTheme(
                           oledColor,
                           colorSchemeDark,
                           edgeToEdgeAvailable,
                         )
-                : materialColor
-                ? darkColorScheme != null
-                      ? darkMaterialTheme
-                      : darkTheme(
-                          darkColor,
-                          colorSchemeDark,
-                          edgeToEdgeAvailable,
-                        )
-                : darkTheme(darkColor, colorSchemeDark, edgeToEdgeAvailable),
-            themeMode: themeController.theme,
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            translations: Translation(),
-            locale: locale,
-            fallbackLocale: const Locale('en', 'US'),
-            supportedLocales: appLanguages
-                .map((e) => e['locale'] as Locale)
-                .toList(),
-            debugShowCheckedModeBanner: false,
-            home: settings.onboard
-                ? HomePage(key: _homeKey)
-                : const OnBoarding(),
-            builder: EasyLoading.init(),
-            title: 'Zest',
-          );
-        },
-      ),
+                : darkTheme(oledColor, colorSchemeDark, edgeToEdgeAvailable)
+          : materialColor
+          ? darkColorScheme != null
+                ? darkMaterialTheme
+                : darkTheme(darkColor, colorSchemeDark, edgeToEdgeAvailable)
+          : darkTheme(darkColor, colorSchemeDark, edgeToEdgeAvailable),
+      themeMode: themeController.theme,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      translations: Translation(),
+      locale: locale,
+      fallbackLocale: const Locale('en', 'US'),
+      supportedLocales: appLanguages.map((e) => e['locale'] as Locale).toList(),
+      debugShowCheckedModeBanner: false,
+      home: settings.onboard ? HomePage(key: _homeKey) : const OnBoarding(),
+      builder: EasyLoading.init(),
+      title: 'Zest',
     );
   }
 }

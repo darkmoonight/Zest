@@ -181,7 +181,7 @@ class TodoController extends GetxController {
     for (var todo in getTodo) {
       if (todo.todoCompletedTime != null &&
           todo.todoCompletedTime!.isAfter(DateTime.now())) {
-        await flutterLocalNotificationsPlugin.cancel(todo.id);
+        await flutterLocalNotificationsPlugin?.cancel(todo.id);
       }
     }
   }
@@ -195,7 +195,7 @@ class TodoController extends GetxController {
     for (var todo in list) {
       if (todo.todoCompletedTime != null &&
           todo.todoCompletedTime!.isAfter(DateTime.now())) {
-        await flutterLocalNotificationsPlugin.cancel(todo.id);
+        await flutterLocalNotificationsPlugin?.cancel(todo.id);
       }
     }
 
@@ -416,7 +416,7 @@ class TodoController extends GetxController {
 
     for (var id in toCancel) {
       try {
-        await flutterLocalNotificationsPlugin.cancel(id);
+        await flutterLocalNotificationsPlugin?.cancel(id);
       } catch (_) {
         // ignore
       }
@@ -444,7 +444,7 @@ class TodoController extends GetxController {
         todo.todoCompletedTime!.isAfter(nowLocal)) {
       if (done) {
         try {
-          await flutterLocalNotificationsPlugin.cancel(todo.id);
+          await flutterLocalNotificationsPlugin?.cancel(todo.id);
         } catch (_) {}
       } else {
         NotificationShow().showNotification(
@@ -456,7 +456,7 @@ class TodoController extends GetxController {
       }
     } else {
       try {
-        await flutterLocalNotificationsPlugin.cancel(todo.id);
+        await flutterLocalNotificationsPlugin?.cancel(todo.id);
       } catch (_) {}
     }
   }
@@ -487,7 +487,7 @@ class TodoController extends GetxController {
     refreshTodo(todo);
 
     if (date != null && now.isBefore(date)) {
-      await flutterLocalNotificationsPlugin.cancel(todo.id);
+      await flutterLocalNotificationsPlugin?.cancel(todo.id);
       NotificationShow().showNotification(
         todo.id,
         todo.name,
@@ -495,7 +495,7 @@ class TodoController extends GetxController {
         date,
       );
     } else {
-      await flutterLocalNotificationsPlugin.cancel(todo.id);
+      await flutterLocalNotificationsPlugin?.cancel(todo.id);
     }
     EasyLoading.showSuccess('updateTodo'.tr, duration: duration);
   }
@@ -619,7 +619,7 @@ class TodoController extends GetxController {
   Future<void> cancelNotificationForTodo(Todos todo) async {
     if (todo.todoCompletedTime != null &&
         todo.todoCompletedTime!.isAfter(DateTime.now())) {
-      await flutterLocalNotificationsPlugin.cancel(todo.id);
+      await flutterLocalNotificationsPlugin?.cancel(todo.id);
     }
   }
 
@@ -645,7 +645,7 @@ class TodoController extends GetxController {
       if (t != null &&
           t.todoCompletedTime != null &&
           t.todoCompletedTime!.isAfter(DateTime.now())) {
-        await flutterLocalNotificationsPlugin.cancel(t.id);
+        await flutterLocalNotificationsPlugin?.cancel(t.id);
       }
     }
 

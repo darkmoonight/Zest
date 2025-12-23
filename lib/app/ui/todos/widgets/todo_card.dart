@@ -140,7 +140,7 @@ class _TodoCardState extends State<TodoCard> {
   void _handleCheckboxChange(bool val) {
     DateTime? date = widget.todo.todoCompletedTime;
     if (val) {
-      flutterLocalNotificationsPlugin.cancel(widget.todo.id);
+      flutterLocalNotificationsPlugin?.cancel(widget.todo.id);
     } else if (date != null && DateTime.now().isBefore(date)) {
       NotificationShow().showNotification(
         widget.todo.id,
