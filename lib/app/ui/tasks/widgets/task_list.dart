@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/tasks/widgets/task_card.dart';
 import 'package:zest/app/ui/todos/view/task_todos.dart';
 import 'package:zest/app/ui/widgets/list_empty.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
 import 'package:zest/main.dart';
 
 class TasksList extends StatefulWidget {
@@ -14,6 +16,7 @@ class TasksList extends StatefulWidget {
     required this.archived,
     required this.searchTask,
   });
+
   final bool archived;
   final String searchTask;
 
@@ -25,74 +28,78 @@ class _TasksListState extends State<TasksList> {
   final todoController = Get.put(TodoController());
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 50),
-    child: Obx(() {
-      final tasks = _filterTasks();
-      return tasks.isEmpty ? _buildListEmpty() : _buildListView(tasks);
-    }),
-  );
+  Widget build(BuildContext context) {
+    final isMobile = ResponsiveUtils.isMobile(context);
+    final topPadding = MediaQuery.of(context).padding.top;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 50),
+      child: Obx(() {
+        final tasks = _filterTasks();
+
+        if (tasks.isEmpty) {
+          return Padding(
+            padding: EdgeInsets.only(top: topPadding + (isMobile ? 60 : 70)),
+            child: _buildListEmpty(),
+          );
+        }
+
+        return CustomScrollView(slivers: [_buildReorderableList(tasks)]);
+      }),
+    );
+  }
 
   List<Tasks> _filterTasks() {
     final query = widget.searchTask.trim().toLowerCase();
 
-    bool matchesSearch(Tasks task) {
-      if (query.isEmpty) return true;
-      final titleMatch = task.title.toLowerCase().contains(query);
-      final descMatch = (task.description).toLowerCase().contains(query);
-      return titleMatch || descMatch;
+    if (query.isEmpty) {
+      return todoController.tasks
+          .where((task) => task.archive == widget.archived)
+          .toList();
     }
 
-    return todoController.tasks
-        .where((task) => task.archive == widget.archived && matchesSearch(task))
-        .toList();
+    return todoController.tasks.where((task) {
+      if (task.archive != widget.archived) return false;
+      final titleMatch = task.title.toLowerCase().contains(query);
+      final descMatch = task.description.toLowerCase().contains(query);
+      return titleMatch || descMatch;
+    }).toList();
   }
 
-  Widget _buildListEmpty() => ListEmpty(
-    img: 'assets/images/Category.png',
-    text: widget.archived ? 'addArchiveCategory'.tr : 'addCategory'.tr,
-  );
+  Widget _buildListEmpty() {
+    return Obx(() {
+      final showIcon = !isImage.value;
 
-  Widget _buildListView(List<Tasks> tasks) => CustomScrollView(
-    slivers: <Widget>[
-      ReorderableSliverList(
-        delegate: ReorderableSliverChildBuilderDelegate(
-          (context, index) => _buildTaskCard(tasks[index]),
-          childCount: tasks.length,
-        ),
-        onReorder: (int oldIndex, int newIndex) async {
-          final element = tasks.removeAt(oldIndex);
-          tasks.insert(newIndex, element);
+      return ListEmpty(
+        img: 'assets/images/Category.png',
+        text: widget.archived ? 'addArchiveCategory'.tr : 'addCategory'.tr,
+        subtitle: widget.archived
+            ? 'addArchiveCategoryHint'.tr
+            : 'addCategoryHint'.tr,
+        icon: showIcon
+            ? (widget.archived
+                  ? IconsaxPlusBold.archive
+                  : IconsaxPlusBold.folder_2)
+            : null,
+      );
+    });
+  }
 
-          final all = todoController.tasks.toList();
-
-          final filteredIds = tasks.map((t) => t.id).toSet();
-
-          int pos = 0;
-          for (int i = 0; i < all.length && pos < tasks.length; i++) {
-            if (filteredIds.contains(all[i].id)) {
-              all[i] = tasks[pos++];
-            }
-          }
-
-          isar.writeTxnSync(() {
-            for (int i = 0; i < all.length; i++) {
-              all[i].index = i;
-              isar.tasks.putSync(all[i]);
-            }
-          });
-
-          todoController.tasks.assignAll(all);
-          todoController.tasks.refresh();
-        },
+  Widget _buildReorderableList(List<Tasks> tasks) {
+    return ReorderableSliverList(
+      delegate: ReorderableSliverChildBuilderDelegate(
+        (context, index) => _buildTaskCard(tasks[index]),
+        childCount: tasks.length,
       ),
-    ],
-  );
+      onReorder: (oldIndex, newIndex) =>
+          _handleReorder(tasks, oldIndex, newIndex),
+    );
+  }
 
   Widget _buildTaskCard(Tasks task) {
     final createdTodos = todoController.createdAllTodosTask(task);
     final completedTodos = todoController.completedAllTodosTask(task);
-    final percent = (createdTodos == 0)
+    final percent = createdTodos == 0
         ? '0'
         : (completedTodos / createdTodos * 100).toStringAsFixed(0);
 
@@ -107,16 +114,61 @@ class _TasksListState extends State<TasksList> {
     );
   }
 
+  Future<void> _handleReorder(
+    List<Tasks> tasks,
+    int oldIndex,
+    int newIndex,
+  ) async {
+    if (oldIndex == newIndex) return;
+
+    final element = tasks.removeAt(oldIndex);
+    tasks.insert(newIndex, element);
+
+    final allTasks = todoController.tasks.toList();
+    final filteredIds = tasks.map((t) => t.id).toSet();
+
+    int position = 0;
+    for (int i = 0; i < allTasks.length && position < tasks.length; i++) {
+      if (filteredIds.contains(allTasks[i].id)) {
+        allTasks[i] = tasks[position++];
+      }
+    }
+
+    await isar.writeTxn(() async {
+      for (int i = 0; i < allTasks.length; i++) {
+        allTasks[i].index = i;
+        await isar.tasks.put(allTasks[i]);
+      }
+    });
+
+    todoController.tasks.assignAll(allTasks);
+    todoController.tasks.refresh();
+  }
+
   void _handleTaskTap(Tasks task) {
     if (todoController.isMultiSelectionTask.isTrue) {
-      todoController.doMultiSelectionTask(task);
+      _toggleMultiSelection(task);
     } else {
-      Get.to(() => TodosTask(task: task), transition: Transition.downToUp);
+      _openTaskDetails(task);
     }
   }
 
   void _handleTaskDoubleTap(Tasks task) {
-    todoController.isMultiSelectionTask.value = true;
+    if (!todoController.isMultiSelectionTask.isTrue) {
+      todoController.isMultiSelectionTask.value = true;
+    }
+    _toggleMultiSelection(task);
+  }
+
+  void _toggleMultiSelection(Tasks task) {
     todoController.doMultiSelectionTask(task);
+  }
+
+  void _openTaskDetails(Tasks task) {
+    Get.to(
+      () => TodosTask(task: task),
+      transition: Transition.downToUp,
+      duration: const Duration(milliseconds: 300),
+    );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
-import 'package:zest/app/ui/responsive_utils.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
 import 'package:zest/app/utils/show_dialog.dart';
 import 'package:zest/app/ui/widgets/button.dart';
 import 'package:zest/app/ui/widgets/text_form.dart';
@@ -372,10 +372,10 @@ class _TasksActionState extends State<TasksAction>
 
   Widget _buildColorPicker(ColorScheme colorScheme) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: colorScheme.outlineVariant.withValues(alpha: 0.5),
           width: 1,
@@ -385,48 +385,49 @@ class _TasksActionState extends State<TasksAction>
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: 56,
-            height: 56,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: myColor,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: colorScheme.outline.withValues(alpha: 0.3),
-                width: 2,
+                width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
                   color: myColor.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  spreadRadius: 1,
+                  blurRadius: 6,
+                  spreadRadius: 0,
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'selectedColor'.tr,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                     fontSize: ResponsiveUtils.getResponsiveFontSize(
                       context,
-                      13,
+                      12,
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   _getColorName(myColor),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                     fontSize: ResponsiveUtils.getResponsiveFontSize(
                       context,
-                      15,
+                      14,
                     ),
                   ),
                 ),
@@ -435,15 +436,17 @@ class _TasksActionState extends State<TasksAction>
           ),
           FilledButton.tonalIcon(
             onPressed: _showColorPicker,
-            icon: const Icon(IconsaxPlusLinear.colorfilter, size: 20),
+            icon: const Icon(IconsaxPlusLinear.colorfilter, size: 18),
             label: Text(
               'change'.tr,
               style: TextStyle(
-                fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+                fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+                fontWeight: FontWeight.w600,
               ),
             ),
             style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              minimumSize: const Size(0, 36),
             ),
           ),
         ],
@@ -452,37 +455,200 @@ class _TasksActionState extends State<TasksAction>
   }
 
   String _getColorName(Color color) {
-    final hex = '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
+    final argb = color.toARGB32();
+    final hex = '#${argb.toRadixString(16).substring(2).toUpperCase()}';
     return hex;
   }
 
   Future<void> _showColorPicker() async {
-    final Color newColor = await showColorPickerDialog(
-      context,
-      myColor,
-      borderRadius: 24,
-      enableShadesSelection: false,
-      enableTonalPalette: true,
-      spacing: 6,
-      runSpacing: 6,
-      wheelDiameter: 200,
-      title: Text(
-        'selectColor'.tr,
-        style: Theme.of(
-          context,
-        ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-      ),
-      pickersEnabled: const <ColorPickerType, bool>{
-        ColorPickerType.accent: false,
-        ColorPickerType.primary: true,
-        ColorPickerType.wheel: false,
-        ColorPickerType.both: false,
+    final colorScheme = Theme.of(context).colorScheme;
+    final isMobile = ResponsiveUtils.isMobile(context);
+
+    final Color? newColor = await showDialog<Color>(
+      context: context,
+      builder: (BuildContext context) {
+        Color tempColor = myColor;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: isMobile ? double.infinity : 500,
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            child: Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+                side: BorderSide(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            IconsaxPlusBold.colorfilter,
+                            size: 24,
+                            color: colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'selectColor'.tr,
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: colorScheme.onSurface,
+                                      fontSize:
+                                          ResponsiveUtils.getResponsiveFontSize(
+                                            context,
+                                            20,
+                                          ),
+                                    ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'selectColorHint'.tr,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
+                                      fontSize:
+                                          ResponsiveUtils.getResponsiveFontSize(
+                                            context,
+                                            12,
+                                          ),
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                  ),
+
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: StatefulBuilder(
+                        builder: (context, setDialogState) {
+                          return ColorPicker(
+                            color: tempColor,
+                            onColorChanged: (Color color) {
+                              setDialogState(() => tempColor = color);
+                            },
+                            borderRadius: 12,
+                            padding: EdgeInsets.zero,
+                            spacing: 8,
+                            runSpacing: 8,
+                            wheelDiameter: isMobile ? 180 : 220,
+                            wheelWidth: 16,
+                            wheelSquarePadding: 8,
+                            wheelSquareBorderRadius: 8,
+                            wheelHasBorder: false,
+                            enableShadesSelection: false,
+                            enableTonalPalette: true,
+                            tonalColorSameSize: true,
+                            enableOpacity: false,
+                            actionButtons: const ColorPickerActionButtons(
+                              visualDensity: VisualDensity.compact,
+                              dialogActionButtons: false,
+                            ),
+                            pickersEnabled: const <ColorPickerType, bool>{
+                              ColorPickerType.accent: false,
+                              ColorPickerType.primary: true,
+                              ColorPickerType.wheel: false,
+                              ColorPickerType.both: false,
+                              ColorPickerType.bw: false,
+                              ColorPickerType.custom: false,
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // Actions
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: colorScheme.outlineVariant.withValues(
+                            alpha: 0.5,
+                          ),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(
+                            'cancel'.tr,
+                            style: TextStyle(
+                              fontSize: ResponsiveUtils.getResponsiveFontSize(
+                                context,
+                                14,
+                              ),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        FilledButton(
+                          onPressed: () => Navigator.of(context).pop(tempColor),
+                          child: Text(
+                            'select'.tr,
+                            style: TextStyle(
+                              fontSize: ResponsiveUtils.getResponsiveFontSize(
+                                context,
+                                14,
+                              ),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
       },
     );
-    setState(() {
-      myColor = newColor;
-      if (widget.edit) controller.color.value = newColor;
-    });
+
+    if (newColor != null) {
+      setState(() {
+        myColor = newColor;
+        if (widget.edit) controller.color.value = newColor;
+      });
+    }
   }
 
   Widget _buildSubmitButton(ColorScheme colorScheme, double padding) {

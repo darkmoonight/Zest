@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zest/app/ui/responsive_utils.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
 
 Widget buildBottomSheetHeaderCompact(BuildContext context, String title) {
   final padding = ResponsiveUtils.getResponsivePadding(context);

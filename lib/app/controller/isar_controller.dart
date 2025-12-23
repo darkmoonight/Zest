@@ -1,19 +1,83 @@
 import 'dart:io';
+import 'package:archive/archive.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as p;
 import 'package:isar_community/isar.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:zest/app/data/db.dart';
+import 'package:zest/app/utils/show_snack_bar.dart';
 import 'package:zest/main.dart';
-import 'package:archive/archive.dart';
 
 class IsarController {
-  var platform = MethodChannel('directory_picker');
+  final platform = MethodChannel('directory_picker');
+
+  // ------------------------
+  // Loading Dialog
+  // ------------------------
+
+  void _showLoadingDialog(String message) {
+    final context = Get.context;
+    if (context == null) return;
+
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 300),
+            child: Card(
+              elevation: 0,
+              margin: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      color: colorScheme.primary,
+                      strokeWidth: 3,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      message,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.onSurface,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _hideLoadingDialog() {
+    final context = Get.context;
+    if (context != null && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  // ------------------------
+  // Database
+  // ------------------------
 
   Future<Isar> openDB() async {
     if (Isar.instanceNames.isEmpty) {
@@ -27,11 +91,15 @@ class IsarController {
     return Future.value(Isar.getInstance());
   }
 
+  // ------------------------
+  // Directory Picker
+  // ------------------------
+
   Future<String?> pickDirectory() async {
     if (Platform.isAndroid) {
       return await _pickDirectoryAndroid();
     } else if (Platform.isIOS) {
-      return await getDirectoryPath();
+      return await _getDirectoryPath();
     }
     return null;
   }
@@ -40,12 +108,18 @@ class IsarController {
     try {
       final String? uri = await platform.invokeMethod('pickDirectory');
       return uri;
-    } on PlatformException {
+    } on PlatformException catch (e) {
+      debugPrint('Error picking directory: $e');
       return null;
     }
   }
 
-  Future<String?> getDownloadsDirectory() async {
+  Future<String?> _getDirectoryPath() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return dir.path;
+  }
+
+  Future<String?> _getDownloadsDirectory() async {
     if (Platform.isAndroid) {
       return '/storage/emulated/0/Download';
     } else if (Platform.isIOS) {
@@ -55,16 +129,30 @@ class IsarController {
     return null;
   }
 
-  Future<void> createBackUp() async {
-    final backUpDir = await pickDirectory();
-    final allowedPath = await _getAllowedPath(backUpDir);
-
-    if (backUpDir == null || allowedPath == null) {
-      EasyLoading.showInfo('errorPath'.tr);
-      return;
+  Future<String?> _getAllowedPath(String? backUpDir) async {
+    if (Platform.isAndroid) {
+      return await _getDownloadsDirectory();
     }
+    return backUpDir;
+  }
+
+  // ------------------------
+  // Backup
+  // ------------------------
+
+  Future<void> createBackUp() async {
+    _showLoadingDialog('creatingBackup'.tr);
 
     try {
+      final backUpDir = await pickDirectory();
+      final allowedPath = await _getAllowedPath(backUpDir);
+
+      if (backUpDir == null || allowedPath == null) {
+        _hideLoadingDialog();
+        showSnackBar('errorPath'.tr, isInfo: true);
+        return;
+      }
+
       final backupFileName = _generateBackupFileName();
       final backUpFile = File('$allowedPath/$backupFileName');
 
@@ -83,37 +171,34 @@ class IsarController {
 
       if (Platform.isAndroid) {
         final backupData = await compressedFile.readAsBytes();
-        final success = await platform.invokeMethod('writeFile', {
+        final success = await platform.invokeMethod<bool>('writeFile', {
           'directoryUri': backUpDir,
           'fileName': compressedFileName,
           'fileContent': backupData,
         });
         await compressedFile.delete();
 
-        if (success) {
-          EasyLoading.showSuccess('successBackup'.tr);
+        _hideLoadingDialog();
+
+        if (success == true) {
+          showSnackBar('successBackup'.tr);
         } else {
-          EasyLoading.showError('error'.tr);
+          showSnackBar('error'.tr, isError: true);
         }
       } else {
-        EasyLoading.showSuccess('successBackup'.tr);
+        _hideLoadingDialog();
+        showSnackBar('successBackup'.tr);
       }
     } catch (e) {
-      EasyLoading.showError('error'.tr);
-      return Future.error(e);
+      _hideLoadingDialog();
+      debugPrint('Backup error: $e');
+      showSnackBar('error'.tr, isError: true);
     }
-  }
-
-  Future<String?> _getAllowedPath(String? backUpDir) async {
-    if (Platform.isAndroid) {
-      return await getDownloadsDirectory();
-    }
-    return backUpDir;
   }
 
   String _generateBackupFileName() {
     final timeStamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-    return 'backup_zest_db$timeStamp.isar';
+    return 'backup_zest_db_$timeStamp.isar';
   }
 
   Future<void> _prepareBackupFile(File backUpFile) async {
@@ -122,19 +207,31 @@ class IsarController {
     }
   }
 
-  Future<void> restoreDB() async {
-    final dbDirectory = await getApplicationSupportDirectory();
-    final backupFile = await openFile();
+  // ------------------------
+  // Restore
+  // ------------------------
 
-    if (backupFile == null) {
-      EasyLoading.showInfo('errorPathRe'.tr);
-      return;
-    }
+  Future<void> restoreDB() async {
+    _showLoadingDialog('restoringBackup'.tr);
 
     try {
+      final dbDirectory = await getApplicationSupportDirectory();
+      final backupFile = await openFile(
+        acceptedTypeGroups: [
+          XTypeGroup(label: 'Isar Database', extensions: ['isar', 'gz']),
+        ],
+      );
+
+      if (backupFile == null) {
+        _hideLoadingDialog();
+        showSnackBar('errorPathRe'.tr, isInfo: true);
+        return;
+      }
+
       final selectedFile = File(backupFile.path);
       if (!await selectedFile.exists()) {
-        EasyLoading.showInfo('errorPathRe'.tr);
+        _hideLoadingDialog();
+        showSnackBar('errorPathRe'.tr, isInfo: true);
         return;
       }
 
@@ -154,19 +251,23 @@ class IsarController {
 
       await isar.close();
       final dbPath = p.join(dbDirectory.path, 'default.isar');
+
       if (await tempFile.exists()) {
         await tempFile.copy(dbPath);
         await tempFile.delete();
       }
 
-      EasyLoading.showSuccess('successRestoreCategory'.tr);
+      _hideLoadingDialog();
+      showSnackBar('successRestoreCategory'.tr);
+
       await Future.delayed(
-        const Duration(milliseconds: 500),
+        const Duration(milliseconds: 1500),
         () => Restart.restartApp(),
       );
     } catch (e) {
-      EasyLoading.showError('error'.tr);
-      return Future.error(e);
+      _hideLoadingDialog();
+      debugPrint('Restore error: $e');
+      showSnackBar('error'.tr, isError: true);
     }
   }
 }

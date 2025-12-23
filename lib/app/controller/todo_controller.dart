@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/utils/notification.dart';
+import 'package:zest/app/utils/show_snack_bar.dart';
 import 'package:zest/main.dart';
 
 extension FirstWhereOrNull<E> on Iterable<E> {
@@ -21,26 +21,20 @@ extension FirstWhereOrNull<E> on Iterable<E> {
 class TodoController extends GetxController {
   final tasks = <Tasks>[].obs;
   final todos = <Todos>[].obs;
-
   final selectedTask = <Tasks>[].obs;
   final isMultiSelectionTask = false.obs;
-
   final selectedTodo = <Todos>[].obs;
   final selectedTodoIds = <int>{}.obs;
   final isMultiSelectionTodo = false.obs;
-
   final isPop = true.obs;
-
-  final duration = const Duration(milliseconds: 500);
+  final duration = const Duration(milliseconds: 2000);
   DateTime now = DateTime.now();
-
   Timer? _loadDebounce;
 
   @override
   void onInit() {
     super.onInit();
     loadTasksAndTodos();
-
     isar.tasks.watchLazy().listen((_) {
       _loadDebounce?.cancel();
       _loadDebounce = Timer(
@@ -48,7 +42,6 @@ class TodoController extends GetxController {
         loadTasksAndTodos,
       );
     });
-
     isar.todos.watchLazy().listen((_) {
       _loadDebounce?.cancel();
       _loadDebounce = Timer(
@@ -67,9 +60,9 @@ class TodoController extends GetxController {
   // ------------------------
   // Load
   // ------------------------
+
   void loadTasksAndTodos() {
     final preservedSelectedIds = selectedTodoIds.toSet();
-
     final newTasks = isar.tasks.where().sortByIndex().findAllSync();
     final newTodos = isar.todos.where().sortByIndex().findAllSync();
 
@@ -90,8 +83,8 @@ class TodoController extends GetxController {
 
     selectedTodo.assignAll(restored);
     selectedTodo.refresh();
-
     selectedTodoIds.assignAll(selectedTodo.map((e) => e.id).toSet());
+
     if (selectedTodo.isEmpty) {
       doMultiSelectionTodoClear();
     } else {
@@ -103,9 +96,10 @@ class TodoController extends GetxController {
   // ------------------------
   // Tasks
   // ------------------------
+
   Future<void> addTask(String title, String desc, Color myColor) async {
     if (await isTaskDuplicate(title)) {
-      EasyLoading.showError('duplicateCategory'.tr, duration: duration);
+      showSnackBar('duplicateCategory'.tr, isError: true);
       return;
     }
 
@@ -117,11 +111,9 @@ class TodoController extends GetxController {
     );
 
     isar.writeTxnSync(() => isar.tasks.putSync(taskCreate));
-
     tasks.add(taskCreate);
     tasks.refresh();
-
-    EasyLoading.showSuccess('createCategory'.tr, duration: duration);
+    showSnackBar('createCategory'.tr);
   }
 
   Future<bool> isTaskDuplicate(String title) async {
@@ -141,9 +133,8 @@ class TodoController extends GetxController {
       task.taskColor = myColor.value32bit;
       isar.tasks.putSync(task);
     });
-
     refreshTask(task);
-    EasyLoading.showSuccess('editCategory'.tr, duration: duration);
+    showSnackBar('editCategory'.tr);
   }
 
   void refreshTask(Tasks task) {
@@ -159,18 +150,13 @@ class TodoController extends GetxController {
 
   Future<void> deleteTask(List<Tasks> taskList) async {
     final copy = List<Tasks>.from(taskList);
-
     for (final t in copy) {
       await cancelNotificationsForTask(t);
       await deleteTodosForTask(t);
       deleteTaskFromDB(t);
     }
-
     reindexTasks();
-    EasyLoading.showSuccess(
-      'categoryDelete'.tr,
-      duration: const Duration(seconds: 2),
-    );
+    showSnackBar('categoryDelete'.tr);
   }
 
   Future<void> cancelNotificationsForTask(Tasks task) async {
@@ -178,6 +164,7 @@ class TodoController extends GetxController {
         .filter()
         .task((q) => q.idEqualTo(task.id))
         .findAllSync();
+
     for (var todo in getTodo) {
       if (todo.todoCompletedTime != null &&
           todo.todoCompletedTime!.isAfter(DateTime.now())) {
@@ -215,10 +202,7 @@ class TodoController extends GetxController {
       await cancelNotificationsForTask(task);
       archiveTaskInDB(task);
     }
-    EasyLoading.showSuccess(
-      'categoryArchive'.tr,
-      duration: const Duration(seconds: 2),
-    );
+    showSnackBar('categoryArchive'.tr);
   }
 
   void archiveTaskInDB(Tasks task) {
@@ -236,10 +220,7 @@ class TodoController extends GetxController {
       await createNotificationsForTask(task);
       noArchiveTaskInDB(task);
     }
-    EasyLoading.showSuccess(
-      'noCategoryArchive'.tr,
-      duration: const Duration(seconds: 2),
-    );
+    showSnackBar('noCategoryArchive'.tr);
   }
 
   Future<void> createNotificationsForTask(Tasks task) async {
@@ -247,6 +228,7 @@ class TodoController extends GetxController {
         .filter()
         .task((q) => q.idEqualTo(task.id))
         .findAllSync();
+
     for (var todo in getTodo) {
       if (todo.todoCompletedTime != null &&
           todo.todoCompletedTime!.isAfter(now)) {
@@ -272,7 +254,8 @@ class TodoController extends GetxController {
   // ------------------------
   // Todos
   // ------------------------
-  Future<Todos?> addTodo(
+
+  Future<Todos> addTodo(
     Tasks task,
     String title,
     String desc,
@@ -319,7 +302,7 @@ class TodoController extends GetxController {
       );
     }
 
-    EasyLoading.showSuccess('todoCreate'.tr, duration: duration);
+    showSnackBar('todoCreate'.tr);
     return todoCreate;
   }
 
@@ -351,14 +334,17 @@ class TodoController extends GetxController {
   // ------------------------
   // Private helpers for selection sync
   // ------------------------
+
   void _resyncSelectedTodoFromIds() {
     final updated = <Todos>[];
     for (final id in selectedTodoIds) {
       final match = todos.firstWhereOrNull((t) => t.id == id);
       if (match != null) updated.add(match);
     }
+
     selectedTodo.assignAll(updated);
     selectedTodo.refresh();
+
     if (selectedTodo.isEmpty) {
       isMultiSelectionTodo.value = false;
       isPop.value = true;
@@ -373,17 +359,20 @@ class TodoController extends GetxController {
   // ------------------------
   // Set done for subtree
   // ------------------------
+
   Future<void> _setDoneForSubtree(Todos root, bool done) async {
     final ids = <int>{};
-    final stack = <Todos>[root];
+    final stack = [root];
 
     while (stack.isNotEmpty) {
       final node = stack.removeLast();
       if (!ids.add(node.id)) continue;
+
       final children = isar.todos
           .filter()
           .parent((q) => q.idEqualTo(node.id))
           .findAllSync();
+
       for (var c in children) {
         if (!ids.contains(c.id)) stack.add(c);
       }
@@ -401,6 +390,7 @@ class TodoController extends GetxController {
         t.done = done;
         t.todoCompletionTime = done ? nowLocal : null;
         isar.todos.putSync(t);
+
         if (t.todoCompletedTime != null &&
             t.todoCompletedTime!.isAfter(nowLocal)) {
           toCancel.add(t.id);
@@ -410,7 +400,6 @@ class TodoController extends GetxController {
 
     todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
     todos.refresh();
-
     selectedTodoIds.removeWhere((id) => ids.contains(id));
     _resyncSelectedTodoFromIds();
 
@@ -426,8 +415,10 @@ class TodoController extends GetxController {
   // ------------------------
   // Set done for single todos (safe)
   // ------------------------
+
   Future<void> _setDoneSingle(Todos todo, bool done) async {
     final nowLocal = DateTime.now();
+
     isar.writeTxnSync(() {
       todo.done = done;
       todo.todoCompletionTime = done ? nowLocal : null;
@@ -436,7 +427,6 @@ class TodoController extends GetxController {
 
     todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
     todos.refresh();
-
     selectedTodoIds.remove(todo.id);
     _resyncSelectedTodoFromIds();
 
@@ -472,6 +462,7 @@ class TodoController extends GetxController {
     List<String> tags,
   ) async {
     final date = parseDate(time);
+
     isar.writeTxnSync(() {
       todo.name = title;
       todo.description = desc;
@@ -497,7 +488,8 @@ class TodoController extends GetxController {
     } else {
       await flutterLocalNotificationsPlugin?.cancel(todo.id);
     }
-    EasyLoading.showSuccess('updateTodo'.tr, duration: duration);
+
+    showSnackBar('updateTodo'.tr);
   }
 
   void refreshTodo(Todos todo) {
@@ -512,12 +504,10 @@ class TodoController extends GetxController {
 
   Future<void> moveTodos(List<Todos> todoList, Tasks task) async {
     final copy = List<Todos>.from(todoList);
-
     final idsToUpdate = <int>{};
 
     for (final root in copy) {
-      final stack = <Todos>[root];
-
+      final stack = [root];
       while (stack.isNotEmpty) {
         final node = stack.removeLast();
         if (!idsToUpdate.add(node.id)) continue;
@@ -547,24 +537,25 @@ class TodoController extends GetxController {
       }
     });
 
-    EasyLoading.showSuccess('updateTodo'.tr, duration: duration);
+    showSnackBar('updateTodo'.tr);
   }
 
   Future<void> moveTodosToParent(List<Todos> rootList, Todos? newParent) async {
     final copy = List<Todos>.from(rootList);
     final idsToUpdate = <int>{};
-
     final Tasks? newTask = newParent?.task.value;
 
     for (final root in copy) {
-      final stack = <Todos>[root];
+      final stack = [root];
       while (stack.isNotEmpty) {
         final node = stack.removeLast();
         if (!idsToUpdate.add(node.id)) continue;
+
         final children = isar.todos
             .filter()
             .parent((q) => q.idEqualTo(node.id))
             .findAllSync();
+
         for (var c in children) {
           if (!idsToUpdate.contains(c.id)) stack.add(c);
         }
@@ -587,18 +578,16 @@ class TodoController extends GetxController {
         }
 
         isar.todos.putSync(t);
-
         t.task.saveSync();
         if (t.parent.value != null) t.parent.saveSync();
       }
     });
 
-    EasyLoading.showSuccess('updateTodo'.tr, duration: duration);
+    showSnackBar('updateTodo'.tr);
   }
 
   Future<void> deleteTodo(List<Todos> todoList) async {
     final copy = List<Todos>.from(todoList);
-
     for (var todo in copy) {
       await cancelNotificationForTodo(todo);
       await _deleteTodoRecursive(todo);
@@ -607,13 +596,10 @@ class TodoController extends GetxController {
     for (final t in copy) {
       selectedTodoIds.remove(t.id);
     }
-    _resyncSelectedTodoFromIds();
 
+    _resyncSelectedTodoFromIds();
     reindexTodos();
-    EasyLoading.showSuccess(
-      'todoDelete'.tr,
-      duration: const Duration(seconds: 2),
-    );
+    showSnackBar('todoDelete'.tr);
   }
 
   Future<void> cancelNotificationForTodo(Todos todo) async {
@@ -625,7 +611,7 @@ class TodoController extends GetxController {
 
   Future<void> _deleteTodoRecursive(Todos root) async {
     final idsToDelete = <int>{};
-    final stack = <Todos>[root];
+    final stack = [root];
 
     while (stack.isNotEmpty) {
       final node = stack.removeLast();
@@ -635,6 +621,7 @@ class TodoController extends GetxController {
           .filter()
           .parent((q) => q.idEqualTo(node.id))
           .findAllSync();
+
       for (var c in children) {
         if (!idsToDelete.contains(c.id)) stack.add(c);
       }
@@ -657,7 +644,6 @@ class TodoController extends GetxController {
 
     todos.removeWhere((t) => idsToDelete.contains(t.id));
     todos.refresh();
-
     selectedTodoIds.removeWhere((id) => idsToDelete.contains(id));
     _resyncSelectedTodoFromIds();
   }
@@ -665,7 +651,6 @@ class TodoController extends GetxController {
   void deleteTodoFromDB(Todos todo) {
     todos.removeWhere((t) => t.id == todo.id);
     isar.writeTxnSync(() => isar.todos.deleteSync(todo.id));
-
     selectedTodoIds.remove(todo.id);
     _resyncSelectedTodoFromIds();
   }
@@ -673,6 +658,7 @@ class TodoController extends GetxController {
   // ------------------------
   // Counters / Helpers
   // ------------------------
+
   int createdAllTodos() =>
       todos.where((todo) => todo.task.value?.archive == false).length;
 
@@ -712,6 +698,7 @@ class TodoController extends GetxController {
   // ------------------------
   // Reindex helpers
   // ------------------------
+
   void reindexTasks() {
     final all = tasks.toList();
     isar.writeTxnSync(() {
@@ -739,6 +726,7 @@ class TodoController extends GetxController {
   // ------------------------
   // Multi-selection helpers (todos)
   // ------------------------
+
   void doMultiSelectionTodo(Todos todo) {
     if (isMultiSelectionTodo.isTrue) {
       isPop.value = false;
@@ -762,6 +750,7 @@ class TodoController extends GetxController {
   // ------------------------
   // Multi-selection helpers (tasks)
   // ------------------------
+
   void doMultiSelectionTask(Tasks task) {
     if (isMultiSelectionTask.isTrue) {
       isPop.value = false;
@@ -770,7 +759,6 @@ class TodoController extends GetxController {
       } else {
         selectedTask.add(task);
       }
-
       if (selectedTask.isEmpty) {
         isMultiSelectionTask.value = false;
         isPop.value = true;
@@ -787,6 +775,7 @@ class TodoController extends GetxController {
   // ------------------------
   // Selection helpers
   // ------------------------
+
   List<Todos> getFilteredTodos({
     required bool done,
     String searchQuery = '',
@@ -798,13 +787,14 @@ class TodoController extends GetxController {
         (selectedDay != null ? 1 : 0) +
         (task != null ? 1 : 0) +
         (parent != null ? 1 : 0);
+
     if (contextCount > 1) {
       throw ArgumentError(
         'Specify only one context: selectedDay, task, or parent.',
       );
     }
-    final bool isRootMode = contextCount == 0;
 
+    final bool isRootMode = contextCount == 0;
     final lowerQuery = searchQuery.trim().toLowerCase();
 
     bool matchesSearch(Todos t) {
@@ -875,6 +865,7 @@ class TodoController extends GetxController {
       task: task,
       parent: parent,
     );
+
     if (select) {
       if (!isMultiSelectionTodo.isTrue) {
         isMultiSelectionTodo.value = true;
@@ -892,6 +883,7 @@ class TodoController extends GetxController {
         isPop.value = true;
       }
     }
+
     _resyncSelectedTodoFromIds();
   }
 

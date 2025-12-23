@@ -5,7 +5,7 @@ import 'package:isar_community/isar.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
-import 'package:zest/app/ui/responsive_utils.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
 import 'package:zest/app/ui/todos/view/todo_todos.dart';
 import 'package:zest/app/utils/show_dialog.dart';
 import 'package:zest/app/ui/widgets/button.dart';
@@ -47,11 +47,9 @@ class _TodosActionState extends State<TodosAction>
   final TextEditingController descTodoEdit = TextEditingController();
   final TextEditingController timeTodoEdit = TextEditingController();
   final TextEditingController tagsTodoEdit = TextEditingController();
-
   bool todoPined = false;
   Priority todoPriority = Priority.none;
   List<String> todoTags = [];
-
   late final _EditingController controller;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -546,8 +544,8 @@ class _TodosActionState extends State<TodosAction>
                   onTap: () => onSelected(task),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                      horizontal: 18,
+                      vertical: 12,
                     ),
                     child: Row(
                       children: [
@@ -829,7 +827,7 @@ class _TodosActionState extends State<TodosAction>
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            spacing: 10,
+            spacing: 8,
             children: [
               if (widget.edit) _buildSubTask(colorScheme),
               _buildDateTimeWidget(colorScheme),
@@ -865,21 +863,22 @@ class _TodosActionState extends State<TodosAction>
         );
       },
       style: FilledButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        minimumSize: const Size(0, 32),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             IconsaxPlusLinear.task_square,
-            size: 18,
+            size: 16,
             color: colorScheme.onSecondaryContainer,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           Text(
             'subTask'.tr,
             style: TextStyle(
-              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
             ),
           ),
         ],
@@ -892,7 +891,8 @@ class _TodosActionState extends State<TodosAction>
     return FilledButton.tonal(
       onPressed: _showDateTimePicker,
       style: FilledButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        minimumSize: const Size(0, 32),
         backgroundColor: hasTime
             ? colorScheme.primaryContainer
             : colorScheme.secondaryContainer,
@@ -902,23 +902,23 @@ class _TodosActionState extends State<TodosAction>
         children: [
           Icon(
             IconsaxPlusLinear.calendar,
-            size: 18,
+            size: 16,
             color: hasTime
                 ? colorScheme.onPrimaryContainer
                 : colorScheme.onSecondaryContainer,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           Text(
             hasTime ? timeTodoEdit.text : 'timeComplete'.tr,
             style: TextStyle(
-              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
               color: hasTime
                   ? colorScheme.onPrimaryContainer
                   : colorScheme.onSecondaryContainer,
             ),
           ),
           if (hasTime) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             InkWell(
               onTap: () {
                 timeTodoEdit.clear();
@@ -928,7 +928,7 @@ class _TodosActionState extends State<TodosAction>
               },
               child: Icon(
                 IconsaxPlusLinear.close_circle,
-                size: 16,
+                size: 14,
                 color: colorScheme.onPrimaryContainer,
               ),
             ),
@@ -997,17 +997,18 @@ class _TodosActionState extends State<TodosAction>
             }
           },
           style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            minimumSize: const Size(0, 32),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(IconsaxPlusLinear.flag, size: 18, color: priority.color),
-              const SizedBox(width: 8),
+              Icon(IconsaxPlusLinear.flag, size: 16, color: priority.color),
+              const SizedBox(width: 6),
               Text(
                 priority.name.tr,
                 style: TextStyle(
-                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
                 ),
               ),
             ],
@@ -1023,7 +1024,7 @@ class _TodosActionState extends State<TodosAction>
         todoPined
             ? IconsaxPlusBold.attach_square
             : IconsaxPlusLinear.attach_square,
-        size: 18,
+        size: 16,
         color: todoPined
             ? colorScheme.onPrimaryContainer
             : colorScheme.onSecondaryContainer,
@@ -1031,7 +1032,7 @@ class _TodosActionState extends State<TodosAction>
       label: Text(
         'todoPined'.tr,
         style: TextStyle(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
         ),
       ),
       selected: todoPined,
@@ -1048,6 +1049,7 @@ class _TodosActionState extends State<TodosAction>
             : colorScheme.onSecondaryContainer,
       ),
       side: BorderSide.none,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     );
   }
 

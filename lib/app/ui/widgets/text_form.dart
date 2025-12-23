@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zest/app/ui/responsive_utils.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
 
 enum TextFieldVariant { outlined, filled, card }
 
@@ -79,8 +79,8 @@ class MyTextForm extends StatelessWidget {
       onFieldSubmitted: onFieldSubmitted,
       controller: controller,
       keyboardType: type,
-      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 16),
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 15),
         color: colorScheme.onSurface,
       ),
       decoration: _buildInputDecoration(context, colorScheme, isMobile),
@@ -109,23 +109,23 @@ class MyTextForm extends StatelessWidget {
         errorBorder: InputBorder.none,
         focusedErrorBorder: InputBorder.none,
         labelStyle: TextStyle(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
           color: colorScheme.onSurfaceVariant,
         ),
         floatingLabelStyle: TextStyle(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
           color: colorScheme.primary,
         ),
         hintStyle: TextStyle(
           color: colorScheme.onSurfaceVariant,
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
         ),
         helperStyle: TextStyle(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
           color: colorScheme.onSurfaceVariant,
         ),
         errorStyle: TextStyle(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
           color: colorScheme.error,
         ),
       );
@@ -134,18 +134,18 @@ class MyTextForm extends StatelessWidget {
     if (variant == TextFieldVariant.filled) {
       return InputDecoration(
         prefixIcon: Padding(
-          padding: const EdgeInsets.only(left: 12, right: 8),
+          padding: const EdgeInsets.only(left: 8, right: 6),
           child: IconTheme(
             data: IconThemeData(
               color: colorScheme.onSurfaceVariant,
-              size: isMobile ? 20 : 22,
+              size: isMobile ? 18 : 20,
             ),
             child: icon,
           ),
         ),
         suffixIcon: iconButton != null
             ? Padding(
-                padding: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.only(right: 6),
                 child: iconButton,
               )
             : null,
@@ -154,35 +154,32 @@ class MyTextForm extends StatelessWidget {
         helperText: helperText,
         filled: true,
         fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-
         labelStyle: TextStyle(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
           color: colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.w500,
         ),
         floatingLabelStyle: TextStyle(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
           color: colorScheme.primary,
           fontWeight: FontWeight.w600,
         ),
         hintStyle: TextStyle(
           color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
         ),
         helperStyle: TextStyle(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
           color: colorScheme.onSurfaceVariant,
         ),
         errorStyle: TextStyle(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
           color: colorScheme.error,
         ),
-
         contentPadding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 16 : 18,
-          vertical: isMobile ? 16 : 18,
+          horizontal: isMobile ? 12 : 14,
+          vertical: isMobile ? 12 : 14,
         ),
-
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -215,52 +212,49 @@ class MyTextForm extends StatelessWidget {
 
     return InputDecoration(
       prefixIcon: Padding(
-        padding: const EdgeInsets.only(left: 12, right: 8),
+        padding: const EdgeInsets.only(left: 8, right: 6),
         child: IconTheme(
           data: IconThemeData(
             color: colorScheme.onSurfaceVariant,
-            size: isMobile ? 20 : 22,
+            size: isMobile ? 18 : 20,
           ),
           child: icon,
         ),
       ),
       suffixIcon: iconButton != null
-          ? Padding(padding: const EdgeInsets.only(right: 8), child: iconButton)
+          ? Padding(padding: const EdgeInsets.only(right: 6), child: iconButton)
           : null,
       labelText: labelText,
       hintText: hintText,
       helperText: helperText,
       filled: true,
       fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-
       labelStyle: TextStyle(
-        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
         color: colorScheme.onSurfaceVariant,
         fontWeight: FontWeight.w500,
       ),
       floatingLabelStyle: TextStyle(
-        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
         color: colorScheme.primary,
         fontWeight: FontWeight.w600,
       ),
       hintStyle: TextStyle(
         color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
       ),
       helperStyle: TextStyle(
-        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
         color: colorScheme.onSurfaceVariant,
       ),
       errorStyle: TextStyle(
-        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
         color: colorScheme.error,
       ),
-
       contentPadding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 16 : 18,
-        vertical: isMobile ? 16 : 18,
+        horizontal: isMobile ? 12 : 14,
+        vertical: isMobile ? 12 : 14,
       ),
-
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: colorScheme.outline, width: 1),

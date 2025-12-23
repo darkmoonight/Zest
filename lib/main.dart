@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/theme/theme_controller.dart';
 import 'package:zest/app/utils/device_info.dart';
@@ -503,7 +502,6 @@ class _MyAppState extends State<MyApp> {
       supportedLocales: appLanguages.map((e) => e['locale'] as Locale).toList(),
       debugShowCheckedModeBanner: false,
       home: settings.onboard ? HomePage(key: _homeKey) : const OnBoarding(),
-      builder: EasyLoading.init(),
       title: 'Zest',
     );
   }

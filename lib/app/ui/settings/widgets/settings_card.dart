@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
 
 class SettingCard extends StatelessWidget {
   const SettingCard({
@@ -37,79 +37,109 @@ class SettingCard extends StatelessWidget {
   final double? elevation;
 
   @override
-  Widget build(BuildContext context) => Card(
-    elevation: elevation ?? 1,
-    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    child: ListTile(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      onTap: onPressed,
-      leading: icon,
-      title: Text(
-        text,
-        style: context.textTheme.titleMedium,
-        overflow: TextOverflow.visible,
-      ),
-      trailing: _buildTrailingWidget(context),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isMobile = ResponsiveUtils.isMobile(context);
 
-  Widget _buildTrailingWidget(BuildContext context) {
+    return Card(
+      elevation: elevation,
+      margin: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 12, vertical: 5),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        onTap: onPressed,
+        leading: IconTheme(
+          data: IconThemeData(color: colorScheme.primary, size: 24),
+          child: icon,
+        ),
+        title: Text(
+          text,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+            fontSize: ResponsiveUtils.getResponsiveFontSize(context, 16),
+          ),
+          overflow: TextOverflow.visible,
+        ),
+        trailing: _buildTrailingWidget(context, colorScheme),
+      ),
+    );
+  }
+
+  Widget _buildTrailingWidget(BuildContext context, ColorScheme colorScheme) {
     if (switcher) {
       return Transform.scale(
-        scale: 0.8,
-        child: Switch(value: value!, onChanged: onChange),
+        scale: ResponsiveUtils.isMobile(context) ? 0.85 : 0.9,
+        child: Switch(value: value ?? false, onChanged: onChange),
       );
     } else if (dropdown) {
-      return _buildDropdownButton(context);
+      return _buildDropdownButton(context, colorScheme);
     } else if (info) {
-      return _buildInfoWidget(context);
+      return _buildInfoWidget(context, colorScheme);
     } else {
-      return const Icon(IconsaxPlusLinear.arrow_right_3, size: 18);
+      return Icon(
+        IconsaxPlusLinear.arrow_right_3,
+        size: 20,
+        color: colorScheme.onSurfaceVariant,
+      );
     }
   }
 
-  Widget _buildDropdownButton(BuildContext context) => DropdownButton<String>(
-    icon: const Padding(
-      padding: EdgeInsets.only(left: 7),
-      child: Icon(IconsaxPlusLinear.arrow_down),
-    ),
-    iconSize: 15,
-    alignment: AlignmentDirectional.centerEnd,
-    borderRadius: const BorderRadius.all(Radius.circular(15)),
-    underline: Container(),
-    value: dropdownName,
-    items: dropdownList!
-        .map<DropdownMenuItem<String>>(
-          (String value) =>
-              DropdownMenuItem<String>(value: value, child: Text(value)),
-        )
-        .toList(),
-    onChanged: dropdownChange,
-  );
+  Widget _buildDropdownButton(BuildContext context, ColorScheme colorScheme) {
+    return DropdownButton<String>(
+      icon: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: Icon(
+          IconsaxPlusLinear.arrow_down,
+          size: 16,
+          color: colorScheme.onSurfaceVariant,
+        ),
+      ),
+      alignment: AlignmentDirectional.centerEnd,
+      borderRadius: BorderRadius.circular(16),
+      underline: const SizedBox.shrink(),
+      value: dropdownName,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+      ),
+      items: dropdownList!
+          .map<DropdownMenuItem<String>>(
+            (String value) =>
+                DropdownMenuItem(value: value, child: Text(value)),
+          )
+          .toList(),
+      onChanged: dropdownChange,
+    );
+  }
 
-  Widget _buildInfoWidget(BuildContext context) {
+  Widget _buildInfoWidget(BuildContext context, ColorScheme colorScheme) {
     if (infoSettings) {
-      return Wrap(
+      return Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 5),
-            child: Text(
-              textInfo!,
-              style: context.textTheme.bodyMedium,
-              overflow: TextOverflow.visible,
+          Text(
+            textInfo ?? '',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
             ),
+            overflow: TextOverflow.visible,
           ),
-          const Icon(IconsaxPlusLinear.arrow_right_3, size: 18),
+          const SizedBox(width: 8),
+          Icon(
+            IconsaxPlusLinear.arrow_right_3,
+            size: 20,
+            color: colorScheme.onSurfaceVariant,
+          ),
         ],
       );
     } else {
-      return Padding(
-        padding: const EdgeInsets.only(right: 5),
-        child: Text(
-          textInfo!,
-          style: context.textTheme.titleMedium,
-          overflow: TextOverflow.visible,
+      return Text(
+        textInfo ?? '',
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          color: colorScheme.onSurfaceVariant,
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+          fontWeight: FontWeight.w500,
         ),
+        overflow: TextOverflow.visible,
       );
     }
   }

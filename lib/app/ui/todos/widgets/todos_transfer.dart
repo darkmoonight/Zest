@@ -5,7 +5,7 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/data/db.dart';
-import 'package:zest/app/ui/responsive_utils.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
 import 'package:zest/app/utils/show_dialog.dart';
 import 'package:zest/app/ui/widgets/button.dart';
 import 'package:zest/app/ui/widgets/text_form.dart';
@@ -567,8 +567,8 @@ class _TodosTransferState extends State<TodosTransfer>
                   onTap: () => onSelected(task),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                      horizontal: 18,
+                      vertical: 12,
                     ),
                     child: Row(
                       children: [
@@ -710,8 +710,8 @@ class _TodosTransferState extends State<TodosTransfer>
                   onTap: () => onSelected(todo),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                      horizontal: 18,
+                      vertical: 12,
                     ),
                     child: Row(
                       children: [
