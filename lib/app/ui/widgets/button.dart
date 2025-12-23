@@ -20,7 +20,12 @@ class MyTextButton extends StatelessWidget {
     child: ElevatedButton(
       style: _buildButtonStyle(context),
       onPressed: onPressed,
-      child: Text(text, style: context.textTheme.titleMedium),
+      child: Text(
+        text,
+        style: context.textTheme.titleMedium?.copyWith(
+          color: context.theme.colorScheme.onSurface,
+        ),
+      ),
     ),
   );
 

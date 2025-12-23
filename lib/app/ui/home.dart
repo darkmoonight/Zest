@@ -1,6 +1,7 @@
 import 'package:flutter/scheduler.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/controller/fab_controller.dart';
+import 'package:zest/app/ui/responsive_utils.dart' show ResponsiveUtils;
 import 'package:zest/app/ui/tasks/view/all_tasks.dart';
 import 'package:zest/app/ui/settings/view/settings.dart';
 import 'package:flutter/material.dart';
@@ -82,84 +83,85 @@ class HomePageState extends State<HomePage>
   }
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      final width = constraints.maxWidth;
-      final isLargeScreen = width >= 600;
-      final isExtraLarge = width >= 1200;
+  Widget build(BuildContext context) {
+    final isLargeScreen = !ResponsiveUtils.isMobile(context);
+    final isExtraLarge = ResponsiveUtils.isDesktop(context);
 
-      final content = PageView(
-        controller: pageController,
-        physics: isLargeScreen ? const NeverScrollableScrollPhysics() : null,
-        onPageChanged: (index) {
-          setState(() {
-            tabIndex = index;
-          });
-        },
-        children: pages,
-      );
+    final content = PageView(
+      controller: pageController,
+      physics: isLargeScreen ? const NeverScrollableScrollPhysics() : null,
+      onPageChanged: (index) {
+        setState(() {
+          tabIndex = index;
+        });
+      },
+      children: pages,
+    );
 
-      final body = isLargeScreen
-          ? Row(
-              children: [
-                _buildNavigationRail(isExtraLarge),
-                const VerticalDivider(thickness: 1, width: 1),
-                Expanded(child: content),
-              ],
-            )
-          : content;
+    final body = isLargeScreen
+        ? Row(
+            children: [
+              _buildNavigationRail(context, isExtraLarge),
+              const VerticalDivider(thickness: 1, width: 1),
+              Expanded(child: content),
+            ],
+          )
+        : content;
 
-      return Scaffold(
-        body: body,
-        bottomNavigationBar: isLargeScreen ? null : _buildBottomNavigationBar(),
-        floatingActionButton: _buildFloatingActionButton(),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      );
-    },
-  );
+    return Scaffold(
+      body: body,
+      bottomNavigationBar: isLargeScreen ? null : _buildBottomNavigationBar(),
+      floatingActionButton: _buildFloatingActionButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
 
-  Widget _buildNavigationRail(bool isExtended) => NavigationRail(
-    selectedIndex: tabIndex,
-    extended: isExtended,
-    groupAlignment: -1.0,
-    onDestinationSelected: changeTabIndex,
-    labelType: isExtended
-        ? NavigationRailLabelType.none
-        : NavigationRailLabelType.all,
-    leading: Column(
-      children: [
-        const SizedBox(height: 16),
-        CircleAvatar(
-          radius: 20,
-          backgroundColor: context.theme.colorScheme.primary,
-          child: Icon(Icons.person, color: context.theme.colorScheme.onPrimary),
+  Widget _buildNavigationRail(BuildContext context, bool isExtended) =>
+      NavigationRail(
+        selectedIndex: tabIndex,
+        extended: isExtended,
+        groupAlignment: -1.0,
+        onDestinationSelected: changeTabIndex,
+        labelType: isExtended
+            ? NavigationRailLabelType.none
+            : NavigationRailLabelType.all,
+        leading: Column(
+          children: [
+            SizedBox(height: ResponsiveUtils.getResponsivePadding(context)),
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: context.theme.colorScheme.primary,
+              child: Icon(
+                Icons.person,
+                color: context.theme.colorScheme.onPrimary,
+              ),
+            ),
+            SizedBox(height: ResponsiveUtils.getResponsivePadding(context)),
+          ],
         ),
-        const SizedBox(height: 16),
-      ],
-    ),
-    destinations: [
-      _buildRailDestination(
-        IconsaxPlusLinear.folder_2,
-        IconsaxPlusBold.folder_2,
-        allScreens[0].tr,
-      ),
-      _buildRailDestination(
-        IconsaxPlusLinear.task_square,
-        IconsaxPlusBold.task_square,
-        allScreens[1].tr,
-      ),
-      _buildRailDestination(
-        IconsaxPlusLinear.calendar,
-        IconsaxPlusBold.calendar,
-        allScreens[2].tr,
-      ),
-      _buildRailDestination(
-        IconsaxPlusLinear.category,
-        IconsaxPlusBold.category,
-        'settings'.tr,
-      ),
-    ],
-  );
+        destinations: [
+          _buildRailDestination(
+            IconsaxPlusLinear.folder_2,
+            IconsaxPlusBold.folder_2,
+            allScreens[0].tr,
+          ),
+          _buildRailDestination(
+            IconsaxPlusLinear.task_square,
+            IconsaxPlusBold.task_square,
+            allScreens[1].tr,
+          ),
+          _buildRailDestination(
+            IconsaxPlusLinear.calendar,
+            IconsaxPlusBold.calendar,
+            allScreens[2].tr,
+          ),
+          _buildRailDestination(
+            IconsaxPlusLinear.category,
+            IconsaxPlusBold.category,
+            'settings'.tr,
+          ),
+        ],
+      );
 
   NavigationRailDestination _buildRailDestination(
     IconData icon,
@@ -219,17 +221,18 @@ class HomePageState extends State<HomePage>
   }
 
   void _showBottomSheet() {
-    final width = MediaQuery.of(context).size.width;
-    final isLargeScreen = width >= 600;
+    final isLargeScreen = !ResponsiveUtils.isMobile(context);
     final widget = tabIndex == 0
         ? TasksAction(text: 'create'.tr, edit: false)
         : TodosAction(text: 'create'.tr, edit: false, category: true);
 
     if (isLargeScreen) {
+      final width = MediaQuery.of(context).size.width;
       final double effectiveMaxWidth = width * 0.4;
       final double effectiveMinWidth = effectiveMaxWidth < 300
           ? effectiveMaxWidth
           : 300;
+
       showDialog(
         context: context,
         builder: (BuildContext context) {

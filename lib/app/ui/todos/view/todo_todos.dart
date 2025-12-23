@@ -200,6 +200,7 @@ class _TodosTodoState extends State<TodosTodo> with TickerProviderStateMixin {
   Widget _buildSearchTextField() => SliverToBoxAdapter(
     child: MyTextForm(
       labelText: 'searchTodo'.tr,
+      variant: TextFieldVariant.card,
       type: TextInputType.text,
       icon: const Icon(IconsaxPlusLinear.search_normal_1, size: 20),
       controller: searchTodos,
@@ -371,6 +372,7 @@ class _TodosTodoState extends State<TodosTodo> with TickerProviderStateMixin {
             notification: notification,
             tabController: tabController,
             fabController: fabController,
+            context: context,
           ),
           child: _buildBody(context),
         ),

@@ -1,5 +1,6 @@
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/home.dart';
+import 'package:zest/app/ui/responsive_utils.dart';
 import 'package:zest/app/ui/widgets/button.dart';
 import 'package:zest/main.dart';
 import 'package:flutter/material.dart';
@@ -36,26 +37,28 @@ class _OnBoardingState extends State<OnBoarding> {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = !ResponsiveUtils.isMobile(context);
+    final horizontalPadding = isLargeScreen
+        ? ResponsiveUtils.getResponsivePadding(context) * 10
+        : ResponsiveUtils.getResponsivePadding(context);
+    final verticalPadding = ResponsiveUtils.getResponsivePadding(context) * 2;
+
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final isLargeScreen = constraints.maxWidth > 600;
-            return Padding(
-              padding: isLargeScreen
-                  ? const EdgeInsets.symmetric(horizontal: 100, vertical: 20)
-                  : const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: Column(
-                spacing: 20,
-                children: [
-                  _buildPageView(),
-                  _buildDotIndicators(isLargeScreen),
-                  _buildActionButton(isLargeScreen),
-                ],
-              ),
-            );
-          },
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: verticalPadding,
+          ),
+          child: Column(
+            spacing: ResponsiveUtils.getResponsivePadding(context),
+            children: [
+              _buildPageView(),
+              _buildDotIndicators(context),
+              _buildActionButton(context),
+            ],
+          ),
         ),
       ),
     );
@@ -74,63 +77,69 @@ class _OnBoardingState extends State<OnBoarding> {
     ),
   );
 
-  Widget _buildDotIndicators(bool isLargeScreen) => Row(
+  Widget _buildDotIndicators(BuildContext context) => Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: List.generate(
       data.length,
       (index) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5),
-        child: DotIndicator(
-          isActive: index == pageIndex,
-          isLargeScreen: isLargeScreen,
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveUtils.getResponsivePadding(context) / 2,
         ),
+        child: DotIndicator(isActive: index == pageIndex, context: context),
       ),
     ),
   );
 
-  Widget _buildActionButton(bool isLargeScreen) => SizedBox(
-    width: isLargeScreen ? 300 : double.infinity,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: MyTextButton(
-        text: pageIndex == data.length - 1 ? 'getStart'.tr : 'next'.tr,
-        onPressed: () {
-          if (pageIndex == data.length - 1) {
-            onBoardHome();
-          } else {
-            pageController.nextPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.ease,
-            );
-          }
-        },
+  Widget _buildActionButton(BuildContext context) {
+    final isLargeScreen = !ResponsiveUtils.isMobile(context);
+    return SizedBox(
+      width: isLargeScreen ? 300 : double.infinity,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: ResponsiveUtils.getResponsivePadding(context) * 0.8,
+        ),
+        child: MyTextButton(
+          text: pageIndex == data.length - 1 ? 'getStart'.tr : 'next'.tr,
+          onPressed: () {
+            if (pageIndex == data.length - 1) {
+              onBoardHome();
+            } else {
+              pageController.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+              );
+            }
+          },
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class DotIndicator extends StatelessWidget {
-  const DotIndicator({
-    super.key,
-    this.isActive = false,
-    required this.isLargeScreen,
-  });
+  const DotIndicator({super.key, this.isActive = false, required this.context});
 
   final bool isActive;
-  final bool isLargeScreen;
+  final BuildContext context;
 
   @override
-  Widget build(BuildContext context) => AnimatedContainer(
-    duration: const Duration(milliseconds: 300),
-    height: isLargeScreen ? 12 : 8,
-    width: isLargeScreen ? 12 : 8,
-    decoration: BoxDecoration(
-      color: isActive
-          ? context.theme.colorScheme.secondary
-          : context.theme.colorScheme.secondaryContainer,
-      shape: BoxShape.circle,
-    ),
-  );
+  Widget build(BuildContext context) {
+    final dotSize = ResponsiveUtils.isMobile(context)
+        ? 8.0
+        : (ResponsiveUtils.isTablet(context) ? 10.0 : 12.0);
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      height: dotSize,
+      width: dotSize,
+      decoration: BoxDecoration(
+        color: isActive
+            ? context.theme.colorScheme.secondary
+            : context.theme.colorScheme.secondaryContainer,
+        shape: BoxShape.circle,
+      ),
+    );
+  }
 }
 
 class Onboard {
@@ -173,15 +182,16 @@ class OnboardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = !ResponsiveUtils.isMobile(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isLargeScreen = constraints.maxWidth > 600;
         final imageHeight = isLargeScreen
             ? constraints.maxHeight * 0.6
             : constraints.maxHeight * 0.5;
 
         final imageWidget = TweenAnimationBuilder<double>(
-          duration: const Duration(milliseconds: 800),
+          duration: const Duration(milliseconds: 500),
           tween: Tween<double>(begin: 0.0, end: 1.0),
           curve: Curves.easeInOut,
           builder: (context, value, child) {
@@ -194,7 +204,7 @@ class OnboardContent extends StatelessWidget {
         );
 
         final textColumn = TweenAnimationBuilder<double>(
-          duration: const Duration(milliseconds: 800),
+          duration: const Duration(milliseconds: 500),
           tween: Tween<double>(begin: 0.0, end: 1.0),
           curve: Curves.easeInOut,
           builder: (context, value, child) {
@@ -202,13 +212,14 @@ class OnboardContent extends StatelessWidget {
           },
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            spacing: 10,
+            spacing: ResponsiveUtils.getResponsivePadding(context),
             children: [
               Text(
                 title,
                 style: context.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w600,
-                  fontSize: isLargeScreen ? 28 : 20,
+                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 20),
+                  color: context.theme.colorScheme.onSurface,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -219,7 +230,11 @@ class OnboardContent extends StatelessWidget {
                 child: Text(
                   description,
                   style: context.textTheme.labelLarge?.copyWith(
-                    fontSize: isLargeScreen ? 18 : 14,
+                    fontSize: ResponsiveUtils.getResponsiveFontSize(
+                      context,
+                      14,
+                    ),
+                    color: context.theme.colorScheme.onSurfaceVariant,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -232,7 +247,7 @@ class OnboardContent extends StatelessWidget {
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 40,
+            spacing: ResponsiveUtils.getResponsivePadding(context) * 4,
             children: [
               Expanded(child: Center(child: imageWidget)),
               Expanded(child: Center(child: textColumn)),
@@ -241,7 +256,7 @@ class OnboardContent extends StatelessWidget {
         } else {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 20,
+            spacing: ResponsiveUtils.getResponsivePadding(context) * 2,
             children: [imageWidget, textColumn],
           );
         }

@@ -216,6 +216,7 @@ class _AllTasksState extends State<AllTasks>
       notification: notification,
       tabController: tabController,
       fabController: fabController,
+      context: context,
     ),
     child: DefaultTabController(
       length: 2,
@@ -234,6 +235,7 @@ class _AllTasksState extends State<AllTasks>
   Widget _buildSearchTextField() => SliverToBoxAdapter(
     child: MyTextForm(
       labelText: 'searchCategory'.tr,
+      variant: TextFieldVariant.card,
       type: TextInputType.text,
       icon: const Icon(IconsaxPlusLinear.search_normal_1, size: 20),
       controller: searchTasks,

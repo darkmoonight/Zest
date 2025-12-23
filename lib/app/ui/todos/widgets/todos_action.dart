@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
-import 'package:gap/gap.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:isar_community/isar.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
+import 'package:zest/app/ui/responsive_utils.dart';
 import 'package:zest/app/ui/todos/view/todo_todos.dart';
-import 'package:zest/app/ui/widgets/header_compact.dart';
 import 'package:zest/app/utils/show_dialog.dart';
 import 'package:zest/app/ui/widgets/button.dart';
 import 'package:zest/app/ui/widgets/text_form.dart';
@@ -35,7 +34,8 @@ class TodosAction extends StatefulWidget {
   State<TodosAction> createState() => _TodosActionState();
 }
 
-class _TodosActionState extends State<TodosAction> {
+class _TodosActionState extends State<TodosAction>
+    with SingleTickerProviderStateMixin {
   final formKey = GlobalKey<FormState>();
   final todoController = Get.put(TodoController());
   Tasks? selectedTask;
@@ -53,6 +53,9 @@ class _TodosActionState extends State<TodosAction> {
   List<String> todoTags = [];
 
   late final _EditingController controller;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
@@ -60,6 +63,7 @@ class _TodosActionState extends State<TodosAction> {
     if (widget.edit) {
       _initializeEditMode();
     }
+
     controller = _EditingController(
       titleTodoEdit.text,
       descTodoEdit.text,
@@ -73,6 +77,26 @@ class _TodosActionState extends State<TodosAction> {
     categoryFocusNode.addListener(() {
       if (mounted) setState(() {});
     });
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
+
+    _animationController.forward();
   }
 
   void _initializeEditMode() {
@@ -200,6 +224,7 @@ class _TodosActionState extends State<TodosAction> {
     controller.dispose();
     categoryFocusNode.dispose();
     tagsFocusNode.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -221,6 +246,7 @@ class _TodosActionState extends State<TodosAction> {
         if (trimmed.isNotEmpty) tagsSet.add(trimmed);
       }
     }
+
     final List<String> tagsList = tagsSet.toList();
     if (pattern.trim().isEmpty) return tagsList;
     final q = pattern.toLowerCase();
@@ -232,7 +258,7 @@ class _TodosActionState extends State<TodosAction> {
     if (tag.isEmpty) return;
     if (!todoTags.contains(tag)) {
       setState(() {
-        todoTags = List<String>.from(todoTags)..add(tag);
+        todoTags = List.from(todoTags)..add(tag);
         controller.tags.value = todoTags;
       });
     }
@@ -244,68 +270,172 @@ class _TodosActionState extends State<TodosAction> {
     tagsFocusNode.unfocus();
   }
 
-  Widget _buildChips() {
-    List<Widget> chips = [];
-    for (int i = 0; i < todoTags.length; i++) {
-      Padding actionChip = Padding(
-        padding: const EdgeInsets.only(right: 5, top: 2),
-        child: InputChip(
-          elevation: 4,
-          label: Text(todoTags[i]),
-          deleteIcon: const Icon(IconsaxPlusLinear.close_square, size: 15),
-          onDeleted: () => setState(() {
-            todoTags = List<String>.from(todoTags)..removeAt(i);
-            controller.tags.value = todoTags;
-          }),
+  @override
+  Widget build(BuildContext context) {
+    final padding = ResponsiveUtils.getResponsivePadding(context);
+    final isMobile = ResponsiveUtils.isMobile(context);
+    final maxWidth = isMobile ? double.infinity : 600.0;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: onPopInvokedWithResult,
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: maxWidth,
+          maxHeight:
+              MediaQuery.of(context).size.height * (isMobile ? 0.95 : 0.90),
         ),
-      );
-      chips.add(actionChip);
-    }
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(children: chips),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildDragHandle(colorScheme, isMobile),
+            _buildHeader(colorScheme, padding),
+            Divider(
+              height: 1,
+              thickness: 1,
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            ),
+            Flexible(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: SingleChildScrollView(
+                              padding: EdgeInsets.all(padding * 1.5),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (widget.category) ...[
+                                    _buildCategorySection(colorScheme),
+                                    SizedBox(height: padding * 1.5),
+                                  ],
+                                  _buildBasicInfoSection(colorScheme, padding),
+                                  SizedBox(height: padding * 1.5),
+                                  _buildTagsSection(colorScheme, padding),
+                                  SizedBox(height: padding * 1.5),
+                                  _buildAttributesSection(colorScheme, padding),
+                                  SizedBox(height: padding),
+                                ],
+                              ),
+                            ),
+                          ),
+                          _buildSubmitButton(colorScheme, padding),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) => PopScope(
-    canPop: false,
-    onPopInvokedWithResult: onPopInvokedWithResult,
-    child: Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
+  Widget _buildDragHandle(ColorScheme colorScheme, bool isMobile) {
+    if (!isMobile) return const SizedBox.shrink();
+    return Container(
+      margin: const EdgeInsets.only(top: 12, bottom: 8),
+      width: 32,
+      height: 4,
+      decoration: BoxDecoration(
+        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+
+  Widget _buildHeader(ColorScheme colorScheme, double padding) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: padding * 1.5,
+        vertical: padding,
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: colorScheme.tertiaryContainer,
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: Icon(
+              widget.edit ? IconsaxPlusBold.edit : IconsaxPlusBold.task_square,
+              size: 24,
+              color: colorScheme.onTertiaryContainer,
+            ),
+          ),
+          SizedBox(width: padding),
+          Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTitle(),
-                _buildCategoryField(),
-                _buildTitleInput(),
-                _buildDescriptionInput(),
-                _buildTagsInput(),
-                _buildChips(),
-                _buildAttributes(),
-                _buildSubmitButton(),
-                const Gap(10),
+                Text(
+                  widget.text,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                    fontSize: ResponsiveUtils.getResponsiveFontSize(
+                      context,
+                      20,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  widget.edit ? 'editTodoHint'.tr : 'createTodoHint'.tr,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontSize: ResponsiveUtils.getResponsiveFontSize(
+                      context,
+                      12,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-        ),
+        ],
       ),
-    ),
-  );
+    );
+  }
 
-  Widget _buildTitle() => buildBottomSheetHeaderCompact(context, widget.text);
-
-  Widget _buildCategoryField() => widget.category
-      ? RawAutocomplete<Tasks>(
+  Widget _buildCategorySection(ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              IconsaxPlusBold.folder_2,
+              size: 18,
+              color: colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'category'.tr,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+                fontSize: ResponsiveUtils.getResponsiveFontSize(context, 16),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        RawAutocomplete<Tasks>(
           focusNode: categoryFocusNode,
           textEditingController: textTodoController,
           fieldViewBuilder: _buildCategoryFieldView,
@@ -313,55 +443,70 @@ class _TodosActionState extends State<TodosAction> {
           onSelected: _onCategorySelected,
           displayStringForOption: (Tasks option) => option.title,
           optionsViewBuilder: _buildCategoryOptionsView,
-        )
-      : const Offstage();
+        ),
+      ],
+    );
+  }
 
   Widget _buildCategoryFieldView(
     BuildContext context,
     TextEditingController fieldTextEditingController,
     FocusNode fieldFocusNode,
     VoidCallback onFieldSubmitted,
-  ) => MyTextForm(
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    controller: textTodoController,
-    focusNode: categoryFocusNode,
-    labelText: 'selectCategory'.tr,
-    type: TextInputType.text,
-    icon: const Icon(IconsaxPlusLinear.folder_2),
-    iconButton: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (textTodoController.text.isNotEmpty)
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return MyTextForm(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      controller: textTodoController,
+      focusNode: categoryFocusNode,
+      labelText: 'selectCategory'.tr,
+      type: TextInputType.text,
+      icon: Icon(IconsaxPlusLinear.folder_2, color: colorScheme.primary),
+      iconButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (textTodoController.text.isNotEmpty)
+            IconButton(
+              icon: Icon(
+                IconsaxPlusLinear.close_square,
+                size: 18,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              onPressed: () {
+                textTodoController.clear();
+                setState(() {});
+              },
+            ),
           IconButton(
-            icon: const Icon(IconsaxPlusLinear.close_square, size: 18),
+            icon: Icon(
+              fieldFocusNode.hasFocus
+                  ? IconsaxPlusLinear.arrow_up_1
+                  : IconsaxPlusLinear.arrow_down,
+              size: 18,
+              color: colorScheme.onSurfaceVariant,
+            ),
             onPressed: () {
-              textTodoController.clear();
-              setState(() {});
+              if (fieldFocusNode.hasFocus) {
+                fieldFocusNode.unfocus();
+              } else {
+                fieldFocusNode.requestFocus();
+                setState(() {});
+              }
             },
           ),
-        IconButton(
-          icon: const Icon(IconsaxPlusLinear.arrow_down, size: 18),
-          onPressed: () {
-            if (fieldFocusNode.hasFocus) {
-              fieldFocusNode.unfocus();
-            } else {
-              fieldFocusNode.requestFocus();
-              setState(() {});
-            }
-          },
-        ),
-      ],
-    ),
-    validator: (value) {
-      if (value == null || value.isEmpty) {
-        return 'selectCategory'.tr;
-      }
-      return null;
-    },
-  );
+        ],
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'selectCategory'.tr;
+        }
+        return null;
+      },
+    );
+  }
 
-  Future<Iterable<Tasks>> _buildCategoryOptions(
+  Future<List<Tasks>> _buildCategoryOptions(
     TextEditingValue textEditingValue,
   ) async => await getTaskAll(textEditingValue.text);
 
@@ -371,7 +516,6 @@ class _TodosActionState extends State<TodosAction> {
     setState(() {
       if (widget.edit) controller.task.value = selectedTask;
     });
-
     categoryFocusNode.unfocus();
   }
 
@@ -379,96 +523,196 @@ class _TodosActionState extends State<TodosAction> {
     BuildContext context,
     AutocompleteOnSelected<Tasks> onSelected,
     Iterable<Tasks> options,
-  ) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 10),
-    child: Align(
-      alignment: Alignment.topCenter,
-      child: Material(
-        borderRadius: BorderRadius.circular(20),
-        elevation: 4,
-        child: ListView.builder(
-          padding: EdgeInsets.zero,
-          shrinkWrap: true,
-          itemCount: options.length,
-          itemBuilder: (BuildContext context, int index) {
-            final Tasks task = options.elementAt(index);
-            return InkWell(
-              onTap: () => onSelected(task),
-              child: ListTile(
-                title: Text(task.title, style: context.textTheme.labelLarge),
-                trailing: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: Color(task.taskColor),
-                    shape: BoxShape.circle,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Material(
+          borderRadius: BorderRadius.circular(16),
+          elevation: 8,
+          shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
+          color: colorScheme.surfaceContainerHigh,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 250),
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              shrinkWrap: true,
+              itemCount: options.length,
+              itemBuilder: (BuildContext context, int index) {
+                final Tasks task = options.elementAt(index);
+                return InkWell(
+                  onTap: () => onSelected(task),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            task.title,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: Color(task.taskColor),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: colorScheme.outline.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ),
-            );
-          },
+                );
+              },
+            ),
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 
-  Widget _buildTitleInput() => MyTextForm(
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    controller: titleTodoEdit,
-    labelText: 'name'.tr,
-    type: TextInputType.multiline,
-    icon: const Icon(IconsaxPlusLinear.edit),
-    onChanged: (value) => controller.title.value = value,
-    autofocus: !widget.edit,
-    validator: (value) {
-      if (value == null || value.isEmpty) {
-        return 'validateName'.tr;
-      }
-      return null;
-    },
-    maxLine: null,
-  );
+  Widget _buildBasicInfoSection(ColorScheme colorScheme, double padding) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              IconsaxPlusBold.note_text,
+              size: 18,
+              color: colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'basicInfo'.tr,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+                fontSize: ResponsiveUtils.getResponsiveFontSize(context, 16),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: padding),
+        Text(
+          'name'.tr,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+            fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+          ),
+        ),
+        const SizedBox(height: 8),
+        MyTextForm(
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          controller: titleTodoEdit,
+          labelText: 'enterTodoName'.tr,
+          type: TextInputType.multiline,
+          icon: Icon(IconsaxPlusLinear.edit, color: colorScheme.primary),
+          onChanged: (value) => controller.title.value = value,
+          autofocus: !widget.edit,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'validateName'.tr;
+            }
+            return null;
+          },
+          maxLine: null,
+        ),
+        SizedBox(height: padding * 1.2),
+        Text(
+          'description'.tr,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+            fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+          ),
+        ),
+        const SizedBox(height: 8),
+        MyTextForm(
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          controller: descTodoEdit,
+          labelText: 'enterDescription'.tr,
+          type: TextInputType.multiline,
+          icon: Icon(IconsaxPlusLinear.note_text, color: colorScheme.primary),
+          maxLine: null,
+          onChanged: (value) => controller.description.value = value,
+        ),
+      ],
+    );
+  }
 
-  Widget _buildDescriptionInput() => MyTextForm(
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    controller: descTodoEdit,
-    labelText: 'description'.tr,
-    type: TextInputType.multiline,
-    icon: const Icon(IconsaxPlusLinear.note_text),
-    maxLine: null,
-    onChanged: (value) => controller.description.value = value,
-  );
-
-  Widget _buildTagsInput() => RawAutocomplete<String>(
-    focusNode: tagsFocusNode,
-    textEditingController: tagsTodoEdit,
-    fieldViewBuilder: _buildTagsFieldView,
-    optionsBuilder: _buildTagOptions,
-    onSelected: (String selection) => _onTagSelected(selection),
-    optionsViewBuilder: _buildTagOptionsView,
-  );
+  Widget _buildTagsSection(ColorScheme colorScheme, double padding) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(IconsaxPlusBold.tag, size: 18, color: colorScheme.primary),
+            const SizedBox(width: 8),
+            Text(
+              'tags'.tr,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+                fontSize: ResponsiveUtils.getResponsiveFontSize(context, 16),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        RawAutocomplete<String>(
+          focusNode: tagsFocusNode,
+          textEditingController: tagsTodoEdit,
+          fieldViewBuilder: _buildTagsFieldView,
+          optionsBuilder: _buildTagOptions,
+          onSelected: (String selection) => _onTagSelected(selection),
+          optionsViewBuilder: _buildTagOptionsView,
+        ),
+        if (todoTags.isNotEmpty) ...[
+          SizedBox(height: padding),
+          _buildChips(colorScheme),
+        ],
+      ],
+    );
+  }
 
   Widget _buildTagsFieldView(
     BuildContext context,
     TextEditingController fieldTextEditingController,
     FocusNode fieldFocusNode,
     VoidCallback onFieldSubmitted,
-  ) => MyTextForm(
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    controller: fieldTextEditingController,
-    labelText: 'tags'.tr,
-    type: TextInputType.text,
-    icon: const Icon(IconsaxPlusLinear.tag),
-    focusNode: tagsFocusNode,
-    onFieldSubmitted: (value) {
-      _addTag(value);
-      fieldTextEditingController.clear();
-      tagsFocusNode.requestFocus();
-    },
-  );
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return MyTextForm(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      controller: fieldTextEditingController,
+      labelText: 'addTags'.tr,
+      type: TextInputType.text,
+      icon: Icon(IconsaxPlusLinear.tag, color: colorScheme.primary),
+      focusNode: tagsFocusNode,
+      onFieldSubmitted: (value) {
+        _addTag(value);
+        fieldTextEditingController.clear();
+        tagsFocusNode.requestFocus();
+      },
+    );
+  }
 
   Future<Iterable<String>> _buildTagOptions(
     TextEditingValue textEditingValue,
@@ -480,26 +724,47 @@ class _TodosActionState extends State<TodosAction> {
     Iterable<String> options,
   ) {
     final list = options.toList();
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.only(top: 8),
       child: Align(
         alignment: Alignment.topCenter,
         child: Material(
-          borderRadius: BorderRadius.circular(12),
-          elevation: 4,
+          borderRadius: BorderRadius.circular(16),
+          elevation: 8,
+          shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
+          color: colorScheme.surfaceContainerHigh,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 200),
             child: ListView.builder(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.symmetric(vertical: 4),
               shrinkWrap: true,
               itemCount: list.length,
               itemBuilder: (BuildContext context, int index) {
                 final tag = list[index];
                 return InkWell(
                   onTap: () => onSelected(tag),
-                  child: ListTile(
-                    title: Text(tag, style: context.textTheme.bodyMedium),
-                    leading: const Icon(IconsaxPlusLinear.tag),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          IconsaxPlusLinear.tag,
+                          color: colorScheme.primary,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            tag,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -510,66 +775,168 @@ class _TodosActionState extends State<TodosAction> {
     );
   }
 
-  Widget _buildAttributes() => SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-    child: Row(
-      spacing: 10,
+  Widget _buildChips(ColorScheme colorScheme) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: List.generate(
+        todoTags.length,
+        (i) => InputChip(
+          label: Text(todoTags[i]),
+          deleteIcon: Icon(
+            IconsaxPlusLinear.close_circle,
+            size: 18,
+            color: colorScheme.onSecondaryContainer,
+          ),
+          onDeleted: () => setState(() {
+            todoTags = List.from(todoTags)..removeAt(i);
+            controller.tags.value = todoTags;
+          }),
+          backgroundColor: colorScheme.secondaryContainer,
+          labelStyle: TextStyle(
+            color: colorScheme.onSecondaryContainer,
+            fontWeight: FontWeight.w500,
+          ),
+          side: BorderSide.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAttributesSection(ColorScheme colorScheme, double padding) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ?_buildSubTask(),
-        _buildDateTimeWidget(),
-        _buildPriorityWidget(),
-        _buildFixedWidget(),
-      ],
-    ),
-  );
-
-  Widget? _buildSubTask() => widget.edit
-      ? RawChip(
-          elevation: 4,
-          avatar: const Icon(IconsaxPlusLinear.task_square),
-          label: Text('subTask'.tr),
-          onPressed: () {
-            Get.back();
-            Get.key.currentState!.push(
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    TodosTodo(
-                      key: ValueKey(widget.todo!.id),
-                      todo: widget.todo!,
-                    ),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                      return SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 1),
-                          end: Offset.zero,
-                        ).animate(animation),
-                        child: child,
-                      );
-                    },
-                transitionDuration: const Duration(milliseconds: 240),
+        Row(
+          children: [
+            Icon(
+              IconsaxPlusBold.setting_2,
+              size: 18,
+              color: colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'todoAttributes'.tr,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+                fontSize: ResponsiveUtils.getResponsiveFontSize(context, 16),
               ),
-            );
-          },
-        )
-      : null;
+            ),
+          ],
+        ),
+        SizedBox(height: padding),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            spacing: 10,
+            children: [
+              if (widget.edit) _buildSubTask(colorScheme),
+              _buildDateTimeWidget(colorScheme),
+              _buildPriorityWidget(colorScheme),
+              _buildFixedWidget(colorScheme),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
-  Widget _buildDateTimeWidget() => RawChip(
-    elevation: 4,
-    avatar: const Icon(IconsaxPlusLinear.calendar_search),
-    label: Text(
-      timeTodoEdit.text.isNotEmpty ? timeTodoEdit.text : 'timeComplete'.tr,
-    ),
-    deleteIcon: const Icon(IconsaxPlusLinear.close_square, size: 15),
-    onDeleted: () {
-      timeTodoEdit.clear();
-      setState(() {
-        if (widget.edit) controller.time.value = timeTodoEdit.text;
-      });
-    },
-    onPressed: _showDateTimePicker,
-  );
+  Widget _buildSubTask(ColorScheme colorScheme) {
+    return FilledButton.tonal(
+      onPressed: () {
+        Get.back();
+        Get.key.currentState!.push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                TodosTodo(key: ValueKey(widget.todo!.id), todo: widget.todo!),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 1),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+            transitionDuration: const Duration(milliseconds: 240),
+          ),
+        );
+      },
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            IconsaxPlusLinear.task_square,
+            size: 18,
+            color: colorScheme.onSecondaryContainer,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'subTask'.tr,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateTimeWidget(ColorScheme colorScheme) {
+    final hasTime = timeTodoEdit.text.isNotEmpty;
+    return FilledButton.tonal(
+      onPressed: _showDateTimePicker,
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        backgroundColor: hasTime
+            ? colorScheme.primaryContainer
+            : colorScheme.secondaryContainer,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            IconsaxPlusLinear.calendar,
+            size: 18,
+            color: hasTime
+                ? colorScheme.onPrimaryContainer
+                : colorScheme.onSecondaryContainer,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            hasTime ? timeTodoEdit.text : 'timeComplete'.tr,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+              color: hasTime
+                  ? colorScheme.onPrimaryContainer
+                  : colorScheme.onSecondaryContainer,
+            ),
+          ),
+          if (hasTime) ...[
+            const SizedBox(width: 8),
+            InkWell(
+              onTap: () {
+                timeTodoEdit.clear();
+                setState(() {
+                  if (widget.edit) controller.time.value = timeTodoEdit.text;
+                });
+              },
+              child: Icon(
+                IconsaxPlusLinear.close_circle,
+                size: 16,
+                color: colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 
   Future<void> _showDateTimePicker() async {
     final DateTime? dateTime = await showOmniDateTimePicker(
@@ -579,7 +946,7 @@ class _TodosActionState extends State<TodosAction> {
       lastDate: DateTime.now().add(const Duration(days: 1000)),
       is24HourMode: timeformat.value != '12',
       minutesInterval: 1,
-      borderRadius: const BorderRadius.all(Radius.circular(20)),
+      borderRadius: const BorderRadius.all(Radius.circular(24)),
       transitionDuration: const Duration(milliseconds: 200),
     );
 
@@ -587,74 +954,126 @@ class _TodosActionState extends State<TodosAction> {
       final String formattedDate = timeformat.value == '12'
           ? DateFormat.yMMMEd(locale.languageCode).add_jm().format(dateTime)
           : DateFormat.yMMMEd(locale.languageCode).add_Hm().format(dateTime);
-
       timeTodoEdit.text = formattedDate;
-
       setState(() {
         if (widget.edit) controller.time.value = formattedDate;
       });
     }
   }
 
-  Widget _buildPriorityWidget() => MenuAnchor(
-    alignmentOffset: const Offset(0, -160),
-    style: MenuStyle(
-      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-        const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(15)),
+  Widget _buildPriorityWidget(ColorScheme colorScheme) {
+    return MenuAnchor(
+      alignmentOffset: const Offset(0, -10),
+      style: MenuStyle(
+        shape: WidgetStateProperty.all(
+          const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
         ),
+        elevation: WidgetStateProperty.all(8),
+        alignment: AlignmentDirectional.bottomStart,
       ),
-      alignment: AlignmentDirectional.bottomStart,
-    ),
-    menuChildren: [
-      for (final priority in Priority.values)
-        MenuItemButton(
-          leadingIcon: Icon(IconsaxPlusLinear.flag, color: priority.color),
-          child: Text(priority.name.tr),
+      menuChildren: [
+        for (final priority in Priority.values)
+          MenuItemButton(
+            leadingIcon: Icon(IconsaxPlusLinear.flag, color: priority.color),
+            child: Text(priority.name.tr),
+            onPressed: () {
+              setState(() {
+                todoPriority = priority;
+                controller.priority.value = priority;
+              });
+            },
+          ),
+      ],
+      builder: (context, menuController, _) => ValueListenableBuilder(
+        valueListenable: controller.priority,
+        builder: (context, priority, _) => FilledButton.tonal(
           onPressed: () {
-            todoPriority = priority;
-            controller.priority.value = priority;
+            if (menuController.isOpen) {
+              menuController.close();
+            } else {
+              menuController.open();
+            }
           },
+          style: FilledButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(IconsaxPlusLinear.flag, size: 18, color: priority.color),
+              const SizedBox(width: 8),
+              Text(
+                priority.name.tr,
+                style: TextStyle(
+                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+                ),
+              ),
+            ],
+          ),
         ),
-    ],
-    builder: (context, menuController, _) => ValueListenableBuilder(
-      valueListenable: controller.priority,
-      builder: (context, priority, _) => ActionChip(
-        elevation: 4,
-        avatar: Icon(IconsaxPlusLinear.flag, color: priority.color),
-        label: Text(priority.name.tr),
-        onPressed: () {
-          if (menuController.isOpen) {
-            menuController.close();
-          } else {
-            menuController.open();
-          }
-        },
       ),
-    ),
-  );
+    );
+  }
 
-  Widget _buildFixedWidget() => ChoiceChip(
-    elevation: 4,
-    avatar: const Icon(IconsaxPlusLinear.attach_square),
-    label: Text('todoPined'.tr),
-    selected: todoPined,
-    onSelected: (value) => setState(() {
-      todoPined = value;
-      if (widget.edit) controller.pined.value = value;
-    }),
-  );
-
-  Widget _buildSubmitButton() => ValueListenableBuilder(
-    valueListenable: controller.canCompose,
-    builder: (context, canCompose, _) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: MyTextButton(
-        text: 'ready'.tr,
-        onPressed: canCompose ? onPressed : null,
+  Widget _buildFixedWidget(ColorScheme colorScheme) {
+    return FilterChip(
+      avatar: Icon(
+        todoPined
+            ? IconsaxPlusBold.attach_square
+            : IconsaxPlusLinear.attach_square,
+        size: 18,
+        color: todoPined
+            ? colorScheme.onPrimaryContainer
+            : colorScheme.onSecondaryContainer,
       ),
-    ),
-  );
+      label: Text(
+        'todoPined'.tr,
+        style: TextStyle(
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+        ),
+      ),
+      selected: todoPined,
+      onSelected: (value) => setState(() {
+        todoPined = value;
+        if (widget.edit) controller.pined.value = value;
+      }),
+      backgroundColor: colorScheme.secondaryContainer,
+      selectedColor: colorScheme.primaryContainer,
+      checkmarkColor: colorScheme.onPrimaryContainer,
+      labelStyle: TextStyle(
+        color: todoPined
+            ? colorScheme.onPrimaryContainer
+            : colorScheme.onSecondaryContainer,
+      ),
+      side: BorderSide.none,
+    );
+  }
+
+  Widget _buildSubmitButton(ColorScheme colorScheme, double padding) {
+    return ValueListenableBuilder(
+      valueListenable: controller.canCompose,
+      builder: (context, canCompose, _) => Container(
+        padding: EdgeInsets.all(padding * 1.5),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              width: 1,
+            ),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: MyTextButton(
+            text: 'ready'.tr,
+            onPressed: canCompose ? onPressed : null,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _EditingController extends ChangeNotifier {
@@ -697,7 +1116,7 @@ class _EditingController extends ChangeNotifier {
   final time = ValueNotifier<String?>(null);
   final pined = ValueNotifier<bool?>(null);
   final task = ValueNotifier<Tasks?>(null);
-  final priority = ValueNotifier(Priority.none);
+  final priority = ValueNotifier<Priority>(Priority.none);
   final tags = ValueNotifier<List<String>?>(null);
 
   final _canCompose = ValueNotifier(false);

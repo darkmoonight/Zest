@@ -541,6 +541,7 @@ class _SettingsPageState extends State<SettingsPage> {
               isar.tasks.clearSync();
               todoController.tasks.clear();
               todoController.todos.clear();
+              isar.settings.clearSync();
             });
             EasyLoading.showSuccess('deleteAll'.tr);
             Get.back();

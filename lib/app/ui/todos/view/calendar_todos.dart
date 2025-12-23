@@ -168,6 +168,7 @@ class _CalendarTodosState extends State<CalendarTodos>
           notification: notification,
           tabController: tabController,
           fabController: fabController,
+          context: context,
         ),
         child: DefaultTabController(
           length: 2,
