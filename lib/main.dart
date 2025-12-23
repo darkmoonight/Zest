@@ -84,6 +84,7 @@ Future<void> initializeTimeZone() async {
   } catch (e) {
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('UTC'));
+    debugPrint('Error initializing timezone: $e');
   }
 }
 
@@ -108,15 +109,18 @@ Future<void> initializeNotifications() async {
     macOS: iosSettings,
     linux: linuxSettings,
   );
-
-  await flutterLocalNotificationsPlugin!.initialize(
-    initializationSettings,
-    onDidReceiveNotificationResponse: (NotificationResponse response) async =>
-        await handleNotificationResponse(response),
-    onDidReceiveBackgroundNotificationResponse: kIsWeb
-        ? null
-        : notificationTapBackground,
-  );
+  try {
+    await flutterLocalNotificationsPlugin!.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) async =>
+          await handleNotificationResponse(response),
+      onDidReceiveBackgroundNotificationResponse: kIsWeb
+          ? null
+          : notificationTapBackground,
+    );
+  } catch (e) {
+    debugPrint('Error initializing notifications: $e');
+  }
 }
 
 @pragma('vm:entry-point')
@@ -151,19 +155,7 @@ Future<void> handleNotificationResponse(NotificationResponse response) async {
 
 Future<void> snoozeTodo(int todoId) async {
   try {
-    Isar? isarInstance;
-
-    if (Isar.instanceNames.isEmpty) {
-      final dir = await getApplicationSupportDirectory();
-      isarInstance = await Isar.open(
-        [TasksSchema, TodosSchema, SettingsSchema],
-        directory: dir.path,
-        inspector: true,
-      );
-    } else {
-      isarInstance = Isar.getInstance();
-    }
-
+    final isarInstance = await _getIsarInstance();
     if (isarInstance == null) return;
     settings = isarInstance.settings.where().findFirstSync() ?? Settings();
 
@@ -195,7 +187,7 @@ Future<void> snoozeTodo(int todoId) async {
       todo.todoCompletedTime = DateTime.now().add(
         Duration(minutes: settings.snoozeDuration),
       );
-      await isarInstance!.todos.put(todo);
+      await isarInstance.todos.put(todo);
     });
 
     await isarInstance.close();
@@ -206,20 +198,7 @@ Future<void> snoozeTodo(int todoId) async {
 
 Future<void> markTodoAsDone(int todoId) async {
   try {
-    Isar? isarInstance;
-
-    if (Isar.instanceNames.isEmpty) {
-      final dir = await getApplicationSupportDirectory();
-
-      isarInstance = await Isar.open(
-        [TasksSchema, TodosSchema, SettingsSchema],
-        directory: dir.path,
-        inspector: true,
-      );
-    } else {
-      isarInstance = Isar.getInstance();
-    }
-
+    final isarInstance = await _getIsarInstance();
     if (isarInstance == null) return;
 
     final todo = await isarInstance.todos.get(todoId);
@@ -229,13 +208,11 @@ Future<void> markTodoAsDone(int todoId) async {
       await isarInstance.writeTxn(() async {
         todo.done = true;
         todo.todoCompletionTime = DateTime.now();
-        await isarInstance!.todos.put(todo);
+        await isarInstance.todos.put(todo);
       });
-
       if (flutterLocalNotificationsPlugin != null) {
         await flutterLocalNotificationsPlugin!.cancel(todoId);
       }
-
       await isarInstance.close();
     }
   } catch (e) {
@@ -243,16 +220,29 @@ Future<void> markTodoAsDone(int todoId) async {
   }
 }
 
+Future<Isar?> _getIsarInstance() async {
+  if (Isar.instanceNames.isEmpty) {
+    final dir = await getApplicationSupportDirectory();
+    return await Isar.open(
+      [TasksSchema, TodosSchema, SettingsSchema],
+      directory: dir.path,
+      inspector: true,
+    );
+  } else {
+    return Isar.getInstance();
+  }
+}
+
 Future<void> initSettings() async {
   settings = isar.settings.where().findFirstSync() ?? Settings();
-  settings.language ??= '${Get.deviceLocale}';
+  settings.language ??= Get.deviceLocale.toString();
   settings.theme ??= 'system';
   settings.isImage ??= true;
   settings.screenPrivacy ??= false;
-  if (settings.snoozeDuration == 0 || settings.snoozeDuration < 0) {
+  if (settings.snoozeDuration <= 0) {
     settings.snoozeDuration = 10;
   }
-  isar.writeTxnSync(() => isar.settings.putSync(settings));
+  await isar.writeTxn(() => isar.settings.put(settings));
 }
 
 class MyApp extends StatefulWidget {

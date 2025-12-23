@@ -19,23 +19,16 @@ class QuickActionItem {
 
 class PlatformFeatures {
   static QuickActions? _quickActions;
-
   static bool get isMobile => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
-
   static bool get isDesktop =>
       !kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
-
   static bool get supportsNotifications => !kIsWeb;
-
   static bool get supportsQuickActions =>
       !kIsWeb && (Platform.isAndroid || Platform.isIOS);
-
   static bool get supportsDynamicColor =>
       !kIsWeb && (Platform.isAndroid || Platform.isIOS);
-
   static bool get supportsScreenPrivacy =>
       !kIsWeb && (Platform.isAndroid || Platform.isIOS);
-
   static bool get supportsDisplayMode => !kIsWeb && Platform.isAndroid;
 
   static Future<void> initialize() async {

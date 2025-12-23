@@ -20,13 +20,9 @@ class PlatformFeatures {
   static bool get supportsDynamicColor => false;
   static bool get supportsScreenPrivacy => false;
   static bool get supportsDisplayMode => false;
-
   static Future<void> initialize() async {}
-
   static Future<void> setScreenPrivacy(bool enabled) async {}
-
   static void initializeQuickActions({required Function(String) onShortcut}) {}
-
   static void setQuickActionItems(List<QuickActionItem> items) {}
 }
 

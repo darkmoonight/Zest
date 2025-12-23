@@ -56,8 +56,8 @@ class NotificationShow {
 
   Future<void> _requestNotificationPermission() async {
     if (defaultTargetPlatform == TargetPlatform.android) {
-      final platform = flutterLocalNotificationsPlugin
-          ?.resolvePlatformSpecificImplementation<
+      final platform = flutterLocalNotificationsPlugin!
+          .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
           >();
       if (platform == null) return;
@@ -70,8 +70,8 @@ class NotificationShow {
       }
     } else if (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.macOS) {
-      final platform = flutterLocalNotificationsPlugin
-          ?.resolvePlatformSpecificImplementation<
+      final platform = flutterLocalNotificationsPlugin!
+          .resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin
           >();
       await platform?.requestPermissions(alert: true, badge: true, sound: true);
@@ -89,7 +89,6 @@ class NotificationShow {
         snoozeActionText ??
         '${'snooze'.tr} ${settings.snoozeDuration} ${'min'.tr}';
 
-    // Android-specific details
     final androidNotificationDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
@@ -109,7 +108,6 @@ class NotificationShow {
       ],
     );
 
-    // iOS/macOS-specific details
     final darwinNotificationDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
@@ -117,7 +115,6 @@ class NotificationShow {
       categoryIdentifier: 'todoCategory',
     );
 
-    // Linux-specific details
     final linuxNotificationDetails = LinuxNotificationDetails(
       actions: [
         LinuxNotificationAction(key: actionIdMarkDone, label: markText),
@@ -138,7 +135,6 @@ class NotificationShow {
       return tz.TZDateTime.from(date, tz.local);
     } catch (e) {
       debugPrint('Error converting to TZDateTime: $e');
-      // Fallback to current time + 1 minute
       return tz.TZDateTime.now(tz.local).add(const Duration(minutes: 1));
     }
   }
