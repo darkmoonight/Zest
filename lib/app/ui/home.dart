@@ -226,12 +226,19 @@ class HomePageState extends State<HomePage>
         : TodosAction(text: 'create'.tr, edit: false, category: true);
 
     if (isLargeScreen) {
+      final double effectiveMaxWidth = width * 0.4;
+      final double effectiveMinWidth = effectiveMaxWidth < 300
+          ? effectiveMaxWidth
+          : 300;
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return Dialog(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: width * 0.4, minWidth: 300),
+              constraints: BoxConstraints(
+                minWidth: effectiveMinWidth,
+                maxWidth: effectiveMaxWidth,
+              ),
               child: widget,
             ),
           );
