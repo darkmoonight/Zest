@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
+
+enum TextFieldVariant { outlined, filled, card }
 
 class MyTextForm extends StatelessWidget {
   const MyTextForm({
@@ -19,6 +21,9 @@ class MyTextForm extends StatelessWidget {
     this.focusNode,
     this.maxLine = 1,
     this.autofocus = false,
+    this.helperText,
+    this.hintText,
+    this.variant = TextFieldVariant.outlined,
   });
 
   final String labelText;
@@ -36,35 +41,250 @@ class MyTextForm extends StatelessWidget {
   final FocusNode? focusNode;
   final int? maxLine;
   final bool autofocus;
+  final String? helperText;
+  final String? hintText;
+  final TextFieldVariant variant;
 
   @override
-  Widget build(BuildContext context) => Card(
-    elevation: elevation,
-    margin: margin,
-    child: _buildTextFormField(context),
-  );
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isMobile = ResponsiveUtils.isMobile(context);
 
-  Widget _buildTextFormField(BuildContext context) => TextFormField(
-    focusNode: focusNode,
-    readOnly: readOnly,
-    onChanged: onChanged,
-    onTap: readOnly ? onTap : null,
-    onFieldSubmitted: onFieldSubmitted,
-    controller: controller,
-    keyboardType: type,
-    style: context.textTheme.labelLarge,
-    decoration: _buildInputDecoration(),
-    validator: validator,
-    maxLines: maxLine,
-    autofocus: autofocus,
-  );
+    if (variant == TextFieldVariant.card ||
+        (elevation != null && elevation! > 0)) {
+      return Card(
+        elevation: elevation,
+        margin: margin,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: _buildTextFormField(context, colorScheme, isMobile),
+      );
+    }
 
-  InputDecoration _buildInputDecoration() => InputDecoration(
-    prefixIcon: icon,
-    suffixIcon: iconButton,
-    labelText: labelText,
-    border: InputBorder.none,
-    focusedBorder: InputBorder.none,
-    enabledBorder: InputBorder.none,
-  );
+    return Padding(
+      padding: margin,
+      child: _buildTextFormField(context, colorScheme, isMobile),
+    );
+  }
+
+  Widget _buildTextFormField(
+    BuildContext context,
+    ColorScheme colorScheme,
+    bool isMobile,
+  ) {
+    return TextFormField(
+      focusNode: focusNode,
+      readOnly: readOnly,
+      onChanged: onChanged,
+      onTap: readOnly ? onTap : null,
+      onFieldSubmitted: onFieldSubmitted,
+      controller: controller,
+      keyboardType: type,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 15),
+        color: colorScheme.onSurface,
+      ),
+      decoration: _buildInputDecoration(context, colorScheme, isMobile),
+      validator: validator,
+      maxLines: maxLine,
+      autofocus: autofocus,
+    );
+  }
+
+  InputDecoration _buildInputDecoration(
+    BuildContext context,
+    ColorScheme colorScheme,
+    bool isMobile,
+  ) {
+    if (variant == TextFieldVariant.card ||
+        (elevation != null && elevation! > 0)) {
+      return InputDecoration(
+        prefixIcon: icon,
+        suffixIcon: iconButton,
+        labelText: labelText,
+        hintText: hintText,
+        helperText: helperText,
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        focusedErrorBorder: InputBorder.none,
+        labelStyle: TextStyle(
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+          color: colorScheme.onSurfaceVariant,
+        ),
+        floatingLabelStyle: TextStyle(
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+          color: colorScheme.primary,
+        ),
+        hintStyle: TextStyle(
+          color: colorScheme.onSurfaceVariant,
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+        ),
+        helperStyle: TextStyle(
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+          color: colorScheme.onSurfaceVariant,
+        ),
+        errorStyle: TextStyle(
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+          color: colorScheme.error,
+        ),
+      );
+    }
+
+    if (variant == TextFieldVariant.filled) {
+      return InputDecoration(
+        prefixIcon: Padding(
+          padding: const EdgeInsets.only(left: 8, right: 6),
+          child: IconTheme(
+            data: IconThemeData(
+              color: colorScheme.onSurfaceVariant,
+              size: isMobile ? 18 : 20,
+            ),
+            child: icon,
+          ),
+        ),
+        suffixIcon: iconButton != null
+            ? Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: iconButton,
+              )
+            : null,
+        labelText: labelText,
+        hintText: hintText,
+        helperText: helperText,
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        labelStyle: TextStyle(
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+          color: colorScheme.onSurfaceVariant,
+          fontWeight: FontWeight.w500,
+        ),
+        floatingLabelStyle: TextStyle(
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+          color: colorScheme.primary,
+          fontWeight: FontWeight.w600,
+        ),
+        hintStyle: TextStyle(
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+        ),
+        helperStyle: TextStyle(
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+          color: colorScheme.onSurfaceVariant,
+        ),
+        errorStyle: TextStyle(
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+          color: colorScheme.error,
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 12 : 14,
+          vertical: isMobile ? 12 : 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: colorScheme.error.withValues(alpha: 0.5),
+            width: 1,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.error, width: 2),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      );
+    }
+
+    return InputDecoration(
+      prefixIcon: Padding(
+        padding: const EdgeInsets.only(left: 8, right: 6),
+        child: IconTheme(
+          data: IconThemeData(
+            color: colorScheme.onSurfaceVariant,
+            size: isMobile ? 18 : 20,
+          ),
+          child: icon,
+        ),
+      ),
+      suffixIcon: iconButton != null
+          ? Padding(padding: const EdgeInsets.only(right: 6), child: iconButton)
+          : null,
+      labelText: labelText,
+      hintText: hintText,
+      helperText: helperText,
+      filled: true,
+      fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      labelStyle: TextStyle(
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+        color: colorScheme.onSurfaceVariant,
+        fontWeight: FontWeight.w500,
+      ),
+      floatingLabelStyle: TextStyle(
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+        color: colorScheme.primary,
+        fontWeight: FontWeight.w600,
+      ),
+      hintStyle: TextStyle(
+        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+      ),
+      helperStyle: TextStyle(
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+        color: colorScheme.onSurfaceVariant,
+      ),
+      errorStyle: TextStyle(
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+        color: colorScheme.error,
+      ),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 12 : 14,
+        vertical: isMobile ? 12 : 14,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: colorScheme.outline, width: 1),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: colorScheme.outline.withValues(alpha: 0.5),
+          width: 1,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: colorScheme.primary, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: colorScheme.error, width: 1),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: colorScheme.error, width: 2),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: colorScheme.onSurface.withValues(alpha: 0.12),
+          width: 1,
+        ),
+      ),
+    );
+  }
 }

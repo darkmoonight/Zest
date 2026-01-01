@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:zest/main.dart';
@@ -19,6 +20,13 @@ class NotificationShow {
     String? markDoneActionText,
     String? snoozeActionText,
   }) async {
+    if (flutterLocalNotificationsPlugin == null) {
+      debugPrint('Notifications not supported on this platform');
+      return;
+    }
+
+    if (date == null) return;
+
     if (requestPermission) {
       await _requestNotificationPermission();
     }
@@ -29,27 +37,45 @@ class NotificationShow {
       markDoneActionText: markDoneActionText,
       snoozeActionText: snoozeActionText,
     );
-    final scheduledTime = _getScheduledTime(date!);
+    final scheduledTime = _getScheduledTime(date);
 
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledTime,
-      notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      payload: '$id',
-    );
+    try {
+      await flutterLocalNotificationsPlugin!.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledTime,
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: '$id',
+      );
+    } catch (e) {
+      debugPrint('Error scheduling notification: $e');
+    }
   }
 
   Future<void> _requestNotificationPermission() async {
-    final platform = flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
-    if (platform == null) return;
-    await platform.requestExactAlarmsPermission();
-    await platform.requestNotificationsPermission();
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      final platform = flutterLocalNotificationsPlugin!
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      if (platform == null) return;
+
+      try {
+        await platform.requestExactAlarmsPermission();
+        await platform.requestNotificationsPermission();
+      } catch (e) {
+        debugPrint('Error requesting permissions: $e');
+      }
+    } else if (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS) {
+      final platform = flutterLocalNotificationsPlugin!
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >();
+      await platform?.requestPermissions(alert: true, badge: true, sound: true);
+    }
   }
 
   NotificationDetails _buildNotificationDetails(
@@ -62,11 +88,6 @@ class NotificationShow {
     final snoozeText =
         snoozeActionText ??
         '${'snooze'.tr} ${settings.snoozeDuration} ${'min'.tr}';
-
-    final actions = <AndroidNotificationAction>[
-      AndroidNotificationAction(actionIdMarkDone, markText),
-      AndroidNotificationAction(actionIdSnooze, snoozeText),
-    ];
 
     final androidNotificationDetails = AndroidNotificationDetails(
       _channelId,
@@ -81,13 +102,42 @@ class NotificationShow {
         htmlFormatContentTitle: true,
         htmlFormatSummaryText: true,
       ),
-      actions: actions,
+      actions: [
+        AndroidNotificationAction(actionIdMarkDone, markText),
+        AndroidNotificationAction(actionIdSnooze, snoozeText),
+      ],
     );
-    return NotificationDetails(android: androidNotificationDetails);
+
+    final darwinNotificationDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+      categoryIdentifier: 'todoCategory',
+    );
+
+    final linuxNotificationDetails = LinuxNotificationDetails(
+      actions: [
+        LinuxNotificationAction(key: actionIdMarkDone, label: markText),
+        LinuxNotificationAction(key: actionIdSnooze, label: snoozeText),
+      ],
+    );
+
+    return NotificationDetails(
+      android: androidNotificationDetails,
+      iOS: darwinNotificationDetails,
+      macOS: darwinNotificationDetails,
+      linux: linuxNotificationDetails,
+    );
   }
 
-  tz.TZDateTime _getScheduledTime(DateTime date) =>
-      tz.TZDateTime.from(date, tz.local);
+  tz.TZDateTime _getScheduledTime(DateTime date) {
+    try {
+      return tz.TZDateTime.from(date, tz.local);
+    } catch (e) {
+      debugPrint('Error converting to TZDateTime: $e');
+      return tz.TZDateTime.now(tz.local).add(const Duration(minutes: 1));
+    }
+  }
 
   Future<void> snoozeNotification(
     int id,
@@ -96,17 +146,44 @@ class NotificationShow {
     String? markDoneActionText,
     String? snoozeActionText,
   }) async {
+    if (flutterLocalNotificationsPlugin == null) return;
+
     final snoozeMinutes = settings.snoozeDuration;
     final newDateTime = DateTime.now().add(Duration(minutes: snoozeMinutes));
-    await flutterLocalNotificationsPlugin.cancel(id);
-    await showNotification(
-      id,
-      title,
-      body,
-      newDateTime,
-      requestPermission: false,
-      markDoneActionText: markDoneActionText,
-      snoozeActionText: snoozeActionText,
-    );
+
+    try {
+      await flutterLocalNotificationsPlugin!.cancel(id);
+      await showNotification(
+        id,
+        title,
+        body,
+        newDateTime,
+        requestPermission: false,
+        markDoneActionText: markDoneActionText,
+        snoozeActionText: snoozeActionText,
+      );
+    } catch (e) {
+      debugPrint('Error snoozing notification: $e');
+    }
+  }
+
+  Future<void> cancelNotification(int id) async {
+    if (flutterLocalNotificationsPlugin == null) return;
+
+    try {
+      await flutterLocalNotificationsPlugin!.cancel(id);
+    } catch (e) {
+      debugPrint('Error canceling notification: $e');
+    }
+  }
+
+  Future<void> cancelAllNotifications() async {
+    if (flutterLocalNotificationsPlugin == null) return;
+
+    try {
+      await flutterLocalNotificationsPlugin!.cancelAll();
+    } catch (e) {
+      debugPrint('Error canceling all notifications: $e');
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:gap/gap.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:isar_community/isar.dart';
@@ -7,12 +8,12 @@ import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/ui/todos/view/todo_todos.dart';
-import 'package:zest/app/ui/widgets/header_compact.dart';
-import 'package:zest/app/utils/show_dialog.dart';
-import 'package:zest/app/ui/widgets/button.dart';
+import 'package:zest/app/ui/widgets/confirmation_dialog.dart';
 import 'package:zest/app/ui/widgets/text_form.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:zest/app/constants/app_constants.dart';
+import 'package:zest/app/utils/navigation_helper.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
+import 'package:zest/app/utils/text_utils.dart';
 import 'package:zest/main.dart';
 
 class TodosAction extends StatefulWidget {
@@ -35,471 +36,591 @@ class TodosAction extends StatefulWidget {
   State<TodosAction> createState() => _TodosActionState();
 }
 
-class _TodosActionState extends State<TodosAction> {
-  final formKey = GlobalKey<FormState>();
-  final todoController = Get.put(TodoController());
-  Tasks? selectedTask;
-  List<Tasks>? task;
-  final FocusNode categoryFocusNode = FocusNode();
-  final FocusNode tagsFocusNode = FocusNode();
-  final TextEditingController textTodoController = TextEditingController();
-  final TextEditingController titleTodoEdit = TextEditingController();
-  final TextEditingController descTodoEdit = TextEditingController();
-  final TextEditingController timeTodoEdit = TextEditingController();
-  final TextEditingController tagsTodoEdit = TextEditingController();
+class _TodosActionState extends State<TodosAction>
+    with SingleTickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
+  late final TodoController _todoController = Get.find<TodoController>();
 
-  bool todoPined = false;
-  Priority todoPriority = Priority.none;
-  List<String> todoTags = [];
+  late final TextEditingController _categoryController;
+  late final TextEditingController _titleController;
+  late final TextEditingController _descController;
+  late final TextEditingController _timeController;
+  late final TextEditingController _tagsController;
 
-  late final _EditingController controller;
+  late final FocusNode _categoryFocusNode;
+  late final FocusNode _tagsFocusNode;
+
+  Tasks? _selectedTask;
+  bool _todoPinned = false;
+  Priority _todoPriority = Priority.none;
+  List<String> _todoTags = [];
+
+  late final _EditingController _editingController;
+
+  late final AnimationController _animationController;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
-    if (widget.edit) {
-      _initializeEditMode();
+    _initializeControllers();
+    _initializeEditMode();
+    _initializeEditingController();
+    _initializeAnimations();
+    _setupListeners();
+  }
+
+  void _initializeControllers() {
+    _categoryController = TextEditingController();
+    _titleController = TextEditingController();
+    _descController = TextEditingController();
+    _timeController = TextEditingController();
+    _tagsController = TextEditingController();
+    _categoryFocusNode = FocusNode();
+    _tagsFocusNode = FocusNode();
+  }
+
+  void _initializeEditMode() {
+    if (widget.edit && widget.todo != null) {
+      _selectedTask = widget.todo!.task.value;
+      _categoryController.text = widget.todo!.task.value?.title ?? '';
+      _titleController.text = widget.todo!.name;
+      _descController.text = widget.todo!.description;
+      _timeController.text = _formatDateTime(widget.todo!.todoCompletedTime);
+      _todoPinned = widget.todo!.fix;
+      _todoPriority = widget.todo!.priority;
+      _todoTags = widget.todo!.tags;
     }
-    controller = _EditingController(
-      titleTodoEdit.text,
-      descTodoEdit.text,
-      timeTodoEdit.text,
-      todoPined,
-      selectedTask,
-      todoPriority,
-      todoTags,
+  }
+
+  void _initializeEditingController() {
+    _editingController = _EditingController(
+      _titleController.text,
+      _descController.text,
+      _timeController.text,
+      _todoPinned,
+      _selectedTask,
+      _todoPriority,
+      _todoTags,
+    );
+  }
+
+  void _initializeAnimations() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: AppConstants.animationDuration,
     );
 
-    categoryFocusNode.addListener(() {
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
+
+    _animationController.forward();
+  }
+
+  void _setupListeners() {
+    _categoryFocusNode.addListener(() {
       if (mounted) setState(() {});
     });
   }
 
-  void _initializeEditMode() {
-    selectedTask = widget.todo!.task.value;
-    textTodoController.text = widget.todo!.task.value!.title;
-    titleTodoEdit.text = widget.todo!.name;
-    descTodoEdit.text = widget.todo!.description;
-    timeTodoEdit.text = _formatDateTime(widget.todo!.todoCompletedTime);
-    todoPined = widget.todo!.fix;
-    todoPriority = widget.todo!.priority;
-    todoTags = widget.todo!.tags;
+  @override
+  void dispose() {
+    _categoryController.dispose();
+    _titleController.dispose();
+    _descController.dispose();
+    _timeController.dispose();
+    _tagsController.dispose();
+    _categoryFocusNode.dispose();
+    _tagsFocusNode.dispose();
+    _editingController.dispose();
+    _animationController.dispose();
+    super.dispose();
   }
 
-  String _formatDateTime(DateTime? dateTime) => dateTime != null
-      ? timeformat.value == '12'
-            ? DateFormat.yMMMEd(locale.languageCode).add_jm().format(dateTime)
-            : DateFormat.yMMMEd(locale.languageCode).add_Hm().format(dateTime)
-      : '';
+  String _formatDateTime(DateTime? dateTime) {
+    if (dateTime == null) return '';
 
-  Future<void> onPopInvokedWithResult(bool didPop, dynamic result) async {
-    if (didPop) {
-      return;
-    } else if (!controller.canCompose.value) {
-      Get.back();
+    return timeformat.value == '12'
+        ? DateFormat.yMMMEd(locale.languageCode).add_jm().format(dateTime)
+        : DateFormat.yMMMEd(locale.languageCode).add_Hm().format(dateTime);
+  }
+
+  Future<void> _onPopInvokedWithResult(bool didPop, dynamic result) async {
+    if (didPop) return;
+
+    if (!_editingController.canCompose.value) {
+      NavigationHelper.back();
       return;
     }
 
-    final shouldPop = await showAdaptiveDialogTextIsNotEmpty(
+    final shouldPop = await showClearTextConfirmation(
       context: context,
-      onPressed: () {
+      onConfirm: () {
         _clearControllers();
-        Get.back(result: true);
+        NavigationHelper.back();
       },
     );
 
     if (shouldPop == true && mounted) {
-      Get.back();
+      NavigationHelper.back();
     }
   }
 
   void _clearControllers() {
-    titleTodoEdit.clear();
-    descTodoEdit.clear();
-    timeTodoEdit.clear();
-    textTodoController.clear();
-    tagsTodoEdit.clear();
-    todoTags = [];
+    _titleController.clear();
+    _descController.clear();
+    _timeController.clear();
+    _categoryController.clear();
+    _tagsController.clear();
+    _todoTags = [];
   }
 
-  void onPressed() {
-    if (formKey.currentState!.validate()) {
-      _trimControllers();
-      _saveTodo();
-      _clearControllers();
-      Get.back();
-    }
-  }
+  void _onSavePressed() {
+    if (!_formKey.currentState!.validate()) return;
 
-  void _trimControllers() {
-    titleTodoEdit.text = titleTodoEdit.text.trim();
-    descTodoEdit.text = descTodoEdit.text.trim();
+    TextUtils.trimController(_titleController);
+    TextUtils.trimController(_descController);
+
+    _saveTodo();
+    _clearControllers();
+    NavigationHelper.back();
   }
 
   void _saveTodo() {
     if (widget.edit) {
-      todoController.updateTodo(
-        widget.todo!,
-        selectedTask!,
-        titleTodoEdit.text,
-        descTodoEdit.text,
-        timeTodoEdit.text,
-        todoPined,
-        todoPriority,
-        todoTags,
-      );
+      _updateTodo();
     } else {
-      if (widget.category) {
-        todoController.addTodo(
-          selectedTask!,
-          titleTodoEdit.text,
-          descTodoEdit.text,
-          timeTodoEdit.text,
-          todoPined,
-          todoPriority,
-          todoTags,
-        );
-      } else if (widget.todo != null) {
-        final parentTodo = widget.todo!;
-        final parentTask = parentTodo.task.value;
-        if (parentTask == null) {
-          return;
-        }
-
-        todoController.addTodo(
-          parentTask,
-          titleTodoEdit.text,
-          descTodoEdit.text,
-          timeTodoEdit.text,
-          todoPined,
-          todoPriority,
-          todoTags,
-          parent: parentTodo,
-        );
-      } else {
-        todoController.addTodo(
-          widget.task!,
-          titleTodoEdit.text,
-          descTodoEdit.text,
-          timeTodoEdit.text,
-          todoPined,
-          todoPriority,
-          todoTags,
-        );
-      }
+      _createTodo();
     }
   }
 
-  @override
-  void dispose() {
-    textTodoController.dispose();
-    titleTodoEdit.dispose();
-    descTodoEdit.dispose();
-    timeTodoEdit.dispose();
-    tagsTodoEdit.dispose();
-    controller.dispose();
-    categoryFocusNode.dispose();
-    tagsFocusNode.dispose();
-    super.dispose();
-  }
-
-  Future<List<Tasks>> getTaskAll(String pattern) async {
-    final getTask = isar.tasks.filter().archiveEqualTo(false).findAllSync();
-    return getTask.where((element) {
-      final title = element.title.toLowerCase();
-      final query = pattern.toLowerCase();
-      return title.contains(query);
-    }).toList();
-  }
-
-  Iterable<String> _getAllTags(String pattern) {
-    final allTodos = isar.todos.where().findAllSync();
-    final Set<String> tagsSet = {};
-    for (final t in allTodos) {
-      for (final tag in t.tags) {
-        final trimmed = tag.trim();
-        if (trimmed.isNotEmpty) tagsSet.add(trimmed);
-      }
-    }
-    final List<String> tagsList = tagsSet.toList();
-    if (pattern.trim().isEmpty) return tagsList;
-    final q = pattern.toLowerCase();
-    return tagsList.where((e) => e.toLowerCase().contains(q));
-  }
-
-  void _addTag(String value) {
-    final tag = value.trim();
-    if (tag.isEmpty) return;
-    if (!todoTags.contains(tag)) {
-      setState(() {
-        todoTags = List<String>.from(todoTags)..add(tag);
-        controller.tags.value = todoTags;
-      });
-    }
-  }
-
-  void _onTagSelected(String tag) {
-    _addTag(tag);
-    tagsTodoEdit.clear();
-    tagsFocusNode.unfocus();
-  }
-
-  Widget _buildChips() {
-    List<Widget> chips = [];
-    for (int i = 0; i < todoTags.length; i++) {
-      Padding actionChip = Padding(
-        padding: const EdgeInsets.only(right: 5, top: 2),
-        child: InputChip(
-          elevation: 4,
-          label: Text(todoTags[i]),
-          deleteIcon: const Icon(IconsaxPlusLinear.close_square, size: 15),
-          onDeleted: () => setState(() {
-            todoTags = List<String>.from(todoTags)..removeAt(i);
-            controller.tags.value = todoTags;
-          }),
-        ),
-      );
-      chips.add(actionChip);
-    }
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(children: chips),
+  void _updateTodo() {
+    _todoController.updateTodo(
+      todo: widget.todo!,
+      task: _selectedTask!,
+      title: _titleController.text,
+      description: _descController.text,
+      time: _timeController.text,
+      pinned: _todoPinned,
+      priority: _todoPriority,
+      tags: _todoTags,
     );
   }
 
+  void _createTodo() {
+    if (widget.category) {
+      _todoController.addTodo(
+        task: _selectedTask!,
+        title: _titleController.text,
+        description: _descController.text,
+        time: _timeController.text,
+        pinned: _todoPinned,
+        priority: _todoPriority,
+        tags: _todoTags,
+      );
+    } else if (widget.todo != null) {
+      final parentTask = widget.todo!.task.value;
+      if (parentTask == null) return;
+
+      _todoController.addTodo(
+        task: parentTask,
+        title: _titleController.text,
+        description: _descController.text,
+        time: _timeController.text,
+        pinned: _todoPinned,
+        priority: _todoPriority,
+        tags: _todoTags,
+        parent: widget.todo,
+      );
+    } else if (widget.task != null) {
+      _todoController.addTodo(
+        task: widget.task!,
+        title: _titleController.text,
+        description: _descController.text,
+        time: _timeController.text,
+        pinned: _todoPinned,
+        priority: _todoPriority,
+        tags: _todoTags,
+      );
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => PopScope(
-    canPop: false,
-    onPopInvokedWithResult: onPopInvokedWithResult,
-    child: Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
+  Widget build(BuildContext context) {
+    final padding = ResponsiveUtils.getResponsivePadding(context);
+    final isMobile = ResponsiveUtils.isMobile(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: _onPopInvokedWithResult,
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: isMobile ? double.infinity : AppConstants.maxModalWidth,
+          maxHeight:
+              MediaQuery.of(context).size.height * (isMobile ? 0.95 : 0.90),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildDragHandle(colorScheme, isMobile),
+            _buildHeader(colorScheme, padding),
+            Divider(
+              height: 1,
+              thickness: 1,
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
             ),
+            Flexible(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: _buildForm(context, padding),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDragHandle(ColorScheme colorScheme, bool isMobile) {
+    if (!isMobile) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.only(
+        top: AppConstants.spacingM,
+        bottom: AppConstants.spacingS,
+      ),
+      width: 32,
+      height: 4,
+      decoration: BoxDecoration(
+        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+
+  Widget _buildHeader(ColorScheme colorScheme, double padding) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: padding * 1.5,
+        vertical: padding,
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppConstants.spacingS + 2),
+            decoration: BoxDecoration(
+              color: colorScheme.tertiaryContainer,
+              borderRadius: BorderRadius.circular(
+                AppConstants.borderRadiusMedium,
+              ),
+            ),
+            child: Icon(
+              widget.edit ? IconsaxPlusBold.edit : IconsaxPlusBold.task_square,
+              size: AppConstants.iconSizeLarge,
+              color: colorScheme.onTertiaryContainer,
+            ),
+          ),
+          SizedBox(width: padding * 1.2),
+          Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTitle(),
-                _buildCategoryField(),
-                _buildTitleInput(),
-                _buildDescriptionInput(),
-                _buildTagsInput(),
-                _buildChips(),
-                _buildAttributes(),
-                _buildSubmitButton(),
-                const Gap(10),
+                Text(
+                  widget.text,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                    fontSize: ResponsiveUtils.getResponsiveFontSize(
+                      context,
+                      20,
+                    ),
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                SizedBox(height: AppConstants.spacingXS),
+                Text(
+                  widget.edit ? 'editTodoHint'.tr : 'createTodoHint'.tr,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontSize: ResponsiveUtils.getResponsiveFontSize(
+                      context,
+                      12,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
+          SizedBox(width: padding * 0.8),
+          _buildSaveButton(colorScheme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSaveButton(ColorScheme colorScheme) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: _editingController.canCompose,
+      builder: (context, canCompose, _) {
+        return AnimatedScale(
+          scale: canCompose ? 1.0 : 0.92,
+          duration: AppConstants.longAnimation,
+          curve: Curves.easeOutCubic,
+          child: Material(
+            color: canCompose
+                ? colorScheme.tertiary
+                : colorScheme.surfaceContainerHigh,
+            elevation: canCompose ? AppConstants.elevationLow : 0,
+            shadowColor: colorScheme.tertiary.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(
+              AppConstants.borderRadiusXLarge,
+            ),
+            child: InkWell(
+              onTap: canCompose ? _onSavePressed : null,
+              borderRadius: BorderRadius.circular(
+                AppConstants.borderRadiusXLarge,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: AppConstants.spacingS,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      IconsaxPlusBold.tick_circle,
+                      size: AppConstants.iconSizeSmall,
+                      color: canCompose
+                          ? colorScheme.onTertiary
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                    SizedBox(width: AppConstants.spacingXS + 2),
+                    Text(
+                      'ready'.tr,
+                      style: TextStyle(
+                        fontSize: ResponsiveUtils.getResponsiveFontSize(
+                          context,
+                          13,
+                        ),
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                        color: canCompose
+                            ? colorScheme.onTertiary
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildForm(BuildContext context, double padding) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(padding * 1.5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (widget.category) ...[
+                      _buildCategorySection(context),
+                      SizedBox(height: padding * 1.5),
+                    ],
+                    _buildBasicInfoSection(context, padding),
+                    SizedBox(height: padding * 1.5),
+                    _buildTagsSection(context, padding),
+                    SizedBox(height: padding * 1.5),
+                    _buildAttributesSection(context, padding),
+                    SizedBox(height: padding * 2),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-    ),
-  );
+    );
+  }
 
-  Widget _buildTitle() => buildBottomSheetHeaderCompact(context, widget.text);
-
-  Widget _buildCategoryField() => widget.category
-      ? RawAutocomplete<Tasks>(
-          focusNode: categoryFocusNode,
-          textEditingController: textTodoController,
-          fieldViewBuilder: _buildCategoryFieldView,
-          optionsBuilder: _buildCategoryOptions,
-          onSelected: _onCategorySelected,
-          displayStringForOption: (Tasks option) => option.title,
-          optionsViewBuilder: _buildCategoryOptionsView,
-        )
-      : const Offstage();
+  Widget _buildCategorySection(BuildContext context) {
+    return RawAutocomplete<Tasks>(
+      focusNode: _categoryFocusNode,
+      textEditingController: _categoryController,
+      fieldViewBuilder: _buildCategoryFieldView,
+      optionsBuilder: _buildCategoryOptions,
+      onSelected: _onCategorySelected,
+      displayStringForOption: (Tasks option) => option.title,
+      optionsViewBuilder: _buildCategoryOptionsView,
+    );
+  }
 
   Widget _buildCategoryFieldView(
     BuildContext context,
     TextEditingController fieldTextEditingController,
     FocusNode fieldFocusNode,
     VoidCallback onFieldSubmitted,
-  ) => MyTextForm(
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    controller: textTodoController,
-    focusNode: categoryFocusNode,
-    labelText: 'selectCategory'.tr,
-    type: TextInputType.text,
-    icon: const Icon(IconsaxPlusLinear.folder_2),
-    iconButton: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (textTodoController.text.isNotEmpty)
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return MyTextForm(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      controller: _categoryController,
+      focusNode: _categoryFocusNode,
+      labelText: 'selectCategory'.tr,
+      type: TextInputType.text,
+      icon: Icon(IconsaxPlusLinear.folder_2, color: colorScheme.primary),
+      iconButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_categoryController.text.isNotEmpty)
+            IconButton(
+              icon: Icon(
+                IconsaxPlusLinear.close_square,
+                size: AppConstants.iconSizeSmall,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              onPressed: () {
+                _categoryController.clear();
+                setState(() {});
+              },
+            ),
           IconButton(
-            icon: const Icon(IconsaxPlusLinear.close_square, size: 18),
+            icon: Icon(
+              fieldFocusNode.hasFocus
+                  ? IconsaxPlusLinear.arrow_up_1
+                  : IconsaxPlusLinear.arrow_down,
+              size: AppConstants.iconSizeSmall,
+              color: colorScheme.onSurfaceVariant,
+            ),
             onPressed: () {
-              textTodoController.clear();
+              if (fieldFocusNode.hasFocus) {
+                fieldFocusNode.unfocus();
+              } else {
+                fieldFocusNode.requestFocus();
+              }
               setState(() {});
             },
           ),
-        IconButton(
-          icon: const Icon(IconsaxPlusLinear.arrow_down, size: 18),
-          onPressed: () {
-            if (fieldFocusNode.hasFocus) {
-              fieldFocusNode.unfocus();
-            } else {
-              fieldFocusNode.requestFocus();
-              setState(() {});
-            }
-          },
-        ),
-      ],
-    ),
-    validator: (value) {
-      if (value == null || value.isEmpty) {
-        return 'selectCategory'.tr;
-      }
-      return null;
-    },
-  );
+        ],
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'selectCategory'.tr;
+        }
+        return null;
+      },
+    );
+  }
 
   Future<Iterable<Tasks>> _buildCategoryOptions(
     TextEditingValue textEditingValue,
-  ) async => await getTaskAll(textEditingValue.text);
+  ) async {
+    final tasks = isar.tasks.filter().archiveEqualTo(false).findAllSync();
+
+    final query = textEditingValue.text.toLowerCase();
+    if (query.isEmpty) return tasks;
+
+    return tasks.where((task) {
+      return task.title.toLowerCase().contains(query);
+    });
+  }
 
   void _onCategorySelected(Tasks selection) {
-    textTodoController.text = selection.title;
-    selectedTask = selection;
+    _categoryController.text = selection.title;
+    _selectedTask = selection;
     setState(() {
-      if (widget.edit) controller.task.value = selectedTask;
+      if (widget.edit) _editingController.task.value = _selectedTask;
     });
-
-    categoryFocusNode.unfocus();
+    _categoryFocusNode.unfocus();
   }
 
   Widget _buildCategoryOptionsView(
     BuildContext context,
     AutocompleteOnSelected<Tasks> onSelected,
     Iterable<Tasks> options,
-  ) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 10),
-    child: Align(
-      alignment: Alignment.topCenter,
-      child: Material(
-        borderRadius: BorderRadius.circular(20),
-        elevation: 4,
-        child: ListView.builder(
-          padding: EdgeInsets.zero,
-          shrinkWrap: true,
-          itemCount: options.length,
-          itemBuilder: (BuildContext context, int index) {
-            final Tasks task = options.elementAt(index);
-            return InkWell(
-              onTap: () => onSelected(task),
-              child: ListTile(
-                title: Text(task.title, style: context.textTheme.labelLarge),
-                trailing: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: Color(task.taskColor),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    ),
-  );
-
-  Widget _buildTitleInput() => MyTextForm(
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    controller: titleTodoEdit,
-    labelText: 'name'.tr,
-    type: TextInputType.multiline,
-    icon: const Icon(IconsaxPlusLinear.edit),
-    onChanged: (value) => controller.title.value = value,
-    autofocus: !widget.edit,
-    validator: (value) {
-      if (value == null || value.isEmpty) {
-        return 'validateName'.tr;
-      }
-      return null;
-    },
-    maxLine: null,
-  );
-
-  Widget _buildDescriptionInput() => MyTextForm(
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    controller: descTodoEdit,
-    labelText: 'description'.tr,
-    type: TextInputType.multiline,
-    icon: const Icon(IconsaxPlusLinear.note_text),
-    maxLine: null,
-    onChanged: (value) => controller.description.value = value,
-  );
-
-  Widget _buildTagsInput() => RawAutocomplete<String>(
-    focusNode: tagsFocusNode,
-    textEditingController: tagsTodoEdit,
-    fieldViewBuilder: _buildTagsFieldView,
-    optionsBuilder: _buildTagOptions,
-    onSelected: (String selection) => _onTagSelected(selection),
-    optionsViewBuilder: _buildTagOptionsView,
-  );
-
-  Widget _buildTagsFieldView(
-    BuildContext context,
-    TextEditingController fieldTextEditingController,
-    FocusNode fieldFocusNode,
-    VoidCallback onFieldSubmitted,
-  ) => MyTextForm(
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    controller: fieldTextEditingController,
-    labelText: 'tags'.tr,
-    type: TextInputType.text,
-    icon: const Icon(IconsaxPlusLinear.tag),
-    focusNode: tagsFocusNode,
-    onFieldSubmitted: (value) {
-      _addTag(value);
-      fieldTextEditingController.clear();
-      tagsFocusNode.requestFocus();
-    },
-  );
-
-  Future<Iterable<String>> _buildTagOptions(
-    TextEditingValue textEditingValue,
-  ) async => _getAllTags(textEditingValue.text);
-
-  Widget _buildTagOptionsView(
-    BuildContext context,
-    AutocompleteOnSelected<String> onSelected,
-    Iterable<String> options,
   ) {
-    final list = options.toList();
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.only(top: AppConstants.spacingS),
       child: Align(
         alignment: Alignment.topCenter,
         child: Material(
-          borderRadius: BorderRadius.circular(12),
-          elevation: 4,
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
+          elevation: AppConstants.elevationHigh,
+          shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
+          color: colorScheme.surfaceContainerHigh,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 200),
+            constraints: const BoxConstraints(maxHeight: 250),
             child: ListView.builder(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.symmetric(
+                vertical: AppConstants.spacingXS,
+              ),
               shrinkWrap: true,
-              itemCount: list.length,
+              itemCount: options.length,
               itemBuilder: (BuildContext context, int index) {
-                final tag = list[index];
+                final Tasks task = options.elementAt(index);
                 return InkWell(
-                  onTap: () => onSelected(tag),
-                  child: ListTile(
-                    title: Text(tag, style: context.textTheme.bodyMedium),
-                    leading: const Icon(IconsaxPlusLinear.tag),
+                  onTap: () => onSelected(task),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.spacingL,
+                      vertical: AppConstants.spacingM,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            task.title,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        SizedBox(width: AppConstants.spacingM),
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: Color(task.taskColor),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: colorScheme.outline.withValues(alpha: 0.2),
+                              width: AppConstants.borderWidthThin,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -510,66 +631,381 @@ class _TodosActionState extends State<TodosAction> {
     );
   }
 
-  Widget _buildAttributes() => SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-    child: Row(
-      spacing: 10,
+  Widget _buildBasicInfoSection(BuildContext context, double padding) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ?_buildSubTask(),
-        _buildDateTimeWidget(),
-        _buildPriorityWidget(),
-        _buildFixedWidget(),
-      ],
-    ),
-  );
-
-  Widget? _buildSubTask() => widget.edit
-      ? RawChip(
-          elevation: 4,
-          avatar: const Icon(IconsaxPlusLinear.task_square),
-          label: Text('subTask'.tr),
-          onPressed: () {
-            Get.back();
-            Get.key.currentState!.push(
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    TodosTodo(
-                      key: ValueKey(widget.todo!.id),
-                      todo: widget.todo!,
-                    ),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                      return SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 1),
-                          end: Offset.zero,
-                        ).animate(animation),
-                        child: child,
-                      );
-                    },
-                transitionDuration: const Duration(milliseconds: 240),
-              ),
-            );
+        _buildSectionHeader(context, 'details'.tr, IconsaxPlusBold.note_text),
+        SizedBox(height: padding),
+        MyTextForm(
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          controller: _titleController,
+          labelText: 'enterTodoName'.tr,
+          type: TextInputType.multiline,
+          icon: Icon(IconsaxPlusLinear.edit, color: colorScheme.primary),
+          onChanged: (value) => _editingController.title.value = value,
+          autofocus: !widget.edit,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'validateName'.tr;
+            }
+            return null;
           },
-        )
-      : null;
+          maxLine: null,
+        ),
+        SizedBox(height: padding * 1.5),
+        MyTextForm(
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          controller: _descController,
+          labelText: 'enterDescription'.tr,
+          type: TextInputType.multiline,
+          icon: Icon(IconsaxPlusLinear.note_text, color: colorScheme.primary),
+          maxLine: null,
+          onChanged: (value) => _editingController.description.value = value,
+        ),
+      ],
+    );
+  }
 
-  Widget _buildDateTimeWidget() => RawChip(
-    elevation: 4,
-    avatar: const Icon(IconsaxPlusLinear.calendar_search),
-    label: Text(
-      timeTodoEdit.text.isNotEmpty ? timeTodoEdit.text : 'timeComplete'.tr,
-    ),
-    deleteIcon: const Icon(IconsaxPlusLinear.close_square, size: 15),
-    onDeleted: () {
-      timeTodoEdit.clear();
-      setState(() {
-        if (widget.edit) controller.time.value = timeTodoEdit.text;
-      });
-    },
-    onPressed: _showDateTimePicker,
-  );
+  Widget _buildTagsSection(BuildContext context, double padding) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RawAutocomplete<String>(
+          focusNode: _tagsFocusNode,
+          textEditingController: _tagsController,
+          fieldViewBuilder: _buildTagsFieldView,
+          optionsBuilder: _buildTagOptions,
+          onSelected: _onTagSelected,
+          optionsViewBuilder: _buildTagOptionsView,
+        ),
+        if (_todoTags.isNotEmpty) ...[
+          SizedBox(height: padding),
+          _buildTagsChips(context),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildTagsFieldView(
+    BuildContext context,
+    TextEditingController fieldTextEditingController,
+    FocusNode fieldFocusNode,
+    VoidCallback onFieldSubmitted,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return MyTextForm(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      controller: fieldTextEditingController,
+      labelText: 'addTags'.tr,
+      type: TextInputType.text,
+      icon: Icon(IconsaxPlusLinear.tag, color: colorScheme.primary),
+      focusNode: _tagsFocusNode,
+      onFieldSubmitted: (value) {
+        _addTag(value);
+        fieldTextEditingController.clear();
+        _tagsFocusNode.requestFocus();
+      },
+    );
+  }
+
+  Future<Iterable<String>> _buildTagOptions(
+    TextEditingValue textEditingValue,
+  ) async {
+    final allTodos = isar.todos.where().findAllSync();
+    final Set<String> tagsSet = {};
+
+    for (final todo in allTodos) {
+      for (final tag in todo.tags) {
+        final trimmed = tag.trim();
+        if (trimmed.isNotEmpty) tagsSet.add(trimmed);
+      }
+    }
+
+    final List<String> tagsList = tagsSet.toList();
+    final query = textEditingValue.text.trim().toLowerCase();
+
+    if (query.isEmpty) return tagsList;
+
+    return tagsList.where((tag) => tag.toLowerCase().contains(query));
+  }
+
+  void _addTag(String value) {
+    final tag = value.trim();
+    if (tag.isEmpty || _todoTags.contains(tag)) return;
+
+    setState(() {
+      _todoTags = List.from(_todoTags)..add(tag);
+      _editingController.tags.value = _todoTags;
+    });
+  }
+
+  void _onTagSelected(String tag) {
+    _addTag(tag);
+    _tagsController.clear();
+    _tagsFocusNode.unfocus();
+  }
+
+  Widget _buildTagOptionsView(
+    BuildContext context,
+    AutocompleteOnSelected<String> onSelected,
+    Iterable<String> options,
+  ) {
+    final list = options.toList();
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: AppConstants.spacingS),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Material(
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
+          elevation: AppConstants.elevationHigh,
+          shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
+          color: colorScheme.surfaceContainerHigh,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 200),
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(
+                vertical: AppConstants.spacingXS,
+              ),
+              shrinkWrap: true,
+              itemCount: list.length,
+              itemBuilder: (BuildContext context, int index) {
+                final tag = list[index];
+                return InkWell(
+                  onTap: () => onSelected(tag),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.spacingL,
+                      vertical: AppConstants.spacingS,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          IconsaxPlusLinear.tag,
+                          color: colorScheme.primary,
+                          size: AppConstants.iconSizeSmall,
+                        ),
+                        SizedBox(width: AppConstants.spacingM),
+                        Expanded(
+                          child: Text(
+                            tag,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTagsChips(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Wrap(
+      spacing: AppConstants.spacingS,
+      runSpacing: AppConstants.spacingS,
+      children: List.generate(
+        _todoTags.length,
+        (i) => InputChip(
+          label: Text(_todoTags[i]),
+          deleteIcon: Icon(
+            IconsaxPlusLinear.close_circle,
+            size: AppConstants.iconSizeSmall,
+            color: colorScheme.onSecondaryContainer,
+          ),
+          onDeleted: () => setState(() {
+            _todoTags = List.from(_todoTags)..removeAt(i);
+            _editingController.tags.value = _todoTags;
+          }),
+          backgroundColor: colorScheme.secondaryContainer,
+          labelStyle: TextStyle(
+            color: colorScheme.onSecondaryContainer,
+            fontWeight: FontWeight.w500,
+          ),
+          side: BorderSide.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAttributesSection(BuildContext context, double padding) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(
+          context,
+          'todoAttributes'.tr,
+          IconsaxPlusBold.setting_2,
+        ),
+        SizedBox(height: padding),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            spacing: AppConstants.spacingS,
+            children: [
+              if (widget.edit) _buildSubTaskButton(context),
+              _buildDateTimeButton(context),
+              _buildPriorityButton(context),
+              _buildPinButton(context),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title,
+    IconData icon,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: AppConstants.iconSizeSmall + 2,
+          color: colorScheme.primary,
+        ),
+        SizedBox(width: AppConstants.spacingS),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+            fontSize: ResponsiveUtils.getResponsiveFontSize(context, 16),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubTaskButton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return FilledButton.tonal(
+      onPressed: () {
+        NavigationHelper.back();
+        Get.key.currentState!.push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                TodosTodo(key: ValueKey(widget.todo!.id), todo: widget.todo!),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 1),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+            transitionDuration: const Duration(milliseconds: 240),
+          ),
+        );
+      },
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.spacingL,
+          vertical: AppConstants.spacingS,
+        ),
+        minimumSize: const Size(0, 36),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            IconsaxPlusLinear.task_square,
+            size: AppConstants.iconSizeSmall,
+            color: colorScheme.onSecondaryContainer,
+          ),
+          SizedBox(width: AppConstants.spacingS),
+          Text(
+            'subTask'.tr,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateTimeButton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hasTime = _timeController.text.isNotEmpty;
+
+    return FilledButton.tonal(
+      onPressed: _showDateTimePicker,
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.spacingL,
+          vertical: AppConstants.spacingS,
+        ),
+        minimumSize: const Size(0, 36),
+        backgroundColor: hasTime
+            ? colorScheme.primaryContainer
+            : colorScheme.secondaryContainer,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            IconsaxPlusLinear.calendar,
+            size: AppConstants.iconSizeSmall,
+            color: hasTime
+                ? colorScheme.onPrimaryContainer
+                : colorScheme.onSecondaryContainer,
+          ),
+          SizedBox(width: AppConstants.spacingS),
+          Text(
+            hasTime ? _timeController.text : 'timeComplete'.tr,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+              fontWeight: FontWeight.w600,
+              color: hasTime
+                  ? colorScheme.onPrimaryContainer
+                  : colorScheme.onSecondaryContainer,
+            ),
+          ),
+          if (hasTime) ...[
+            SizedBox(width: AppConstants.spacingS),
+            InkWell(
+              onTap: () {
+                _timeController.clear();
+                setState(() {
+                  if (widget.edit) {
+                    _editingController.time.value = _timeController.text;
+                  }
+                });
+              },
+              child: Icon(
+                IconsaxPlusLinear.close_circle,
+                size: AppConstants.iconSizeSmall - 2,
+                color: colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 
   Future<void> _showDateTimePicker() async {
     final DateTime? dateTime = await showOmniDateTimePicker(
@@ -578,51 +1014,59 @@ class _TodosActionState extends State<TodosAction> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 1000)),
       is24HourMode: timeformat.value != '12',
-      minutesInterval: 1,
-      borderRadius: const BorderRadius.all(Radius.circular(20)),
-      transitionDuration: const Duration(milliseconds: 200),
+      borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
     );
 
     if (dateTime != null) {
-      final String formattedDate = timeformat.value == '12'
-          ? DateFormat.yMMMEd(locale.languageCode).add_jm().format(dateTime)
-          : DateFormat.yMMMEd(locale.languageCode).add_Hm().format(dateTime);
-
-      timeTodoEdit.text = formattedDate;
-
       setState(() {
-        if (widget.edit) controller.time.value = formattedDate;
+        _timeController.text = _formatDateTime(dateTime);
+        if (widget.edit) {
+          _editingController.time.value = _timeController.text;
+        }
       });
     }
   }
 
-  Widget _buildPriorityWidget() => MenuAnchor(
-    alignmentOffset: const Offset(0, -160),
-    style: MenuStyle(
-      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-        const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(15)),
+  Widget _buildPriorityButton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return MenuAnchor(
+      alignmentOffset: const Offset(0, -10),
+      style: MenuStyle(
+        shape: WidgetStateProperty.all(
+          const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
         ),
+        elevation: WidgetStateProperty.all(8),
+        alignment: AlignmentDirectional.bottomStart,
       ),
-      alignment: AlignmentDirectional.bottomStart,
-    ),
-    menuChildren: [
-      for (final priority in Priority.values)
-        MenuItemButton(
-          leadingIcon: Icon(IconsaxPlusLinear.flag, color: priority.color),
-          child: Text(priority.name.tr),
-          onPressed: () {
-            todoPriority = priority;
-            controller.priority.value = priority;
-          },
-        ),
-    ],
-    builder: (context, menuController, _) => ValueListenableBuilder(
-      valueListenable: controller.priority,
-      builder: (context, priority, _) => ActionChip(
-        elevation: 4,
-        avatar: Icon(IconsaxPlusLinear.flag, color: priority.color),
-        label: Text(priority.name.tr),
+      menuChildren: [
+        for (final priority in Priority.values)
+          MenuItemButton(
+            leadingIcon: Icon(
+              IconsaxPlusLinear.flag,
+              color: priority.color ?? colorScheme.onSurface,
+            ),
+            child: Text(
+              priority.name.tr,
+              style: TextStyle(
+                fontWeight: _todoPriority == priority
+                    ? FontWeight.w600
+                    : FontWeight.w500,
+              ),
+            ),
+            onPressed: () {
+              setState(() {
+                _todoPriority = priority;
+                if (widget.edit) {
+                  _editingController.priority.value = priority;
+                }
+              });
+            },
+          ),
+      ],
+      builder: (context, menuController, _) => FilledButton.tonal(
         onPressed: () {
           if (menuController.isOpen) {
             menuController.close();
@@ -630,97 +1074,163 @@ class _TodosActionState extends State<TodosAction> {
             menuController.open();
           }
         },
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          minimumSize: const Size(0, 36),
+          backgroundColor: _todoPriority != Priority.none
+              ? _todoPriority.color?.withValues(alpha: 0.15)
+              : colorScheme.secondaryContainer,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              IconsaxPlusLinear.flag,
+              size: 18,
+              color: _todoPriority != Priority.none
+                  ? _todoPriority.color
+                  : colorScheme.onSecondaryContainer,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              _todoPriority.name.tr,
+              style: TextStyle(
+                fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+                fontWeight: FontWeight.w600,
+                color: _todoPriority != Priority.none
+                    ? _todoPriority.color
+                    : colorScheme.onSecondaryContainer,
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 
-  Widget _buildFixedWidget() => ChoiceChip(
-    elevation: 4,
-    avatar: const Icon(IconsaxPlusLinear.attach_square),
-    label: Text('todoPined'.tr),
-    selected: todoPined,
-    onSelected: (value) => setState(() {
-      todoPined = value;
-      if (widget.edit) controller.pined.value = value;
-    }),
-  );
+  Widget _buildPinButton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
 
-  Widget _buildSubmitButton() => ValueListenableBuilder(
-    valueListenable: controller.canCompose,
-    builder: (context, canCompose, _) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: MyTextButton(
-        text: 'ready'.tr,
-        onPressed: canCompose ? onPressed : null,
+    return FilledButton.tonal(
+      onPressed: () {
+        setState(() {
+          _todoPinned = !_todoPinned;
+          if (widget.edit) {
+            _editingController.pinned.value = _todoPinned;
+          }
+        });
+      },
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        minimumSize: const Size(0, 36),
+        backgroundColor: _todoPinned
+            ? colorScheme.primaryContainer
+            : colorScheme.secondaryContainer,
       ),
-    ),
-  );
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            _todoPinned
+                ? IconsaxPlusBold.attach_square
+                : IconsaxPlusLinear.attach_square,
+            size: 18,
+            color: _todoPinned
+                ? colorScheme.onPrimaryContainer
+                : colorScheme.onSecondaryContainer,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'todoPined'.tr,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+              fontWeight: FontWeight.w600,
+              color: _todoPinned
+                  ? colorScheme.onPrimaryContainer
+                  : colorScheme.onSecondaryContainer,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _EditingController extends ChangeNotifier {
+class _EditingController {
   _EditingController(
-    this.initialTitle,
-    this.initialDescription,
-    this.initialTime,
-    this.initialPined,
-    this.initialTask,
-    this.initialPriority,
-    this.initialTags,
-  ) {
-    title.value = initialTitle;
-    description.value = initialDescription;
-    time.value = initialTime;
-    pined.value = initialPined;
-    task.value = initialTask;
-    priority.value = initialPriority;
-    tags.value = initialTags;
-
+    this._initialTitle,
+    this._initialDesc,
+    this._initialTime,
+    this._initialPinned,
+    this._initialTask,
+    this._initialPriority,
+    this._initialTags,
+  ) : title = ValueNotifier(_initialTitle),
+      description = ValueNotifier(_initialDesc),
+      time = ValueNotifier(_initialTime),
+      pinned = ValueNotifier(_initialPinned),
+      task = ValueNotifier(_initialTask),
+      priority = ValueNotifier(_initialPriority),
+      tags = ValueNotifier(List.from(_initialTags)) {
     title.addListener(_updateCanCompose);
     description.addListener(_updateCanCompose);
     time.addListener(_updateCanCompose);
-    pined.addListener(_updateCanCompose);
+    pinned.addListener(_updateCanCompose);
     task.addListener(_updateCanCompose);
     priority.addListener(_updateCanCompose);
     tags.addListener(_updateCanCompose);
   }
 
-  final String? initialTitle;
-  final String? initialDescription;
-  final String? initialTime;
-  final bool? initialPined;
-  final Tasks? initialTask;
-  final Priority initialPriority;
-  final List<String>? initialTags;
+  final String _initialTitle;
+  final String _initialDesc;
+  final String _initialTime;
+  final bool _initialPinned;
+  final Tasks? _initialTask;
+  final Priority _initialPriority;
+  final List<String> _initialTags;
 
-  final title = ValueNotifier<String?>(null);
-  final description = ValueNotifier<String?>(null);
-  final time = ValueNotifier<String?>(null);
-  final pined = ValueNotifier<bool?>(null);
-  final task = ValueNotifier<Tasks?>(null);
-  final priority = ValueNotifier(Priority.none);
-  final tags = ValueNotifier<List<String>?>(null);
+  final ValueNotifier<String> title;
+  final ValueNotifier<String> description;
+  final ValueNotifier<String> time;
+  final ValueNotifier<bool> pinned;
+  final ValueNotifier<Tasks?> task;
+  final ValueNotifier<Priority> priority;
+  final ValueNotifier<List<String>> tags;
+  final ValueNotifier<bool> canCompose = ValueNotifier(false);
 
-  final _canCompose = ValueNotifier(false);
-  ValueListenable<bool> get canCompose => _canCompose;
+  void _updateCanCompose() {
+    final hasChanges =
+        title.value != _initialTitle ||
+        description.value != _initialDesc ||
+        time.value != _initialTime ||
+        pinned.value != _initialPinned ||
+        task.value?.id != _initialTask?.id ||
+        priority.value != _initialPriority ||
+        !_listEquals(tags.value, _initialTags);
 
-  void _updateCanCompose() => _canCompose.value =
-      (title.value != initialTitle) ||
-      (description.value != initialDescription) ||
-      (time.value != initialTime) ||
-      (pined.value != initialPined) ||
-      (task.value != initialTask) ||
-      (priority.value != initialPriority) ||
-      (tags.value != initialTags);
+    canCompose.value = hasChanges;
+  }
 
-  @override
+  bool _listEquals(List<String> a, List<String> b) {
+    return listEquals(a, b);
+  }
+
   void dispose() {
     title.removeListener(_updateCanCompose);
     description.removeListener(_updateCanCompose);
     time.removeListener(_updateCanCompose);
-    pined.removeListener(_updateCanCompose);
+    pinned.removeListener(_updateCanCompose);
     task.removeListener(_updateCanCompose);
     priority.removeListener(_updateCanCompose);
     tags.removeListener(_updateCanCompose);
-    super.dispose();
+
+    title.dispose();
+    description.dispose();
+    time.dispose();
+    pinned.dispose();
+    task.dispose();
+    priority.dispose();
+    tags.dispose();
+    canCompose.dispose();
   }
 }

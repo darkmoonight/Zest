@@ -1,261 +1,216 @@
-import 'package:iconsax_plus/iconsax_plus.dart';
-import 'package:zest/app/controller/fab_controller.dart';
-import 'package:zest/app/data/db.dart';
-import 'package:zest/app/controller/todo_controller.dart';
-import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
-import 'package:zest/app/ui/todos/widgets/todos_action.dart';
-import 'package:zest/app/ui/todos/widgets/todos_list.dart';
-import 'package:zest/app/ui/todos/widgets/todos_transfer.dart';
-import 'package:zest/app/ui/widgets/my_delegate.dart';
-import 'package:zest/app/ui/widgets/text_form.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:zest/app/data/db.dart';
+import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
+import 'package:zest/app/ui/todos/widgets/selection_action_bar.dart';
+import 'package:zest/app/ui/todos/widgets/sort_menu.dart';
+import 'package:zest/app/ui/todos/widgets/todos_action.dart';
+import 'package:zest/app/ui/todos/widgets/todos_list.dart';
+import 'package:zest/app/ui/todos/widgets/todos_screen_mixin.dart';
+import 'package:zest/app/ui/widgets/my_delegate.dart';
+import 'package:zest/app/ui/widgets/text_form.dart';
+import 'package:zest/app/constants/app_constants.dart';
+import 'package:zest/app/utils/navigation_helper.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
 import 'package:zest/app/utils/scroll_fab_handler.dart';
 import 'package:zest/main.dart';
 
-class TodosTask extends StatefulWidget {
-  const TodosTask({super.key, required this.task});
+class TaskTodos extends StatefulWidget {
+  const TaskTodos({super.key, required this.task});
+
   final Tasks task;
+
   @override
-  State<TodosTask> createState() => _TodosTaskState();
+  State<TaskTodos> createState() => _TaskTodosState();
 }
 
-class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
-  final todoController = Get.put(TodoController());
-  late TabController tabController;
-  final TextEditingController searchTodos = TextEditingController();
-  String filter = '';
-
-  final fabController = Get.find<FabController>();
-  final ScrollController _scrollController = ScrollController();
-
-  SortOption _sortOption = SortOption.none;
-
+class _TaskTodosState extends State<TaskTodos>
+    with SingleTickerProviderStateMixin, TodosScreenMixin {
   @override
   void initState() {
     super.initState();
-    _sortOption = settings.sortOption;
-    applyFilter('');
-    tabController = TabController(vsync: this, length: 2);
-    tabController.addListener(_onTabChanged);
+    initializeTodosScreen(initialSortOption: settings.sortOption, vsync: this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _updateFabVisibility();
+      }
+    });
+  }
+
+  void _updateFabVisibility() {
+    if (!mounted) return;
+
+    if (todoController.isMultiSelectionTodo.value) {
+      fabController.hide();
+    } else if (tabController.index == 0) {
+      fabController.show();
+    } else {
+      fabController.hide();
+    }
   }
 
   @override
   void dispose() {
-    tabController.removeListener(_onTabChanged);
-    tabController.dispose();
-    _scrollController.dispose();
+    disposeTodosScreen();
     super.dispose();
   }
 
-  void _onTabChanged() {
-    if (!mounted) return;
-    if (tabController.index == 1) {
-      fabController.hide();
-    } else {
-      fabController.show();
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => PopScope(
+        canPop: todoController.isPop.value,
+        onPopInvokedWithResult: handlePopInvoked,
+        child: Scaffold(
+          appBar: _buildAppBar(context),
+          body: SafeArea(child: _buildBody(context)),
+          floatingActionButton: _buildFloatingActionButton(context),
+        ),
+      ),
+    );
   }
 
-  void applyFilter(String value) =>
-      setState(() => filter = value.toLowerCase());
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
 
-  void _handlePopInvokedWithResult(bool didPop, dynamic value) {
-    if (didPop) {
-      fabController.show();
-      return;
-    }
-    if (todoController.isMultiSelectionTodo.isTrue) {
-      todoController.doMultiSelectionTodoClear();
-    }
-  }
-
-  AppBar _buildAppBar(BuildContext context) => AppBar(
-    automaticallyImplyLeading: false,
-    leading: _buildLeadingIconButton(),
-    title: _buildTitle(),
-    actions: _buildActions(context),
-  );
-
-  IconButton? _buildLeadingIconButton() =>
-      todoController.isMultiSelectionTodo.isTrue
-      ? IconButton(
-          onPressed: () => todoController.doMultiSelectionTodoClear(),
-          icon: const Icon(IconsaxPlusLinear.close_square, size: 20),
-        )
-      : IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(IconsaxPlusLinear.arrow_left_3, size: 20),
-        );
-
-  Widget _buildTitle() => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        widget.task.title,
-        style: context.theme.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-          fontSize: 20,
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(
+          IconsaxPlusLinear.arrow_left_1,
+          color: colorScheme.onSurface,
         ),
-        overflow: TextOverflow.ellipsis,
+        onPressed: () => NavigationHelper.back(),
       ),
-      if (widget.task.description.isNotEmpty)
-        Text(
-          widget.task.description,
-          style: context.theme.textTheme.labelLarge?.copyWith(
-            color: Colors.grey,
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            widget.task.title,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 18),
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
-          overflow: TextOverflow.ellipsis,
-        ),
-    ],
-  );
-
-  List<Widget> _buildActions(BuildContext context) => [
-    _buildTransferIconButton(context),
-    _buildEditIconButton(context),
-    _buildDeleteIconButton(context),
-  ];
-
-  Widget _buildTransferIconButton(BuildContext context) => Visibility(
-    visible: todoController.selectedTodo.isNotEmpty,
-    replacement: const Offstage(),
-    child: IconButton(
-      icon: const Icon(IconsaxPlusLinear.arrange_square, size: 20),
-      onPressed: () => _showTodosTransferBottomSheet(context),
-    ),
-  );
-
-  void _showTodosTransferBottomSheet(BuildContext context) =>
-      showModalBottomSheet(
-        enableDrag: false,
-        context: context,
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder: (BuildContext context) => TodosTransfer(
-          text: 'editing'.tr,
-          todos: todoController.selectedTodo,
-        ),
-      );
-
-  Widget _buildEditIconButton(BuildContext context) => Visibility(
-    visible: todoController.selectedTodo.isNotEmpty,
-    replacement: IconButton(
-      onPressed: () => _showTasksActionBottomSheet(context, edit: true),
-      icon: const Icon(IconsaxPlusLinear.edit, size: 20),
-    ),
-    child: const Offstage(),
-  );
-
-  void _showTasksActionBottomSheet(
-    BuildContext context, {
-    required bool edit,
-  }) => showModalBottomSheet(
-    enableDrag: false,
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (BuildContext context) => TasksAction(
-      text: 'editing'.tr,
-      edit: edit,
-      task: widget.task,
-      updateTaskName: () => setState(() {}),
-    ),
-  );
-
-  Widget _buildDeleteIconButton(BuildContext context) => Visibility(
-    visible: todoController.selectedTodo.isNotEmpty,
-    child: IconButton(
-      icon: const Icon(IconsaxPlusLinear.trash_square, size: 20),
-      onPressed: () async => await _showDeleteConfirmationDialog(context),
-    ),
-  );
-
-  Future<void> _showDeleteConfirmationDialog(BuildContext context) async =>
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog.adaptive(
-          title: Text(
-            'deletedTodo'.tr,
-            style: context.theme.textTheme.titleLarge,
-          ),
-          content: Text(
-            'deletedTodoQuery'.tr,
-            style: context.theme.textTheme.titleMedium,
-          ),
-          actions: [_buildCancelButton(context), _buildDeleteButton(context)],
-        ),
-      );
-
-  TextButton _buildCancelButton(BuildContext context) => TextButton(
-    onPressed: () => Get.back(),
-    child: Text(
-      'cancel'.tr,
-      style: context.theme.textTheme.titleMedium?.copyWith(
-        color: Colors.blueAccent,
-      ),
-    ),
-  );
-
-  TextButton _buildDeleteButton(BuildContext context) => TextButton(
-    onPressed: () {
-      todoController.deleteTodo(todoController.selectedTodo);
-      todoController.doMultiSelectionTodoClear();
-      Get.back();
-    },
-    child: Text(
-      'delete'.tr,
-      style: context.theme.textTheme.titleMedium?.copyWith(color: Colors.red),
-    ),
-  );
-
-  Widget _buildBody(BuildContext context) => SafeArea(
-    child: DefaultTabController(
-      length: 2,
-      child: NestedScrollView(
-        controller: _scrollController,
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          _buildSearchTextField(),
-          _buildTabBar(context),
-        ],
-        body: _buildTabBarView(),
-      ),
-    ),
-  );
-
-  Widget _buildSearchTextField() => SliverToBoxAdapter(
-    child: MyTextForm(
-      labelText: 'searchTodo'.tr,
-      type: TextInputType.text,
-      icon: const Icon(IconsaxPlusLinear.search_normal_1, size: 20),
-      controller: searchTodos,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      onChanged: applyFilter,
-      iconButton: searchTodos.text.isNotEmpty
-          ? IconButton(
-              onPressed: () {
-                searchTodos.clear();
-                applyFilter('');
-              },
-              icon: const Icon(
-                IconsaxPlusLinear.close_square,
-                color: Colors.grey,
-                size: 20,
+          if (widget.task.description.isNotEmpty)
+            Text(
+              widget.task.description,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
               ),
-            )
-          : null,
-    ),
-  );
+              overflow: TextOverflow.ellipsis,
+            ),
+        ],
+      ),
+      actions: [
+        if (todoController.selectedTodo.isEmpty)
+          IconButton(
+            onPressed: () => _showTasksActionBottomSheet(context, edit: true),
+            icon: Icon(
+              IconsaxPlusLinear.edit,
+              size: 22,
+              color: colorScheme.primary,
+            ),
+            tooltip: 'edit'.tr,
+          ),
+      ],
+    );
+  }
 
-  Widget _buildTabBar(BuildContext context) => SliverOverlapAbsorber(
-    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-    sliver: SliverPersistentHeader(
-      delegate: MyDelegate(
-        child: Obx(
-          () => Row(
+  Widget _buildBody(BuildContext context) {
+    return Stack(
+      children: [
+        _buildScrollableContent(context),
+        _buildSelectionActionBar(context),
+      ],
+    );
+  }
+
+  Widget _buildScrollableContent(BuildContext context) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (todoController.isMultiSelectionTodo.value) {
+          return true;
+        }
+
+        return ScrollFabHandler.handleScrollFabVisibility(
+          notification: notification,
+          tabController: tabController,
+          fabController: fabController,
+        );
+      },
+      child: DefaultTabController(
+        length: 2,
+        child: NestedScrollView(
+          controller: ScrollController(),
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            _buildSearchTextField(context),
+            _buildTabBar(context),
+          ],
+          body: _buildTabBarView(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchTextField(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isMobile = ResponsiveUtils.isMobile(context);
+
+    return SliverToBoxAdapter(
+      child: MyTextForm(
+        labelText: 'searchTodo'.tr,
+        variant: TextFieldVariant.card,
+        type: TextInputType.text,
+        icon: Icon(
+          IconsaxPlusLinear.search_normal_1,
+          size: AppConstants.iconSizeMedium,
+          color: colorScheme.onSurfaceVariant,
+        ),
+        controller: searchController,
+        margin: EdgeInsets.symmetric(
+          horizontal: isMobile
+              ? AppConstants.spacingS + 2
+              : AppConstants.spacingL,
+          vertical: isMobile
+              ? AppConstants.spacingXS + 1
+              : AppConstants.spacingS,
+        ),
+        onChanged: applySearchFilter,
+        iconButton: searchController.text.isNotEmpty
+            ? IconButton(
+                onPressed: _clearSearch,
+                icon: Icon(
+                  IconsaxPlusLinear.close_circle,
+                  color: colorScheme.onSurfaceVariant,
+                  size: AppConstants.iconSizeMedium,
+                ),
+              )
+            : null,
+      ),
+    );
+  }
+
+  void _clearSearch() {
+    searchController.clear();
+    applySearchFilter('');
+  }
+
+  Widget _buildTabBar(BuildContext context) {
+    return SliverOverlapAbsorber(
+      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+      sliver: SliverPersistentHeader(
+        delegate: MyDelegate(
+          child: Row(
             children: [
               Expanded(
                 child: TabBar(
@@ -264,165 +219,124 @@ class _TodosTaskState extends State<TodosTask> with TickerProviderStateMixin {
                   isScrollable: true,
                   dividerColor: Colors.transparent,
                   splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                    (Set<WidgetState> states) => Colors.transparent,
-                  ),
+                  overlayColor: WidgetStateProperty.all(Colors.transparent),
                   tabs: [
                     Tab(text: 'doing'.tr),
                     Tab(text: 'done'.tr),
                   ],
                 ),
               ),
-              PopupMenuButton<SortOption>(
-                tooltip: 'sort'.tr,
-                icon: const Icon(IconsaxPlusLinear.sort, size: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                onSelected: (SortOption option) {
-                  setState(() => _sortOption = option);
-                  settings.sortOption = option;
-                  isar.writeTxnSync(() => isar.settings.putSync(settings));
-                },
-                itemBuilder: (context) => <PopupMenuEntry<SortOption>>[
-                  PopupMenuItem(
-                    value: SortOption.none,
-                    child: Text('sortByIndex'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.alphaAsc,
-                    child: Text('sortByNameAsc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.alphaDesc,
-                    child: Text('sortByNameDesc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.dateAsc,
-                    child: Text('sortByDateAsc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.dateDesc,
-                    child: Text('sortByDateDesc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.dateNotifAsc,
-                    child: Text('sortByDateNotifAsc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.dateNotifDesc,
-                    child: Text('sortByDateNotifDesc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.priorityAsc,
-                    child: Text('sortByPriorityAsc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.priorityDesc,
-                    child: Text('sortByPriorityDesc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.random,
-                    child: Text('sortByRandom'.tr),
-                  ),
-                ],
+              SortMenu(
+                currentSortOption: sortOption,
+                onSortChanged: _handleSortChanged,
               ),
-              if (todoController.isMultiSelectionTodo.isTrue)
-                Checkbox(
-                  value: _areAllSelectedInCurrentTab(),
-                  onChanged: (val) => _selectAllInCurrentTab(val!),
-                  shape: const CircleBorder(),
-                ),
+              SizedBox(width: AppConstants.spacingS),
             ],
           ),
         ),
-        height: kTextTabBarHeight,
+        floating: true,
+        pinned: true,
       ),
-      floating: true,
-      pinned: true,
-    ),
-  );
+    );
+  }
 
-  Widget _buildTabBarView() => TabBarView(
-    controller: tabController,
-    children: [
-      TodosList(
-        allTodos: false,
-        calendar: false,
-        done: false,
-        task: widget.task,
-        searchTodo: filter,
-        sortOption: _sortOption,
-      ),
-      TodosList(
-        allTodos: false,
-        calendar: false,
-        done: true,
-        task: widget.task,
-        searchTodo: filter,
-        sortOption: _sortOption,
-      ),
-    ],
-  );
+  void _handleSortChanged(SortOption option) {
+    updateSortOption(option);
+    settings.sortOption = option;
+    isar.writeTxnSync(() => isar.settings.putSync(settings));
+  }
+
+  Widget _buildTabBarView() {
+    return TabBarView(
+      controller: tabController,
+      children: [
+        TodosList(
+          calendar: false,
+          allTodos: false,
+          done: false,
+          task: widget.task,
+          searchTodo: searchFilter,
+          sortOption: sortOption,
+        ),
+        TodosList(
+          calendar: false,
+          allTodos: false,
+          done: true,
+          task: widget.task,
+          searchTodo: searchFilter,
+          sortOption: sortOption,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectionActionBar(BuildContext context) {
+    return Obx(() {
+      if (!todoController.isMultiSelectionTodo.isTrue) {
+        return const SizedBox.shrink();
+      }
+
+      return SelectionActionBar(
+        onTransfer: () => showTodosTransferSheet(context),
+        onDelete: () => showDeleteDialog(context),
+        onSelectAll: _toggleSelectAll,
+        isAllSelected: _areAllSelectedInCurrentTab(),
+      );
+    });
+  }
 
   Widget? _buildFloatingActionButton(BuildContext context) {
     if (!fabController.isVisible.value) return null;
+
     return FloatingActionButton(
       onPressed: () => _showTodosActionBottomSheet(context, edit: false),
       child: const Icon(IconsaxPlusLinear.add),
     );
   }
 
-  void _showTodosActionBottomSheet(
-    BuildContext context, {
-    required bool edit,
-  }) => showModalBottomSheet(
-    enableDrag: false,
-    context: context,
-    isScrollControlled: true,
-    builder: (BuildContext context) => TodosAction(
-      text: 'create'.tr,
-      edit: edit,
-      task: widget.task,
-      category: false,
-    ),
-  );
-
-  @override
-  Widget build(BuildContext context) => Obx(
-    () => PopScope(
-      canPop: todoController.isPop.value,
-      onPopInvokedWithResult: _handlePopInvokedWithResult,
-      child: Scaffold(
-        appBar: _buildAppBar(context),
-        body: NotificationListener<ScrollNotification>(
-          onNotification: (notification) => handleScrollFabVisibility(
-            notification: notification,
-            tabController: tabController,
-            fabController: fabController,
-          ),
-          child: _buildBody(context),
-        ),
-        floatingActionButton: _buildFloatingActionButton(context),
+  void _showTasksActionBottomSheet(BuildContext context, {required bool edit}) {
+    NavigationHelper.showModalSheet(
+      context: context,
+      enableDrag: false,
+      child: TasksAction(
+        text: 'editing'.tr,
+        edit: edit,
+        task: widget.task,
+        updateTaskName: () => setState(() {}),
       ),
-    ),
-  );
+    );
+  }
+
+  void _showTodosActionBottomSheet(BuildContext context, {required bool edit}) {
+    NavigationHelper.showModalSheet(
+      context: context,
+      enableDrag: false,
+      child: TodosAction(
+        text: 'create'.tr,
+        edit: edit,
+        task: widget.task,
+        category: false,
+      ),
+    );
+  }
 
   bool _areAllSelectedInCurrentTab() {
     final isDone = tabController.index == 1;
     return todoController.areAllSelected(
       done: isDone,
-      searchQuery: filter,
+      searchQuery: searchFilter,
       task: widget.task,
     );
   }
 
-  void _selectAllInCurrentTab(bool select) {
+  void _toggleSelectAll() {
+    final allSelected = _areAllSelectedInCurrentTab();
     final isDone = tabController.index == 1;
+
     todoController.selectAll(
-      select: select,
+      select: !allSelected,
       done: isDone,
-      searchQuery: filter,
+      searchQuery: searchFilter,
       task: widget.task,
     );
   }

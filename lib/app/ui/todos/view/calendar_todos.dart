@@ -1,13 +1,15 @@
-import 'package:iconsax_plus/iconsax_plus.dart';
-import 'package:zest/app/controller/todo_controller.dart';
-import 'package:zest/app/controller/fab_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:zest/app/data/db.dart';
+import 'package:zest/app/ui/todos/widgets/selection_action_bar.dart';
+import 'package:zest/app/ui/todos/widgets/sort_menu.dart';
 import 'package:zest/app/ui/todos/widgets/todos_list.dart';
-import 'package:zest/app/ui/todos/widgets/todos_transfer.dart';
+import 'package:zest/app/ui/todos/widgets/todos_screen_mixin.dart';
 import 'package:zest/app/ui/widgets/my_delegate.dart';
+import 'package:zest/app/constants/app_constants.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
 import 'package:zest/app/utils/scroll_fab_handler.dart';
 import 'package:zest/main.dart';
 
@@ -19,231 +21,228 @@ class CalendarTodos extends StatefulWidget {
 }
 
 class _CalendarTodosState extends State<CalendarTodos>
-    with SingleTickerProviderStateMixin {
-  final todoController = Get.put(TodoController());
-  final fabController = Get.find<FabController>();
-  late TabController tabController;
-  DateTime selectedDay = DateTime.now();
-  DateTime focusedDay = DateTime.now();
+    with SingleTickerProviderStateMixin, TodosScreenMixin {
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
   DateTime fDay = DateTime.now().add(const Duration(days: -1000));
   DateTime lDay = DateTime.now().add(const Duration(days: 1000));
-
-  SortOption _sortOption = SortOption.none;
 
   @override
   void initState() {
     super.initState();
-    _sortOption = settings.sortOption;
-    tabController = TabController(vsync: this, length: 2);
-    tabController.addListener(_onTabChanged);
+    _selectedDay = _focusedDay;
+    initializeTodosScreen(initialSortOption: settings.sortOption, vsync: this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateFabVisibility();
+  }
+
+  void _updateFabVisibility() {
+    if (!mounted) return;
+
+    if (todoController.isMultiSelectionTodo.value) {
+      fabController.hide();
+    } else if (tabController.index == 0) {
+      fabController.show();
+    } else {
+      fabController.hide();
+    }
   }
 
   @override
   void dispose() {
-    tabController.removeListener(_onTabChanged);
-    tabController.dispose();
+    disposeTodosScreen();
     super.dispose();
   }
 
-  void _onTabChanged() {
-    if (!mounted) return;
-    if (tabController.index == 1) {
-      fabController.hide();
-    } else {
-      fabController.show();
-    }
-  }
-
   @override
-  Widget build(BuildContext context) => Obx(
-    () => PopScope(
-      canPop: todoController.isPop.value,
-      onPopInvokedWithResult: _handlePopInvokedWithResult,
-      child: Scaffold(appBar: _buildAppBar(context), body: _buildBody(context)),
-    ),
-  );
-
-  void _handlePopInvokedWithResult(bool didPop, dynamic value) {
-    if (didPop) {
-      return;
-    }
-
-    if (todoController.isMultiSelectionTodo.isTrue) {
-      todoController.doMultiSelectionTodoClear();
-    }
+  Widget build(BuildContext context) {
+    return Obx(
+      () => PopScope(
+        canPop: todoController.isPop.value,
+        onPopInvokedWithResult: handlePopInvoked,
+        child: Scaffold(body: SafeArea(child: _buildBody(context))),
+      ),
+    );
   }
 
-  AppBar _buildAppBar(BuildContext context) => AppBar(
-    centerTitle: true,
-    leading: _buildLeadingIconButton(),
-    title: _buildTitle(),
-    actions: _buildActions(context),
-  );
+  Widget _buildBody(BuildContext context) {
+    return Stack(
+      children: [
+        _buildScrollableContent(context),
+        _buildSelectionActionBar(context),
+      ],
+    );
+  }
 
-  IconButton? _buildLeadingIconButton() =>
-      todoController.isMultiSelectionTodo.isTrue
-      ? IconButton(
-          onPressed: () => todoController.doMultiSelectionTodoClear(),
-          icon: const Icon(IconsaxPlusLinear.close_square, size: 20),
-        )
-      : null;
+  Widget _buildScrollableContent(BuildContext context) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (todoController.isMultiSelectionTodo.value) {
+          return true;
+        }
 
-  Text _buildTitle() => Text(
-    'calendar'.tr,
-    style: context.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-  );
-
-  List<Widget> _buildActions(BuildContext context) => [
-    _buildTransferIconButton(context),
-    _buildDeleteIconButton(context),
-  ];
-
-  Widget _buildTransferIconButton(BuildContext context) => Visibility(
-    visible: todoController.selectedTodo.isNotEmpty,
-    replacement: const Offstage(),
-    child: IconButton(
-      icon: const Icon(IconsaxPlusLinear.arrange_square, size: 20),
-      onPressed: () => _showTodosTransferBottomSheet(context),
-    ),
-  );
-
-  void _showTodosTransferBottomSheet(BuildContext context) =>
-      showModalBottomSheet(
-        enableDrag: false,
-        context: context,
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder: (BuildContext context) => TodosTransfer(
-          text: 'editing'.tr,
-          todos: todoController.selectedTodo,
-        ),
-      );
-
-  Widget _buildDeleteIconButton(BuildContext context) => Visibility(
-    visible: todoController.selectedTodo.isNotEmpty,
-    child: IconButton(
-      icon: const Icon(IconsaxPlusLinear.trash_square, size: 20),
-      onPressed: () async => await _showDeleteConfirmationDialog(context),
-    ),
-  );
-
-  Future<void> _showDeleteConfirmationDialog(BuildContext context) async =>
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: Text('deletedTodo'.tr, style: context.textTheme.titleLarge),
-          content: Text(
-            'deletedTodoQuery'.tr,
-            style: context.textTheme.titleMedium,
-          ),
-          actions: [_buildCancelButton(context), _buildDeleteButton(context)],
-        ),
-      );
-
-  TextButton _buildCancelButton(BuildContext context) => TextButton(
-    onPressed: () => Get.back(),
-    child: Text(
-      'cancel'.tr,
-      style: context.textTheme.titleMedium?.copyWith(color: Colors.blueAccent),
-    ),
-  );
-
-  TextButton _buildDeleteButton(BuildContext context) => TextButton(
-    onPressed: () {
-      todoController.deleteTodo(todoController.selectedTodo);
-      todoController.doMultiSelectionTodoClear();
-      Get.back();
-    },
-    child: Text(
-      'delete'.tr,
-      style: context.textTheme.titleMedium?.copyWith(color: Colors.red),
-    ),
-  );
-
-  Widget _buildBody(BuildContext context) =>
-      NotificationListener<ScrollNotification>(
-        onNotification: (notification) => handleScrollFabVisibility(
+        return ScrollFabHandler.handleScrollFabVisibility(
           notification: notification,
           tabController: tabController,
           fabController: fabController,
-        ),
-        child: DefaultTabController(
-          length: 2,
-          child: NestedScrollView(
-            controller: ScrollController(),
-            headerSliverBuilder: (context, innerBoxIsScrolled) => [
-              _buildTableCalendar(),
-              _buildTabBar(context),
-            ],
-            body: _buildTabBarView(),
-          ),
-        ),
-      );
-
-  Widget _buildTableCalendar() => SliverToBoxAdapter(
-    child: TableCalendar(
-      calendarBuilders: CalendarBuilders(
-        markerBuilder: (context, day, events) => Obx(() {
-          var countTodos = todoController.countTotalTodosCalendar(day);
-          return countTodos != 0
-              ? isSameDay(selectedDay, day)
-                    ? _buildSelectedDayMarker(countTodos)
-                    : _buildDayMarker(countTodos)
-              : const SizedBox.shrink();
-        }),
-      ),
-      startingDayOfWeek: _getFirstDayOfWeek(),
-      weekendDays: const [DateTime.sunday],
-      firstDay: fDay,
-      lastDay: lDay,
-      focusedDay: focusedDay,
-      locale: locale.languageCode,
-      availableCalendarFormats: {
-        CalendarFormat.month: 'week'.tr,
-        CalendarFormat.twoWeeks: 'month'.tr,
-        CalendarFormat.week: 'two_week'.tr,
+        );
       },
-      selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-      onDaySelected: (selected, focused) => setState(() {
-        selectedDay = selected;
-        focusedDay = focused;
-      }),
-      onPageChanged: (focused) => setState(() => focusedDay = focused),
-      onFormatChanged: (format) =>
-          setState(() => _updateCalendarFormat(format)),
-      calendarFormat: _getCalendarFormat(),
-    ),
-  );
-
-  Widget _buildSelectedDayMarker(int countTodos) => Container(
-    width: 16,
-    height: 16,
-    decoration: const BoxDecoration(
-      color: Colors.amber,
-      shape: BoxShape.circle,
-    ),
-    child: Center(
-      child: Text(
-        '$countTodos',
-        style: context.textTheme.bodyLarge?.copyWith(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
+      child: DefaultTabController(
+        length: 2,
+        child: NestedScrollView(
+          controller: ScrollController(),
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            _buildCalendar(context),
+            _buildTabBar(context),
+          ],
+          body: _buildTabBarView(),
         ),
       ),
-    ),
-  );
+    );
+  }
 
-  Widget _buildDayMarker(int countTodos) => Text(
-    '$countTodos',
-    style: const TextStyle(
-      color: Colors.amber,
-      fontWeight: FontWeight.bold,
-      fontSize: 12,
-    ),
-  );
+  Widget _buildCalendar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isMobile = ResponsiveUtils.isMobile(context);
+
+    return SliverToBoxAdapter(
+      child: Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: isMobile
+              ? AppConstants.spacingS + 2
+              : AppConstants.spacingL,
+        ),
+        child: TableCalendar(
+          firstDay: fDay,
+          lastDay: lDay,
+          focusedDay: _focusedDay,
+          selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+          calendarFormat: _getCalendarFormat(),
+          startingDayOfWeek: _getFirstDayOfWeek(),
+          weekendDays: const [DateTime.sunday],
+          locale: locale.languageCode,
+          availableCalendarFormats: {
+            CalendarFormat.month: 'month'.tr,
+            CalendarFormat.twoWeeks: 'two_week'.tr,
+            CalendarFormat.week: 'week'.tr,
+          },
+          calendarBuilders: CalendarBuilders(
+            markerBuilder: (context, day, events) => Obx(() {
+              final countTodos = todoController.countTotalTodosCalendar(day);
+              if (countTodos == 0) return const SizedBox.shrink();
+
+              return Positioned(
+                bottom: 1,
+                child: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: colorScheme.tertiary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$countTodos',
+                      style: TextStyle(
+                        color: colorScheme.onTertiary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+          calendarStyle: CalendarStyle(
+            todayDecoration: BoxDecoration(
+              color: colorScheme.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+            selectedDecoration: BoxDecoration(
+              color: colorScheme.primary,
+              shape: BoxShape.circle,
+            ),
+            todayTextStyle: TextStyle(
+              color: colorScheme.onPrimaryContainer,
+              fontWeight: FontWeight.w600,
+            ),
+            selectedTextStyle: TextStyle(
+              color: colorScheme.onPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+            weekendTextStyle: TextStyle(color: colorScheme.error),
+            outsideDaysVisible: false,
+          ),
+          headerStyle: HeaderStyle(
+            formatButtonVisible: true,
+            titleCentered: true,
+            formatButtonShowsNext: false,
+            titleTextStyle: TextStyle(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 16),
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
+            formatButtonTextStyle: TextStyle(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+              color: colorScheme.primary,
+              fontWeight: FontWeight.w500,
+            ),
+            formatButtonDecoration: BoxDecoration(
+              border: Border.all(
+                color: colorScheme.primary.withValues(alpha: 0.5),
+                width: AppConstants.borderWidthThin,
+              ),
+              borderRadius: BorderRadius.circular(
+                AppConstants.borderRadiusSmall + 2,
+              ),
+            ),
+            leftChevronIcon: Icon(
+              IconsaxPlusLinear.arrow_left_1,
+              color: colorScheme.onSurface,
+              size: AppConstants.iconSizeMedium,
+            ),
+            rightChevronIcon: Icon(
+              IconsaxPlusLinear.arrow_right_3,
+              color: colorScheme.onSurface,
+              size: AppConstants.iconSizeMedium,
+            ),
+          ),
+          daysOfWeekStyle: DaysOfWeekStyle(
+            weekdayStyle: TextStyle(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
+            ),
+            weekendStyle: TextStyle(
+              color: colorScheme.error.withValues(alpha: 0.7),
+              fontWeight: FontWeight.w600,
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
+            ),
+          ),
+          onDaySelected: _onDaySelected,
+          onFormatChanged: (format) =>
+              setState(() => _updateCalendarFormat(format)),
+          onPageChanged: (focusedDay) {
+            _focusedDay = focusedDay;
+          },
+        ),
+      ),
+    );
+  }
+
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    if (!isSameDay(_selectedDay, selectedDay)) {
+      setState(() {
+        _selectedDay = selectedDay;
+        _focusedDay = focusedDay;
+      });
+    }
+  }
 
   StartingDayOfWeek _getFirstDayOfWeek() {
     switch (firstDay.value) {
@@ -279,27 +278,29 @@ class _CalendarTodosState extends State<CalendarTodos>
     }
   }
 
-  void _updateCalendarFormat(CalendarFormat format) => isar.writeTxnSync(() {
-    switch (format) {
-      case CalendarFormat.week:
-        settings.calendarFormat = 'week';
-        break;
-      case CalendarFormat.twoWeeks:
-        settings.calendarFormat = 'twoWeeks';
-        break;
-      case CalendarFormat.month:
-        settings.calendarFormat = 'month';
-        break;
-    }
-    isar.settings.putSync(settings);
-  });
+  void _updateCalendarFormat(CalendarFormat format) {
+    isar.writeTxnSync(() {
+      switch (format) {
+        case CalendarFormat.week:
+          settings.calendarFormat = 'week';
+          break;
+        case CalendarFormat.twoWeeks:
+          settings.calendarFormat = 'twoWeeks';
+          break;
+        case CalendarFormat.month:
+          settings.calendarFormat = 'month';
+          break;
+      }
+      isar.settings.putSync(settings);
+    });
+  }
 
-  Widget _buildTabBar(BuildContext context) => SliverOverlapAbsorber(
-    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-    sliver: SliverPersistentHeader(
-      delegate: MyDelegate(
-        child: Obx(
-          () => Row(
+  Widget _buildTabBar(BuildContext context) {
+    return SliverOverlapAbsorber(
+      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+      sliver: SliverPersistentHeader(
+        delegate: MyDelegate(
+          child: Row(
             children: [
               Expanded(
                 child: TabBar(
@@ -308,121 +309,90 @@ class _CalendarTodosState extends State<CalendarTodos>
                   isScrollable: true,
                   dividerColor: Colors.transparent,
                   splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                    (Set<WidgetState> states) => Colors.transparent,
-                  ),
+                  overlayColor: WidgetStateProperty.all(Colors.transparent),
                   tabs: [
                     Tab(text: 'doing'.tr),
                     Tab(text: 'done'.tr),
                   ],
                 ),
               ),
-              PopupMenuButton<SortOption>(
-                tooltip: 'sort'.tr,
-                icon: const Icon(IconsaxPlusLinear.sort, size: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                onSelected: (SortOption option) {
-                  setState(() => _sortOption = option);
-                  settings.sortOption = option;
-                  isar.writeTxnSync(() => isar.settings.putSync(settings));
-                },
-                itemBuilder: (context) => <PopupMenuEntry<SortOption>>[
-                  PopupMenuItem(
-                    value: SortOption.none,
-                    child: Text('sortByIndex'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.alphaAsc,
-                    child: Text('sortByNameAsc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.alphaDesc,
-                    child: Text('sortByNameDesc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.dateAsc,
-                    child: Text('sortByDateAsc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.dateDesc,
-                    child: Text('sortByDateDesc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.dateNotifAsc,
-                    child: Text('sortByDateNotifAsc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.dateNotifDesc,
-                    child: Text('sortByDateNotifDesc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.priorityAsc,
-                    child: Text('sortByPriorityAsc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.priorityDesc,
-                    child: Text('sortByPriorityDesc'.tr),
-                  ),
-                  PopupMenuItem(
-                    value: SortOption.random,
-                    child: Text('sortByRandom'.tr),
-                  ),
-                ],
+              SortMenu(
+                currentSortOption: sortOption,
+                onSortChanged: _handleSortChanged,
               ),
-              if (todoController.isMultiSelectionTodo.isTrue)
-                Checkbox(
-                  value: _areAllSelectedInCurrentTab(),
-                  onChanged: (val) => _selectAllInCurrentTab(val!),
-                  shape: const CircleBorder(),
-                ),
+              SizedBox(width: AppConstants.spacingS),
             ],
           ),
         ),
-        height: kTextTabBarHeight,
+        floating: true,
+        pinned: true,
       ),
-      floating: true,
-      pinned: true,
-    ),
-  );
+    );
+  }
 
-  Widget _buildTabBarView() => TabBarView(
-    controller: tabController,
-    children: [
-      TodosList(
-        allTodos: false,
-        calendar: true,
-        done: false,
-        selectedDay: selectedDay,
-        searchTodo: '',
-        sortOption: _sortOption,
-      ),
-      TodosList(
-        allTodos: false,
-        calendar: true,
-        done: true,
-        selectedDay: selectedDay,
-        searchTodo: '',
-        sortOption: _sortOption,
-      ),
-    ],
-  );
+  void _handleSortChanged(SortOption option) {
+    updateSortOption(option);
+    settings.sortOption = option;
+    isar.writeTxnSync(() => isar.settings.putSync(settings));
+  }
+
+  Widget _buildTabBarView() {
+    return TabBarView(
+      controller: tabController,
+      children: [
+        TodosList(
+          calendar: true,
+          allTodos: false,
+          done: false,
+          selectedDay: _selectedDay,
+          searchTodo: searchFilter,
+          sortOption: sortOption,
+        ),
+        TodosList(
+          calendar: true,
+          allTodos: false,
+          done: true,
+          selectedDay: _selectedDay,
+          searchTodo: searchFilter,
+          sortOption: sortOption,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectionActionBar(BuildContext context) {
+    return Obx(() {
+      if (!todoController.isMultiSelectionTodo.isTrue) {
+        return const SizedBox.shrink();
+      }
+
+      return SelectionActionBar(
+        onTransfer: () => showTodosTransferSheet(context),
+        onDelete: () => showDeleteDialog(context),
+        onSelectAll: _toggleSelectAll,
+        isAllSelected: _areAllSelectedInCurrentTab(),
+      );
+    });
+  }
 
   bool _areAllSelectedInCurrentTab() {
     final isDone = tabController.index == 1;
     return todoController.areAllSelected(
       done: isDone,
-      selectedDay: selectedDay,
+      searchQuery: searchFilter,
+      selectedDay: _selectedDay,
     );
   }
 
-  void _selectAllInCurrentTab(bool select) {
+  void _toggleSelectAll() {
+    final allSelected = _areAllSelectedInCurrentTab();
     final isDone = tabController.index == 1;
+
     todoController.selectAll(
-      select: select,
+      select: !allSelected,
       done: isDone,
-      selectedDay: selectedDay,
+      searchQuery: searchFilter,
+      selectedDay: _selectedDay,
     );
   }
 }

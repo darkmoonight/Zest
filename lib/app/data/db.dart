@@ -11,7 +11,7 @@ class Settings {
   String timeformat = '24';
   bool materialColor = true;
   bool amoledTheme = false;
-  bool? isImage = true;
+  bool? isImage = false;
   bool? screenPrivacy = false;
   String? language;
   String firstDay = 'monday';

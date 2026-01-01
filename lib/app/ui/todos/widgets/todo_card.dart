@@ -1,4 +1,3 @@
-import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -6,7 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/ui/todos/view/todo_todos.dart';
+import 'package:zest/app/constants/app_constants.dart';
 import 'package:zest/app/utils/notification.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
 import 'package:zest/main.dart';
 
 class TodoCard extends StatefulWidget {
@@ -33,114 +34,203 @@ class TodoCard extends StatefulWidget {
   State<TodoCard> createState() => _TodoCardState();
 }
 
-class _TodoCardState extends State<TodoCard> {
-  final todoController = Get.put(TodoController());
-  bool tappedRightSide = false;
+class _TodoCardState extends State<TodoCard>
+    with SingleTickerProviderStateMixin {
+  late final TodoController _todoController = Get.find<TodoController>();
+  late final AnimationController _animationController;
+  late final Animation<double> _scaleAnimation;
+
+  bool _tappedRightSide = false;
 
   @override
-  Widget build(BuildContext context) => StatefulBuilder(
-    builder: (context, innerState) => GestureDetector(
-      behavior: HitTestBehavior.opaque,
+  void initState() {
+    super.initState();
+    _initializeAnimation();
+  }
 
-      onTapDown: (details) {
-        final box = context.findRenderObject() as RenderBox;
-        final local = details.localPosition;
-        final width = box.size.width;
+  void _initializeAnimation() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: AppConstants.shortAnimation,
+    );
 
-        const rightZoneFraction = 0.15;
-        final rightZoneStart = width * (1 - rightZoneFraction);
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
 
-        tappedRightSide = local.dx >= rightZoneStart;
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
-        if (tappedRightSide) {
-          Get.key.currentState!.push(
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  TodosTodo(key: ValueKey(widget.todo.id), todo: widget.todo),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                    return SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 1),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
-                    );
-                  },
-              transitionDuration: const Duration(milliseconds: 240),
+  @override
+  Widget build(BuildContext context) {
+    return StatefulBuilder(
+      builder: (context, innerState) => ScaleTransition(
+        scale: _scaleAnimation,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: _handleTapDown,
+          onTapUp: (details) => _handleTapUp(details),
+          onTapCancel: _handleTapCancel,
+          onDoubleTap: widget.onDoubleTap,
+          child: _buildCard(context, innerState),
+        ),
+      ),
+    );
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    _animationController.forward();
+
+    final box = context.findRenderObject() as RenderBox?;
+    if (box == null) return;
+
+    final local = details.localPosition;
+    final width = box.size.width;
+    const rightZoneFraction = 0.15;
+    final rightZoneStart = width * (1 - rightZoneFraction);
+
+    _tappedRightSide = local.dx >= rightZoneStart;
+
+    if (_tappedRightSide) {
+      Get.key.currentState!.push(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              TodosTodo(key: ValueKey(widget.todo.id), todo: widget.todo),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 240),
+        ),
+      );
+    }
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    _animationController.reverse();
+    if (!_tappedRightSide) {
+      widget.onTap();
+    }
+  }
+
+  void _handleTapCancel() {
+    _animationController.reverse();
+  }
+
+  Widget _buildCard(BuildContext context, StateSetter innerState) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isMobile = ResponsiveUtils.isMobile(context);
+
+    return Obx(() {
+      final isSelected =
+          _todoController.isMultiSelectionTodo.isTrue &&
+          _todoController.selectedTodo.contains(widget.todo);
+
+      return AnimatedContainer(
+        duration: AppConstants.shortAnimation,
+        curve: Curves.easeInOut,
+        margin: EdgeInsets.symmetric(
+          horizontal: isMobile
+              ? AppConstants.spacingS + 2
+              : AppConstants.spacingM,
+          vertical: AppConstants.spacingXS,
+        ),
+        decoration: BoxDecoration(
+          border: isSelected
+              ? Border.all(
+                  color: colorScheme.primary,
+                  width: AppConstants.borderWidthThick,
+                )
+              : null,
+          borderRadius: BorderRadius.circular(
+            isSelected
+                ? AppConstants.borderRadiusXLarge
+                : AppConstants.borderRadiusLarge,
+          ),
+        ),
+        child: Card(
+          elevation: isSelected
+              ? AppConstants.elevationMedium
+              : AppConstants.elevationLow,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              isMobile ? 2 : AppConstants.spacingXS + 2,
+              isMobile ? AppConstants.spacingS + 2 : AppConstants.spacingM,
+              isMobile ? AppConstants.spacingS + 2 : AppConstants.spacingM + 2,
+              isMobile ? AppConstants.spacingS + 2 : AppConstants.spacingM,
             ),
-          );
-        }
-      },
-      onTapUp: (_) {
-        if (!tappedRightSide) {
-          widget.onTap();
-        }
-      },
-      onDoubleTap: widget.onDoubleTap,
-      child: _buildCard(context, innerState),
-    ),
-  );
-
-  Widget _buildCard(BuildContext context, StateSetter innerState) => Card(
-    shape: _getCardShape(),
-    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-      child: Row(
-        children: [
-          Flexible(
             child: Row(
               children: [
-                _buildCheckbox(innerState),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+                Flexible(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      _buildTodoName(),
-                      _buildTodoDescription(),
-                      _buildCreatedTime(),
-                      _buildCategoryInfo(),
-                      _buildCompletionTime(),
-                      _buildTagsAndPriority(),
+                      _buildCheckbox(innerState, colorScheme),
+                      SizedBox(width: AppConstants.spacingXS),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildTodoName(colorScheme),
+                            _buildTodoDescription(colorScheme),
+                            _buildCategoryInfo(colorScheme),
+                            _buildCreatedTime(colorScheme),
+                            _buildCompletionTime(colorScheme),
+                            _buildTagsAndPriority(),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
+                SizedBox(width: AppConstants.spacingXS + 2),
+                _buildAdditionalInfo(colorScheme),
               ],
             ),
           ),
-          _buildAdditionalInfo(),
-        ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildCheckbox(StateSetter innerState, ColorScheme colorScheme) {
+    return Transform.scale(
+      scale: ResponsiveUtils.isMobile(context) ? 1.0 : 1.1,
+      child: Checkbox(
+        value: widget.todo.done,
+        shape: const CircleBorder(),
+        onChanged: (val) {
+          if (val == null) return;
+
+          innerState(() {
+            widget.todo.done = val;
+            widget.todo.todoCompletionTime = val ? DateTime.now() : null;
+          });
+          _handleCheckboxChange(val);
+        },
       ),
-    ),
-  );
-
-  RoundedRectangleBorder? _getCardShape() =>
-      todoController.isMultiSelectionTodo.isTrue &&
-          todoController.selectedTodo.contains(widget.todo)
-      ? RoundedRectangleBorder(
-          side: BorderSide(color: context.theme.colorScheme.onPrimaryContainer),
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
-        )
-      : null;
-
-  Widget _buildCheckbox(StateSetter innerState) => Checkbox(
-    value: widget.todo.done,
-    shape: const CircleBorder(),
-    onChanged: (val) {
-      innerState(() {
-        widget.todo.done = val!;
-        widget.todo.todoCompletionTime = val ? DateTime.now() : null;
-      });
-      _handleCheckboxChange(val!);
-    },
-  );
+    );
+  }
 
   void _handleCheckboxChange(bool val) {
-    DateTime? date = widget.todo.todoCompletedTime;
+    final date = widget.todo.todoCompletedTime;
+
     if (val) {
-      flutterLocalNotificationsPlugin.cancel(widget.todo.id);
+      flutterLocalNotificationsPlugin?.cancel(widget.todo.id);
     } else if (date != null && DateTime.now().isBefore(date)) {
       NotificationShow().showNotification(
         widget.todo.id,
@@ -149,129 +239,294 @@ class _TodoCardState extends State<TodoCard> {
         widget.todo.todoCompletedTime,
       );
     }
+
     Future.delayed(
-      const Duration(milliseconds: 300),
-      () => todoController.updateTodoCheck(widget.todo),
+      AppConstants.shortAnimation,
+      () => _todoController.updateTodoCheck(widget.todo),
     );
   }
 
-  Widget _buildTodoName() => Text(
-    widget.todo.name,
-    style: context.textTheme.titleLarge?.copyWith(fontSize: 16),
-    overflow: TextOverflow.visible,
-  );
+  Widget _buildTodoName(ColorScheme colorScheme) {
+    return Text(
+      widget.todo.name,
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 15),
+        fontWeight: FontWeight.w600,
+        color: widget.todo.done
+            ? colorScheme.onSurfaceVariant
+            : colorScheme.onSurface,
+        decoration: widget.todo.done ? TextDecoration.lineThrough : null,
+        decorationColor: colorScheme.onSurfaceVariant,
+      ),
+      overflow: TextOverflow.visible,
+    );
+  }
 
-  Widget _buildTodoDescription() => widget.todo.description.isNotEmpty
-      ? Text(
-          widget.todo.description,
-          style: context.textTheme.labelLarge?.copyWith(color: Colors.grey),
-          overflow: TextOverflow.visible,
-        )
-      : const Offstage();
+  Widget _buildTodoDescription(ColorScheme colorScheme) {
+    if (widget.todo.description.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-  Widget _buildCategoryInfo() => (widget.allTodos || widget.calendar)
-      ? Row(
-          spacing: 5,
+    return Padding(
+      padding: const EdgeInsets.only(top: 3),
+      child: Text(
+        widget.todo.description,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+          color: colorScheme.onSurfaceVariant,
+          decoration: widget.todo.done ? TextDecoration.lineThrough : null,
+          decorationColor: colorScheme.onSurfaceVariant,
+        ),
+        overflow: TextOverflow.visible,
+        maxLines: 2,
+      ),
+    );
+  }
+
+  Widget _buildCategoryInfo(ColorScheme colorScheme) {
+    if (!((widget.allTodos || widget.calendar) &&
+        widget.todo.task.value != null)) {
+      return const SizedBox.shrink();
+    }
+
+    final task = widget.todo.task.value!;
+    final categoryColor = Color(task.taskColor);
+    final luminance = categoryColor.computeLuminance();
+    final isDarkColor = luminance < 0.5;
+    final textColor = isDarkColor
+        ? categoryColor.withValues(alpha: 1.0)
+        : _darkenColor(categoryColor, 0.4);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 5),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+        decoration: BoxDecoration(
+          color: categoryColor.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(7),
+          border: Border.all(
+            color: categoryColor.withValues(alpha: 0.35),
+            width: AppConstants.borderWidthThin,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            ColorIndicator(
-              height: 8,
-              width: 8,
-              borderRadius: 20,
-              color: Color(widget.todo.task.value!.taskColor),
-              onSelectFocus: false,
+            Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(
+                color: categoryColor,
+                shape: BoxShape.circle,
+              ),
             ),
-            Text(
-              widget.todo.task.value!.title,
-              style: context.textTheme.bodyLarge?.copyWith(
-                color: Colors.grey,
-                fontSize: 12,
+            const SizedBox(width: 5),
+            Flexible(
+              child: Text(
+                task.title,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
-        )
-      : const Offstage();
+        ),
+      ),
+    );
+  }
 
-  Widget _buildCreatedTime() => widget.todo.createdTime.year >= 2000
-      ? Text(
-          '${'created'.tr}: ${_formatCompletionTime(widget.todo.createdTime)}',
-          style: context.textTheme.labelLarge?.copyWith(
-            color: context.theme.colorScheme.secondary,
-            fontSize: 10,
+  Color _darkenColor(Color color, double amount) {
+    final hsl = HSLColor.fromColor(color);
+    final darkened = hsl.withLightness(
+      (hsl.lightness * (1 - amount)).clamp(0.0, 1.0),
+    );
+    return darkened.toColor();
+  }
+
+  Widget _buildCreatedTime(ColorScheme colorScheme) {
+    if (widget.todo.createdTime.year < 2000) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 3),
+      child: Row(
+        children: [
+          Icon(
+            IconsaxPlusLinear.clock_1,
+            size: 11,
+            color: colorScheme.onSurfaceVariant,
           ),
-        )
-      : const Offstage();
-
-  Widget _buildCompletionTime() =>
-      widget.todo.todoCompletedTime != null && !widget.calendar
-      ? Text(
-          _formatCompletionTime(widget.todo.todoCompletedTime!),
-          style: context.textTheme.labelLarge?.copyWith(
-            color: context.theme.colorScheme.secondary,
-            fontSize: 12,
+          const SizedBox(width: 3),
+          Text(
+            '${'created'.tr}: ${_formatCompletionTime(widget.todo.createdTime)}',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 10),
+            ),
           ),
-        )
-      : const Offstage();
+        ],
+      ),
+    );
+  }
 
-  String _formatCompletionTime(DateTime time) => timeformat.value == '12'
-      ? DateFormat.yMMMEd(locale.languageCode).add_jm().format(time)
-      : DateFormat.yMMMEd(locale.languageCode).add_Hm().format(time);
+  Widget _buildCompletionTime(ColorScheme colorScheme) {
+    if (widget.todo.todoCompletedTime == null || widget.calendar) {
+      return const SizedBox.shrink();
+    }
 
-  Widget _buildTagsAndPriority() => SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    child: Row(children: [_buildPriorityChip(), _buildTagsChips()]),
-  );
-
-  Widget _buildPriorityChip() => widget.todo.priority != Priority.none
-      ? _StatusChip(
-          icon: IconsaxPlusLinear.flag,
-          color: widget.todo.priority.color,
-          label: widget.todo.priority.name.tr,
-        )
-      : const Offstage();
-
-  Widget _buildTagsChips() => widget.todo.tags.isNotEmpty
-      ? Row(children: widget.todo.tags.map((e) => _TagsChip(label: e)).toList())
-      : const Offstage();
-
-  Widget _buildAdditionalInfo() => Padding(
-    padding: const EdgeInsets.only(right: 10),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      spacing: 5,
-      children: [
-        ?_buildCalendarTime(),
-        ?_buildFixedIcon(),
-        _buildTrailingText(),
-      ],
-    ),
-  );
-
-  Widget? _buildCalendarTime() => widget.calendar
-      ? Text(
-          _formatCalendarTime(widget.todo.todoCompletedTime!),
-          style: context.textTheme.labelLarge?.copyWith(
-            color: context.theme.colorScheme.secondary,
-            fontSize: 12,
+    return Padding(
+      padding: const EdgeInsets.only(top: 3),
+      child: Row(
+        children: [
+          Icon(
+            IconsaxPlusLinear.calendar_1,
+            size: 11,
+            color: colorScheme.primary,
           ),
-        )
-      : null;
+          const SizedBox(width: 3),
+          Text(
+            _formatCompletionTime(widget.todo.todoCompletedTime!),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: colorScheme.primary,
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  String _formatCalendarTime(DateTime time) => timeformat.value == '12'
-      ? DateFormat.jm(locale.languageCode).format(time)
-      : DateFormat.Hm(locale.languageCode).format(time);
+  String _formatCompletionTime(DateTime time) {
+    return timeformat.value == '12'
+        ? DateFormat.yMMMEd(locale.languageCode).add_jm().format(time)
+        : DateFormat.yMMMEd(locale.languageCode).add_Hm().format(time);
+  }
 
-  Widget? _buildFixedIcon() => widget.todo.fix
-      ? const Icon(
-          IconsaxPlusLinear.attach_square,
-          size: 20,
-          color: Colors.grey,
-        )
-      : null;
+  Widget _buildTagsAndPriority() {
+    if (widget.todo.priority == Priority.none && widget.todo.tags.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-  Widget _buildTrailingText() => Text(
-    '${widget.completedTodos}/${widget.createdTodos}',
-    style: context.textTheme.labelMedium?.copyWith(color: Colors.grey),
-  );
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(children: [_buildPriorityChip(), _buildTagsChips()]),
+      ),
+    );
+  }
+
+  Widget _buildPriorityChip() {
+    if (widget.todo.priority == Priority.none) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 5),
+      child: _StatusChip(
+        icon: IconsaxPlusBold.flag,
+        color: widget.todo.priority.color,
+        label: widget.todo.priority.name.tr,
+      ),
+    );
+  }
+
+  Widget _buildTagsChips() {
+    if (widget.todo.tags.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Row(
+      children: widget.todo.tags
+          .map(
+            (e) => Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: _TagsChip(label: e),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildAdditionalInfo(ColorScheme colorScheme) {
+    return Padding(
+      padding: const EdgeInsets.only(left: AppConstants.spacingXS + 2),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (widget.todo.fix) _buildFixedIcon(colorScheme),
+          if (widget.calendar) _buildCalendarTime(colorScheme),
+          _buildTrailingText(colorScheme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCalendarTime(ColorScheme colorScheme) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: colorScheme.tertiaryContainer,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Text(
+        _formatCalendarTime(widget.todo.todoCompletedTime!),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: colorScheme.onTertiaryContainer,
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 10),
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  String _formatCalendarTime(DateTime time) {
+    return timeformat.value == '12'
+        ? DateFormat.jm(locale.languageCode).format(time)
+        : DateFormat.Hm(locale.languageCode).format(time);
+  }
+
+  Widget _buildFixedIcon(ColorScheme colorScheme) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 5),
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Icon(
+        IconsaxPlusBold.attach_square,
+        size: 14,
+        color: colorScheme.onSecondaryContainer,
+      ),
+    );
+  }
+
+  Widget _buildTrailingText(ColorScheme colorScheme) {
+    return AnimatedContainer(
+      duration: AppConstants.shortAnimation,
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Text(
+        '${widget.completedTodos}/${widget.createdTodos}',
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: colorScheme.onSurface,
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
 }
 
 class _TagsChip extends StatelessWidget {
@@ -280,17 +535,40 @@ class _TagsChip extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(right: 5, top: 2),
-    child: Chip(
-      elevation: 4,
-      avatar: const Icon(IconsaxPlusLinear.tag),
-      label: Text(label),
-      padding: EdgeInsets.zero,
-      labelPadding: const EdgeInsets.only(right: 10),
-      visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.2),
+          width: AppConstants.borderWidthThin,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            IconsaxPlusBold.tag_2,
+            size: 12,
+            color: colorScheme.onSecondaryContainer,
+          ),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSecondaryContainer,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _StatusChip extends StatelessWidget {
@@ -305,15 +583,34 @@ class _StatusChip extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(right: 5, top: 2),
-    child: Chip(
-      elevation: 4,
-      avatar: Icon(icon, color: color),
-      label: Text(label),
-      padding: EdgeInsets.zero,
-      labelPadding: const EdgeInsets.only(right: 10),
-      visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final chipColor = color ?? Theme.of(context).colorScheme.primary;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: chipColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: chipColor.withValues(alpha: 0.3),
+          width: AppConstants.borderWidthThin,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: chipColor),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+              fontWeight: FontWeight.w600,
+              color: chipColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

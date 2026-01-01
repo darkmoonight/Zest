@@ -1,23 +1,20 @@
-import 'dart:io';
-import 'package:display_mode/display_mode.dart';
-import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flag_secure/flag_secure.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:zest/app/controller/isar_controller.dart';
 import 'package:zest/app/ui/home.dart';
 import 'package:zest/app/ui/onboarding.dart';
 import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
 import 'package:zest/app/ui/todos/view/calendar_todos.dart';
+import 'package:zest/app/utils/snackbar_overlay.dart';
 import 'package:zest/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:isar_community/isar.dart';
-import 'package:zest/theme/theme_controller.dart';
+import 'package:zest/app/controller/theme_controller.dart';
 import 'package:zest/app/utils/device_info.dart';
 import 'app/data/db.dart';
 import 'app/ui/todos/view/all_todos.dart';
@@ -25,11 +22,12 @@ import 'app/utils/notification.dart';
 import 'translation/translation.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:quick_actions/quick_actions.dart';
 import 'package:zest/app/ui/todos/widgets/todos_action.dart';
+import 'platform/platform_features.dart'
+    if (dart.library.io) 'platform/platform_features_mobile.dart'
+    hide DynamicColorBuilder;
 
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 
 late Isar isar;
 late Settings settings;
@@ -69,42 +67,68 @@ void main() async {
 
 Future<void> initializeApp() async {
   DeviceFeature().init();
-  if (Platform.isAndroid) {
-    await setOptimalDisplayMode();
+  await PlatformFeatures.initialize();
+
+  if (kDebugMode) {
+    PlatformFeatures.logPlatformInfo();
   }
+
   await initializeTimeZone();
   await initializeNotifications();
-  await IsarController().openDB();
+  await IsarController.openDB();
   await initSettings();
-  try {
-    if (settings.screenPrivacy == true) {
-      await FlagSecure.set();
-    } else {
-      await FlagSecure.unset();
-    }
-  } on PlatformException {
-    // ignore
+  await PlatformFeatures.setScreenPrivacy(settings.screenPrivacy ?? false);
+
+  if (PlatformFeatures.isMobile) {
+    await PlatformFeatures.setSystemUIMode(edgeToEdge: true);
   }
 }
 
 Future<void> initializeTimeZone() async {
-  final TimezoneInfo timeZoneName = await FlutterTimezone.getLocalTimezone();
-  tz.initializeTimeZones();
-  tz.setLocalLocation(tz.getLocation(timeZoneName.identifier));
+  try {
+    final TimezoneInfo timeZoneName = await FlutterTimezone.getLocalTimezone();
+    tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation(timeZoneName.identifier));
+  } catch (e) {
+    tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('UTC'));
+    debugPrint('Error initializing timezone: $e');
+  }
 }
 
 Future<void> initializeNotifications() async {
+  if (!PlatformFeatures.supportsNotifications) return;
+
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
   const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-  const initializationSettings = InitializationSettings(
-    android: androidSettings,
+  const iosSettings = DarwinInitializationSettings(
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestSoundPermission: true,
+  );
+  const linuxSettings = LinuxInitializationSettings(
+    defaultActionName: 'Open notification',
   );
 
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-    onDidReceiveNotificationResponse: (NotificationResponse response) async =>
-        await handleNotificationResponse(response),
-    onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+  const initializationSettings = InitializationSettings(
+    android: androidSettings,
+    iOS: iosSettings,
+    macOS: iosSettings,
+    linux: linuxSettings,
   );
+  try {
+    await flutterLocalNotificationsPlugin!.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) async =>
+          await handleNotificationResponse(response),
+      onDidReceiveBackgroundNotificationResponse: kIsWeb
+          ? null
+          : notificationTapBackground,
+    );
+  } catch (e) {
+    debugPrint('Error initializing notifications: $e');
+  }
 }
 
 @pragma('vm:entry-point')
@@ -133,25 +157,13 @@ Future<void> handleNotificationResponse(NotificationResponse response) async {
         break;
     }
   } catch (e) {
-    // ignore
+    debugPrint('Error handling notification: $e');
   }
 }
 
 Future<void> snoozeTodo(int todoId) async {
   try {
-    Isar? isarInstance;
-
-    if (Isar.instanceNames.isEmpty) {
-      final dir = await getApplicationSupportDirectory();
-      isarInstance = await Isar.open(
-        [TasksSchema, TodosSchema, SettingsSchema],
-        directory: dir.path,
-        inspector: true,
-      );
-    } else {
-      isarInstance = Isar.getInstance();
-    }
-
+    final isarInstance = await _getIsarInstance();
     if (isarInstance == null) return;
     settings = isarInstance.settings.where().findFirstSync() ?? Settings();
 
@@ -183,31 +195,18 @@ Future<void> snoozeTodo(int todoId) async {
       todo.todoCompletedTime = DateTime.now().add(
         Duration(minutes: settings.snoozeDuration),
       );
-      await isarInstance!.todos.put(todo);
+      await isarInstance.todos.put(todo);
     });
 
     await isarInstance.close();
   } catch (e) {
-    // ignore
+    debugPrint('Error snoozing todo: $e');
   }
 }
 
 Future<void> markTodoAsDone(int todoId) async {
   try {
-    Isar? isarInstance;
-
-    if (Isar.instanceNames.isEmpty) {
-      final dir = await getApplicationSupportDirectory();
-
-      isarInstance = await Isar.open(
-        [TasksSchema, TodosSchema, SettingsSchema],
-        directory: dir.path,
-        inspector: true,
-      );
-    } else {
-      isarInstance = Isar.getInstance();
-    }
-
+    final isarInstance = await _getIsarInstance();
     if (isarInstance == null) return;
 
     final todo = await isarInstance.todos.get(todoId);
@@ -217,46 +216,41 @@ Future<void> markTodoAsDone(int todoId) async {
       await isarInstance.writeTxn(() async {
         todo.done = true;
         todo.todoCompletionTime = DateTime.now();
-        await isarInstance!.todos.put(todo);
+        await isarInstance.todos.put(todo);
       });
-      await flutterLocalNotificationsPlugin.cancel(todoId);
+      if (flutterLocalNotificationsPlugin != null) {
+        await flutterLocalNotificationsPlugin!.cancel(todoId);
+      }
       await isarInstance.close();
     }
   } catch (e) {
-    // ignore
+    debugPrint('Error marking todo as done: $e');
   }
 }
 
-Future<void> setOptimalDisplayMode() async {
-  final List<DisplayModeJson> supported = await FlutterDisplayMode.supported;
-  final DisplayModeJson active = await FlutterDisplayMode.active;
-  final List<DisplayModeJson> sameResolution =
-      supported
-          .where(
-            (DisplayModeJson m) =>
-                m.width == active.width && m.height == active.height,
-          )
-          .toList()
-        ..sort(
-          (DisplayModeJson a, DisplayModeJson b) =>
-              b.refreshRate.compareTo(a.refreshRate),
-        );
-  final DisplayModeJson mostOptimalMode = sameResolution.isNotEmpty
-      ? sameResolution.first
-      : active;
-  await FlutterDisplayMode.setPreferredMode(mostOptimalMode);
+Future<Isar?> _getIsarInstance() async {
+  if (Isar.instanceNames.isEmpty) {
+    final dir = await getApplicationSupportDirectory();
+    return await Isar.open(
+      [TasksSchema, TodosSchema, SettingsSchema],
+      directory: dir.path,
+      inspector: true,
+    );
+  } else {
+    return Isar.getInstance();
+  }
 }
 
 Future<void> initSettings() async {
   settings = isar.settings.where().findFirstSync() ?? Settings();
-  settings.language ??= '${Get.deviceLocale}';
+  settings.language ??= Get.deviceLocale.toString();
   settings.theme ??= 'system';
-  settings.isImage ??= true;
+  settings.isImage ??= false;
   settings.screenPrivacy ??= false;
-  if (settings.snoozeDuration == 0 || settings.snoozeDuration < 0) {
+  if (settings.snoozeDuration <= 0) {
     settings.snoozeDuration = 10;
   }
-  isar.writeTxnSync(() => isar.settings.putSync(settings));
+  await isar.writeTxn(() => isar.settings.put(settings));
 }
 
 class MyApp extends StatefulWidget {
@@ -283,7 +277,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final themeController = Get.put(ThemeController());
-  final QuickActions _quickActions = const QuickActions();
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final GlobalKey<HomePageState> _homeKey = GlobalKey<HomePageState>();
   String? _pendingShortcut;
@@ -317,39 +310,44 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _initQuickActions() {
-    _quickActions.initialize((String shortcutType) {
-      _pendingShortcut = shortcutType;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _tryHandlePending());
-    });
+    PlatformFeatures.initializeQuickActions(
+      onShortcut: (String shortcutType) {
+        _pendingShortcut = shortcutType;
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _tryHandlePending(),
+        );
+      },
+    );
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _setQuickActionsItems(),
     );
   }
 
   void _setQuickActionsItems() {
-    final items = <ShortcutItem>[
-      ShortcutItem(
+    if (!PlatformFeatures.supportsQuickActions) return;
+
+    PlatformFeatures.setQuickActionItems([
+      QuickActionItem(
         type: 'action_new_categories',
         localizedTitle: 'addCategory'.tr,
         icon: 'ic_shortcut_new_categories',
       ),
-      ShortcutItem(
+      QuickActionItem(
         type: 'action_new_todo',
         localizedTitle: 'addTodo'.tr,
         icon: 'ic_shortcut_new_todo',
       ),
-      ShortcutItem(
+      QuickActionItem(
         type: 'action_all_todos',
         localizedTitle: 'allTodos'.tr,
         icon: 'ic_shortcut_all_todos',
       ),
-      ShortcutItem(
+      QuickActionItem(
         type: 'action_calendar_todos',
         localizedTitle: 'calendar'.tr,
         icon: 'ic_shortcut_calendar_todos',
       ),
-    ];
-    _quickActions.setShortcutItems(items);
+    ]);
   }
 
   void _tryHandlePending() {
@@ -439,83 +437,80 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     final edgeToEdgeAvailable = DeviceFeature().isEdgeToEdgeAvailable();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: DynamicColorBuilder(
         builder: (lightColorScheme, darkColorScheme) {
-          final lightMaterialTheme = lightTheme(
-            lightColorScheme?.surface,
+          return _buildMaterialApp(
+            edgeToEdgeAvailable,
             lightColorScheme,
-            edgeToEdgeAvailable,
-          );
-          final darkMaterialTheme = darkTheme(
-            darkColorScheme?.surface,
             darkColorScheme,
-            edgeToEdgeAvailable,
           );
-          final darkMaterialThemeOled = darkTheme(
-            oledColor,
-            darkColorScheme,
-            edgeToEdgeAvailable,
-          );
+        },
+      ),
+    );
+  }
 
-          return GetMaterialApp(
-            navigatorKey: _navigatorKey,
-            theme: materialColor
-                ? lightColorScheme != null
-                      ? lightMaterialTheme
-                      : lightTheme(
-                          lightColor,
-                          colorSchemeLight,
-                          edgeToEdgeAvailable,
-                        )
-                : lightTheme(lightColor, colorSchemeLight, edgeToEdgeAvailable),
-            darkTheme: amoledTheme
-                ? materialColor
-                      ? darkColorScheme != null
-                            ? darkMaterialThemeOled
-                            : darkTheme(
-                                oledColor,
-                                colorSchemeDark,
-                                edgeToEdgeAvailable,
-                              )
+  Widget _buildMaterialApp(
+    bool edgeToEdgeAvailable,
+    ColorScheme? lightColorScheme,
+    ColorScheme? darkColorScheme,
+  ) {
+    final lightMaterialTheme = lightTheme(
+      lightColorScheme?.surface,
+      lightColorScheme,
+      edgeToEdgeAvailable,
+    );
+    final darkMaterialTheme = darkTheme(
+      darkColorScheme?.surface,
+      darkColorScheme,
+      edgeToEdgeAvailable,
+    );
+    final darkMaterialThemeOled = darkTheme(
+      oledColor,
+      darkColorScheme,
+      edgeToEdgeAvailable,
+    );
+
+    return GetMaterialApp(
+      navigatorKey: _navigatorKey,
+      theme: materialColor
+          ? lightColorScheme != null
+                ? lightMaterialTheme
+                : lightTheme(lightColor, colorSchemeLight, edgeToEdgeAvailable)
+          : lightTheme(lightColor, colorSchemeLight, edgeToEdgeAvailable),
+      darkTheme: amoledTheme
+          ? materialColor
+                ? darkColorScheme != null
+                      ? darkMaterialThemeOled
                       : darkTheme(
                           oledColor,
                           colorSchemeDark,
                           edgeToEdgeAvailable,
                         )
-                : materialColor
-                ? darkColorScheme != null
-                      ? darkMaterialTheme
-                      : darkTheme(
-                          darkColor,
-                          colorSchemeDark,
-                          edgeToEdgeAvailable,
-                        )
-                : darkTheme(darkColor, colorSchemeDark, edgeToEdgeAvailable),
-            themeMode: themeController.theme,
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            translations: Translation(),
-            locale: locale,
-            fallbackLocale: const Locale('en', 'US'),
-            supportedLocales: appLanguages
-                .map((e) => e['locale'] as Locale)
-                .toList(),
-            debugShowCheckedModeBanner: false,
-            home: settings.onboard
-                ? HomePage(key: _homeKey)
-                : const OnBoarding(),
-            builder: EasyLoading.init(),
-            title: 'Zest',
-          );
-        },
-      ),
+                : darkTheme(oledColor, colorSchemeDark, edgeToEdgeAvailable)
+          : materialColor
+          ? darkColorScheme != null
+                ? darkMaterialTheme
+                : darkTheme(darkColor, colorSchemeDark, edgeToEdgeAvailable)
+          : darkTheme(darkColor, colorSchemeDark, edgeToEdgeAvailable),
+      themeMode: themeController.theme,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      translations: Translation(),
+      locale: locale,
+      fallbackLocale: const Locale('en', 'US'),
+      supportedLocales: appLanguages.map((e) => e['locale'] as Locale).toList(),
+      debugShowCheckedModeBanner: false,
+      home: settings.onboard ? HomePage(key: _homeKey) : const OnBoarding(),
+      title: 'Zest',
+      builder: (context, child) {
+        return Stack(children: [child!, const SnackBarOverlayWidget()]);
+      },
     );
   }
 }
