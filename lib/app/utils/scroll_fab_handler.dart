@@ -1,29 +1,46 @@
+import 'dart:async';
 import 'package:flutter/rendering.dart';
 import 'package:zest/app/controller/fab_controller.dart';
 import 'package:flutter/material.dart';
 
-bool handleScrollFabVisibility({
-  required ScrollNotification notification,
-  required TabController tabController,
-  required FabController fabController,
-  int hideFabOnTabIndex = 1,
-}) {
-  if (notification.depth > 0) return false;
+class ScrollFabHandler {
+  static Timer? _throttleTimer;
+  static const _throttleDuration = Duration(milliseconds: 100);
 
-  if (notification is UserScrollNotification) {
+  static bool handleScrollFabVisibility({
+    required ScrollNotification notification,
+    required TabController tabController,
+    required FabController fabController,
+    int hideFabOnTabIndex = 1,
+  }) {
+    if (notification.depth > 0 || notification is! UserScrollNotification) {
+      return false;
+    }
+
+    if (_throttleTimer?.isActive ?? false) {
+      return false;
+    }
+
+    _throttleTimer = Timer(_throttleDuration, () {});
+
     final direction = notification.direction;
+    final shouldHide = direction == ScrollDirection.reverse;
+    final shouldShow = direction == ScrollDirection.forward;
 
     if (tabController.index == hideFabOnTabIndex) {
-      if (direction == ScrollDirection.reverse) {
-        fabController.hide();
-      }
+      if (shouldHide) fabController.hide();
     } else {
-      if (direction == ScrollDirection.reverse) {
+      if (shouldHide) {
         fabController.hide();
-      } else if (direction == ScrollDirection.forward) {
+      } else if (shouldShow) {
         fabController.show();
       }
     }
+
+    return true;
   }
-  return true;
+
+  static void dispose() {
+    _throttleTimer?.cancel();
+  }
 }

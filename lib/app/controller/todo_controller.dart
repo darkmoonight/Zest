@@ -1,13 +1,13 @@
 import 'dart:async';
-import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:isar_community/isar.dart';
 import 'package:zest/app/data/db.dart';
-import 'package:zest/app/utils/notification.dart';
-import 'package:zest/main.dart';
+import 'package:zest/app/data/repositories/task_repository.dart';
+import 'package:zest/app/data/repositories/todo_repository.dart';
+import 'package:zest/app/services/task_service.dart';
+import 'package:zest/app/services/todo_service.dart';
+import 'package:zest/app/services/notification_service.dart';
+import 'package:zest/app/constants/app_constants.dart';
 
 extension FirstWhereOrNull<E> on Iterable<E> {
   E? firstWhereOrNull(bool Function(E) test) {
@@ -19,80 +19,121 @@ extension FirstWhereOrNull<E> on Iterable<E> {
 }
 
 class TodoController extends GetxController {
+  // ==================== Stream Subscriptions ====================
+  StreamSubscription<void>? _taskWatcherSubscription;
+  StreamSubscription<void>? _todoWatcherSubscription;
+
+  // ==================== Repositories ====================
+  late final TaskRepository _taskRepo;
+  late final TodoRepository _todoRepo;
+
+  // ==================== Services ====================
+  late final TaskService _taskService;
+  late final TodoService _todoService;
+
+  // ==================== Observable State ====================
   final tasks = <Tasks>[].obs;
   final todos = <Todos>[].obs;
 
+  // Multi-selection Tasks
   final selectedTask = <Tasks>[].obs;
   final isMultiSelectionTask = false.obs;
 
+  // Multi-selection Todos
   final selectedTodo = <Todos>[].obs;
   final selectedTodoIds = <int>{}.obs;
   final isMultiSelectionTodo = false.obs;
 
+  // PopScope control
   final isPop = true.obs;
 
-  final duration = const Duration(milliseconds: 500);
-  DateTime now = DateTime.now();
-
+  // ==================== Private ====================
   Timer? _loadDebounce;
+
+  // ==================== Lifecycle ====================
 
   @override
   void onInit() {
     super.onInit();
-    loadTasksAndTodos();
-
-    isar.tasks.watchLazy().listen((_) {
-      _loadDebounce?.cancel();
-      _loadDebounce = Timer(
-        const Duration(milliseconds: 150),
-        loadTasksAndTodos,
-      );
-    });
-
-    isar.todos.watchLazy().listen((_) {
-      _loadDebounce?.cancel();
-      _loadDebounce = Timer(
-        const Duration(milliseconds: 150),
-        loadTasksAndTodos,
-      );
-    });
+    _initializeRepositories();
+    _initializeServices();
+    _loadTasksAndTodos();
+    _setupWatchers();
   }
 
   @override
   void onClose() {
     _loadDebounce?.cancel();
+    _taskWatcherSubscription?.cancel();
+    _todoWatcherSubscription?.cancel();
     super.onClose();
   }
 
-  // ------------------------
-  // Load
-  // ------------------------
-  void loadTasksAndTodos() {
+  void _initializeRepositories() {
+    _taskRepo = TaskRepository();
+    _todoRepo = TodoRepository();
+  }
+
+  void _initializeServices() {
+    final notificationService = NotificationService();
+
+    _taskService = TaskService(
+      taskRepo: _taskRepo,
+      todoRepo: _todoRepo,
+      notificationService: notificationService,
+    );
+
+    _todoService = TodoService(
+      todoRepo: _todoRepo,
+      notificationService: notificationService,
+    );
+  }
+
+  void _setupWatchers() {
+    _taskWatcherSubscription = _taskRepo.watchLazy().listen((_) {
+      _debounceLoad();
+    });
+
+    _todoWatcherSubscription = _todoRepo.watchLazy().listen((_) {
+      _debounceLoad();
+    });
+  }
+
+  void _debounceLoad() {
+    _loadDebounce?.cancel();
+    _loadDebounce = Timer(AppConstants.debounceDelay, _loadTasksAndTodos);
+  }
+
+  // ==================== Load Data ====================
+
+  void _loadTasksAndTodos() {
     final preservedSelectedIds = selectedTodoIds.toSet();
 
-    final newTasks = isar.tasks.where().sortByIndex().findAllSync();
-    final newTodos = isar.todos.where().sortByIndex().findAllSync();
+    final newTasks = _taskRepo.getAll();
+    final newTodos = _todoRepo.getAll();
 
     tasks.assignAll(newTasks);
     todos.assignAll(newTodos);
-    tasks.refresh();
-    todos.refresh();
 
-    final restored = <Todos>[];
-    for (final id in preservedSelectedIds) {
-      final match = todos.firstWhereOrNull((t) => t.id == id);
-      if (match != null) {
-        restored.add(match);
-      } else {
-        preservedSelectedIds.remove(id);
-      }
+    _restoreSelectedTodos(preservedSelectedIds);
+  }
+
+  void _restoreSelectedTodos(Set<int> preservedIds) {
+    if (preservedIds.isEmpty) {
+      doMultiSelectionTodoClear();
+      return;
     }
 
-    selectedTodo.assignAll(restored);
-    selectedTodo.refresh();
+    final todosMap = {for (var todo in todos) todo.id: todo};
+    final restored = preservedIds
+        .map((id) => todosMap[id])
+        .whereType<Todos>()
+        .toList();
 
-    selectedTodoIds.assignAll(selectedTodo.map((e) => e.id).toSet());
-    if (selectedTodo.isEmpty) {
+    selectedTodo.assignAll(restored);
+    selectedTodoIds.assignAll(restored.map((e) => e.id));
+
+    if (restored.isEmpty) {
       doMultiSelectionTodoClear();
     } else {
       isMultiSelectionTodo.value = true;
@@ -100,681 +141,285 @@ class TodoController extends GetxController {
     }
   }
 
-  // ------------------------
-  // Tasks
-  // ------------------------
-  Future<void> addTask(String title, String desc, Color myColor) async {
-    if (await isTaskDuplicate(title)) {
-      EasyLoading.showError('duplicateCategory'.tr, duration: duration);
-      return;
-    }
+  // ==================== Tasks CRUD ====================
 
-    final taskCreate = Tasks(
+  Future<void> addTask(String title, String description, Color color) async {
+    final task = await _taskService.createTask(
       title: title,
-      description: desc,
-      taskColor: myColor.value32bit,
-      index: tasks.length,
+      description: description,
+      color: color,
+      currentTaskCount: tasks.length,
     );
 
-    isar.writeTxnSync(() => isar.tasks.putSync(taskCreate));
-
-    tasks.add(taskCreate);
-    tasks.refresh();
-
-    EasyLoading.showSuccess('createCategory'.tr, duration: duration);
-  }
-
-  Future<bool> isTaskDuplicate(String title) async {
-    final searchTask = isar.tasks.filter().titleEqualTo(title).findAllSync();
-    return searchTask.isNotEmpty;
+    if (task != null) {
+      tasks.add(task);
+    }
   }
 
   Future<void> updateTask(
     Tasks task,
     String title,
-    String desc,
-    Color myColor,
+    String description,
+    Color color,
   ) async {
-    isar.writeTxnSync(() {
-      task.title = title;
-      task.description = desc;
-      task.taskColor = myColor.value32bit;
-      isar.tasks.putSync(task);
-    });
+    await _taskService.updateTask(
+      task: task,
+      title: title,
+      description: description,
+      color: color,
+    );
 
-    refreshTask(task);
-    EasyLoading.showSuccess('editCategory'.tr, duration: duration);
+    _refreshTask(task);
   }
 
-  void refreshTask(Tasks task) {
+  void _refreshTask(Tasks task) {
     final idx = tasks.indexWhere((t) => t.id == task.id);
     if (idx != -1) {
       tasks[idx] = task;
       tasks.refresh();
     } else {
-      loadTasksAndTodos();
+      _loadTasksAndTodos();
     }
     todos.refresh();
   }
 
   Future<void> deleteTask(List<Tasks> taskList) async {
-    final copy = List<Tasks>.from(taskList);
+    if (taskList.isEmpty) return;
 
-    for (final t in copy) {
-      await cancelNotificationsForTask(t);
-      await deleteTodosForTask(t);
-      deleteTaskFromDB(t);
-    }
+    _loadDebounce?.cancel();
 
-    reindexTasks();
-    EasyLoading.showSuccess(
-      'categoryDelete'.tr,
-      duration: const Duration(seconds: 2),
-    );
-  }
+    await _taskService.deleteTasks(taskList);
 
-  Future<void> cancelNotificationsForTask(Tasks task) async {
-    final getTodo = isar.todos
-        .filter()
-        .task((q) => q.idEqualTo(task.id))
-        .findAllSync();
-    for (var todo in getTodo) {
-      if (todo.todoCompletedTime != null &&
-          todo.todoCompletedTime!.isAfter(DateTime.now())) {
-        await flutterLocalNotificationsPlugin.cancel(todo.id);
-      }
-    }
-  }
-
-  Future<void> deleteTodosForTask(Tasks task) async {
-    final list = isar.todos
-        .filter()
-        .task((q) => q.idEqualTo(task.id))
-        .findAllSync();
-
-    for (var todo in list) {
-      if (todo.todoCompletedTime != null &&
-          todo.todoCompletedTime!.isAfter(DateTime.now())) {
-        await flutterLocalNotificationsPlugin.cancel(todo.id);
-      }
-    }
-
-    for (var root in list) {
-      await _deleteTodoRecursive(root);
-    }
-  }
-
-  void deleteTaskFromDB(Tasks task) {
-    tasks.removeWhere((t) => t.id == task.id);
-    isar.writeTxnSync(() => isar.tasks.deleteSync(task.id));
+    tasks.assignAll(_taskRepo.getAll());
+    _reindexTasks();
   }
 
   Future<void> archiveTask(List<Tasks> taskList) async {
-    final copy = List<Tasks>.from(taskList);
-    for (var task in copy) {
-      await cancelNotificationsForTask(task);
-      archiveTaskInDB(task);
-    }
-    EasyLoading.showSuccess(
-      'categoryArchive'.tr,
-      duration: const Duration(seconds: 2),
-    );
-  }
+    if (taskList.isEmpty) return;
 
-  void archiveTaskInDB(Tasks task) {
-    isar.writeTxnSync(() {
-      task.archive = true;
-      isar.tasks.putSync(task);
-    });
-    tasks.refresh();
-    todos.refresh();
+    _loadDebounce?.cancel();
+    await _taskService.archiveTasks(taskList);
+    tasks.assignAll(_taskRepo.getAll());
+    todos.assignAll(_todoRepo.getAll());
+    doMultiSelectionTaskClear();
+    _resyncSelectedTodoFromIds();
   }
 
   Future<void> noArchiveTask(List<Tasks> taskList) async {
-    final copy = List<Tasks>.from(taskList);
-    for (var task in copy) {
-      await createNotificationsForTask(task);
-      noArchiveTaskInDB(task);
-    }
-    EasyLoading.showSuccess(
-      'noCategoryArchive'.tr,
-      duration: const Duration(seconds: 2),
+    if (taskList.isEmpty) return;
+
+    _loadDebounce?.cancel();
+    await _taskService.unarchiveTasks(taskList);
+    tasks.assignAll(_taskRepo.getAll());
+    todos.assignAll(_todoRepo.getAll());
+    doMultiSelectionTaskClear();
+    _resyncSelectedTodoFromIds();
+  }
+
+  Future<void> reorderTasks({
+    required List<Tasks> filteredTasks,
+    required bool archived,
+  }) async {
+    if (filteredTasks.isEmpty) return;
+
+    await _taskService.reorderTasks(
+      allTasks: tasks.toList(),
+      filteredTasks: filteredTasks,
     );
+
+    tasks.assignAll(_taskRepo.getAll());
   }
 
-  Future<void> createNotificationsForTask(Tasks task) async {
-    final getTodo = isar.todos
-        .filter()
-        .task((q) => q.idEqualTo(task.id))
-        .findAllSync();
-    for (var todo in getTodo) {
-      if (todo.todoCompletedTime != null &&
-          todo.todoCompletedTime!.isAfter(now)) {
-        NotificationShow().showNotification(
-          todo.id,
-          todo.name,
-          todo.description,
-          todo.todoCompletedTime,
-        );
-      }
+  void _reindexTasks() {
+    final all = tasks.toList();
+
+    for (int i = 0; i < all.length; i++) {
+      all[i].index = i;
     }
+
+    _taskRepo.updateIndexes(all);
+    tasks.assignAll(all);
   }
 
-  void noArchiveTaskInDB(Tasks task) {
-    isar.writeTxnSync(() {
-      task.archive = false;
-      isar.tasks.putSync(task);
-    });
-    tasks.refresh();
-    todos.refresh();
-  }
+  // ==================== Todos CRUD ====================
 
-  // ------------------------
-  // Todos
-  // ------------------------
-  Future<Todos?> addTodo(
-    Tasks task,
-    String title,
-    String desc,
-    String time,
-    bool pined,
-    Priority priority,
-    List<String> tags, {
+  Future<Todos> addTodo({
+    required Tasks task,
+    required String title,
+    required String description,
+    required String time,
+    required bool pinned,
+    required Priority priority,
+    required List<String> tags,
     Todos? parent,
   }) async {
-    final date = parseDate(time);
-
-    final todoCreate = Todos(
-      name: title,
-      description: desc,
-      todoCompletedTime: date,
-      fix: pined,
-      createdTime: DateTime.now(),
+    final todo = await _todoService.createTodo(
+      task: task,
+      title: title,
+      description: description,
+      timeString: time,
+      pinned: pinned,
       priority: priority,
       tags: tags,
-      index: todos.length,
-    )..task.value = task;
+      currentTodoCount: todos.length,
+      parent: parent,
+    );
 
-    if (parent != null) {
-      todoCreate.parent.value = parent;
-    }
-
-    isar.writeTxnSync(() {
-      isar.todos.putSync(todoCreate);
-      todoCreate.task.saveSync();
-      if (parent != null) {
-        todoCreate.parent.saveSync();
-      }
-    });
-
-    todos.add(todoCreate);
-    todos.refresh();
-
-    if (date != null && now.isBefore(date)) {
-      NotificationShow().showNotification(
-        todoCreate.id,
-        todoCreate.name,
-        todoCreate.description,
-        date,
-      );
-    }
-
-    EasyLoading.showSuccess('todoCreate'.tr, duration: duration);
-    return todoCreate;
+    todos.add(todo);
+    return todo;
   }
 
-  DateTime? parseDate(String time) {
-    if (time.isEmpty) return null;
-    return timeformat.value == '12'
-        ? DateFormat.yMMMEd(locale.languageCode).add_jm().parse(time)
-        : DateFormat.yMMMEd(locale.languageCode).add_Hm().parse(time);
+  Future<void> updateTodo({
+    required Todos todo,
+    required Tasks task,
+    required String title,
+    required String description,
+    required String time,
+    required bool pinned,
+    required Priority priority,
+    required List<String> tags,
+  }) async {
+    await _todoService.updateTodo(
+      todo: todo,
+      task: task,
+      title: title,
+      description: description,
+      timeString: time,
+      pinned: pinned,
+      priority: priority,
+      tags: tags,
+    );
+
+    _refreshTodo(todo);
   }
 
-  Future<bool> isTodoDuplicate(Tasks task, String title, DateTime? date) async {
-    final getTodos = isar.todos
-        .filter()
-        .nameEqualTo(title)
-        .task((q) => q.idEqualTo(task.id))
-        .todoCompletedTimeEqualTo(date)
-        .findAllSync();
-    return getTodos.isNotEmpty;
-  }
-
-  Future<void> updateTodoCheck(Todos todo) async {
-    if (todo.done) {
-      await _setDoneForSubtree(todo, true);
-    } else {
-      await _setDoneSingle(todo, false);
-    }
-  }
-
-  // ------------------------
-  // Private helpers for selection sync
-  // ------------------------
-  void _resyncSelectedTodoFromIds() {
-    final updated = <Todos>[];
-    for (final id in selectedTodoIds) {
-      final match = todos.firstWhereOrNull((t) => t.id == id);
-      if (match != null) updated.add(match);
-    }
-    selectedTodo.assignAll(updated);
-    selectedTodo.refresh();
-    if (selectedTodo.isEmpty) {
-      isMultiSelectionTodo.value = false;
-      isPop.value = true;
-      selectedTodoIds.clear();
-    } else {
-      isMultiSelectionTodo.value = true;
-      isPop.value = false;
-      selectedTodoIds.assignAll(selectedTodo.map((e) => e.id).toSet());
-    }
-  }
-
-  // ------------------------
-  // Set done for subtree
-  // ------------------------
-  Future<void> _setDoneForSubtree(Todos root, bool done) async {
-    final ids = <int>{};
-    final stack = <Todos>[root];
-
-    while (stack.isNotEmpty) {
-      final node = stack.removeLast();
-      if (!ids.add(node.id)) continue;
-      final children = isar.todos
-          .filter()
-          .parent((q) => q.idEqualTo(node.id))
-          .findAllSync();
-      for (var c in children) {
-        if (!ids.contains(c.id)) stack.add(c);
-      }
-    }
-
-    if (ids.isEmpty) return;
-
-    final nowLocal = DateTime.now();
-    final toCancel = <int>[];
-
-    isar.writeTxnSync(() {
-      for (var id in ids) {
-        final t = isar.todos.getSync(id);
-        if (t == null) continue;
-        t.done = done;
-        t.todoCompletionTime = done ? nowLocal : null;
-        isar.todos.putSync(t);
-        if (t.todoCompletedTime != null &&
-            t.todoCompletedTime!.isAfter(nowLocal)) {
-          toCancel.add(t.id);
-        }
-      }
-    });
-
-    todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
-    todos.refresh();
-
-    selectedTodoIds.removeWhere((id) => ids.contains(id));
-    _resyncSelectedTodoFromIds();
-
-    for (var id in toCancel) {
-      try {
-        await flutterLocalNotificationsPlugin.cancel(id);
-      } catch (_) {
-        // ignore
-      }
-    }
-  }
-
-  // ------------------------
-  // Set done for single todos (safe)
-  // ------------------------
-  Future<void> _setDoneSingle(Todos todo, bool done) async {
-    final nowLocal = DateTime.now();
-    isar.writeTxnSync(() {
-      todo.done = done;
-      todo.todoCompletionTime = done ? nowLocal : null;
-      isar.todos.putSync(todo);
-    });
-
-    todos.assignAll(isar.todos.where().sortByIndex().findAllSync());
-    todos.refresh();
-
-    selectedTodoIds.remove(todo.id);
-    _resyncSelectedTodoFromIds();
-
-    if (todo.todoCompletedTime != null &&
-        todo.todoCompletedTime!.isAfter(nowLocal)) {
-      if (done) {
-        try {
-          await flutterLocalNotificationsPlugin.cancel(todo.id);
-        } catch (_) {}
-      } else {
-        NotificationShow().showNotification(
-          todo.id,
-          todo.name,
-          todo.description,
-          todo.todoCompletedTime,
-        );
-      }
-    } else {
-      try {
-        await flutterLocalNotificationsPlugin.cancel(todo.id);
-      } catch (_) {}
-    }
-  }
-
-  Future<void> updateTodo(
-    Todos todo,
-    Tasks task,
-    String title,
-    String desc,
-    String time,
-    bool pined,
-    Priority priority,
-    List<String> tags,
-  ) async {
-    final date = parseDate(time);
-    isar.writeTxnSync(() {
-      todo.name = title;
-      todo.description = desc;
-      todo.todoCompletedTime = date;
-      todo.fix = pined;
-      todo.priority = priority;
-      todo.tags = tags;
-      todo.task.value = task;
-      isar.todos.putSync(todo);
-      todo.task.saveSync();
-    });
-
-    refreshTodo(todo);
-
-    if (date != null && now.isBefore(date)) {
-      await flutterLocalNotificationsPlugin.cancel(todo.id);
-      NotificationShow().showNotification(
-        todo.id,
-        todo.name,
-        todo.description,
-        date,
-      );
-    } else {
-      await flutterLocalNotificationsPlugin.cancel(todo.id);
-    }
-    EasyLoading.showSuccess('updateTodo'.tr, duration: duration);
-  }
-
-  void refreshTodo(Todos todo) {
+  void _refreshTodo(Todos todo) {
     final idx = todos.indexWhere((t) => t.id == todo.id);
     if (idx != -1) {
       todos[idx] = todo;
       todos.refresh();
     } else {
-      loadTasksAndTodos();
+      _loadTasksAndTodos();
     }
+  }
+
+  Future<void> updateTodoCheck(Todos todo) async {
+    await _todoService.toggleDone(todo, todos);
+
+    todos.assignAll(_todoRepo.getAll());
+    _resyncSelectedTodoFromIds();
   }
 
   Future<void> moveTodos(List<Todos> todoList, Tasks task) async {
-    final copy = List<Todos>.from(todoList);
+    if (todoList.isEmpty) return;
 
-    final idsToUpdate = <int>{};
-
-    for (final root in copy) {
-      final stack = <Todos>[root];
-
-      while (stack.isNotEmpty) {
-        final node = stack.removeLast();
-        if (!idsToUpdate.add(node.id)) continue;
-
-        final children = isar.todos
-            .filter()
-            .parent((q) => q.idEqualTo(node.id))
-            .findAllSync();
-
-        for (var c in children) {
-          if (!idsToUpdate.contains(c.id)) {
-            stack.add(c);
-          }
-        }
-      }
-    }
-
-    if (idsToUpdate.isEmpty) return;
-
-    isar.writeTxnSync(() {
-      for (var id in idsToUpdate) {
-        final t = isar.todos.getSync(id);
-        if (t == null) continue;
-        t.task.value = task;
-        isar.todos.putSync(t);
-        t.task.saveSync();
-      }
-    });
-
-    EasyLoading.showSuccess('updateTodo'.tr, duration: duration);
+    await _todoService.moveTodos(todos: todoList, task: task);
+    _loadTasksAndTodos();
   }
 
   Future<void> moveTodosToParent(List<Todos> rootList, Todos? newParent) async {
-    final copy = List<Todos>.from(rootList);
-    final idsToUpdate = <int>{};
+    if (rootList.isEmpty) return;
 
-    final Tasks? newTask = newParent?.task.value;
-
-    for (final root in copy) {
-      final stack = <Todos>[root];
-      while (stack.isNotEmpty) {
-        final node = stack.removeLast();
-        if (!idsToUpdate.add(node.id)) continue;
-        final children = isar.todos
-            .filter()
-            .parent((q) => q.idEqualTo(node.id))
-            .findAllSync();
-        for (var c in children) {
-          if (!idsToUpdate.contains(c.id)) stack.add(c);
-        }
-      }
-    }
-
-    if (idsToUpdate.isEmpty) return;
-
-    isar.writeTxnSync(() {
-      for (var id in idsToUpdate) {
-        final t = isar.todos.getSync(id);
-        if (t == null) continue;
-
-        if (copy.any((r) => r.id == id)) {
-          t.parent.value = newParent;
-        }
-
-        if (newTask != null) {
-          t.task.value = newTask;
-        }
-
-        isar.todos.putSync(t);
-
-        t.task.saveSync();
-        if (t.parent.value != null) t.parent.saveSync();
-      }
-    });
-
-    EasyLoading.showSuccess('updateTodo'.tr, duration: duration);
+    await _todoService.moveTodosToParent(
+      rootTodos: rootList,
+      newParent: newParent,
+    );
+    _loadTasksAndTodos();
   }
 
   Future<void> deleteTodo(List<Todos> todoList) async {
-    final copy = List<Todos>.from(todoList);
+    if (todoList.isEmpty) return;
 
-    for (var todo in copy) {
-      await cancelNotificationForTodo(todo);
-      await _deleteTodoRecursive(todo);
-    }
+    _loadDebounce?.cancel();
 
-    for (final t in copy) {
+    await _todoService.deleteTodos(todoList);
+
+    for (final t in todoList) {
       selectedTodoIds.remove(t.id);
     }
-    _resyncSelectedTodoFromIds();
 
-    reindexTodos();
-    EasyLoading.showSuccess(
-      'todoDelete'.tr,
-      duration: const Duration(seconds: 2),
+    todos.assignAll(_todoRepo.getAll());
+    _resyncSelectedTodoFromIds();
+    _reindexTodos();
+  }
+
+  void _reindexTodos() {
+    final all = todos.toList();
+
+    for (int i = 0; i < all.length; i++) {
+      all[i].index = i;
+    }
+
+    _todoRepo.updateIndexes(all);
+    todos.assignAll(all);
+  }
+
+  // ==================== Counters ====================
+
+  int createdAllTodos() => _todoService.countAll(todos);
+
+  int completedAllTodos() => _todoService.countAllCompleted(todos);
+
+  int createdAllTodosTask(Tasks task) => _todoService.countForTask(task, todos);
+
+  int completedAllTodosTask(Tasks task) =>
+      _todoService.countCompletedForTask(task, todos);
+
+  int countTotalTodosCalendar(DateTime date) =>
+      _todoService.countForCalendar(date, todos);
+
+  int createdAllTodosTodo(Todos parent) =>
+      _todoService.countForParent(parent, todos);
+
+  int completedAllTodosTodo(Todos parent) =>
+      _todoService.countCompletedForParent(parent, todos);
+
+  // ==================== Filters ====================
+
+  List<Tasks> getFilteredTasks({
+    required bool archived,
+    String searchQuery = '',
+  }) {
+    return _taskService.filterTasks(
+      tasks: tasks,
+      archived: archived,
+      searchQuery: searchQuery,
     );
   }
 
-  Future<void> cancelNotificationForTodo(Todos todo) async {
-    if (todo.todoCompletedTime != null &&
-        todo.todoCompletedTime!.isAfter(DateTime.now())) {
-      await flutterLocalNotificationsPlugin.cancel(todo.id);
-    }
+  List<Todos> getFilteredTodos({
+    required bool done,
+    String searchQuery = '',
+    DateTime? selectedDay,
+    Tasks? task,
+    Todos? parent,
+  }) {
+    return _todoService.filterTodos(
+      allTodos: todos,
+      done: done,
+      searchQuery: searchQuery,
+      selectedDay: selectedDay,
+      task: task,
+      parent: parent,
+    );
   }
 
-  Future<void> _deleteTodoRecursive(Todos root) async {
-    final idsToDelete = <int>{};
-    final stack = <Todos>[root];
+  // ==================== Multi-Selection Tasks ====================
 
-    while (stack.isNotEmpty) {
-      final node = stack.removeLast();
-      idsToDelete.add(node.id);
-
-      final children = isar.todos
-          .filter()
-          .parent((q) => q.idEqualTo(node.id))
-          .findAllSync();
-      for (var c in children) {
-        if (!idsToDelete.contains(c.id)) stack.add(c);
-      }
-    }
-
-    for (var id in idsToDelete) {
-      final t = isar.todos.getSync(id);
-      if (t != null &&
-          t.todoCompletedTime != null &&
-          t.todoCompletedTime!.isAfter(DateTime.now())) {
-        await flutterLocalNotificationsPlugin.cancel(t.id);
-      }
-    }
-
-    isar.writeTxnSync(() {
-      for (var id in idsToDelete) {
-        isar.todos.deleteSync(id);
-      }
-    });
-
-    todos.removeWhere((t) => idsToDelete.contains(t.id));
-    todos.refresh();
-
-    selectedTodoIds.removeWhere((id) => idsToDelete.contains(id));
-    _resyncSelectedTodoFromIds();
-  }
-
-  void deleteTodoFromDB(Todos todo) {
-    todos.removeWhere((t) => t.id == todo.id);
-    isar.writeTxnSync(() => isar.todos.deleteSync(todo.id));
-
-    selectedTodoIds.remove(todo.id);
-    _resyncSelectedTodoFromIds();
-  }
-
-  // ------------------------
-  // Counters / Helpers
-  // ------------------------
-  int createdAllTodos() =>
-      todos.where((todo) => todo.task.value?.archive == false).length;
-
-  int completedAllTodos() => todos
-      .where((todo) => todo.task.value?.archive == false && todo.done == true)
-      .length;
-
-  int createdAllTodosTask(Tasks task) =>
-      todos.where((todo) => todo.task.value?.id == task.id).length;
-
-  int completedAllTodosTask(Tasks task) => todos
-      .where((todo) => todo.task.value?.id == task.id && todo.done == true)
-      .length;
-
-  int countTotalTodosCalendar(DateTime date) => todos
-      .where(
-        (todo) =>
-            todo.done == false &&
-            todo.todoCompletedTime != null &&
-            todo.task.value?.archive == false &&
-            isSameDay(date, todo.todoCompletedTime!),
-      )
-      .length;
-
-  int createdAllTodosTodo(Todos parent) =>
-      todos.where((child) => child.parent.value?.id == parent.id).length;
-
-  int completedAllTodosTodo(Todos parent) => todos
-      .where((child) => child.parent.value?.id == parent.id && child.done)
-      .length;
-
-  bool isSameDay(DateTime date1, DateTime date2) =>
-      date1.year == date2.year &&
-      date1.month == date2.month &&
-      date1.day == date2.day;
-
-  // ------------------------
-  // Reindex helpers
-  // ------------------------
-  void reindexTasks() {
-    final all = tasks.toList();
-    isar.writeTxnSync(() {
-      for (int i = 0; i < all.length; i++) {
-        all[i].index = i;
-        isar.tasks.putSync(all[i]);
-      }
-    });
-    tasks.assignAll(all);
-    tasks.refresh();
-  }
-
-  void reindexTodos() {
-    final all = todos.toList();
-    isar.writeTxnSync(() {
-      for (int i = 0; i < all.length; i++) {
-        all[i].index = i;
-        isar.todos.putSync(all[i]);
-      }
-    });
-    todos.assignAll(all);
-    todos.refresh();
-  }
-
-  // ------------------------
-  // Multi-selection helpers (todos)
-  // ------------------------
-  void doMultiSelectionTodo(Todos todo) {
-    if (isMultiSelectionTodo.isTrue) {
-      isPop.value = false;
-      if (selectedTodoIds.contains(todo.id)) {
-        selectedTodoIds.remove(todo.id);
-      } else {
-        selectedTodoIds.add(todo.id);
-      }
-      _resyncSelectedTodoFromIds();
-    }
-  }
-
-  void doMultiSelectionTodoClear() {
-    selectedTodoIds.clear();
-    selectedTodo.clear();
-    selectedTodo.refresh();
-    isMultiSelectionTodo.value = false;
-    isPop.value = true;
-  }
-
-  // ------------------------
-  // Multi-selection helpers (tasks)
-  // ------------------------
   void doMultiSelectionTask(Tasks task) {
-    if (isMultiSelectionTask.isTrue) {
-      isPop.value = false;
-      if (selectedTask.contains(task)) {
-        selectedTask.remove(task);
-      } else {
-        selectedTask.add(task);
-      }
+    if (!isMultiSelectionTask.isTrue) return;
 
-      if (selectedTask.isEmpty) {
-        isMultiSelectionTask.value = false;
-        isPop.value = true;
-      }
+    isPop.value = false;
+
+    if (selectedTask.contains(task)) {
+      selectedTask.remove(task);
+    } else {
+      selectedTask.add(task);
+    }
+
+    if (selectedTask.isEmpty) {
+      isMultiSelectionTask.value = false;
+      isPop.value = true;
     }
   }
 
@@ -784,133 +429,14 @@ class TodoController extends GetxController {
     isPop.value = true;
   }
 
-  // ------------------------
-  // Selection helpers
-  // ------------------------
-  List<Todos> getFilteredTodos({
-    required bool done,
-    String searchQuery = '',
-    DateTime? selectedDay,
-    Tasks? task,
-    Todos? parent,
-  }) {
-    final int contextCount =
-        (selectedDay != null ? 1 : 0) +
-        (task != null ? 1 : 0) +
-        (parent != null ? 1 : 0);
-    if (contextCount > 1) {
-      throw ArgumentError(
-        'Specify only one context: selectedDay, task, or parent.',
-      );
-    }
-    final bool isRootMode = contextCount == 0;
+  void toggleMultiSelectionTask() {
+    isMultiSelectionTask.value = !isMultiSelectionTask.value;
 
-    final lowerQuery = searchQuery.trim().toLowerCase();
-
-    bool matchesSearch(Todos t) {
-      if (lowerQuery.isEmpty) return true;
-      return t.name.toLowerCase().contains(lowerQuery) ||
-          t.description.toLowerCase().contains(lowerQuery) ||
-          t.tags.any((tag) => tag.toLowerCase().contains(lowerQuery));
-    }
-
-    return todos.where((todo) {
-      if (todo.done != done) return false;
-      if (!matchesSearch(todo)) return false;
-
-      if (isRootMode) {
-        return todo.parent.value == null;
-      } else if (selectedDay != null) {
-        final time = todo.todoCompletedTime;
-        if (todo.task.value?.archive == true || time == null) return false;
-        return time.isAfter(
-              DateTime(selectedDay.year, selectedDay.month, selectedDay.day),
-            ) &&
-            time.isBefore(
-              DateTime(
-                selectedDay.year,
-                selectedDay.month,
-                selectedDay.day + 1,
-              ),
-            );
-      } else if (task != null) {
-        return todo.task.value?.id == task.id && todo.parent.value == null;
-      } else if (parent != null) {
-        return todo.parent.value?.id == parent.id;
-      }
-      return false;
-    }).toList();
-  }
-
-  bool areAllSelected({
-    required bool done,
-    String searchQuery = '',
-    DateTime? selectedDay,
-    Tasks? task,
-    Todos? parent,
-  }) {
-    final filtered = getFilteredTodos(
-      done: done,
-      searchQuery: searchQuery,
-      selectedDay: selectedDay,
-      task: task,
-      parent: parent,
-    );
-    return filtered.isNotEmpty &&
-        filtered.every((todo) => selectedTodoIds.contains(todo.id));
-  }
-
-  void selectAll({
-    required bool select,
-    required bool done,
-    String searchQuery = '',
-    DateTime? selectedDay,
-    Tasks? task,
-    Todos? parent,
-  }) {
-    final filtered = getFilteredTodos(
-      done: done,
-      searchQuery: searchQuery,
-      selectedDay: selectedDay,
-      task: task,
-      parent: parent,
-    );
-    if (select) {
-      if (!isMultiSelectionTodo.isTrue) {
-        isMultiSelectionTodo.value = true;
-        isPop.value = false;
-      }
-      for (final todo in filtered) {
-        selectedTodoIds.add(todo.id);
-      }
+    if (!isMultiSelectionTask.value) {
+      doMultiSelectionTaskClear();
     } else {
-      for (final todo in filtered) {
-        selectedTodoIds.remove(todo.id);
-      }
-      if (selectedTodoIds.isEmpty) {
-        isMultiSelectionTodo.value = false;
-        isPop.value = true;
-      }
+      isPop.value = false;
     }
-    _resyncSelectedTodoFromIds();
-  }
-
-  List<Tasks> getFilteredTasks({
-    required bool archived,
-    String searchQuery = '',
-  }) {
-    final lowerQuery = searchQuery.trim().toLowerCase();
-
-    bool matchesSearch(Tasks t) {
-      if (lowerQuery.isEmpty) return true;
-      return t.title.toLowerCase().contains(lowerQuery) ||
-          t.description.toLowerCase().contains(lowerQuery);
-    }
-
-    return tasks.where((task) {
-      if (task.archive != archived) return false;
-      return matchesSearch(task);
-    }).toList();
   }
 
   bool areAllTasksSelected({required bool archived, String searchQuery = ''}) {
@@ -918,6 +444,7 @@ class TodoController extends GetxController {
       archived: archived,
       searchQuery: searchQuery,
     );
+
     return filtered.isNotEmpty &&
         filtered.every((task) => selectedTask.contains(task));
   }
@@ -937,17 +464,135 @@ class TodoController extends GetxController {
         isMultiSelectionTask.value = true;
         isPop.value = false;
       }
+
       for (final t in filtered) {
-        if (!selectedTask.contains(t)) selectedTask.add(t);
+        if (!selectedTask.contains(t)) {
+          selectedTask.add(t);
+        }
       }
     } else {
       for (final t in filtered) {
-        if (selectedTask.contains(t)) selectedTask.remove(t);
+        selectedTask.remove(t);
       }
+
       if (selectedTask.isEmpty) {
         isMultiSelectionTask.value = false;
         isPop.value = true;
       }
     }
+  }
+
+  // ==================== Multi-Selection Todos ====================
+
+  void doMultiSelectionTodo(Todos todo) {
+    if (!isMultiSelectionTodo.isTrue) return;
+
+    isPop.value = false;
+
+    if (selectedTodoIds.contains(todo.id)) {
+      selectedTodoIds.remove(todo.id);
+    } else {
+      selectedTodoIds.add(todo.id);
+    }
+
+    _resyncSelectedTodoFromIds();
+  }
+
+  void doMultiSelectionTodoClear() {
+    selectedTodoIds.clear();
+    selectedTodo.clear();
+    isMultiSelectionTodo.value = false;
+    isPop.value = true;
+  }
+
+  void toggleMultiSelectionTodo() {
+    isMultiSelectionTodo.value = !isMultiSelectionTodo.value;
+
+    if (!isMultiSelectionTodo.value) {
+      doMultiSelectionTodoClear();
+    } else {
+      isPop.value = false;
+    }
+  }
+
+  void _resyncSelectedTodoFromIds() {
+    if (selectedTodoIds.isEmpty) {
+      doMultiSelectionTodoClear();
+      return;
+    }
+
+    final todosMap = {for (var todo in todos) todo.id: todo};
+    final updated = selectedTodoIds
+        .map((id) => todosMap[id])
+        .whereType<Todos>()
+        .toList();
+
+    selectedTodo.assignAll(updated);
+
+    if (updated.isEmpty) {
+      doMultiSelectionTodoClear();
+    } else {
+      isMultiSelectionTodo.value = true;
+      isPop.value = false;
+      selectedTodoIds.assignAll(updated.map((e) => e.id));
+    }
+  }
+
+  bool areAllSelected({
+    required bool done,
+    String searchQuery = '',
+    DateTime? selectedDay,
+    Tasks? task,
+    Todos? parent,
+  }) {
+    final filtered = getFilteredTodos(
+      done: done,
+      searchQuery: searchQuery,
+      selectedDay: selectedDay,
+      task: task,
+      parent: parent,
+    );
+
+    return filtered.isNotEmpty &&
+        filtered.every((todo) => selectedTodoIds.contains(todo.id));
+  }
+
+  void selectAll({
+    required bool select,
+    required bool done,
+    String searchQuery = '',
+    DateTime? selectedDay,
+    Tasks? task,
+    Todos? parent,
+  }) {
+    final filtered = getFilteredTodos(
+      done: done,
+      searchQuery: searchQuery,
+      selectedDay: selectedDay,
+      task: task,
+      parent: parent,
+    );
+
+    if (select) {
+      if (!isMultiSelectionTodo.isTrue) {
+        isMultiSelectionTodo.value = true;
+        isPop.value = false;
+      }
+
+      for (final todo in filtered) {
+        selectedTodoIds.add(todo.id);
+      }
+    } else {
+      for (final todo in filtered) {
+        selectedTodoIds.remove(todo.id);
+      }
+
+      if (selectedTodoIds.isEmpty) {
+        isMultiSelectionTodo.value = false;
+        isPop.value = true;
+      }
+    }
+
+    _resyncSelectedTodoFromIds();
   }
 }

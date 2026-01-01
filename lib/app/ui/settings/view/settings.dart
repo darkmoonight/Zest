@@ -1,8 +1,6 @@
 import 'package:flag_secure/flag_secure.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -10,11 +8,16 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:zest/app/controller/isar_controller.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/data/db.dart';
-import 'package:zest/app/ui/settings/widgets/settings_card.dart';
+import 'package:zest/app/ui/settings/widgets/settings_section.dart';
+import 'package:zest/app/ui/settings/widgets/settings_tile.dart';
+import 'package:zest/app/ui/widgets/confirmation_dialog.dart';
+import 'package:zest/app/ui/settings/widgets/selection_dialog.dart';
+import 'package:zest/app/utils/navigation_helper.dart';
+import 'package:zest/app/utils/responsive_utils.dart';
+import 'package:zest/app/utils/show_snack_bar.dart';
 import 'package:zest/main.dart';
-import 'package:zest/theme/theme_controller.dart';
+import 'package:zest/app/controller/theme_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zest/app/ui/widgets/header_compact.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -27,7 +30,6 @@ class _SettingsPageState extends State<SettingsPage> {
   final todoController = Get.put(TodoController());
   final isarController = Get.put(IsarController());
   final themeController = Get.put(ThemeController());
-
   String? appVersion;
 
   @override
@@ -45,13 +47,12 @@ class _SettingsPageState extends State<SettingsPage> {
     settings.language = '$locale';
     isar.writeTxnSync(() => isar.settings.putSync(settings));
     Get.updateLocale(locale);
-    Get.back();
+    setState(() {});
   }
 
   void _updateDefaultScreen(String defaultScreen) {
     settings.defaultScreen = defaultScreen;
     isar.writeTxnSync(() => isar.settings.putSync(settings));
-    Get.back();
     setState(() {});
   }
 
@@ -62,599 +63,424 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  String _firstDayOfWeek(String newValue) {
-    const days = [
-      'monday',
-      'tuesday',
-      'wednesday',
-      'thursday',
-      'friday',
-      'saturday',
-      'sunday',
-    ];
-    return days.firstWhere((day) => newValue == day.tr, orElse: () => 'monday');
-  }
-
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      centerTitle: true,
-      title: Text(
-        'settings'.tr,
-        style: context.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    ),
-    body: SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildAppearanceCard(context),
-          _buildDateTimeCard(context),
-          _buildPrivacySecurityCard(context),
-          _buildAppPreferencesCard(context),
-          _buildDataManagementCard(context),
-          _buildCommunityCard(context),
-          _buildAboutAppCard(context),
-        ],
-      ),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final isMobile = ResponsiveUtils.isMobile(context);
+    final padding = ResponsiveUtils.getResponsivePadding(context);
 
-  Widget _buildAppearanceCard(BuildContext context) => SettingCard(
-    icon: const Icon(IconsaxPlusLinear.brush_1),
-    text: 'appearance'.tr,
-    onPressed: () => _showAppearanceBottomSheet(context),
-  );
-
-  void _showAppearanceBottomSheet(BuildContext context) => showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: StatefulBuilder(
-        builder: (BuildContext context, setState) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              buildBottomSheetHeaderCompact(context, 'appearance'.tr),
-              _buildThemeSettingCard(context, setState),
-              _buildAmoledThemeSettingCard(context, setState),
-              _buildMaterialColorSettingCard(context, setState),
-              _buildIsImagesSettingCard(context, setState),
-              const Gap(10),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-
-  Widget _buildThemeSettingCard(BuildContext context, StateSetter setState) =>
-      SettingCard(
-        elevation: 4,
-        icon: const Icon(IconsaxPlusLinear.moon),
-        text: 'theme'.tr,
-        dropdown: true,
-        dropdownName: settings.theme?.tr,
-        dropdownList: <String>['system'.tr, 'dark'.tr, 'light'.tr],
-        dropdownChange: (String? newValue) =>
-            _updateTheme(newValue, context, setState),
-      );
-
-  void _updateTheme(
-    String? newValue,
-    BuildContext context,
-    StateSetter setState,
-  ) {
-    ThemeMode themeMode = newValue?.tr == 'system'.tr
-        ? ThemeMode.system
-        : newValue?.tr == 'dark'.tr
-        ? ThemeMode.dark
-        : ThemeMode.light;
-    String theme = newValue?.tr == 'system'.tr
-        ? 'system'
-        : newValue?.tr == 'dark'.tr
-        ? 'dark'
-        : 'light';
-    themeController.saveTheme(theme);
-    themeController.changeThemeMode(themeMode);
-  }
-
-  Widget _buildAmoledThemeSettingCard(
-    BuildContext context,
-    StateSetter setState,
-  ) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.mobile),
-    text: 'amoledTheme'.tr,
-    switcher: true,
-    value: settings.amoledTheme,
-    onChange: (value) {
-      themeController.saveOledTheme(value);
-      MyApp.updateAppState(context, newAmoledTheme: value);
-    },
-  );
-
-  Widget _buildMaterialColorSettingCard(
-    BuildContext context,
-    StateSetter setState,
-  ) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.colorfilter),
-    text: 'materialColor'.tr,
-    switcher: true,
-    value: settings.materialColor,
-    onChange: (value) {
-      themeController.saveMaterialTheme(value);
-      MyApp.updateAppState(context, newMaterialColor: value);
-    },
-  );
-
-  Widget _buildIsImagesSettingCard(
-    BuildContext context,
-    StateSetter setState,
-  ) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.image),
-    text: 'isImages'.tr,
-    switcher: true,
-    value: settings.isImage,
-    onChange: (value) {
-      isar.writeTxnSync(() {
-        settings.isImage = value;
-        isar.settings.putSync(settings);
-      });
-      isImage.value = value;
-      setState(() {});
-    },
-  );
-
-  Widget _buildDateTimeCard(BuildContext context) => SettingCard(
-    icon: const Icon(IconsaxPlusLinear.calendar_2),
-    text: 'dateTime'.tr,
-    onPressed: () => _showDateTimeBottomSheet(context),
-  );
-
-  void _showDateTimeBottomSheet(BuildContext context) => showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: StatefulBuilder(
-        builder: (BuildContext context, setState) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              buildBottomSheetHeaderCompact(context, 'dateTime'.tr),
-              _buildTimeFormatSettingCard(context, setState),
-              _buildFirstDayOfWeekSettingCard(context, setState),
-              _buildSnoozeDropdownCard(context, setState),
-              const Gap(10),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-
-  Widget _buildTimeFormatSettingCard(
-    BuildContext context,
-    StateSetter setState,
-  ) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.clock_1),
-    text: 'timeformat'.tr,
-    dropdown: true,
-    dropdownName: settings.timeformat.tr,
-    dropdownList: <String>['12'.tr, '24'.tr],
-    dropdownChange: (String? newValue) =>
-        _updateTimeFormat(newValue, context, setState),
-  );
-
-  void _updateTimeFormat(
-    String? newValue,
-    BuildContext context,
-    StateSetter setState,
-  ) {
-    final String format = newValue == '12'.tr ? '12' : '24';
-    isar.writeTxnSync(() {
-      settings.timeformat = format;
-      isar.settings.putSync(settings);
-    });
-    timeformat.value = format;
-    setState(() {});
-    todoController.todos.refresh();
-  }
-
-  Widget _buildFirstDayOfWeekSettingCard(
-    BuildContext context,
-    StateSetter setState,
-  ) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.calendar_edit),
-    text: 'firstDayOfWeek'.tr,
-    dropdown: true,
-    dropdownName: firstDay.value.tr,
-    dropdownList: <String>[
-      'monday'.tr,
-      'tuesday'.tr,
-      'wednesday'.tr,
-      'thursday'.tr,
-      'friday'.tr,
-      'saturday'.tr,
-      'sunday'.tr,
-    ],
-    dropdownChange: (String? newValue) =>
-        _updateFirstDayOfWeek(newValue, context, setState),
-  );
-
-  void _updateFirstDayOfWeek(
-    String? newValue,
-    BuildContext context,
-    StateSetter setState,
-  ) {
-    if (newValue == null) return;
-    String selectedDay = _firstDayOfWeek(newValue);
-    isar.writeTxnSync(() {
-      settings.firstDay = selectedDay;
-      isar.settings.putSync(settings);
-    });
-    firstDay.value = selectedDay;
-    setState(() {});
-  }
-
-  Widget _buildSnoozeDropdownCard(BuildContext context, StateSetter setState) =>
-      SettingCard(
-        elevation: 4,
-        icon: const Icon(IconsaxPlusLinear.timer_1),
-        text: 'snoozeDuration'.tr,
-        dropdown: true,
-        dropdownName: '${settings.snoozeDuration} ${'min'.tr}',
-        dropdownList: <String>[
-          '5 ${'min'.tr}',
-          '10 ${'min'.tr}',
-          '15 ${'min'.tr}',
-          '20 ${'min'.tr}',
-          '30 ${'min'.tr}',
-          '45 ${'min'.tr}',
-          '60 ${'min'.tr}',
-        ],
-        dropdownChange: (String? newValue) {
-          if (newValue == null) return;
-          final duration = int.tryParse(newValue.split(' ')[0]) ?? 10;
-          isar.writeTxnSync(() {
-            settings.snoozeDuration = duration;
-            isar.settings.putSync(settings);
-          });
-          setState(() {});
-        },
-      );
-
-  Widget _buildPrivacySecurityCard(BuildContext context) => SettingCard(
-    icon: const Icon(IconsaxPlusLinear.security),
-    text: 'privacySecurity'.tr,
-    onPressed: () => _showPrivacySecurityBottomSheet(context),
-  );
-
-  void _showPrivacySecurityBottomSheet(BuildContext context) =>
-      showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).padding.bottom,
-          ),
-          child: StatefulBuilder(
-            builder: (BuildContext context, setState) => SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  buildBottomSheetHeaderCompact(context, 'privacySecurity'.tr),
-                  _buildScreenPrivacySettingCard(context, setState),
-                  const Gap(10),
-                ],
+    return Scaffold(
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? padding : padding * 2,
+                vertical: padding,
+              ),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  _buildAppearanceSection(context),
+                  SizedBox(height: padding * 1.5),
+                  _buildDateTimeSection(context),
+                  SizedBox(height: padding * 1.5),
+                  _buildPrivacySecuritySection(context),
+                  SizedBox(height: padding * 1.5),
+                  _buildAppPreferencesSection(context),
+                  SizedBox(height: padding * 1.5),
+                  _buildDataManagementSection(context),
+                  SizedBox(height: padding * 1.5),
+                  _buildCommunitySection(context),
+                  SizedBox(height: padding * 1.5),
+                  _buildAboutSection(context),
+                  SizedBox(height: padding * 2),
+                ]),
               ),
             ),
-          ),
+          ],
         ),
-      );
-
-  Widget _buildScreenPrivacySettingCard(
-    BuildContext context,
-    StateSetter setState,
-  ) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.security_safe),
-    text: 'screenPrivacy'.tr,
-    switcher: true,
-    value: settings.screenPrivacy ?? false,
-    onChange: (value) async {
-      try {
-        if (value == true) {
-          await FlagSecure.set();
-        } else {
-          await FlagSecure.unset();
-        }
-        isar.writeTxnSync(() {
-          settings.screenPrivacy = value;
-          isar.settings.putSync(settings);
-        });
-        setState(() {});
-      } on PlatformException {
-        // ignore
-      }
-    },
-  );
-
-  Widget _buildAppPreferencesCard(BuildContext context) => SettingCard(
-    icon: const Icon(IconsaxPlusLinear.mobile),
-    text: 'appPreferences'.tr,
-    onPressed: () => _showAppPreferencesBottomSheet(context),
-  );
-
-  void _showAppPreferencesBottomSheet(BuildContext context) =>
-      showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).padding.bottom,
-          ),
-          child: StatefulBuilder(
-            builder: (BuildContext context, setState) => SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  buildBottomSheetHeaderCompact(context, 'appPreferences'.tr),
-                  _buildDefaultScreenSettingCard(context, setState),
-                  _buildLanguageSettingCard(context, setState),
-                  const Gap(10),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-
-  Widget _buildDefaultScreenSettingCard(
-    BuildContext context,
-    StateSetter setState,
-  ) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.mobile),
-    text: 'defaultScreen'.tr,
-    dropdown: true,
-    dropdownName: settings.defaultScreen.isNotEmpty
-        ? settings.defaultScreen.tr
-        : allScreens[0].tr,
-    dropdownList: allScreens.map((screen) => screen.tr).toList(),
-    dropdownChange: (String? newValue) {
-      if (newValue == null) return;
-      final selectedScreen = allScreens.firstWhere(
-        (screen) => screen.tr == newValue,
-        orElse: () => allScreens[0],
-      );
-      _updateDefaultScreen(selectedScreen);
-      setState(() {});
-    },
-  );
-
-  Widget _buildLanguageSettingCard(
-    BuildContext context,
-    StateSetter setState,
-  ) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.language_square),
-    text: 'language'.tr,
-    dropdown: true,
-    dropdownName: appLanguages.firstWhere(
-      (element) => (element['locale'] == locale),
-      orElse: () => {'name': ''},
-    )['name'],
-    dropdownList: appLanguages.map((lang) => lang['name'] as String).toList(),
-    dropdownChange: (String? newValue) {
-      if (newValue == null) return;
-      final selectedLang = appLanguages.firstWhere(
-        (lang) => lang['name'] == newValue,
-      );
-      MyApp.updateAppState(context, newLocale: selectedLang['locale']);
-      _updateLanguage(selectedLang['locale']);
-      setState(() {});
-    },
-  );
-
-  Widget _buildDataManagementCard(BuildContext context) => SettingCard(
-    icon: const Icon(IconsaxPlusLinear.cloud),
-    text: 'dataManagement'.tr,
-    onPressed: () => _showDataManagementBottomSheet(context),
-  );
-
-  void _showDataManagementBottomSheet(BuildContext context) =>
-      showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).padding.bottom,
-          ),
-          child: StatefulBuilder(
-            builder: (BuildContext context, setState) => SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  buildBottomSheetHeaderCompact(context, 'dataManagement'.tr),
-                  _buildBackupSettingCard(context),
-                  _buildRestoreSettingCard(context),
-                  _buildDeleteAllDBSettingCard(context),
-                  const Gap(10),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-
-  Widget _buildBackupSettingCard(BuildContext context) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.cloud_plus),
-    text: 'backup'.tr,
-    onPressed: isarController.createBackUp,
-  );
-
-  Widget _buildRestoreSettingCard(BuildContext context) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.cloud_add),
-    text: 'restore'.tr,
-    onPressed: isarController.restoreDB,
-  );
-
-  Widget _buildDeleteAllDBSettingCard(BuildContext context) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.cloud_minus),
-    text: 'deleteAllBD'.tr,
-    onPressed: () => _showDeleteAllDBConfirmationDialog(context),
-  );
-
-  void _showDeleteAllDBConfirmationDialog(BuildContext context) => showDialog(
-    context: context,
-    builder: (BuildContext context) => AlertDialog(
-      title: Text('deleteAllBDTitle'.tr, style: context.textTheme.titleLarge),
-      content: Text(
-        'deleteAllBDQuery'.tr,
-        style: context.textTheme.titleMedium,
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Get.back(),
-          child: Text(
-            'cancel'.tr,
-            style: context.textTheme.titleMedium?.copyWith(
-              color: Colors.blueAccent,
+    );
+  }
+
+  // ==================== SECTIONS ====================
+
+  Widget _buildAppearanceSection(BuildContext context) {
+    return SettingsSection(
+      title: 'appearance',
+      icon: IconsaxPlusBold.brush_1,
+      children: [
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.moon),
+          title: 'theme',
+          value: settings.theme?.tr ?? 'system'.tr,
+          onTap: () => _showThemeDialog(context),
+        ),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.mobile),
+          title: 'amoledTheme',
+          trailing: Transform.scale(
+            scale: 0.8,
+            child: Switch(
+              value: settings.amoledTheme,
+              onChanged: (value) {
+                themeController.saveOledTheme(value);
+                MyApp.updateAppState(context, newAmoledTheme: value);
+                setState(() {});
+              },
             ),
           ),
         ),
-        TextButton(
-          onPressed: () {
-            isar.writeTxnSync(() {
-              isar.todos.clearSync();
-              isar.tasks.clearSync();
-              todoController.tasks.clear();
-              todoController.todos.clear();
-            });
-            EasyLoading.showSuccess('deleteAll'.tr);
-            Get.back();
-          },
-          child: Text(
-            'delete'.tr,
-            style: context.textTheme.titleMedium?.copyWith(color: Colors.red),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.colorfilter),
+          title: 'materialColor',
+          trailing: Transform.scale(
+            scale: 0.8,
+            child: Switch(
+              value: settings.materialColor,
+              onChanged: (value) {
+                themeController.saveMaterialTheme(value);
+                MyApp.updateAppState(context, newMaterialColor: value);
+                setState(() {});
+              },
+            ),
+          ),
+        ),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.image),
+          title: 'isImages',
+          trailing: Transform.scale(
+            scale: 0.8,
+            child: Switch(
+              value: settings.isImage ?? false,
+              onChanged: (value) {
+                isar.writeTxnSync(() {
+                  settings.isImage = value;
+                  isar.settings.putSync(settings);
+                });
+                isImage.value = value;
+                setState(() {});
+              },
+            ),
           ),
         ),
       ],
-    ),
-  );
+    );
+  }
 
-  Widget _buildCommunityCard(BuildContext context) => SettingCard(
-    icon: const Icon(IconsaxPlusLinear.link_square),
-    text: 'groups'.tr,
-    onPressed: () => _showCommunityBottomSheet(context),
-  );
-
-  void _showCommunityBottomSheet(BuildContext context) => showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: StatefulBuilder(
-        builder: (BuildContext context, setState) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              buildBottomSheetHeaderCompact(context, 'groups'.tr),
-              SettingCard(
-                elevation: 4,
-                icon: const Icon(LineAwesomeIcons.discord),
-                text: 'Discord',
-                onPressed: () => _urlLauncher('https://discord.gg/JMMa9aHh8f'),
-              ),
-              SettingCard(
-                elevation: 4,
-                icon: const Icon(LineAwesomeIcons.telegram),
-                text: 'Telegram',
-                onPressed: () => _urlLauncher('https://t.me/darkmoonightX'),
-              ),
-              const Gap(10),
-            ],
-          ),
+  Widget _buildDateTimeSection(BuildContext context) {
+    return SettingsSection(
+      title: 'dateTime',
+      icon: IconsaxPlusBold.calendar_2,
+      children: [
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.clock_1),
+          title: 'timeformat',
+          value: settings.timeformat.tr,
+          onTap: () => _showTimeFormatDialog(context),
         ),
-      ),
-    ),
-  );
-
-  Widget _buildAboutAppCard(BuildContext context) => SettingCard(
-    icon: const Icon(IconsaxPlusLinear.info_circle),
-    text: 'aboutApp'.tr,
-    onPressed: () => _showAboutAppBottomSheet(context),
-  );
-
-  void _showAboutAppBottomSheet(BuildContext context) => showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: StatefulBuilder(
-        builder: (BuildContext context, setState) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              buildBottomSheetHeaderCompact(context, 'aboutApp'.tr),
-              _buildLicenseCard(context),
-              _buildVersionCard(context),
-              _buildGitHubCard(context),
-              const Gap(10),
-            ],
-          ),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.calendar_edit),
+          title: 'firstDayOfWeek',
+          value: firstDay.value.tr,
+          onTap: () => _showFirstDayOfWeekDialog(context),
         ),
-      ),
-    ),
-  );
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.timer_1),
+          title: 'snoozeDuration',
+          value: '${settings.snoozeDuration} ${'min'.tr}',
+          onTap: () => _showSnoozeDurationDialog(context),
+        ),
+      ],
+    );
+  }
 
-  Widget _buildLicenseCard(BuildContext context) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.document),
-    text: 'license'.tr,
-    onPressed: () {
-      Get.to(
-        () => LicensePage(
-          applicationIcon: Container(
-            width: 100,
-            height: 100,
-            margin: const EdgeInsets.symmetric(vertical: 5),
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
+  Widget _buildPrivacySecuritySection(BuildContext context) {
+    return SettingsSection(
+      title: 'privacySecurity',
+      icon: IconsaxPlusBold.security,
+      children: [
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.security_safe),
+          title: 'screenPrivacy',
+          trailing: Transform.scale(
+            scale: 0.8,
+            child: Switch(
+              value: settings.screenPrivacy ?? false,
+              onChanged: (value) async {
+                try {
+                  if (value) {
+                    await FlagSecure.set();
+                  } else {
+                    await FlagSecure.unset();
+                  }
+                  isar.writeTxnSync(() {
+                    settings.screenPrivacy = value;
+                    isar.settings.putSync(settings);
+                  });
+                  setState(() {});
+                } on PlatformException {
+                  // ignore
+                }
+              },
             ),
-            child: Image(image: AssetImage('assets/icons/icon.png')),
           ),
-          applicationName: 'Zest',
-          applicationVersion: appVersion,
         ),
-        transition: Transition.downToUp,
-      );
-    },
-  );
+      ],
+    );
+  }
 
-  Widget _buildVersionCard(BuildContext context) => SettingCard(
-    elevation: 4,
-    icon: const Icon(IconsaxPlusLinear.hierarchy_square_2),
-    text: 'version'.tr,
-    info: true,
-    textInfo: '$appVersion',
-  );
+  Widget _buildAppPreferencesSection(BuildContext context) {
+    return SettingsSection(
+      title: 'appPreferences',
+      icon: IconsaxPlusBold.mobile,
+      children: [
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.monitor_mobbile),
+          title: 'defaultScreen',
+          value: settings.defaultScreen.isNotEmpty
+              ? settings.defaultScreen.tr
+              : allScreens[0].tr,
+          onTap: () => _showDefaultScreenDialog(context),
+        ),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.language_square),
+          title: 'language',
+          value:
+              appLanguages.firstWhere(
+                    (element) => (element['locale'] == locale),
+                    orElse: () => {'name': ''},
+                  )['name']
+                  as String,
+          onTap: () => _showLanguageDialog(context),
+        ),
+      ],
+    );
+  }
 
-  Widget _buildGitHubCard(BuildContext context) => SettingCard(
-    elevation: 4,
-    icon: const Icon(LineAwesomeIcons.github),
-    text: '${'project'.tr} GitHub',
-    onPressed: () => _urlLauncher('https://github.com/darkmoonight/Zest'),
-  );
+  Widget _buildDataManagementSection(BuildContext context) {
+    return SettingsSection(
+      title: 'dataManagement',
+      icon: IconsaxPlusBold.cloud,
+      children: [
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.cloud_plus),
+          title: 'backup',
+          onTap: isarController.createBackup,
+        ),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.cloud_add),
+          title: 'restore',
+          onTap: isarController.restoreDB,
+        ),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.cloud_minus),
+          title: 'deleteAllBD',
+          onTap: () => _showDeleteAllDBDialog(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCommunitySection(BuildContext context) {
+    return SettingsSection(
+      title: 'groups',
+      icon: IconsaxPlusBold.people,
+      children: [
+        SettingsTile(
+          leading: const Icon(LineAwesomeIcons.discord),
+          title: 'Discord',
+          onTap: () => _urlLauncher('https://discord.gg/JMMa9aHh8f'),
+        ),
+        SettingsTile(
+          leading: const Icon(LineAwesomeIcons.telegram),
+          title: 'Telegram',
+          onTap: () => _urlLauncher('https://t.me/darkmoonightX'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAboutSection(BuildContext context) {
+    return SettingsSection(
+      title: 'aboutApp',
+      icon: IconsaxPlusBold.info_circle,
+      children: [
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.document_text),
+          title: 'license',
+          onTap: () {
+            NavigationHelper.slideUp(
+              LicensePage(
+                applicationIcon: Container(
+                  width: 100,
+                  height: 100,
+                  margin: const EdgeInsets.symmetric(vertical: 5),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  child: const Image(
+                    image: AssetImage('assets/icons/icon.png'),
+                  ),
+                ),
+                applicationName: 'Zest',
+                applicationVersion: appVersion,
+              ),
+            );
+          },
+        ),
+        SettingsTile(
+          leading: const Icon(LineAwesomeIcons.github),
+          title: '${'project'.tr} GitHub',
+          onTap: () => _urlLauncher('https://github.com/darkmoonight/Zest'),
+        ),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.code_circle),
+          title: 'version',
+          value: appVersion ?? '...',
+        ),
+      ],
+    );
+  }
+
+  // ==================== DIALOGS ====================
+
+  void _showThemeDialog(BuildContext context) {
+    showSelectionDialog<String>(
+      context: context,
+      title: 'theme'.tr,
+      icon: IconsaxPlusBold.moon,
+      items: ['system', 'dark', 'light'],
+      currentValue: settings.theme ?? 'system',
+      itemBuilder: (theme) => theme.tr,
+      onSelected: (value) {
+        ThemeMode mode = value == 'system'
+            ? ThemeMode.system
+            : value == 'dark'
+            ? ThemeMode.dark
+            : ThemeMode.light;
+        themeController.saveTheme(value);
+        themeController.changeThemeMode(mode);
+        setState(() {});
+      },
+    );
+  }
+
+  void _showTimeFormatDialog(BuildContext context) {
+    showSelectionDialog<String>(
+      context: context,
+      title: 'timeformat'.tr,
+      icon: IconsaxPlusBold.clock,
+      items: ['12', '24'],
+      currentValue: settings.timeformat,
+      itemBuilder: (format) => format.tr,
+      onSelected: (value) {
+        isar.writeTxnSync(() {
+          settings.timeformat = value;
+          isar.settings.putSync(settings);
+        });
+        timeformat.value = value;
+        todoController.todos.refresh();
+        setState(() {});
+      },
+    );
+  }
+
+  void _showFirstDayOfWeekDialog(BuildContext context) {
+    showSelectionDialog<String>(
+      context: context,
+      title: 'firstDayOfWeek'.tr,
+      icon: IconsaxPlusBold.calendar,
+      items: [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday',
+      ],
+      currentValue: firstDay.value,
+      itemBuilder: (day) => day.tr,
+      onSelected: (value) {
+        isar.writeTxnSync(() {
+          settings.firstDay = value;
+          isar.settings.putSync(settings);
+        });
+        firstDay.value = value;
+        setState(() {});
+      },
+    );
+  }
+
+  void _showSnoozeDurationDialog(BuildContext context) {
+    showSelectionDialog<int>(
+      context: context,
+      title: 'snoozeDuration'.tr,
+      icon: IconsaxPlusBold.timer_1,
+      items: [5, 10, 15, 20, 30, 45, 60],
+      currentValue: settings.snoozeDuration,
+      itemBuilder: (duration) => '$duration ${'min'.tr}',
+      onSelected: (value) {
+        isar.writeTxnSync(() {
+          settings.snoozeDuration = value;
+          isar.settings.putSync(settings);
+        });
+        setState(() {});
+      },
+    );
+  }
+
+  void _showDefaultScreenDialog(BuildContext context) {
+    showSelectionDialog<String>(
+      context: context,
+      title: 'defaultScreen'.tr,
+      icon: IconsaxPlusBold.monitor_mobbile,
+      items: allScreens,
+      currentValue: settings.defaultScreen.isNotEmpty
+          ? settings.defaultScreen
+          : allScreens[0],
+      itemBuilder: (screen) => screen.tr,
+      onSelected: (value) {
+        _updateDefaultScreen(value);
+      },
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    showSelectionDialog<Map<String, dynamic>>(
+      context: context,
+      title: 'language'.tr,
+      icon: IconsaxPlusBold.language_square,
+      items: appLanguages,
+      currentValue: appLanguages.firstWhere(
+        (element) => element['locale'] == locale,
+      ),
+      itemBuilder: (lang) => lang['name'] as String,
+      onSelected: (value) {
+        MyApp.updateAppState(context, newLocale: value['locale']);
+        _updateLanguage(value['locale']);
+      },
+      enableSearch: true,
+    );
+  }
+
+  void _showDeleteAllDBDialog(BuildContext context) {
+    showConfirmationDialog(
+      context: context,
+      title: 'deleteAllBDTitle',
+      message: 'deleteAllBDQuery',
+      icon: IconsaxPlusBold.trash,
+      isDestructive: true,
+      confirmText: 'delete',
+      onConfirm: () {
+        isar.writeTxnSync(() {
+          isar.todos.clearSync();
+          isar.tasks.clearSync();
+          todoController.tasks.clear();
+          todoController.todos.clear();
+        });
+        showSnackBar('deleteAll'.tr);
+      },
+    );
+  }
 }

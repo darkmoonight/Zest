@@ -1,13 +1,19 @@
 import 'package:get/get.dart';
 
 class FabController extends GetxController {
-  final RxBool isVisible = true.obs;
+  final RxBool _isVisible = true.obs;
+
+  RxBool get isVisible => _isVisible;
 
   void show() {
-    isVisible.value = true;
+    if (!_isVisible.value) {
+      _isVisible.value = true;
+    }
   }
 
   void hide() {
-    isVisible.value = false;
+    if (_isVisible.value) {
+      _isVisible.value = false;
+    }
   }
 }
