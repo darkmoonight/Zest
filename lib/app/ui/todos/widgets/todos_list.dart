@@ -172,9 +172,10 @@ class _TodosListState extends State<TodosList>
 
   List<Todos> _getAllTodos() {
     return _todoController.todos.where((todo) {
+      final notArchived = todo.task.value?.archive == false;
       final isRoot = todo.parent.value == null;
       final matchesDone = todo.done == widget.done;
-      return isRoot && matchesDone;
+      return notArchived && isRoot && matchesDone;
     }).toList();
   }
 
