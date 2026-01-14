@@ -106,6 +106,7 @@ class _TodosTransferState extends State<TodosTransfer>
       onConfirm: () {
         _taskController.clear();
         _todosController.clear();
+        NavigationHelper.back();
       },
     );
 

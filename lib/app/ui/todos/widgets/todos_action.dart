@@ -1156,7 +1156,7 @@ class _TodosActionState extends State<TodosAction>
   }
 }
 
-class _EditingController {
+class _EditingController extends ChangeNotifier {
   _EditingController(
     this._initialTitle,
     this._initialDesc,
@@ -1165,20 +1165,8 @@ class _EditingController {
     this._initialTask,
     this._initialPriority,
     this._initialTags,
-  ) : title = ValueNotifier(_initialTitle),
-      description = ValueNotifier(_initialDesc),
-      time = ValueNotifier(_initialTime),
-      pinned = ValueNotifier(_initialPinned),
-      task = ValueNotifier(_initialTask),
-      priority = ValueNotifier(_initialPriority),
-      tags = ValueNotifier(List.from(_initialTags)) {
-    title.addListener(_updateCanCompose);
-    description.addListener(_updateCanCompose);
-    time.addListener(_updateCanCompose);
-    pinned.addListener(_updateCanCompose);
-    task.addListener(_updateCanCompose);
-    priority.addListener(_updateCanCompose);
-    tags.addListener(_updateCanCompose);
+  ) {
+    _initializeListeners();
   }
 
   final String _initialTitle;
@@ -1189,14 +1177,36 @@ class _EditingController {
   final Priority _initialPriority;
   final List<String> _initialTags;
 
-  final ValueNotifier<String> title;
-  final ValueNotifier<String> description;
-  final ValueNotifier<String> time;
-  final ValueNotifier<bool> pinned;
-  final ValueNotifier<Tasks?> task;
-  final ValueNotifier<Priority> priority;
-  final ValueNotifier<List<String>> tags;
-  final ValueNotifier<bool> canCompose = ValueNotifier(false);
+  final ValueNotifier<String> title = ValueNotifier<String>('');
+  final ValueNotifier<String> description = ValueNotifier<String>('');
+  final ValueNotifier<String> time = ValueNotifier<String>('');
+  final ValueNotifier<bool> pinned = ValueNotifier<bool>(false);
+  final ValueNotifier<Tasks?> task = ValueNotifier<Tasks?>(null);
+  final ValueNotifier<Priority> priority = ValueNotifier<Priority>(
+    Priority.none,
+  );
+  final ValueNotifier<List<String>> tags = ValueNotifier<List<String>>([]);
+  final ValueNotifier<bool> _canCompose = ValueNotifier<bool>(false);
+
+  ValueListenable<bool> get canCompose => _canCompose;
+
+  void _initializeListeners() {
+    title.value = _initialTitle;
+    description.value = _initialDesc;
+    time.value = _initialTime;
+    pinned.value = _initialPinned;
+    task.value = _initialTask;
+    priority.value = _initialPriority;
+    tags.value = List.from(_initialTags);
+
+    title.addListener(_updateCanCompose);
+    description.addListener(_updateCanCompose);
+    time.addListener(_updateCanCompose);
+    pinned.addListener(_updateCanCompose);
+    task.addListener(_updateCanCompose);
+    priority.addListener(_updateCanCompose);
+    tags.addListener(_updateCanCompose);
+  }
 
   void _updateCanCompose() {
     final hasChanges =
@@ -1206,15 +1216,12 @@ class _EditingController {
         pinned.value != _initialPinned ||
         task.value?.id != _initialTask?.id ||
         priority.value != _initialPriority ||
-        !_listEquals(tags.value, _initialTags);
+        !listEquals(tags.value, _initialTags);
 
-    canCompose.value = hasChanges;
+    _canCompose.value = hasChanges;
   }
 
-  bool _listEquals(List<String> a, List<String> b) {
-    return listEquals(a, b);
-  }
-
+  @override
   void dispose() {
     title.removeListener(_updateCanCompose);
     description.removeListener(_updateCanCompose);
@@ -1231,6 +1238,7 @@ class _EditingController {
     task.dispose();
     priority.dispose();
     tags.dispose();
-    canCompose.dispose();
+    _canCompose.dispose();
+    super.dispose();
   }
 }
