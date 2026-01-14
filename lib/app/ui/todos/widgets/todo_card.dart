@@ -510,17 +510,26 @@ class _TodoCardState extends State<TodoCard>
   }
 
   Widget _buildTrailingText(ColorScheme colorScheme) {
+    final hasNoSubtasks = widget.createdTodos == 0;
+    final allComplete =
+        widget.createdTodos > 0 && widget.completedTodos == widget.createdTodos;
+    final shouldDim = hasNoSubtasks || allComplete;
+
     return AnimatedContainer(
       duration: AppConstants.shortAnimation,
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
+        color: shouldDim
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(7),
       ),
       child: Text(
         '${widget.completedTodos}/${widget.createdTodos}',
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: colorScheme.onSurface,
+          color: shouldDim
+              ? colorScheme.onSurface.withValues(alpha: 0.4)
+              : colorScheme.onSurface,
           fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
           fontWeight: FontWeight.w600,
         ),

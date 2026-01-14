@@ -237,6 +237,11 @@ class _TaskCardState extends State<TaskCard>
   }
 
   Widget _buildTaskCounter(BuildContext context, ColorScheme colorScheme) {
+    final hasNoTodos = widget.createdTodos == 0;
+    final allComplete =
+        widget.createdTodos > 0 && widget.completedTodos == widget.createdTodos;
+    final shouldDim = hasNoTodos || allComplete;
+
     return AnimatedContainer(
       duration: AppConstants.shortAnimation,
       padding: const EdgeInsets.symmetric(
@@ -244,13 +249,17 @@ class _TaskCardState extends State<TaskCard>
         vertical: AppConstants.spacingXS + 1,
       ),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
+        color: shouldDim
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall + 2),
       ),
       child: Text(
         '${widget.completedTodos}/${widget.createdTodos}',
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: colorScheme.onSurface,
+          color: shouldDim
+              ? colorScheme.onSurface.withValues(alpha: 0.4)
+              : colorScheme.onSurface,
           fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
           fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
