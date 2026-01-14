@@ -88,34 +88,7 @@ class TodoService {
   }
 
   Future<void> toggleDone(Todos todo, List<Todos> allTodos) async {
-    if (todo.done) {
-      await _setDoneForSubtree(todo, true, allTodos);
-    } else {
-      await _setDoneSingle(todo, false);
-    }
-  }
-
-  Future<void> _setDoneForSubtree(
-    Todos root,
-    bool done,
-    List<Todos> allTodos,
-  ) async {
-    final ids = _collectSubtreeIdsSync(root);
-    if (ids.isEmpty) return;
-
-    await _todoRepo.updateDoneBatch(ids: ids, done: done);
-
-    final now = DateTime.now();
-    final todosToCancel = allTodos
-        .where((t) {
-          if (!ids.contains(t.id)) return false;
-          final time = t.todoCompletedTime;
-          return time != null && time.isAfter(now);
-        })
-        .map((t) => t.id)
-        .toList();
-
-    await _notificationService.cancelBatch(todosToCancel);
+    await _setDoneSingle(todo, todo.done);
   }
 
   Future<void> _setDoneSingle(Todos todo, bool done) async {
