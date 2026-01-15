@@ -759,9 +759,13 @@ class _TodosActionState extends State<TodosAction>
   ) {
     final list = options.toList();
     final colorScheme = Theme.of(context).colorScheme;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
     return Padding(
-      padding: const EdgeInsets.only(top: AppConstants.spacingS),
+      padding: EdgeInsets.only(
+        top: AppConstants.spacingXS,
+        bottom: keyboardHeight > 0 ? keyboardHeight + AppConstants.spacingM : 0,
+      ),
       child: Align(
         alignment: Alignment.topCenter,
         child: Material(

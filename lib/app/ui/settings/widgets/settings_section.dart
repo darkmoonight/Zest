@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zest/app/constants/app_constants.dart';
 import 'package:zest/app/utils/responsive_utils.dart';
+import 'package:zest/main.dart';
 
 class SettingsSection extends StatelessWidget {
   final String title;
@@ -45,6 +46,15 @@ class SettingsSection extends StatelessWidget {
         ),
         Card(
           margin: EdgeInsets.zero,
+          shape: settings.amoledTheme
+              ? RoundedRectangleBorder(
+                  side: BorderSide(
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                )
+              : null,
           child: Column(
             children: [
               for (int i = 0; i < children.length; i++) ...[
