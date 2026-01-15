@@ -661,7 +661,7 @@ class _TodosTransferState extends State<TodosTransfer>
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppConstants.spacingS),
+      padding: const EdgeInsets.only(bottom: AppConstants.spacingXS),
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Material(

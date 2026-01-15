@@ -216,20 +216,34 @@ class TodoService {
   // ==================== COUNTERS ====================
 
   int countForTask(Tasks task, List<Todos> allTodos) {
-    return allTodos.where((t) => t.task.value?.id == task.id).length;
+    return allTodos
+        .where((t) => t.task.value?.id == task.id && t.parent.value == null)
+        .length;
   }
 
   int countCompletedForTask(Tasks task, List<Todos> allTodos) {
-    return allTodos.where((t) => t.task.value?.id == task.id && t.done).length;
+    return allTodos
+        .where(
+          (t) =>
+              t.task.value?.id == task.id && t.done && t.parent.value == null,
+        )
+        .length;
   }
 
   int countAll(List<Todos> allTodos) {
-    return allTodos.where((t) => t.task.value?.archive == false).length;
+    return allTodos
+        .where((t) => t.task.value?.archive == false && t.parent.value == null)
+        .length;
   }
 
   int countAllCompleted(List<Todos> allTodos) {
     return allTodos
-        .where((t) => t.task.value?.archive == false && t.done)
+        .where(
+          (t) =>
+              t.task.value?.archive == false &&
+              t.done &&
+              t.parent.value == null,
+        )
         .length;
   }
 
@@ -239,6 +253,7 @@ class TodoService {
       return !todo.done &&
           completedTime != null &&
           todo.task.value?.archive == false &&
+          todo.parent.value == null &&
           _isSameDay(date, completedTime);
     }).length;
   }

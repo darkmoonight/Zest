@@ -4,8 +4,9 @@ import 'package:zest/app/controller/fab_controller.dart';
 import 'package:flutter/material.dart';
 
 class ScrollFabHandler {
-  static Timer? _throttleTimer;
-  static const _throttleDuration = Duration(milliseconds: 100);
+  static Timer? _debounceTimer;
+  static const _debounceDuration = Duration(milliseconds: 150);
+  static ScrollDirection? _lastDirection;
 
   static bool handleScrollFabVisibility({
     required ScrollNotification notification,
@@ -17,30 +18,52 @@ class ScrollFabHandler {
       return false;
     }
 
-    if (_throttleTimer?.isActive ?? false) {
+    final direction = notification.direction;
+
+    if (direction == ScrollDirection.idle) {
       return false;
     }
 
-    _throttleTimer = Timer(_throttleDuration, () {});
-
-    final direction = notification.direction;
-    final shouldHide = direction == ScrollDirection.reverse;
-    final shouldShow = direction == ScrollDirection.forward;
-
-    if (tabController.index == hideFabOnTabIndex) {
-      if (shouldHide) fabController.hide();
-    } else {
-      if (shouldHide) {
-        fabController.hide();
-      } else if (shouldShow) {
-        fabController.show();
-      }
+    if (_lastDirection == direction) {
+      return false;
     }
+
+    _lastDirection = direction;
+
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(_debounceDuration, () {
+      _updateFabVisibility(
+        direction: direction,
+        tabController: tabController,
+        fabController: fabController,
+        hideFabOnTabIndex: hideFabOnTabIndex,
+      );
+    });
 
     return true;
   }
 
+  static void _updateFabVisibility({
+    required ScrollDirection direction,
+    required TabController tabController,
+    required FabController fabController,
+    required int hideFabOnTabIndex,
+  }) {
+    if (tabController.index == hideFabOnTabIndex) {
+      fabController.hide();
+      return;
+    }
+
+    if (direction == ScrollDirection.reverse) {
+      fabController.hide();
+    } else if (direction == ScrollDirection.forward) {
+      fabController.show();
+    }
+  }
+
   static void dispose() {
-    _throttleTimer?.cancel();
+    _debounceTimer?.cancel();
+    _debounceTimer = null;
+    _lastDirection = null;
   }
 }

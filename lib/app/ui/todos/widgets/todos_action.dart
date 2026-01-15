@@ -572,7 +572,7 @@ class _TodosActionState extends State<TodosAction>
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.only(top: AppConstants.spacingS),
+      padding: const EdgeInsets.only(top: AppConstants.spacingXS),
       child: Align(
         alignment: Alignment.topCenter,
         child: Material(
