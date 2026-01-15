@@ -136,6 +136,9 @@ void notificationTapBackground(NotificationResponse response) =>
     handleNotificationResponse(response);
 
 Future<void> handleNotificationResponse(NotificationResponse response) async {
+  if (flutterLocalNotificationsPlugin == null) {
+    await initializeNotifications();
+  }
   await initializeTimeZone();
   try {
     final payload = response.payload;
