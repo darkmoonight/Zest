@@ -41,17 +41,19 @@ class IsarController {
   // ==================== Backup ====================
 
   Future<void> createBackup() async {
-    _showLoadingDialog('creatingBackup'.tr);
-
     try {
       final backupDir = await _pickDirectory();
+      if (backupDir == null) {
+        return;
+      }
+
       final allowedPath = await _getAllowedPath(backupDir);
 
-      if (backupDir == null || allowedPath == null) {
-        _hideLoadingDialog();
+      if (allowedPath == null) {
         showSnackBar('errorPath'.tr, isInfo: true);
         return;
       }
+      _showLoadingDialog('creatingBackup'.tr);
 
       final backupFileName = _generateBackupFileName();
       final backupFile = File('$allowedPath/$backupFileName');
