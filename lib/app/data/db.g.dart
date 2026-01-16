@@ -17,57 +17,63 @@ const SettingsSchema = CollectionSchema(
   name: r'Settings',
   id: -8656046621518759136,
   properties: {
-    r'amoledTheme': PropertySchema(
+    r'allTodosSortOption': PropertySchema(
       id: 0,
+      name: r'allTodosSortOption',
+      type: IsarType.byte,
+      enumMap: _SettingsallTodosSortOptionEnumValueMap,
+    ),
+    r'amoledTheme': PropertySchema(
+      id: 1,
       name: r'amoledTheme',
       type: IsarType.bool,
     ),
     r'calendarFormat': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'calendarFormat',
       type: IsarType.string,
     ),
+    r'calendarSortOption': PropertySchema(
+      id: 3,
+      name: r'calendarSortOption',
+      type: IsarType.byte,
+      enumMap: _SettingscalendarSortOptionEnumValueMap,
+    ),
     r'defaultScreen': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'defaultScreen',
       type: IsarType.string,
     ),
     r'firstDay': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'firstDay',
       type: IsarType.string,
     ),
-    r'isImage': PropertySchema(id: 4, name: r'isImage', type: IsarType.bool),
+    r'isImage': PropertySchema(id: 6, name: r'isImage', type: IsarType.bool),
     r'language': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'language',
       type: IsarType.string,
     ),
     r'materialColor': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'materialColor',
       type: IsarType.bool,
     ),
-    r'onboard': PropertySchema(id: 7, name: r'onboard', type: IsarType.bool),
+    r'onboard': PropertySchema(id: 9, name: r'onboard', type: IsarType.bool),
     r'screenPrivacy': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'screenPrivacy',
       type: IsarType.bool,
     ),
     r'snoozeDuration': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'snoozeDuration',
       type: IsarType.long,
     ),
-    r'sortOption': PropertySchema(
-      id: 10,
-      name: r'sortOption',
-      type: IsarType.byte,
-      enumMap: _SettingssortOptionEnumValueMap,
-    ),
-    r'theme': PropertySchema(id: 11, name: r'theme', type: IsarType.string),
+    r'theme': PropertySchema(id: 12, name: r'theme', type: IsarType.string),
     r'timeformat': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'timeformat',
       type: IsarType.string,
     ),
@@ -119,19 +125,20 @@ void _settingsSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeBool(offsets[0], object.amoledTheme);
-  writer.writeString(offsets[1], object.calendarFormat);
-  writer.writeString(offsets[2], object.defaultScreen);
-  writer.writeString(offsets[3], object.firstDay);
-  writer.writeBool(offsets[4], object.isImage);
-  writer.writeString(offsets[5], object.language);
-  writer.writeBool(offsets[6], object.materialColor);
-  writer.writeBool(offsets[7], object.onboard);
-  writer.writeBool(offsets[8], object.screenPrivacy);
-  writer.writeLong(offsets[9], object.snoozeDuration);
-  writer.writeByte(offsets[10], object.sortOption.index);
-  writer.writeString(offsets[11], object.theme);
-  writer.writeString(offsets[12], object.timeformat);
+  writer.writeByte(offsets[0], object.allTodosSortOption.index);
+  writer.writeBool(offsets[1], object.amoledTheme);
+  writer.writeString(offsets[2], object.calendarFormat);
+  writer.writeByte(offsets[3], object.calendarSortOption.index);
+  writer.writeString(offsets[4], object.defaultScreen);
+  writer.writeString(offsets[5], object.firstDay);
+  writer.writeBool(offsets[6], object.isImage);
+  writer.writeString(offsets[7], object.language);
+  writer.writeBool(offsets[8], object.materialColor);
+  writer.writeBool(offsets[9], object.onboard);
+  writer.writeBool(offsets[10], object.screenPrivacy);
+  writer.writeLong(offsets[11], object.snoozeDuration);
+  writer.writeString(offsets[12], object.theme);
+  writer.writeString(offsets[13], object.timeformat);
 }
 
 Settings _settingsDeserialize(
@@ -141,22 +148,29 @@ Settings _settingsDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Settings();
-  object.amoledTheme = reader.readBool(offsets[0]);
-  object.calendarFormat = reader.readString(offsets[1]);
-  object.defaultScreen = reader.readString(offsets[2]);
-  object.firstDay = reader.readString(offsets[3]);
-  object.id = id;
-  object.isImage = reader.readBoolOrNull(offsets[4]);
-  object.language = reader.readStringOrNull(offsets[5]);
-  object.materialColor = reader.readBool(offsets[6]);
-  object.onboard = reader.readBool(offsets[7]);
-  object.screenPrivacy = reader.readBoolOrNull(offsets[8]);
-  object.snoozeDuration = reader.readLong(offsets[9]);
-  object.sortOption =
-      _SettingssortOptionValueEnumMap[reader.readByteOrNull(offsets[10])] ??
+  object.allTodosSortOption =
+      _SettingsallTodosSortOptionValueEnumMap[reader.readByteOrNull(
+        offsets[0],
+      )] ??
       SortOption.none;
-  object.theme = reader.readStringOrNull(offsets[11]);
-  object.timeformat = reader.readString(offsets[12]);
+  object.amoledTheme = reader.readBool(offsets[1]);
+  object.calendarFormat = reader.readString(offsets[2]);
+  object.calendarSortOption =
+      _SettingscalendarSortOptionValueEnumMap[reader.readByteOrNull(
+        offsets[3],
+      )] ??
+      SortOption.none;
+  object.defaultScreen = reader.readString(offsets[4]);
+  object.firstDay = reader.readString(offsets[5]);
+  object.id = id;
+  object.isImage = reader.readBoolOrNull(offsets[6]);
+  object.language = reader.readStringOrNull(offsets[7]);
+  object.materialColor = reader.readBool(offsets[8]);
+  object.onboard = reader.readBool(offsets[9]);
+  object.screenPrivacy = reader.readBoolOrNull(offsets[10]);
+  object.snoozeDuration = reader.readLong(offsets[11]);
+  object.theme = reader.readStringOrNull(offsets[12]);
+  object.timeformat = reader.readString(offsets[13]);
   return object;
 }
 
@@ -168,39 +182,47 @@ P _settingsDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readBool(offset)) as P;
+      return (_SettingsallTodosSortOptionValueEnumMap[reader.readByteOrNull(
+                offset,
+              )] ??
+              SortOption.none)
+          as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readString(offset)) as P;
-    case 4:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 5:
-      return (reader.readStringOrNull(offset)) as P;
-    case 6:
-      return (reader.readBool(offset)) as P;
-    case 7:
-      return (reader.readBool(offset)) as P;
-    case 8:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 9:
-      return (reader.readLong(offset)) as P;
-    case 10:
-      return (_SettingssortOptionValueEnumMap[reader.readByteOrNull(offset)] ??
+      return (_SettingscalendarSortOptionValueEnumMap[reader.readByteOrNull(
+                offset,
+              )] ??
               SortOption.none)
           as P;
-    case 11:
+    case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 7:
       return (reader.readStringOrNull(offset)) as P;
+    case 8:
+      return (reader.readBool(offset)) as P;
+    case 9:
+      return (reader.readBool(offset)) as P;
+    case 10:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 11:
+      return (reader.readLong(offset)) as P;
     case 12:
+      return (reader.readStringOrNull(offset)) as P;
+    case 13:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
-const _SettingssortOptionEnumValueMap = {
+const _SettingsallTodosSortOptionEnumValueMap = {
   'none': 0,
   'alphaAsc': 1,
   'alphaDesc': 2,
@@ -212,7 +234,31 @@ const _SettingssortOptionEnumValueMap = {
   'priorityDesc': 8,
   'random': 9,
 };
-const _SettingssortOptionValueEnumMap = {
+const _SettingsallTodosSortOptionValueEnumMap = {
+  0: SortOption.none,
+  1: SortOption.alphaAsc,
+  2: SortOption.alphaDesc,
+  3: SortOption.dateAsc,
+  4: SortOption.dateDesc,
+  5: SortOption.dateNotifAsc,
+  6: SortOption.dateNotifDesc,
+  7: SortOption.priorityAsc,
+  8: SortOption.priorityDesc,
+  9: SortOption.random,
+};
+const _SettingscalendarSortOptionEnumValueMap = {
+  'none': 0,
+  'alphaAsc': 1,
+  'alphaDesc': 2,
+  'dateAsc': 3,
+  'dateDesc': 4,
+  'dateNotifAsc': 5,
+  'dateNotifDesc': 6,
+  'priorityAsc': 7,
+  'priorityDesc': 8,
+  'random': 9,
+};
+const _SettingscalendarSortOptionValueEnumMap = {
   0: SortOption.none,
   1: SortOption.alphaAsc,
   2: SortOption.alphaDesc,
@@ -317,6 +363,61 @@ extension SettingsQueryWhere on QueryBuilder<Settings, Settings, QWhereClause> {
 
 extension SettingsQueryFilter
     on QueryBuilder<Settings, Settings, QFilterCondition> {
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  allTodosSortOptionEqualTo(SortOption value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'allTodosSortOption', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  allTodosSortOptionGreaterThan(SortOption value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'allTodosSortOption',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  allTodosSortOptionLessThan(SortOption value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'allTodosSortOption',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  allTodosSortOptionBetween(
+    SortOption lower,
+    SortOption upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'allTodosSortOption',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterFilterCondition> amoledThemeEqualTo(
     bool value,
   ) {
@@ -467,6 +568,61 @@ extension SettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(property: r'calendarFormat', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  calendarSortOptionEqualTo(SortOption value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'calendarSortOption', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  calendarSortOptionGreaterThan(SortOption value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'calendarSortOption',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  calendarSortOptionLessThan(SortOption value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'calendarSortOption',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  calendarSortOptionBetween(
+    SortOption lower,
+    SortOption upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'calendarSortOption',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
       );
     });
   }
@@ -1112,65 +1268,6 @@ extension SettingsQueryFilter
     });
   }
 
-  QueryBuilder<Settings, Settings, QAfterFilterCondition> sortOptionEqualTo(
-    SortOption value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'sortOption', value: value),
-      );
-    });
-  }
-
-  QueryBuilder<Settings, Settings, QAfterFilterCondition> sortOptionGreaterThan(
-    SortOption value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'sortOption',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Settings, Settings, QAfterFilterCondition> sortOptionLessThan(
-    SortOption value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'sortOption',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Settings, Settings, QAfterFilterCondition> sortOptionBetween(
-    SortOption lower,
-    SortOption upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'sortOption',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-        ),
-      );
-    });
-  }
-
   QueryBuilder<Settings, Settings, QAfterFilterCondition> themeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1488,6 +1585,19 @@ extension SettingsQueryLinks
     on QueryBuilder<Settings, Settings, QFilterCondition> {}
 
 extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByAllTodosSortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'allTodosSortOption', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByAllTodosSortOptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'allTodosSortOption', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByAmoledTheme() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'amoledTheme', Sort.asc);
@@ -1509,6 +1619,19 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByCalendarFormatDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'calendarFormat', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCalendarSortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'calendarSortOption', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByCalendarSortOptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'calendarSortOption', Sort.desc);
     });
   }
 
@@ -1608,18 +1731,6 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
-  QueryBuilder<Settings, Settings, QAfterSortBy> sortBySortOption() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'sortOption', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Settings, Settings, QAfterSortBy> sortBySortOptionDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'sortOption', Sort.desc);
-    });
-  }
-
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByTheme() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'theme', Sort.asc);
@@ -1647,6 +1758,19 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
 
 extension SettingsQuerySortThenBy
     on QueryBuilder<Settings, Settings, QSortThenBy> {
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByAllTodosSortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'allTodosSortOption', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByAllTodosSortOptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'allTodosSortOption', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByAmoledTheme() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'amoledTheme', Sort.asc);
@@ -1668,6 +1792,19 @@ extension SettingsQuerySortThenBy
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByCalendarFormatDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'calendarFormat', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCalendarSortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'calendarSortOption', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByCalendarSortOptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'calendarSortOption', Sort.desc);
     });
   }
 
@@ -1779,18 +1916,6 @@ extension SettingsQuerySortThenBy
     });
   }
 
-  QueryBuilder<Settings, Settings, QAfterSortBy> thenBySortOption() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'sortOption', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Settings, Settings, QAfterSortBy> thenBySortOptionDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'sortOption', Sort.desc);
-    });
-  }
-
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByTheme() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'theme', Sort.asc);
@@ -1818,6 +1943,12 @@ extension SettingsQuerySortThenBy
 
 extension SettingsQueryWhereDistinct
     on QueryBuilder<Settings, Settings, QDistinct> {
+  QueryBuilder<Settings, Settings, QDistinct> distinctByAllTodosSortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'allTodosSortOption');
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByAmoledTheme() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'amoledTheme');
@@ -1832,6 +1963,12 @@ extension SettingsQueryWhereDistinct
         r'calendarFormat',
         caseSensitive: caseSensitive,
       );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCalendarSortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'calendarSortOption');
     });
   }
 
@@ -1892,12 +2029,6 @@ extension SettingsQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Settings, Settings, QDistinct> distinctBySortOption() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'sortOption');
-    });
-  }
-
   QueryBuilder<Settings, Settings, QDistinct> distinctByTheme({
     bool caseSensitive = true,
   }) {
@@ -1923,6 +2054,13 @@ extension SettingsQueryProperty
     });
   }
 
+  QueryBuilder<Settings, SortOption, QQueryOperations>
+  allTodosSortOptionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'allTodosSortOption');
+    });
+  }
+
   QueryBuilder<Settings, bool, QQueryOperations> amoledThemeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'amoledTheme');
@@ -1932,6 +2070,13 @@ extension SettingsQueryProperty
   QueryBuilder<Settings, String, QQueryOperations> calendarFormatProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'calendarFormat');
+    });
+  }
+
+  QueryBuilder<Settings, SortOption, QQueryOperations>
+  calendarSortOptionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'calendarSortOption');
     });
   }
 
@@ -1983,12 +2128,6 @@ extension SettingsQueryProperty
     });
   }
 
-  QueryBuilder<Settings, SortOption, QQueryOperations> sortOptionProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'sortOption');
-    });
-  }
-
   QueryBuilder<Settings, String?, QQueryOperations> themeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'theme');
@@ -2020,12 +2159,18 @@ const TasksSchema = CollectionSchema(
       type: IsarType.string,
     ),
     r'index': PropertySchema(id: 2, name: r'index', type: IsarType.long),
-    r'taskColor': PropertySchema(
+    r'sortOption': PropertySchema(
       id: 3,
+      name: r'sortOption',
+      type: IsarType.byte,
+      enumMap: _TaskssortOptionEnumValueMap,
+    ),
+    r'taskColor': PropertySchema(
+      id: 4,
       name: r'taskColor',
       type: IsarType.long,
     ),
-    r'title': PropertySchema(id: 4, name: r'title', type: IsarType.string),
+    r'title': PropertySchema(id: 5, name: r'title', type: IsarType.string),
   },
 
   estimateSize: _tasksEstimateSize,
@@ -2071,8 +2216,9 @@ void _tasksSerialize(
   writer.writeBool(offsets[0], object.archive);
   writer.writeString(offsets[1], object.description);
   writer.writeLong(offsets[2], object.index);
-  writer.writeLong(offsets[3], object.taskColor);
-  writer.writeString(offsets[4], object.title);
+  writer.writeByte(offsets[3], object.sortOption.index);
+  writer.writeLong(offsets[4], object.taskColor);
+  writer.writeString(offsets[5], object.title);
 }
 
 Tasks _tasksDeserialize(
@@ -2086,8 +2232,11 @@ Tasks _tasksDeserialize(
     description: reader.readStringOrNull(offsets[1]) ?? '',
     id: id,
     index: reader.readLongOrNull(offsets[2]),
-    taskColor: reader.readLong(offsets[3]),
-    title: reader.readString(offsets[4]),
+    sortOption:
+        _TaskssortOptionValueEnumMap[reader.readByteOrNull(offsets[3])] ??
+        SortOption.none,
+    taskColor: reader.readLong(offsets[4]),
+    title: reader.readString(offsets[5]),
   );
   return object;
 }
@@ -2106,13 +2255,42 @@ P _tasksDeserializeProp<P>(
     case 2:
       return (reader.readLongOrNull(offset)) as P;
     case 3:
-      return (reader.readLong(offset)) as P;
+      return (_TaskssortOptionValueEnumMap[reader.readByteOrNull(offset)] ??
+              SortOption.none)
+          as P;
     case 4:
+      return (reader.readLong(offset)) as P;
+    case 5:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
+
+const _TaskssortOptionEnumValueMap = {
+  'none': 0,
+  'alphaAsc': 1,
+  'alphaDesc': 2,
+  'dateAsc': 3,
+  'dateDesc': 4,
+  'dateNotifAsc': 5,
+  'dateNotifDesc': 6,
+  'priorityAsc': 7,
+  'priorityDesc': 8,
+  'random': 9,
+};
+const _TaskssortOptionValueEnumMap = {
+  0: SortOption.none,
+  1: SortOption.alphaAsc,
+  2: SortOption.alphaDesc,
+  3: SortOption.dateAsc,
+  4: SortOption.dateDesc,
+  5: SortOption.dateNotifAsc,
+  6: SortOption.dateNotifDesc,
+  7: SortOption.priorityAsc,
+  8: SortOption.priorityDesc,
+  9: SortOption.random,
+};
 
 Id _tasksGetId(Tasks object) {
   return object.id;
@@ -2490,6 +2668,65 @@ extension TasksQueryFilter on QueryBuilder<Tasks, Tasks, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> sortOptionEqualTo(
+    SortOption value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'sortOption', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> sortOptionGreaterThan(
+    SortOption value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'sortOption',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> sortOptionLessThan(
+    SortOption value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'sortOption',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> sortOptionBetween(
+    SortOption lower,
+    SortOption upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'sortOption',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QAfterFilterCondition> taskColorEqualTo(
     int value,
   ) {
@@ -2800,6 +3037,18 @@ extension TasksQuerySortBy on QueryBuilder<Tasks, Tasks, QSortBy> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> sortBySortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOption', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> sortBySortOptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOption', Sort.desc);
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QAfterSortBy> sortByTaskColor() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'taskColor', Sort.asc);
@@ -2874,6 +3123,18 @@ extension TasksQuerySortThenBy on QueryBuilder<Tasks, Tasks, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> thenBySortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOption', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> thenBySortOptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOption', Sort.desc);
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QAfterSortBy> thenByTaskColor() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'taskColor', Sort.asc);
@@ -2920,6 +3181,12 @@ extension TasksQueryWhereDistinct on QueryBuilder<Tasks, Tasks, QDistinct> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QDistinct> distinctBySortOption() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'sortOption');
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QDistinct> distinctByTaskColor() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'taskColor');
@@ -2957,6 +3224,12 @@ extension TasksQueryProperty on QueryBuilder<Tasks, Tasks, QQueryProperty> {
   QueryBuilder<Tasks, int?, QQueryOperations> indexProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'index');
+    });
+  }
+
+  QueryBuilder<Tasks, SortOption, QQueryOperations> sortOptionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'sortOption');
     });
   }
 

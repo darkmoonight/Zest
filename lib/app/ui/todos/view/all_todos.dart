@@ -25,7 +25,7 @@ class _AllTodosState extends State<AllTodos>
   @override
   void initState() {
     super.initState();
-    initializeTodosScreen(initialSortOption: settings.sortOption, vsync: this);
+    initializeTodosScreen(initialSortOption: settings.allTodosSortOption, vsync: this);
   }
 
   @override
@@ -179,7 +179,7 @@ class _AllTodosState extends State<AllTodos>
 
   void _handleSortChanged(SortOption option) {
     updateSortOption(option);
-    settings.sortOption = option;
+    settings.allTodosSortOption = option;
     isar.writeTxnSync(() => isar.settings.putSync(settings));
   }
 

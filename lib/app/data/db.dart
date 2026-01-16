@@ -17,9 +17,11 @@ class Settings {
   String firstDay = 'monday';
   String calendarFormat = 'week';
   String defaultScreen = 'categories';
-  @enumerated
-  SortOption sortOption = SortOption.none;
   int snoozeDuration = 10;
+  @enumerated
+  SortOption allTodosSortOption = SortOption.none;
+  @enumerated
+  SortOption calendarSortOption = SortOption.none;
 }
 
 enum SortOption {
@@ -43,6 +45,8 @@ class Tasks {
   int taskColor;
   bool archive;
   int? index;
+  @enumerated
+  SortOption sortOption = SortOption.none;
 
   @Backlink(to: 'task')
   final todos = IsarLinks<Todos>();
@@ -54,6 +58,7 @@ class Tasks {
     this.archive = false,
     required this.taskColor,
     this.index,
+    this.sortOption = SortOption.none,
   });
 }
 

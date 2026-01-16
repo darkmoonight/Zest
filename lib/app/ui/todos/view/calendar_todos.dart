@@ -31,7 +31,7 @@ class _CalendarTodosState extends State<CalendarTodos>
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
-    initializeTodosScreen(initialSortOption: settings.sortOption, vsync: this);
+    initializeTodosScreen(initialSortOption: settings.calendarSortOption, vsync: this);
   }
 
   @override
@@ -332,7 +332,7 @@ class _CalendarTodosState extends State<CalendarTodos>
 
   void _handleSortChanged(SortOption option) {
     updateSortOption(option);
-    settings.sortOption = option;
+    settings.calendarSortOption = option;
     isar.writeTxnSync(() => isar.settings.putSync(settings));
   }
 

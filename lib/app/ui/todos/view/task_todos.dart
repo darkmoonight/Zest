@@ -30,7 +30,7 @@ class _TaskTodosState extends State<TaskTodos>
   @override
   void initState() {
     super.initState();
-    initializeTodosScreen(initialSortOption: settings.sortOption, vsync: this);
+    initializeTodosScreen(initialSortOption: widget.task.sortOption, vsync: this);
   }
 
   @override
@@ -242,8 +242,8 @@ class _TaskTodosState extends State<TaskTodos>
 
   void _handleSortChanged(SortOption option) {
     updateSortOption(option);
-    settings.sortOption = option;
-    isar.writeTxnSync(() => isar.settings.putSync(settings));
+    widget.task.sortOption = option;
+    isar.writeTxnSync(() => isar.tasks.putSync(widget.task));
   }
 
   Widget _buildTabBarView() {
