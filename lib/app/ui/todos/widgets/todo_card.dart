@@ -267,18 +267,47 @@ class _TodoCardState extends State<TodoCard>
       return const SizedBox.shrink();
     }
 
+    final lines = widget.todo.description.split('\n');
+    final isTruncated =
+        lines.length > 2 || lines.any((line) => line.length > 80);
+
     return Padding(
       padding: const EdgeInsets.only(top: 3),
-      child: Text(
-        widget.todo.description,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
-          color: colorScheme.onSurfaceVariant,
-          decoration: widget.todo.done ? TextDecoration.lineThrough : null,
-          decorationColor: colorScheme.onSurfaceVariant,
-        ),
-        overflow: TextOverflow.visible,
-        maxLines: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            widget.todo.description,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+              color: colorScheme.onSurfaceVariant,
+              decoration: widget.todo.done ? TextDecoration.lineThrough : null,
+              decorationColor: colorScheme.onSurfaceVariant,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+          ),
+          if (isTruncated)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                '...',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1,
+                  decoration: widget.todo.done
+                      ? TextDecoration.lineThrough
+                      : null,
+                  decorationColor: colorScheme.onSurfaceVariant.withValues(
+                    alpha: 0.6,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -10,6 +10,19 @@ class TextUtils {
   }
 
   static String _normalizeSpaces(String text) {
-    return text.trim().replaceAll(RegExp(r'\s+'), ' ');
+    final lines = text.split('\n');
+
+    final normalizedLines = lines.map((line) {
+      return line.trim().replaceAll(RegExp(r'[ \t]+'), ' ');
+    }).toList();
+
+    while (normalizedLines.isNotEmpty && normalizedLines.first.isEmpty) {
+      normalizedLines.removeAt(0);
+    }
+    while (normalizedLines.isNotEmpty && normalizedLines.last.isEmpty) {
+      normalizedLines.removeLast();
+    }
+
+    return normalizedLines.join('\n');
   }
 }
