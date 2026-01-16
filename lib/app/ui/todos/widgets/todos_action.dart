@@ -728,12 +728,20 @@ class _TodosActionState extends State<TodosAction>
       }
     }
 
-    final List<String> tagsList = tagsSet.toList();
+    final List<String> tagsList = tagsSet.toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
     final query = textEditingValue.text.trim().toLowerCase();
 
-    if (query.isEmpty) return tagsList;
+    List<String> filteredTags = query.isEmpty
+        ? tagsList
+        : tagsList.where((tag) => tag.toLowerCase().contains(query)).toList();
 
-    return tagsList.where((tag) => tag.toLowerCase().contains(query));
+    filteredTags = filteredTags
+        .where((tag) => !_todoTags.contains(tag))
+        .toList();
+
+    return filteredTags;
   }
 
   void _addTag(String value) {
