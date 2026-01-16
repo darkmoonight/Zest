@@ -869,7 +869,7 @@ class _TodosActionState extends State<TodosAction>
           child: Row(
             spacing: AppConstants.spacingS,
             children: [
-              if (widget.edit) _buildSubTaskButton(context),
+              _buildSubTaskButton(context),
               _buildDateTimeButton(context),
               _buildPriorityButton(context),
               _buildPinButton(context),
@@ -911,26 +911,7 @@ class _TodosActionState extends State<TodosAction>
     final colorScheme = Theme.of(context).colorScheme;
 
     return FilledButton.tonal(
-      onPressed: () {
-        NavigationHelper.back();
-        Get.key.currentState!.push(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                TodosTodo(key: ValueKey(widget.todo!.id), todo: widget.todo!),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-                  return SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, 1),
-                      end: Offset.zero,
-                    ).animate(animation),
-                    child: child,
-                  );
-                },
-            transitionDuration: const Duration(milliseconds: 240),
-          ),
-        );
-      },
+      onPressed: () => _handleSubTasksNavigation(context),
       style: FilledButton.styleFrom(
         padding: const EdgeInsets.symmetric(
           horizontal: AppConstants.spacingL,
@@ -957,6 +938,87 @@ class _TodosActionState extends State<TodosAction>
         ],
       ),
     );
+  }
+
+  Future<void> _handleSubTasksNavigation(BuildContext context) async {
+    if (widget.edit && widget.todo != null) {
+      NavigationHelper.back();
+      Get.key.currentState!.push(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              TodosTodo(key: ValueKey(widget.todo!.id), todo: widget.todo!),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 240),
+        ),
+      );
+    } else {
+      await _createTodoAndNavigateToSubtasks(context);
+    }
+  }
+
+  Future<void> _createTodoAndNavigateToSubtasks(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    TextUtils.trimController(_titleController);
+    TextUtils.trimController(_descController);
+
+    try {
+      Tasks? taskToUse;
+
+      if (widget.category) {
+        taskToUse = _selectedTask;
+      } else if (widget.todo != null) {
+        taskToUse = widget.todo!.task.value;
+      } else if (widget.task != null) {
+        taskToUse = widget.task;
+      }
+
+      if (taskToUse == null) {
+        throw Exception('No task selected');
+      }
+
+      final newTodo = await _todoController.addTodo(
+        task: taskToUse,
+        title: _titleController.text,
+        description: _descController.text,
+        time: _timeController.text,
+        pinned: _todoPinned,
+        priority: _todoPriority,
+        tags: _todoTags,
+        parent: widget.category ? null : widget.todo,
+      );
+
+      NavigationHelper.back();
+
+      await Get.key.currentState!.push(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              TodosTodo(key: ValueKey(newTodo.id), todo: newTodo),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 240),
+        ),
+      );
+    } catch (e) {
+      // ignore
+    }
   }
 
   Widget _buildDateTimeButton(BuildContext context) {
