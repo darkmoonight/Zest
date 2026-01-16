@@ -37,33 +37,29 @@ class StatChip extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: iconFontSize, color: textColor),
-          const SizedBox(width: 6),
-          Flexible(
-            fit: FlexFit.loose,
-            child: Text(
+      child: IntrinsicWidth(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: iconFontSize, color: textColor),
+            const SizedBox(width: 6),
+            Text(
               value,
               maxLines: 1,
-              overflow: TextOverflow.visible,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: textColor,
                 fontWeight: FontWeight.w700,
                 fontSize: iconFontSize,
               ),
             ),
-          ),
-          const SizedBox(width: 4),
-          Flexible(
-            fit: FlexFit.loose,
-            child: Text(
+            const SizedBox(width: 4),
+            Text(
               label,
               maxLines: 1,
-              overflow: TextOverflow.visible,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: textColor.withValues(alpha: 0.8),
                 fontSize: ResponsiveUtils.getResponsiveFontSize(
@@ -72,8 +68,8 @@ class StatChip extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
