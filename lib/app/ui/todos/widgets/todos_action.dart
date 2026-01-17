@@ -67,7 +67,7 @@ class _TodosActionState extends State<TodosAction>
     _initializeControllers();
     _initializeEditMode();
     _initializeEditingController();
-    _initializeAnimations();
+    _initAnimations();
     _setupListeners();
   }
 
@@ -106,10 +106,10 @@ class _TodosActionState extends State<TodosAction>
     );
   }
 
-  void _initializeAnimations() {
+  void _initAnimations() {
     _animationController = AnimationController(
       vsync: this,
-      duration: AppConstants.animationDuration,
+      duration: AppConstants.shortAnimation,
     );
 
     _fadeAnimation = CurvedAnimation(
@@ -125,7 +125,11 @@ class _TodosActionState extends State<TodosAction>
           ),
         );
 
-    _animationController.forward();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _animationController.forward();
+      }
+    });
   }
 
   void _setupListeners() {

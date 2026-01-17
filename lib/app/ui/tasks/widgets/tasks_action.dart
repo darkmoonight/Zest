@@ -77,7 +77,7 @@ class _TasksActionState extends State<TasksAction>
   void _initAnimations() {
     _animationController = AnimationController(
       vsync: this,
-      duration: AppConstants.animationDuration,
+      duration: AppConstants.shortAnimation,
     );
 
     _fadeAnimation = CurvedAnimation(
@@ -93,7 +93,11 @@ class _TasksActionState extends State<TasksAction>
           ),
         );
 
-    _animationController.forward();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _animationController.forward();
+      }
+    });
   }
 
   @override
