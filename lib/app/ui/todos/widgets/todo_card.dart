@@ -54,7 +54,7 @@ class _TodoCardState extends State<TodoCard>
       duration: AppConstants.shortAnimation,
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
   }
@@ -63,23 +63,6 @@ class _TodoCardState extends State<TodoCard>
   void dispose() {
     _animationController.dispose();
     super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return StatefulBuilder(
-      builder: (context, innerState) => ScaleTransition(
-        scale: _scaleAnimation,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: _handleTapDown,
-          onTapUp: (details) => _handleTapUp(details),
-          onTapCancel: _handleTapCancel,
-          onDoubleTap: widget.onDoubleTap,
-          child: _buildCard(context, innerState),
-        ),
-      ),
-    );
   }
 
   void _handleTapDown(TapDownDetails details) {
@@ -126,88 +109,111 @@ class _TodoCardState extends State<TodoCard>
     _animationController.reverse();
   }
 
-  Widget _buildCard(BuildContext context, StateSetter innerState) {
+  @override
+  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isMobile = ResponsiveUtils.isMobile(context);
 
-    return Obx(() {
-      final isSelected =
-          _todoController.isMultiSelectionTodo.isTrue &&
-          _todoController.selectedTodo.contains(widget.todo);
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile
+            ? AppConstants.spacingS + 2
+            : AppConstants.spacingM,
+        vertical: AppConstants.spacingXS,
+      ),
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: _handleTapDown,
+          onTapUp: _handleTapUp,
+          onTapCancel: _handleTapCancel,
+          onDoubleTap: widget.onDoubleTap,
+          child: Obx(() {
+            final isSelected =
+                _todoController.isMultiSelectionTodo.isTrue &&
+                _todoController.selectedTodo.contains(widget.todo);
 
-      return AnimatedContainer(
-        duration: AppConstants.shortAnimation,
-        curve: Curves.easeInOut,
-        margin: EdgeInsets.symmetric(
-          horizontal: isMobile
-              ? AppConstants.spacingS + 2
-              : AppConstants.spacingM,
-          vertical: AppConstants.spacingXS,
-        ),
-        decoration: BoxDecoration(
-          border: isSelected
-              ? Border.all(
-                  color: colorScheme.primary,
-                  width: AppConstants.borderWidthThick,
-                )
-              : null,
-          borderRadius: BorderRadius.circular(
-            isSelected
-                ? AppConstants.borderRadiusXLarge
-                : AppConstants.borderRadiusLarge,
-          ),
-        ),
-        child: Card(
-          elevation: isSelected
-              ? AppConstants.elevationMedium
-              : AppConstants.elevationLow,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
-          ),
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              isMobile ? 2 : AppConstants.spacingXS + 2,
-              isMobile ? AppConstants.spacingS + 2 : AppConstants.spacingM,
-              isMobile ? AppConstants.spacingS + 2 : AppConstants.spacingM + 2,
-              isMobile ? AppConstants.spacingS + 2 : AppConstants.spacingM,
-            ),
-            child: Row(
-              children: [
-                Flexible(
+            return AnimatedContainer(
+              duration: AppConstants.shortAnimation,
+              curve: Curves.easeInOut,
+              decoration: BoxDecoration(
+                border: isSelected
+                    ? Border.all(
+                        color: colorScheme.primary,
+                        width: AppConstants.borderWidthThick,
+                      )
+                    : null,
+                borderRadius: BorderRadius.circular(
+                  isSelected
+                      ? AppConstants.borderRadiusXLarge
+                      : AppConstants.borderRadiusLarge,
+                ),
+              ),
+              child: Card(
+                elevation: isSelected
+                    ? AppConstants.elevationMedium
+                    : AppConstants.elevationLow,
+                margin: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    isSelected
+                        ? AppConstants.borderRadiusXLarge
+                        : AppConstants.borderRadiusLarge,
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    isMobile ? 2 : AppConstants.spacingXS + 2,
+                    isMobile
+                        ? AppConstants.spacingS + 2
+                        : AppConstants.spacingM,
+                    isMobile
+                        ? AppConstants.spacingS + 2
+                        : AppConstants.spacingM + 2,
+                    isMobile
+                        ? AppConstants.spacingS + 2
+                        : AppConstants.spacingM,
+                  ),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      _buildCheckbox(innerState, colorScheme),
-                      SizedBox(width: AppConstants.spacingXS),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
+                      Flexible(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            _buildTodoName(colorScheme),
-                            _buildTodoDescription(colorScheme),
-                            _buildCategoryInfo(colorScheme),
-                            _buildCreatedTime(colorScheme),
-                            _buildCompletionTime(colorScheme),
-                            _buildTagsAndPriority(),
+                            _buildCheckbox(context),
+                            SizedBox(width: AppConstants.spacingXS),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _buildTodoName(colorScheme),
+                                  _buildTodoDescription(colorScheme),
+                                  _buildCategoryInfo(),
+                                  _buildCreatedTime(colorScheme),
+                                  _buildCompletionTime(colorScheme),
+                                  _buildTagsAndPriority(),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
+                      SizedBox(width: AppConstants.spacingXS + 2),
+                      _buildAdditionalInfo(colorScheme),
                     ],
                   ),
                 ),
-                SizedBox(width: AppConstants.spacingXS + 2),
-                _buildAdditionalInfo(colorScheme),
-              ],
-            ),
-          ),
+              ),
+            );
+          }),
         ),
-      );
-    });
+      ),
+    );
   }
 
-  Widget _buildCheckbox(StateSetter innerState, ColorScheme colorScheme) {
+  Widget _buildCheckbox(BuildContext context) {
     return Transform.scale(
       scale: ResponsiveUtils.isMobile(context) ? 1.0 : 1.1,
       child: Checkbox(
@@ -216,7 +222,7 @@ class _TodoCardState extends State<TodoCard>
         onChanged: (val) {
           if (val == null) return;
 
-          innerState(() {
+          setState(() {
             widget.todo.done = val;
             widget.todo.todoCompletionTime = val ? DateTime.now() : null;
           });
@@ -312,7 +318,7 @@ class _TodoCardState extends State<TodoCard>
     );
   }
 
-  Widget _buildCategoryInfo(ColorScheme colorScheme) {
+  Widget _buildCategoryInfo() {
     if (!((widget.allTodos || widget.calendar) &&
         widget.todo.task.value != null)) {
       return const SizedBox.shrink();
