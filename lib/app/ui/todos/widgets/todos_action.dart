@@ -50,6 +50,8 @@ class _TodosActionState extends State<TodosAction>
   late final FocusNode _categoryFocusNode;
   late final FocusNode _tagsFocusNode;
 
+  late final ScrollController _scrollController;
+
   Tasks? _selectedTask;
   bool _todoPinned = false;
   Priority _todoPriority = Priority.none;
@@ -79,6 +81,7 @@ class _TodosActionState extends State<TodosAction>
     _tagsController = TextEditingController();
     _categoryFocusNode = FocusNode();
     _tagsFocusNode = FocusNode();
+    _scrollController = ScrollController();
   }
 
   void _initializeEditMode() {
@@ -136,6 +139,33 @@ class _TodosActionState extends State<TodosAction>
     _categoryFocusNode.addListener(() {
       if (mounted) setState(() {});
     });
+
+    _tagsFocusNode.addListener(() {
+      if (_tagsFocusNode.hasFocus) {
+        _scrollToBottom();
+      }
+    });
+  }
+
+  void _scrollToBottom() {
+    int attempts = 0;
+
+    void performScroll() {
+      if (!mounted || attempts > 8) return;
+
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.linear,
+        );
+      }
+
+      attempts++;
+      Future.delayed(const Duration(milliseconds: 100), performScroll);
+    }
+
+    performScroll();
   }
 
   @override
@@ -149,6 +179,7 @@ class _TodosActionState extends State<TodosAction>
     _tagsFocusNode.dispose();
     _editingController.dispose();
     _animationController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -451,6 +482,7 @@ class _TodosActionState extends State<TodosAction>
           children: [
             Flexible(
               child: SingleChildScrollView(
+                controller: _scrollController,
                 padding: EdgeInsets.all(padding * 1.5),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
