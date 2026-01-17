@@ -188,5 +188,8 @@ class FaIr {
     "noResults": "هیچ نتیجه‌ای یافت نشد",
     "selectAll": "انتخاب همه",
     "transfer": "انتقال",
+    'unsavedChanges': 'تغییرات ذخیره نشده',
+    'saveBeforeSubtasks': 'تغییراتی اعمال شده است. ذخیره و رفتن به زیرمجموعه‌ها؟',
+    'save': 'ذخیره',
   };
 }

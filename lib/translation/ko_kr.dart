@@ -182,5 +182,8 @@ class KoKr {
     "noResults": "결과 없음",
     "selectAll": "모두 선택",
     "transfer": "전송",
+    'unsavedChanges': '저장되지 않은 변경 사항',
+    'saveBeforeSubtasks': '데이터가 수정되었습니다. 저장하고 하위 작업으로 이동할까요?',
+    'save': '저장',
   };
 }

@@ -187,5 +187,8 @@ class PtPt {
     "noResults": "Sem resultados",
     "selectAll": "Selecionar tudo",
     "transfer": "Transferir",
+    'unsavedChanges': 'Alterações não guardadas',
+    'saveBeforeSubtasks': 'Os dados foram modificados. Guardar e ir para as subtarefas?',
+    'save': 'Guardar',
   };
 }

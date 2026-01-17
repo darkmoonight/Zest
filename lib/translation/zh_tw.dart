@@ -182,5 +182,8 @@ class ZhTw {
     "noResults": "沒有結果",
     "selectAll": "全選",
     "transfer": "轉移",
+    'unsavedChanges': '未保存的更改',
+    'saveBeforeSubtasks': '數據已修改。是否儲存並轉到子任務？',
+    'save': '儲存',
   };
 }

@@ -978,6 +978,24 @@ class _TodosActionState extends State<TodosAction>
 
   Future<void> _handleSubTasksNavigation(BuildContext context) async {
     if (widget.edit && widget.todo != null) {
+      if (_editingController.canCompose.value) {
+        final bool shouldSave = await showConfirmationDialog(
+          context: context,
+          title: 'unsavedChanges'.tr,
+          message: 'saveBeforeSubtasks'.tr,
+          icon: IconsaxPlusBold.document_filter,
+          confirmText: 'save'.tr,
+        );
+
+        if (!shouldSave) return;
+
+        if (!_formKey.currentState!.validate()) return;
+
+        TextUtils.trimController(_titleController);
+        TextUtils.trimController(_descController);
+        _saveTodo();
+      }
+
       NavigationHelper.back();
       Get.key.currentState!.push(
         PageRouteBuilder(

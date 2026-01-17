@@ -185,5 +185,8 @@ class ArAr {
     "noResults": "لا توجد نتائج",
     "selectAll": "تحديد الكل",
     "transfer": "نقل",
+    'unsavedChanges': 'تغييرات غير محفوظة',
+    'saveBeforeSubtasks': 'تم تعديل البيانات. هل تريد الحفظ والانتقال إلى المهام الفرعية؟',
+    'save': 'حفظ',
   };
 }

@@ -188,5 +188,8 @@ class PlPl {
     "noResults": "Brak wyników",
     "selectAll": "Zaznacz wszystko",
     "transfer": "Przenieś",
+    'unsavedChanges': 'Niezapisane zmiany',
+    'saveBeforeSubtasks': 'Dane zostały zmienione. Zapisać i przejść do podzadań?',
+    'save': 'Zapisz',
   };
 }

@@ -163,7 +163,7 @@ class ConfirmationDialog extends StatelessWidget {
         FilledButton.tonal(
           onPressed: () {
             onConfirm?.call();
-            NavigationHelper.back();
+            NavigationHelper.back(result: true);
           },
           style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(

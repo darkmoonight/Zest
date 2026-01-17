@@ -188,5 +188,8 @@ class TrTr {
     "noResults": "Sonuç yok",
     "selectAll": "Tümünü seç",
     "transfer": "Aktar",
+    'unsavedChanges': 'Kaydedilmemiş Değişiklikler',
+    'saveBeforeSubtasks': 'Veriler değiştirildi. Kaydedip alt görevlere geçilsin mi?',
+    'save': 'Kaydet',
   };
 }

@@ -182,5 +182,8 @@ class ZhCN {
     "noResults": "无结果",
     "selectAll": "全选",
     "transfer": "转移",
+    'unsavedChanges': '未保存的更改',
+    'saveBeforeSubtasks': '数据已修改。是否保存并转到子任务？',
+    'save': '保存',
   };
 }

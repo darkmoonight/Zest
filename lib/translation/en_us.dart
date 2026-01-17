@@ -186,5 +186,8 @@ class EnUs {
     'noResults': 'No Results',
     'selectAll': 'Select All',
     'transfer': 'Transfer',
+    'unsavedChanges': 'Unsaved Changes',
+    'saveBeforeSubtasks': 'Data has been modified. Save and go to subtasks?',
+    'save': 'Save',
   };
 }
