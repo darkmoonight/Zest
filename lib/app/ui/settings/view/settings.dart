@@ -453,7 +453,12 @@ class _SettingsPageState extends State<SettingsPage> {
       icon: IconsaxPlusBold.language_square,
       items: appLanguages,
       currentValue: appLanguages.firstWhere(
-        (element) => element['locale'] == locale,
+        (element) =>
+            (element['locale'] as Locale).languageCode == locale.languageCode,
+        orElse: () => <String, dynamic>{
+          'name': 'English',
+          'locale': const Locale('en', 'US'),
+        },
       ),
       itemBuilder: (lang) => lang['name'] as String,
       onSelected: (value) {
