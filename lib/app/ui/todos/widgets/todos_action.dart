@@ -1158,8 +1158,14 @@ class _TodosActionState extends State<TodosAction>
   Widget _buildPriorityButton(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final bool isKeyboardOpen = keyboardHeight > 0;
+
     return MenuAnchor(
-      alignmentOffset: const Offset(0, -10),
+      alignmentOffset: isKeyboardOpen
+          ? const Offset(0, -250)
+          : const Offset(0, 0),
+
       style: MenuStyle(
         shape: WidgetStateProperty.all(
           const RoundedRectangleBorder(
@@ -1167,7 +1173,6 @@ class _TodosActionState extends State<TodosAction>
           ),
         ),
         elevation: WidgetStateProperty.all(8),
-        alignment: AlignmentDirectional.bottomStart,
       ),
       menuChildren: [
         for (final priority in Priority.values)
