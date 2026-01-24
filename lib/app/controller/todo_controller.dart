@@ -150,10 +150,6 @@ class TodoController extends GetxController {
       color: color,
       currentTaskCount: tasks.length,
     );
-
-    // if (task != null) {
-    //   tasks.add(task);
-    // }
   }
 
   Future<void> updateTask(
@@ -168,19 +164,6 @@ class TodoController extends GetxController {
       description: description,
       color: color,
     );
-
-    // _refreshTask(task);
-  }
-
-  void _refreshTask(Tasks task) {
-    final idx = tasks.indexWhere((t) => t.id == task.id);
-    if (idx != -1) {
-      tasks[idx] = task;
-      tasks.refresh();
-    } else {
-      _loadTasksAndTodos();
-    }
-    todos.refresh();
   }
 
   Future<void> deleteTask(List<Tasks> taskList) async {
@@ -264,8 +247,6 @@ class TodoController extends GetxController {
       currentTodoCount: todos.length,
       parent: parent,
     );
-
-    // todos.add(todo);
     return todo;
   }
 
@@ -289,24 +270,10 @@ class TodoController extends GetxController {
       priority: priority,
       tags: tags,
     );
-
-    // _refreshTodo(todo);
-  }
-
-  void _refreshTodo(Todos todo) {
-    final idx = todos.indexWhere((t) => t.id == todo.id);
-    if (idx != -1) {
-      todos[idx] = todo;
-      todos.refresh();
-    } else {
-      _loadTasksAndTodos();
-    }
   }
 
   Future<void> updateTodoCheck(Todos todo) async {
     await _todoService.toggleDone(todo, todos);
-
-    // todos.assignAll(_todoRepo.getAll());
     _resyncSelectedTodoFromIds();
   }
 

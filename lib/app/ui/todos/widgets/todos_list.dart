@@ -120,11 +120,6 @@ class _TodosListState extends State<TodosList>
 
   List<Todos> _getFilteredAndSortedTodos() {
     List<Todos> filteredList = _filterTodos();
-    // final uniqueMap = <int, Todos>{};
-    // for (var todo in filteredList) {
-    //   uniqueMap[todo.id] = todo;
-    // }
-    // List<Todos> deduplicatedList = uniqueMap.values.toList();
     _sortTodos(filteredList);
     return filteredList;
   }
