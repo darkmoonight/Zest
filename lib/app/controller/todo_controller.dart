@@ -151,9 +151,9 @@ class TodoController extends GetxController {
       currentTaskCount: tasks.length,
     );
 
-    if (task != null) {
-      tasks.add(task);
-    }
+    // if (task != null) {
+    //   tasks.add(task);
+    // }
   }
 
   Future<void> updateTask(
@@ -169,7 +169,7 @@ class TodoController extends GetxController {
       color: color,
     );
 
-    _refreshTask(task);
+    // _refreshTask(task);
   }
 
   void _refreshTask(Tasks task) {
@@ -265,7 +265,7 @@ class TodoController extends GetxController {
       parent: parent,
     );
 
-    todos.add(todo);
+    // todos.add(todo);
     return todo;
   }
 
@@ -290,7 +290,7 @@ class TodoController extends GetxController {
       tags: tags,
     );
 
-    _refreshTodo(todo);
+    // _refreshTodo(todo);
   }
 
   void _refreshTodo(Todos todo) {
@@ -306,7 +306,7 @@ class TodoController extends GetxController {
   Future<void> updateTodoCheck(Todos todo) async {
     await _todoService.toggleDone(todo, todos);
 
-    todos.assignAll(_todoRepo.getAll());
+    // todos.assignAll(_todoRepo.getAll());
     _resyncSelectedTodoFromIds();
   }
 
