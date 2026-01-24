@@ -120,8 +120,13 @@ class _TodosListState extends State<TodosList>
 
   List<Todos> _getFilteredAndSortedTodos() {
     List<Todos> filteredList = _filterTodos();
-    _sortTodos(filteredList);
-    return filteredList;
+    final uniqueMap = <int, Todos>{};
+    for (var todo in filteredList) {
+      uniqueMap[todo.id] = todo;
+    }
+    List<Todos> deduplicatedList = uniqueMap.values.toList();
+    _sortTodos(deduplicatedList);
+    return deduplicatedList;
   }
 
   List<Todos> _filterTodos() {
@@ -291,7 +296,7 @@ class _TodosListState extends State<TodosList>
   Widget _buildTodoCard(Todos todo) {
     final createdTodos = _todoController.createdAllTodosTodo(todo);
     final completedTodos = _todoController.completedAllTodosTodo(todo);
-
+    print('Rendering todo: ${todo.id} - ${todo.name}');
     return TodoCard(
       key: ValueKey(todo.id),
       todo: todo,
