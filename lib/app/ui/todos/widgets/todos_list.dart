@@ -291,7 +291,6 @@ class _TodosListState extends State<TodosList>
   Widget _buildTodoCard(Todos todo) {
     final createdTodos = _todoController.createdAllTodosTodo(todo);
     final completedTodos = _todoController.completedAllTodosTodo(todo);
-
     return TodoCard(
       key: ValueKey(todo.id),
       todo: todo,
