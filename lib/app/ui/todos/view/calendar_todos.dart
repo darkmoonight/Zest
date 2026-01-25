@@ -31,7 +31,10 @@ class _CalendarTodosState extends State<CalendarTodos>
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
-    initializeTodosScreen(initialSortOption: settings.calendarSortOption, vsync: this);
+    initializeTodosScreen(
+      initialSortOption: settings.calendarSortOption,
+      vsync: this,
+    );
   }
 
   @override

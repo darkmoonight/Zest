@@ -184,7 +184,8 @@ class ViVn {
     "selectAll": "Chọn tất cả",
     "transfer": "Chuyển",
     'unsavedChanges': 'Thay đổi chưa lưu',
-    'saveBeforeSubtasks': 'Dữ liệu đã được sửa đổi. Lưu và chuyển đến các tác vụ con?',
+    'saveBeforeSubtasks':
+        'Dữ liệu đã được sửa đổi. Lưu và chuyển đến các tác vụ con?',
     'save': 'Lưu',
   };
 }

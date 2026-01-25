@@ -189,7 +189,8 @@ class PlPl {
     "selectAll": "Zaznacz wszystko",
     "transfer": "Przenieś",
     'unsavedChanges': 'Niezapisane zmiany',
-    'saveBeforeSubtasks': 'Dane zostały zmienione. Zapisać i przejść do podzadań?',
+    'saveBeforeSubtasks':
+        'Dane zostały zmienione. Zapisać i przejść do podzadań?',
     'save': 'Zapisz',
   };
 }

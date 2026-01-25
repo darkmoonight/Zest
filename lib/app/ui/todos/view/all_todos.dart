@@ -25,7 +25,10 @@ class _AllTodosState extends State<AllTodos>
   @override
   void initState() {
     super.initState();
-    initializeTodosScreen(initialSortOption: settings.allTodosSortOption, vsync: this);
+    initializeTodosScreen(
+      initialSortOption: settings.allTodosSortOption,
+      vsync: this,
+    );
   }
 
   @override

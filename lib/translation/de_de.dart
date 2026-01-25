@@ -189,7 +189,8 @@ class DeDe {
     "selectAll": "Alle auswählen",
     "transfer": "Übertragen",
     'unsavedChanges': 'Ungespeicherte Änderungen',
-    'saveBeforeSubtasks': 'Daten wurden geändert. Speichern und zu den Unteraufgaben gehen?',
+    'saveBeforeSubtasks':
+        'Daten wurden geändert. Speichern und zu den Unteraufgaben gehen?',
     'save': 'Speichern',
   };
 }

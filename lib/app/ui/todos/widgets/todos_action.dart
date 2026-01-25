@@ -39,6 +39,7 @@ class TodosAction extends StatefulWidget {
 class _TodosActionState extends State<TodosAction>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  final GlobalKey _tagsKey = GlobalKey();
   late final TodoController _todoController = Get.find<TodoController>();
 
   late final TextEditingController _categoryController;
@@ -142,30 +143,51 @@ class _TodosActionState extends State<TodosAction>
 
     _tagsFocusNode.addListener(() {
       if (_tagsFocusNode.hasFocus) {
-        _scrollToBottom();
+        _buildTagOptions(_tagsController.value).then((options) {
+          if (options.isNotEmpty) {
+            _scrollToTags();
+          }
+        });
       }
     });
   }
 
-  void _scrollToBottom() {
-    int attempts = 0;
+  void _scrollToTags() {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
 
-    void performScroll() {
-      if (!mounted || attempts > 8) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
 
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 100),
-          curve: Curves.linear,
-        );
-      }
+        final ctx = _tagsKey.currentContext;
+        if (ctx == null) return;
 
-      attempts++;
-      Future.delayed(const Duration(milliseconds: 100), performScroll);
-    }
-
-    performScroll();
+        if (_scrollController.hasClients) {
+          try {
+            Scrollable.ensureVisible(
+              ctx,
+              alignment: 0.0,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+            );
+          } catch (e) {
+            final max = _scrollController.position.maxScrollExtent;
+            _scrollController.animateTo(
+              max,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+            );
+          }
+        } else {
+          Scrollable.ensureVisible(
+            ctx,
+            alignment: 0.0,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    });
   }
 
   @override
@@ -709,6 +731,7 @@ class _TodosActionState extends State<TodosAction>
 
   Widget _buildTagsSection(BuildContext context, double padding) {
     return Column(
+      key: _tagsKey,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RawAutocomplete<String>(
@@ -777,6 +800,10 @@ class _TodosActionState extends State<TodosAction>
         .where((tag) => !_todoTags.contains(tag))
         .toList();
 
+    if (filteredTags.isNotEmpty) {
+      _scrollToTags();
+    }
+
     return filteredTags;
   }
 
@@ -818,7 +845,7 @@ class _TodosActionState extends State<TodosAction>
           shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
           color: colorScheme.surfaceContainerHigh,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 200),
+            constraints: const BoxConstraints(maxHeight: 400),
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(
                 vertical: AppConstants.spacingXS,

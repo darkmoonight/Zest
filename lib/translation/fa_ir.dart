@@ -189,7 +189,8 @@ class FaIr {
     "selectAll": "انتخاب همه",
     "transfer": "انتقال",
     'unsavedChanges': 'تغییرات ذخیره نشده',
-    'saveBeforeSubtasks': 'تغییراتی اعمال شده است. ذخیره و رفتن به زیرمجموعه‌ها؟',
+    'saveBeforeSubtasks':
+        'تغییراتی اعمال شده است. ذخیره و رفتن به زیرمجموعه‌ها؟',
     'save': 'ذخیره',
   };
 }

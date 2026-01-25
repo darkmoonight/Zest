@@ -191,7 +191,8 @@ class EsEs {
     "selectAll": "Seleccionar todo",
     "transfer": "Transferir",
     'unsavedChanges': 'Cambios sin guardar',
-    'saveBeforeSubtasks': 'Los datos han sido modificados. ¿Guardar e ir a las subtareas?',
+    'saveBeforeSubtasks':
+        'Los datos han sido modificados. ¿Guardar e ir a las subtareas?',
     'save': 'Guardar',
   };
 }

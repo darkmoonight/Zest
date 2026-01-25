@@ -189,7 +189,8 @@ class TrTr {
     "selectAll": "Tümünü seç",
     "transfer": "Aktar",
     'unsavedChanges': 'Kaydedilmemiş Değişiklikler',
-    'saveBeforeSubtasks': 'Veriler değiştirildi. Kaydedip alt görevlere geçilsin mi?',
+    'saveBeforeSubtasks':
+        'Veriler değiştirildi. Kaydedip alt görevlere geçilsin mi?',
     'save': 'Kaydet',
   };
 }

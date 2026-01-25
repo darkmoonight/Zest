@@ -144,7 +144,7 @@ class TodoController extends GetxController {
   // ==================== Tasks CRUD ====================
 
   Future<void> addTask(String title, String description, Color color) async {
-    final task = await _taskService.createTask(
+    await _taskService.createTask(
       title: title,
       description: description,
       color: color,

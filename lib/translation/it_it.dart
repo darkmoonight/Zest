@@ -188,7 +188,8 @@ class ItIt {
     "selectAll": "Seleziona tutto",
     "transfer": "Trasferisci",
     'unsavedChanges': 'Modifiche non salvate',
-    'saveBeforeSubtasks': 'I dati sono stati modificati. Salvare e passare alle sottoattività?',
+    'saveBeforeSubtasks':
+        'I dati sono stati modificati. Salvare e passare alle sottoattività?',
     'save': 'Salva',
   };
 }

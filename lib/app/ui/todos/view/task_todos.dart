@@ -30,7 +30,10 @@ class _TaskTodosState extends State<TaskTodos>
   @override
   void initState() {
     super.initState();
-    initializeTodosScreen(initialSortOption: widget.task.sortOption, vsync: this);
+    initializeTodosScreen(
+      initialSortOption: widget.task.sortOption,
+      vsync: this,
+    );
   }
 
   @override

@@ -191,7 +191,8 @@ class FrFr {
     "selectAll": "Tout sélectionner",
     "transfer": "Transférer",
     'unsavedChanges': 'Modifications non enregistrées',
-    'saveBeforeSubtasks': 'Les données ont été modifiées. Enregistrer et aller aux sous-tâches ?',
+    'saveBeforeSubtasks':
+        'Les données ont été modifiées. Enregistrer et aller aux sous-tâches ?',
     'save': 'Enregistrer',
   };
 }
