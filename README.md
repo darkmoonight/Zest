@@ -7,8 +7,10 @@
     <p align='center'>
         <a href='https://github.com/darkmoonight/Zest/stargazers'><img alt='Stars' src='https://img.shields.io/github/stars/darkmoonight/Zest?color=ABACD3'/></a>
         <a href='https://github.com/darkmoonight/Zest/forks'><img alt='Forks' src='https://img.shields.io/github/forks/darkmoonight/Zest?color=ABACD3'/></a>
-        <a href='https://github.com/darkmoonight/Zest/releases'><img alt='GitHub release' src='https://img.shields.io/github/v/release/darkmoonight/Zest?color=ABACD3'/></a>
-        <a href='https://github.com/darkmoonight/Zest/blob/main/LICENSE'><img alt='License' src='https://img.shields.io/github/license/darkmoonight/Zest?color=ABACD3'/></a>
+        <a href='https://github.com/darkmoonight/Zest/releases/latest'><img alt='Downloads' src='https://img.shields.io/github/downloads/darkmoonight/Zest/total?color=ABACD3&logo=github&logoColor=white'/></a>
+        <a href='https://play.google.com/store/apps/details?id=com.yoshi.todark'><img alt='Play Store Installs' src='https://img.shields.io/endpoint?color=ABACD3&logo=google-play&logoColor=white&url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fi%3Dcom.yoshi.todark%26l%3DInstalls%26m%3D%24installs'/></a>
+        <a href='https://github.com/darkmoonight/Zest/releases'><img alt='GitHub release' src='https://img.shields.io/github/v/release/darkmoonight/Zest?color=ABACD3&logo=flutter&logoColor=white'/></a>
+        <a href='https://github.com/darkmoonight/Zest/blob/main/LICENSE'><img alt='License' src='https://img.shields.io/github/license/darkmoonight/Zest?color=ABACD3&logo=open-source-initiative&logoColor=white'/></a>
     </p>
 </p>
 
