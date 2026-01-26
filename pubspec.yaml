@@ -41,7 +41,7 @@ dependencies:
   omni_datetime_picker: ^2.3.1
   line_awesome_flutter: ^3.0.1
   sleek_circular_slider: ^2.1.0
-  flutter_local_notifications: ^19.5.0
+  flutter_local_notifications: ^20.0.0
   isar_community: ^3.3.0
   isar_community_flutter_libs: ^3.3.0
 

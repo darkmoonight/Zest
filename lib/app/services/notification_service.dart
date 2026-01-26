@@ -49,7 +49,7 @@ class NotificationService {
 
   Future<void> cancel(int todoId) async {
     try {
-      await flutterLocalNotificationsPlugin?.cancel(todoId);
+      await flutterLocalNotificationsPlugin?.cancel(id: todoId);
     } catch (e) {
       debugPrint('Error canceling notification $todoId: $e');
     }

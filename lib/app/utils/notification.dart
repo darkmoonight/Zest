@@ -41,11 +41,11 @@ class NotificationShow {
 
     try {
       await flutterLocalNotificationsPlugin!.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduledTime,
-        notificationDetails,
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduledTime,
+        notificationDetails: notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: '$id',
       );
@@ -152,7 +152,7 @@ class NotificationShow {
     final newDateTime = DateTime.now().add(Duration(minutes: snoozeMinutes));
 
     try {
-      await flutterLocalNotificationsPlugin!.cancel(id);
+      await flutterLocalNotificationsPlugin!.cancel(id: id);
       await showNotification(
         id,
         title,
@@ -171,7 +171,7 @@ class NotificationShow {
     if (flutterLocalNotificationsPlugin == null) return;
 
     try {
-      await flutterLocalNotificationsPlugin!.cancel(id);
+      await flutterLocalNotificationsPlugin!.cancel(id: id);
     } catch (e) {
       debugPrint('Error canceling notification: $e');
     }

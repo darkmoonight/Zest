@@ -236,7 +236,7 @@ class _TodoCardState extends State<TodoCard>
     final date = widget.todo.todoCompletedTime;
 
     if (val) {
-      flutterLocalNotificationsPlugin?.cancel(widget.todo.id);
+      flutterLocalNotificationsPlugin?.cancel(id: widget.todo.id);
     } else if (date != null && DateTime.now().isBefore(date)) {
       NotificationShow().showNotification(
         widget.todo.id,

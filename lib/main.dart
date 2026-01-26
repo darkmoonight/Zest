@@ -119,7 +119,7 @@ Future<void> initializeNotifications() async {
   );
   try {
     await flutterLocalNotificationsPlugin!.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async =>
           await handleNotificationResponse(response),
       onDidReceiveBackgroundNotificationResponse: kIsWeb
@@ -222,7 +222,7 @@ Future<void> markTodoAsDone(int todoId) async {
         await isarInstance.todos.put(todo);
       });
       if (flutterLocalNotificationsPlugin != null) {
-        await flutterLocalNotificationsPlugin!.cancel(todoId);
+        await flutterLocalNotificationsPlugin!.cancel(id: todoId);
       }
       await isarInstance.close();
     }
