@@ -892,7 +892,7 @@ class _TodosActionState extends State<TodosAction>
 
     return Wrap(
       spacing: AppConstants.spacingS,
-      runSpacing: AppConstants.spacingS,
+      runSpacing: AppConstants.spacingXS,
       children: List.generate(
         _todoTags.length,
         (i) => InputChip(
