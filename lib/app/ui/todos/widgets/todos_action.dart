@@ -176,7 +176,7 @@ class _TodosActionState extends State<TodosAction>
   }
 
   void _scrollToTagsIfNeeded() {
-    Future.delayed(const Duration(milliseconds: 300), () {
+    Future.delayed(const Duration(milliseconds: 200), () {
       if (!mounted) return;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -211,13 +211,16 @@ class _TodosActionState extends State<TodosAction>
 
         if (dropdownBottom <= visibleBottom - safeMargin) return;
 
+        const scrollDuration = Duration(milliseconds: 350);
+        const scrollCurve = Curves.easeOutCubic;
+
         if (_scrollController.hasClients) {
           try {
             Scrollable.ensureVisible(
               inputCtx,
               alignment: 0.3,
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOut,
+              duration: scrollDuration,
+              curve: scrollCurve,
             );
           } catch (e) {
             final scrollOffset =
@@ -229,8 +232,8 @@ class _TodosActionState extends State<TodosAction>
             );
             _scrollController.animateTo(
               clampedOffset,
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOut,
+              duration: scrollDuration,
+              curve: scrollCurve,
             );
           }
         }
