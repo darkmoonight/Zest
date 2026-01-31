@@ -37,9 +37,10 @@ class TodosAction extends StatefulWidget {
 }
 
 class _TodosActionState extends State<TodosAction>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final GlobalKey _tagsKey = GlobalKey();
+  final GlobalKey _tagsInputKey = GlobalKey();
   late final TodoController _todoController = Get.find<TodoController>();
 
   late final TextEditingController _categoryController;
@@ -64,14 +65,35 @@ class _TodosActionState extends State<TodosAction>
   late final Animation<double> _fadeAnimation;
   late final Animation<Offset> _slideAnimation;
 
+  double _previousKeyboardHeight = 0;
+  int _tagOptionsCount = 0;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializeControllers();
     _initializeEditMode();
     _initializeEditingController();
     _initAnimations();
     _setupListeners();
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+      final keyboardOpened = keyboardHeight > 0 && _previousKeyboardHeight == 0;
+
+      if (keyboardOpened && _tagsFocusNode.hasFocus && _tagOptionsCount > 0) {
+        _scrollToTagsIfNeeded();
+      }
+
+      _previousKeyboardHeight = keyboardHeight;
+    });
   }
 
   void _initializeControllers() {
@@ -144,47 +166,73 @@ class _TodosActionState extends State<TodosAction>
     _tagsFocusNode.addListener(() {
       if (_tagsFocusNode.hasFocus) {
         _buildTagOptions(_tagsController.value).then((options) {
-          if (options.isNotEmpty) {
-            _scrollToTags();
+          _tagOptionsCount = options.length;
+          if (_tagOptionsCount > 0) {
+            _scrollToTagsIfNeeded();
           }
         });
       }
     });
   }
 
-  void _scrollToTags() {
+  void _scrollToTagsIfNeeded() {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (!mounted) return;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
 
-        final ctx = _tagsKey.currentContext;
-        if (ctx == null) return;
+        final inputCtx = _tagsInputKey.currentContext;
+        if (inputCtx == null) return;
+
+        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+        if (keyboardHeight == 0) return;
+
+        final inputBox = inputCtx.findRenderObject() as RenderBox?;
+        if (inputBox == null) return;
+
+        final inputPosition = inputBox.localToGlobal(Offset.zero);
+        final inputBottom = inputPosition.dy + inputBox.size.height;
+
+        final screenHeight = MediaQuery.of(context).size.height;
+        final visibleBottom = screenHeight - keyboardHeight;
+
+        const itemHeight = 40.0;
+        const listPadding = 8.0;
+        const dropdownMargin = 4.0;
+        const maxDropdownHeight = 400.0;
+
+        final dropdownHeight = (_tagOptionsCount * itemHeight + listPadding)
+            .clamp(0.0, maxDropdownHeight);
+
+        final dropdownBottom = inputBottom + dropdownMargin + dropdownHeight;
+
+        const safeMargin = 16.0;
+
+        if (dropdownBottom <= visibleBottom - safeMargin) return;
 
         if (_scrollController.hasClients) {
           try {
             Scrollable.ensureVisible(
-              ctx,
-              alignment: 0.0,
+              inputCtx,
+              alignment: 0.3,
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeOut,
             );
           } catch (e) {
-            final max = _scrollController.position.maxScrollExtent;
+            final scrollOffset =
+                _scrollController.offset +
+                (dropdownBottom - visibleBottom + safeMargin);
+            final clampedOffset = scrollOffset.clamp(
+              0.0,
+              _scrollController.position.maxScrollExtent,
+            );
             _scrollController.animateTo(
-              max,
+              clampedOffset,
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeOut,
             );
           }
-        } else {
-          Scrollable.ensureVisible(
-            ctx,
-            alignment: 0.0,
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOut,
-          );
         }
       });
     });
@@ -192,6 +240,7 @@ class _TodosActionState extends State<TodosAction>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _categoryController.dispose();
     _titleController.dispose();
     _descController.dispose();
@@ -759,6 +808,7 @@ class _TodosActionState extends State<TodosAction>
     final colorScheme = Theme.of(context).colorScheme;
 
     return MyTextForm(
+      key: _tagsInputKey,
       elevation: 0,
       margin: EdgeInsets.zero,
       controller: fieldTextEditingController,
@@ -766,6 +816,11 @@ class _TodosActionState extends State<TodosAction>
       type: TextInputType.text,
       icon: Icon(IconsaxPlusLinear.tag, color: colorScheme.primary),
       focusNode: _tagsFocusNode,
+      onTap: () {
+        if (_tagsFocusNode.hasFocus && _tagOptionsCount > 0) {
+          _scrollToTagsIfNeeded();
+        }
+      },
       onFieldSubmitted: (value) {
         _addTag(value);
         fieldTextEditingController.clear();
@@ -800,9 +855,7 @@ class _TodosActionState extends State<TodosAction>
         .where((tag) => !_todoTags.contains(tag))
         .toList();
 
-    if (filteredTags.isNotEmpty) {
-      _scrollToTags();
-    }
+    _tagOptionsCount = filteredTags.length;
 
     return filteredTags;
   }
@@ -821,6 +874,18 @@ class _TodosActionState extends State<TodosAction>
     _addTag(tag);
     _tagsController.clear();
     _tagsFocusNode.unfocus();
+  }
+
+  void _refreshTagOptions() {
+    final currentText = _tagsController.text;
+    final selection = _tagsController.selection;
+
+    _tagsController.text = '$currentText ';
+    _tagsController.text = currentText;
+
+    if (selection.isValid && selection.end <= currentText.length) {
+      _tagsController.selection = selection;
+    }
   }
 
   Widget _buildTagOptionsView(
@@ -902,10 +967,13 @@ class _TodosActionState extends State<TodosAction>
             size: AppConstants.iconSizeSmall,
             color: colorScheme.onSecondaryContainer,
           ),
-          onDeleted: () => setState(() {
-            _todoTags = List.from(_todoTags)..removeAt(i);
-            _editingController.tags.value = _todoTags;
-          }),
+          onDeleted: () {
+            setState(() {
+              _todoTags = List.from(_todoTags)..removeAt(i);
+              _editingController.tags.value = _todoTags;
+            });
+            _refreshTagOptions();
+          },
           backgroundColor: colorScheme.secondaryContainer,
           labelStyle: TextStyle(
             color: colorScheme.onSecondaryContainer,
