@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
-import 'package:zest/app/ui/tasks/widgets/common_container.dart';
+import 'package:zest/app/ui/tasks/widgets/icon_container.dart';
 import 'package:zest/app/ui/tasks/widgets/stat_chip.dart';
 import 'package:zest/app/constants/app_constants.dart';
 import 'package:zest/app/utils/progress_calculator.dart';
