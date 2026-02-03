@@ -228,8 +228,10 @@ class _CalendarTodosState extends State<CalendarTodos>
             ),
           ),
           onDaySelected: _onDaySelected,
-          onFormatChanged: (format) =>
-              setState(() => _updateCalendarFormat(format)),
+          onFormatChanged: (format) {
+            _updateCalendarFormat(format);
+            setState(() {});
+          },
           onPageChanged: (focusedDay) {
             _focusedDay = focusedDay;
           },
@@ -282,18 +284,18 @@ class _CalendarTodosState extends State<CalendarTodos>
   }
 
   Future<void> _updateCalendarFormat(CalendarFormat format) async {
+    switch (format) {
+      case CalendarFormat.week:
+        settings.calendarFormat = 'week';
+        break;
+      case CalendarFormat.twoWeeks:
+        settings.calendarFormat = 'twoWeeks';
+        break;
+      case CalendarFormat.month:
+        settings.calendarFormat = 'month';
+        break;
+    }
     await isar.writeTxn(() async {
-      switch (format) {
-        case CalendarFormat.week:
-          settings.calendarFormat = 'week';
-          break;
-        case CalendarFormat.twoWeeks:
-          settings.calendarFormat = 'twoWeeks';
-          break;
-        case CalendarFormat.month:
-          settings.calendarFormat = 'month';
-          break;
-      }
       await isar.settings.put(settings);
     });
   }
