@@ -43,16 +43,16 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() => appVersion = packageInfo.version);
   }
 
-  void _updateLanguage(Locale locale) {
+  Future<void> _updateLanguage(Locale locale) async {
     settings.language = '$locale';
-    isar.writeTxnSync(() => isar.settings.putSync(settings));
+    await isar.writeTxn(() => isar.settings.put(settings));
     Get.updateLocale(locale);
     setState(() {});
   }
 
-  void _updateDefaultScreen(String defaultScreen) {
+  Future<void> _updateDefaultScreen(String defaultScreen) async {
     settings.defaultScreen = defaultScreen;
-    isar.writeTxnSync(() => isar.settings.putSync(settings));
+    await isar.writeTxn(() => isar.settings.put(settings));
     setState(() {});
   }
 
@@ -122,9 +122,10 @@ class _SettingsPageState extends State<SettingsPage> {
             scale: 0.8,
             child: Switch(
               value: settings.amoledTheme,
-              onChanged: (value) {
-                themeController.saveOledTheme(value);
-                MyApp.updateAppState(context, newAmoledTheme: value);
+              onChanged: (value) async {
+                await themeController.saveOledTheme(value);
+                if (!mounted) return;
+                MyApp.updateAppState(this.context, newAmoledTheme: value);
                 setState(() {});
               },
             ),
@@ -137,9 +138,10 @@ class _SettingsPageState extends State<SettingsPage> {
             scale: 0.8,
             child: Switch(
               value: settings.materialColor,
-              onChanged: (value) {
-                themeController.saveMaterialTheme(value);
-                MyApp.updateAppState(context, newMaterialColor: value);
+              onChanged: (value) async {
+                await themeController.saveMaterialTheme(value);
+                if (!mounted) return;
+                MyApp.updateAppState(this.context, newMaterialColor: value);
                 setState(() {});
               },
             ),
@@ -152,10 +154,10 @@ class _SettingsPageState extends State<SettingsPage> {
             scale: 0.8,
             child: Switch(
               value: settings.isImage ?? false,
-              onChanged: (value) {
-                isar.writeTxnSync(() {
+              onChanged: (value) async {
+                await isar.writeTxn(() async {
                   settings.isImage = value;
-                  isar.settings.putSync(settings);
+                  await isar.settings.put(settings);
                 });
                 isImage.value = value;
                 setState(() {});
@@ -213,9 +215,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   } else {
                     await FlagSecure.unset();
                   }
-                  isar.writeTxnSync(() {
+                  await isar.writeTxn(() async {
                     settings.screenPrivacy = value;
-                    isar.settings.putSync(settings);
+                    await isar.settings.put(settings);
                   });
                   setState(() {});
                 } on PlatformException {
@@ -352,13 +354,13 @@ class _SettingsPageState extends State<SettingsPage> {
       items: ['system', 'dark', 'light'],
       currentValue: settings.theme ?? 'system',
       itemBuilder: (theme) => theme.tr,
-      onSelected: (value) {
+      onSelected: (value) async {
         ThemeMode mode = value == 'system'
             ? ThemeMode.system
             : value == 'dark'
             ? ThemeMode.dark
             : ThemeMode.light;
-        themeController.saveTheme(value);
+        await themeController.saveTheme(value);
         themeController.changeThemeMode(mode);
         setState(() {});
       },
@@ -373,10 +375,10 @@ class _SettingsPageState extends State<SettingsPage> {
       items: ['12', '24'],
       currentValue: settings.timeformat,
       itemBuilder: (format) => format.tr,
-      onSelected: (value) {
-        isar.writeTxnSync(() {
+      onSelected: (value) async {
+        await isar.writeTxn(() async {
           settings.timeformat = value;
-          isar.settings.putSync(settings);
+          await isar.settings.put(settings);
         });
         timeformat.value = value;
         todoController.todos.refresh();
@@ -401,10 +403,10 @@ class _SettingsPageState extends State<SettingsPage> {
       ],
       currentValue: firstDay.value,
       itemBuilder: (day) => day.tr,
-      onSelected: (value) {
-        isar.writeTxnSync(() {
+      onSelected: (value) async {
+        await isar.writeTxn(() async {
           settings.firstDay = value;
-          isar.settings.putSync(settings);
+          await isar.settings.put(settings);
         });
         firstDay.value = value;
         setState(() {});
@@ -420,10 +422,10 @@ class _SettingsPageState extends State<SettingsPage> {
       items: [5, 10, 15, 20, 30, 45, 60],
       currentValue: settings.snoozeDuration,
       itemBuilder: (duration) => '$duration ${'min'.tr}',
-      onSelected: (value) {
-        isar.writeTxnSync(() {
+      onSelected: (value) async {
+        await isar.writeTxn(() async {
           settings.snoozeDuration = value;
-          isar.settings.putSync(settings);
+          await isar.settings.put(settings);
         });
         setState(() {});
       },
@@ -477,10 +479,10 @@ class _SettingsPageState extends State<SettingsPage> {
       icon: IconsaxPlusBold.trash,
       isDestructive: true,
       confirmText: 'delete',
-      onConfirm: () {
-        isar.writeTxnSync(() {
-          isar.todos.clearSync();
-          isar.tasks.clearSync();
+      onConfirm: () async {
+        await isar.writeTxn(() async {
+          await isar.todos.clear();
+          await isar.tasks.clear();
           todoController.tasks.clear();
           todoController.todos.clear();
         });

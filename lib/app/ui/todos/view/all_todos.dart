@@ -180,10 +180,10 @@ class _AllTodosState extends State<AllTodos>
     );
   }
 
-  void _handleSortChanged(SortOption option) {
+  Future<void> _handleSortChanged(SortOption option) async {
     updateSortOption(option);
     settings.allTodosSortOption = option;
-    isar.writeTxnSync(() => isar.settings.putSync(settings));
+    await isar.writeTxn(() => isar.settings.put(settings));
   }
 
   Widget _buildTabBarView() {

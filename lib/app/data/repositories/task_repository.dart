@@ -28,25 +28,25 @@ class TaskRepository {
 
   // ==================== READ ====================
 
-  List<Tasks> getAll() {
-    return _isar.tasks.where().sortByIndex().findAllSync();
+  Future<List<Tasks>> getAll() async {
+    return await _isar.tasks.where().sortByIndex().findAll();
   }
 
-  Tasks? getById(int id) {
-    return _isar.tasks.getSync(id);
+  Future<Tasks?> getById(int id) async {
+    return await _isar.tasks.get(id);
   }
 
-  bool existsByTitle(String title) {
-    final count = _isar.tasks.filter().titleEqualTo(title).countSync();
+  Future<bool> existsByTitle(String title) async {
+    final count = await _isar.tasks.filter().titleEqualTo(title).count();
     return count > 0;
   }
 
-  List<Tasks> getByArchiveStatus(bool archived) {
-    return _isar.tasks
+  Future<List<Tasks>> getByArchiveStatus(bool archived) async {
+    return await _isar.tasks
         .filter()
         .archiveEqualTo(archived)
         .sortByIndex()
-        .findAllSync();
+        .findAll();
   }
 
   // ==================== UPDATE ====================

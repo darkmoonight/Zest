@@ -57,8 +57,12 @@ class TodoController extends GetxController {
     super.onInit();
     _initializeRepositories();
     _initializeServices();
-    _loadTasksAndTodos();
+    _initializeAsync();
     _setupWatchers();
+  }
+
+  Future<void> _initializeAsync() async {
+    await _loadTasksAndTodos();
   }
 
   @override
@@ -101,16 +105,18 @@ class TodoController extends GetxController {
 
   void _debounceLoad() {
     _loadDebounce?.cancel();
-    _loadDebounce = Timer(AppConstants.debounceDelay, _loadTasksAndTodos);
+    _loadDebounce = Timer(AppConstants.debounceDelay, () async {
+      await _loadTasksAndTodos();
+    });
   }
 
   // ==================== Load Data ====================
 
-  void _loadTasksAndTodos() {
+  Future<void> _loadTasksAndTodos() async {
     final preservedSelectedIds = selectedTodoIds.toSet();
 
-    final newTasks = _taskRepo.getAll();
-    final newTodos = _todoRepo.getAll();
+    final newTasks = await _taskRepo.getAll();
+    final newTodos = await _todoRepo.getAll();
 
     tasks.assignAll(newTasks);
     todos.assignAll(newTodos);
@@ -173,8 +179,8 @@ class TodoController extends GetxController {
 
     await _taskService.deleteTasks(taskList);
 
-    tasks.assignAll(_taskRepo.getAll());
-    _reindexTasks();
+    tasks.assignAll(await _taskRepo.getAll());
+    await _reindexTasks();
   }
 
   Future<void> archiveTask(List<Tasks> taskList) async {
@@ -182,8 +188,8 @@ class TodoController extends GetxController {
 
     _loadDebounce?.cancel();
     await _taskService.archiveTasks(taskList);
-    tasks.assignAll(_taskRepo.getAll());
-    todos.assignAll(_todoRepo.getAll());
+    tasks.assignAll(await _taskRepo.getAll());
+    todos.assignAll(await _todoRepo.getAll());
     doMultiSelectionTaskClear();
     _resyncSelectedTodoFromIds();
   }
@@ -193,8 +199,8 @@ class TodoController extends GetxController {
 
     _loadDebounce?.cancel();
     await _taskService.unarchiveTasks(taskList);
-    tasks.assignAll(_taskRepo.getAll());
-    todos.assignAll(_todoRepo.getAll());
+    tasks.assignAll(await _taskRepo.getAll());
+    todos.assignAll(await _todoRepo.getAll());
     doMultiSelectionTaskClear();
     _resyncSelectedTodoFromIds();
   }
@@ -210,17 +216,17 @@ class TodoController extends GetxController {
       filteredTasks: filteredTasks,
     );
 
-    tasks.assignAll(_taskRepo.getAll());
+    tasks.assignAll(await _taskRepo.getAll());
   }
 
-  void _reindexTasks() {
+  Future<void> _reindexTasks() async {
     final all = tasks.toList();
 
     for (int i = 0; i < all.length; i++) {
       all[i].index = i;
     }
 
-    _taskRepo.updateIndexes(all);
+    await _taskRepo.updateIndexes(all);
     tasks.assignAll(all);
   }
 
@@ -281,7 +287,7 @@ class TodoController extends GetxController {
     if (todoList.isEmpty) return;
 
     await _todoService.moveTodos(todos: todoList, task: task);
-    _loadTasksAndTodos();
+    await _loadTasksAndTodos();
   }
 
   Future<void> moveTodosToParent(List<Todos> rootList, Todos? newParent) async {
@@ -291,7 +297,7 @@ class TodoController extends GetxController {
       rootTodos: rootList,
       newParent: newParent,
     );
-    _loadTasksAndTodos();
+    await _loadTasksAndTodos();
   }
 
   Future<void> deleteTodo(List<Todos> todoList) async {
@@ -299,25 +305,26 @@ class TodoController extends GetxController {
 
     _loadDebounce?.cancel();
 
-    await _todoService.deleteTodos(todoList);
+    final todoListCopy = List<Todos>.from(todoList);
 
-    for (final t in todoList) {
-      selectedTodoIds.remove(t.id);
-    }
+    await _todoService.deleteTodos(todoListCopy);
 
-    todos.assignAll(_todoRepo.getAll());
+    final idsToRemove = todoListCopy.map((t) => t.id).toSet();
+    selectedTodoIds.removeWhere((id) => idsToRemove.contains(id));
+
+    todos.assignAll(await _todoRepo.getAll());
     _resyncSelectedTodoFromIds();
-    _reindexTodos();
+    await _reindexTodos();
   }
 
-  void _reindexTodos() {
+  Future<void> _reindexTodos() async {
     final all = todos.toList();
 
     for (int i = 0; i < all.length; i++) {
       all[i].index = i;
     }
 
-    _todoRepo.updateIndexes(all);
+    await _todoRepo.updateIndexes(all);
     todos.assignAll(all);
   }
 
@@ -432,15 +439,12 @@ class TodoController extends GetxController {
         isPop.value = false;
       }
 
-      for (final t in filtered) {
-        if (!selectedTask.contains(t)) {
-          selectedTask.add(t);
-        }
-      }
+      final tasksToAdd = filtered
+          .where((t) => !selectedTask.contains(t))
+          .toList();
+      selectedTask.addAll(tasksToAdd);
     } else {
-      for (final t in filtered) {
-        selectedTask.remove(t);
-      }
+      selectedTask.removeWhere((t) => filtered.contains(t));
 
       if (selectedTask.isEmpty) {
         isMultiSelectionTask.value = false;
@@ -546,13 +550,11 @@ class TodoController extends GetxController {
         isPop.value = false;
       }
 
-      for (final todo in filtered) {
-        selectedTodoIds.add(todo.id);
-      }
+      final idsToAdd = filtered.map((todo) => todo.id).toSet();
+      selectedTodoIds.addAll(idsToAdd);
     } else {
-      for (final todo in filtered) {
-        selectedTodoIds.remove(todo.id);
-      }
+      final idsToRemove = filtered.map((todo) => todo.id).toSet();
+      selectedTodoIds.removeWhere((id) => idsToRemove.contains(id));
 
       if (selectedTodoIds.isEmpty) {
         isMultiSelectionTodo.value = false;

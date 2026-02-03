@@ -243,10 +243,10 @@ class _TaskTodosState extends State<TaskTodos>
     );
   }
 
-  void _handleSortChanged(SortOption option) {
+  Future<void> _handleSortChanged(SortOption option) async {
     updateSortOption(option);
     widget.task.sortOption = option;
-    isar.writeTxnSync(() => isar.tasks.putSync(widget.task));
+    await isar.writeTxn(() => isar.tasks.put(widget.task));
   }
 
   Widget _buildTabBarView() {

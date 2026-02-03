@@ -655,7 +655,7 @@ class _TodosActionState extends State<TodosAction>
   Future<Iterable<Tasks>> _buildCategoryOptions(
     TextEditingValue textEditingValue,
   ) async {
-    final tasks = isar.tasks.filter().archiveEqualTo(false).findAllSync();
+    final tasks = await isar.tasks.filter().archiveEqualTo(false).findAll();
 
     final query = textEditingValue.text.toLowerCase();
     if (query.isEmpty) return tasks;
@@ -835,7 +835,7 @@ class _TodosActionState extends State<TodosAction>
   Future<Iterable<String>> _buildTagOptions(
     TextEditingValue textEditingValue,
   ) async {
-    final allTodos = isar.todos.where().findAllSync();
+    final allTodos = await isar.todos.where().findAll();
     final Set<String> tagsSet = {};
 
     for (final todo in allTodos) {

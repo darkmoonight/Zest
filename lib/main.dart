@@ -168,7 +168,8 @@ Future<void> snoozeTodo(int todoId) async {
   try {
     final isarInstance = await _getIsarInstance();
     if (isarInstance == null) return;
-    settings = isarInstance.settings.where().findFirstSync() ?? Settings();
+    final settings =
+        await isarInstance.settings.where().findFirst() ?? Settings();
 
     final todo = await isarInstance.todos.get(todoId);
     if (todo == null) return;
@@ -245,7 +246,7 @@ Future<Isar?> _getIsarInstance() async {
 }
 
 Future<void> initSettings() async {
-  settings = isar.settings.where().findFirstSync() ?? Settings();
+  settings = await isar.settings.where().findFirst() ?? Settings();
   settings.language ??= Get.deviceLocale.toString();
   settings.theme ??= 'system';
   settings.isImage ??= false;

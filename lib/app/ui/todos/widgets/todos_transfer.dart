@@ -115,7 +115,7 @@ class _TodosTransferState extends State<TodosTransfer>
     }
   }
 
-  Set<int> _collectExcludedIds() {
+  Future<Set<int>> _collectExcludedIds() async {
     final excluded = <int>{};
     final stack = <Todos>[...widget.todos];
 
@@ -123,10 +123,10 @@ class _TodosTransferState extends State<TodosTransfer>
       final node = stack.removeLast();
       if (!excluded.add(node.id)) continue;
 
-      final children = isar.todos
+      final children = await isar.todos
           .filter()
           .parent((q) => q.idEqualTo(node.id))
-          .findAllSync();
+          .findAll();
 
       for (final child in children) {
         if (!excluded.contains(child.id)) {
@@ -139,7 +139,7 @@ class _TodosTransferState extends State<TodosTransfer>
   }
 
   Future<Iterable<Tasks>> _getAvailableTasks(String pattern) async {
-    final tasks = isar.tasks.filter().archiveEqualTo(false).findAllSync();
+    final tasks = await isar.tasks.filter().archiveEqualTo(false).findAll();
     final query = pattern.toLowerCase();
 
     if (query.isEmpty) return tasks;
@@ -150,8 +150,8 @@ class _TodosTransferState extends State<TodosTransfer>
   }
 
   Future<Iterable<Todos>> _getAvailableTodos(String pattern) async {
-    final allTodos = isar.todos.where().findAllSync();
-    final excludedIds = _collectExcludedIds();
+    final allTodos = await isar.todos.where().findAll();
+    final excludedIds = await _collectExcludedIds();
     final query = pattern.toLowerCase();
 
     return allTodos.where((todo) {

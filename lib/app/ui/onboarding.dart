@@ -69,9 +69,9 @@ class _OnBoardingState extends State<OnBoarding> {
 
   bool get _isLastPage => _pageIndex == _data.length - 1;
 
-  void _completeOnboarding() {
+  Future<void> _completeOnboarding() async {
     settings.onboard = true;
-    isar.writeTxnSync(() => isar.settings.putSync(settings));
+    await isar.writeTxn(() => isar.settings.put(settings));
 
     NavigationHelper.replace(const HomePage());
   }

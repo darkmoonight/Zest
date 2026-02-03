@@ -6,14 +6,14 @@ import 'package:zest/main.dart';
 class ThemeController extends GetxController {
   ThemeMode get theme => _getThemeMode();
 
-  void saveOledTheme(bool isOled) =>
-      _updateSetting((settings) => settings.amoledTheme = isOled);
+  Future<void> saveOledTheme(bool isOled) async =>
+      await _updateSetting((settings) => settings.amoledTheme = isOled);
 
-  void saveMaterialTheme(bool isMaterial) =>
-      _updateSetting((settings) => settings.materialColor = isMaterial);
+  Future<void> saveMaterialTheme(bool isMaterial) async =>
+      await _updateSetting((settings) => settings.materialColor = isMaterial);
 
-  void saveTheme(String themeMode) =>
-      _updateSetting((settings) => settings.theme = themeMode);
+  Future<void> saveTheme(String themeMode) async =>
+      await _updateSetting((settings) => settings.theme = themeMode);
 
   void changeTheme(ThemeData theme) => Get.changeTheme(theme);
 
@@ -30,8 +30,8 @@ class ThemeController extends GetxController {
     }
   }
 
-  void _updateSetting(void Function(Settings) update) {
+  Future<void> _updateSetting(void Function(Settings) update) async {
     update(settings);
-    isar.writeTxnSync(() => isar.settings.putSync(settings));
+    await isar.writeTxn(() => isar.settings.put(settings));
   }
 }

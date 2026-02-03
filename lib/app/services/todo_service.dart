@@ -116,9 +116,11 @@ class TodoService {
   }) async {
     if (todos.isEmpty) return;
 
+    final todosCopy = List<Todos>.from(todos);
     final allIds = <int>{};
-    for (final root in todos) {
-      final subtreeIds = _collectSubtreeIdsSync(root);
+
+    for (final root in todosCopy) {
+      final subtreeIds = await _collectSubtreeIds(root);
       allIds.addAll(subtreeIds);
     }
 
@@ -134,11 +136,12 @@ class TodoService {
   }) async {
     if (rootTodos.isEmpty) return;
 
+    final rootTodosCopy = List<Todos>.from(rootTodos);
     final allIds = <int>{};
     final newTask = newParent?.task.value;
 
-    for (final root in rootTodos) {
-      final subtreeIds = _collectSubtreeIdsSync(root);
+    for (final root in rootTodosCopy) {
+      final subtreeIds = await _collectSubtreeIds(root);
       allIds.addAll(subtreeIds);
     }
 
@@ -158,10 +161,11 @@ class TodoService {
   Future<void> deleteTodos(List<Todos> todos) async {
     if (todos.isEmpty) return;
 
+    final todosCopy = List<Todos>.from(todos);
     final allIds = <int>{};
 
-    for (final root in todos) {
-      final subtreeIds = _collectSubtreeIdsSync(root);
+    for (final root in todosCopy) {
+      final subtreeIds = await _collectSubtreeIds(root);
       allIds.addAll(subtreeIds);
     }
 
@@ -188,7 +192,7 @@ class TodoService {
     }
   }
 
-  Set<int> _collectSubtreeIdsSync(Todos root) {
+  Future<Set<int>> _collectSubtreeIds(Todos root) async {
     final ids = <int>{};
     final stack = <Todos>[root];
 
@@ -196,7 +200,7 @@ class TodoService {
       final node = stack.removeLast();
       if (!ids.add(node.id)) continue;
 
-      final children = _todoRepo.getChildren(node.id);
+      final children = await _todoRepo.getChildren(node.id);
       for (final child in children) {
         if (!ids.contains(child.id)) {
           stack.add(child);

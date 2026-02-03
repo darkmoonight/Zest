@@ -281,8 +281,8 @@ class _CalendarTodosState extends State<CalendarTodos>
     }
   }
 
-  void _updateCalendarFormat(CalendarFormat format) {
-    isar.writeTxnSync(() {
+  Future<void> _updateCalendarFormat(CalendarFormat format) async {
+    await isar.writeTxn(() async {
       switch (format) {
         case CalendarFormat.week:
           settings.calendarFormat = 'week';
@@ -294,7 +294,7 @@ class _CalendarTodosState extends State<CalendarTodos>
           settings.calendarFormat = 'month';
           break;
       }
-      isar.settings.putSync(settings);
+      await isar.settings.put(settings);
     });
   }
 
@@ -333,10 +333,10 @@ class _CalendarTodosState extends State<CalendarTodos>
     );
   }
 
-  void _handleSortChanged(SortOption option) {
+  Future<void> _handleSortChanged(SortOption option) async {
     updateSortOption(option);
     settings.calendarSortOption = option;
-    isar.writeTxnSync(() => isar.settings.putSync(settings));
+    await isar.writeTxn(() => isar.settings.put(settings));
   }
 
   Widget _buildTabBarView() {

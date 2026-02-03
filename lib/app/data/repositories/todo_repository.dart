@@ -46,42 +46,42 @@ class TodoRepository {
 
   // ==================== READ ====================
 
-  List<Todos> getAll() {
-    return _isar.todos.where().sortByIndex().findAllSync();
+  Future<List<Todos>> getAll() async {
+    return await _isar.todos.where().sortByIndex().findAll();
   }
 
-  Todos? getById(int id) {
-    return _isar.todos.getSync(id);
+  Future<Todos?> getById(int id) async {
+    return await _isar.todos.get(id);
   }
 
-  List<Todos> getByTaskId(int taskId) {
-    return _isar.todos
+  Future<List<Todos>> getByTaskId(int taskId) async {
+    return await _isar.todos
         .filter()
         .task((q) => q.idEqualTo(taskId))
         .sortByIndex()
-        .findAllSync();
+        .findAll();
   }
 
-  List<Todos> getChildren(int parentId) {
-    return _isar.todos
+  Future<List<Todos>> getChildren(int parentId) async {
+    return await _isar.todos
         .filter()
         .parent((q) => q.idEqualTo(parentId))
         .sortByIndex()
-        .findAllSync();
+        .findAll();
   }
 
-  List<Todos> getRoots() {
-    return _isar.todos.filter().parentIsNull().sortByIndex().findAllSync();
+  Future<List<Todos>> getRoots() async {
+    return await _isar.todos.filter().parentIsNull().sortByIndex().findAll();
   }
 
-  List<Todos> getRootsByTask(int taskId) {
-    return _isar.todos
+  Future<List<Todos>> getRootsByTask(int taskId) async {
+    return await _isar.todos
         .filter()
         .task((q) => q.idEqualTo(taskId))
         .and()
         .parentIsNull()
         .sortByIndex()
-        .findAllSync();
+        .findAll();
   }
 
   // ==================== UPDATE ====================
@@ -100,7 +100,7 @@ class TodoRepository {
   }
 
   Future<void> updateDoneById({required int id, required bool done}) async {
-    final todo = getById(id);
+    final todo = await getById(id);
     if (todo == null) return;
 
     final now = DateTime.now();
@@ -117,10 +117,13 @@ class TodoRepository {
   }) async {
     if (ids.isEmpty) return;
 
-    final todos = ids
-        .map((id) => _isar.todos.getSync(id))
-        .whereType<Todos>()
-        .toList();
+    final todos = <Todos>[];
+    for (final id in ids) {
+      final todo = await _isar.todos.get(id);
+      if (todo != null) {
+        todos.add(todo);
+      }
+    }
 
     if (todos.isEmpty) return;
 
@@ -161,10 +164,13 @@ class TodoRepository {
   Future moveToTask({required Set todoIds, required Tasks task}) async {
     if (todoIds.isEmpty) return;
 
-    final List<Todos> todos = todoIds
-        .map((id) => _isar.todos.getSync(id))
-        .whereType<Todos>()
-        .toList();
+    final List<Todos> todos = [];
+    for (final id in todoIds) {
+      final todo = await _isar.todos.get(id);
+      if (todo != null) {
+        todos.add(todo);
+      }
+    }
 
     if (todos.isEmpty) return;
 
@@ -199,10 +205,13 @@ class TodoRepository {
   }) async {
     if (todoIds.isEmpty) return;
 
-    final todos = todoIds
-        .map((id) => _isar.todos.getSync(id))
-        .whereType<Todos>()
-        .toList();
+    final todos = <Todos>[];
+    for (final id in todoIds) {
+      final todo = await _isar.todos.get(id);
+      if (todo != null) {
+        todos.add(todo);
+      }
+    }
 
     if (todos.isEmpty) return;
 
@@ -258,36 +267,36 @@ class TodoRepository {
 
   // ==================== ADDITIONAL QUERIES ====================
 
-  List<Todos> getByPriority(Priority priority) {
-    return _isar.todos
+  Future<List<Todos>> getByPriority(Priority priority) async {
+    return await _isar.todos
         .filter()
         .priorityEqualTo(priority)
         .sortByIndex()
-        .findAllSync();
+        .findAll();
   }
 
-  List<Todos> getPinned() {
-    return _isar.todos.filter().fixEqualTo(true).sortByIndex().findAllSync();
+  Future<List<Todos>> getPinned() async {
+    return await _isar.todos.filter().fixEqualTo(true).sortByIndex().findAll();
   }
 
-  List<Todos> getByDoneStatus(bool done) {
-    return _isar.todos.filter().doneEqualTo(done).sortByIndex().findAllSync();
+  Future<List<Todos>> getByDoneStatus(bool done) async {
+    return await _isar.todos.filter().doneEqualTo(done).sortByIndex().findAll();
   }
 
-  List<Todos> getByDateRange(DateTime start, DateTime end) {
-    return _isar.todos
+  Future<List<Todos>> getByDateRange(DateTime start, DateTime end) async {
+    return await _isar.todos
         .filter()
         .todoCompletedTimeBetween(start, end)
         .sortByIndex()
-        .findAllSync();
+        .findAll();
   }
 
-  Future<int> countByTask(int taskId) {
-    return _isar.todos.filter().task((q) => q.idEqualTo(taskId)).count();
+  Future<int> countByTask(int taskId) async {
+    return await _isar.todos.filter().task((q) => q.idEqualTo(taskId)).count();
   }
 
-  Future<int> countCompletedByTask(int taskId) {
-    return _isar.todos
+  Future<int> countCompletedByTask(int taskId) async {
+    return await _isar.todos
         .filter()
         .task((q) => q.idEqualTo(taskId))
         .doneEqualTo(true)

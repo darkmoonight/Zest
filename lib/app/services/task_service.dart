@@ -27,7 +27,7 @@ class TaskService {
     required Color color,
     required int currentTaskCount,
   }) async {
-    if (_taskRepo.existsByTitle(title)) {
+    if (await _taskRepo.existsByTitle(title)) {
       showSnackBar('duplicateCategory'.tr, isError: true);
       return null;
     }
@@ -68,7 +68,7 @@ class TaskService {
 
     final allTodos = <Todos>[];
     for (final task in tasksCopy) {
-      final todos = _todoRepo.getByTaskId(task.id);
+      final todos = await _todoRepo.getByTaskId(task.id);
       allTodos.addAll(todos);
     }
 
@@ -85,7 +85,7 @@ class TaskService {
 
     final allTodos = <Todos>[];
     for (final task in tasksCopy) {
-      final todos = _todoRepo.getByTaskId(task.id);
+      final todos = await _todoRepo.getByTaskId(task.id);
       allTodos.addAll(todos);
     }
     await _notificationService.scheduleForTask(allTodos);
@@ -102,7 +102,7 @@ class TaskService {
     final tasksCopy = List<Tasks>.from(tasks);
 
     for (final task in tasksCopy) {
-      final todos = _todoRepo.getByTaskId(task.id);
+      final todos = await _todoRepo.getByTaskId(task.id);
       await _notificationService.cancelForTask(todos);
       await _deleteAllTodosForTask(todos);
       await _taskRepo.delete(task);
@@ -114,10 +114,11 @@ class TaskService {
   Future<void> _deleteAllTodosForTask(List<Todos> todos) async {
     if (todos.isEmpty) return;
 
+    final todosCopy = List<Todos>.from(todos);
     final allIds = <int>{};
 
-    for (final root in todos) {
-      final subtreeIds = _collectSubtreeIdsSync(root);
+    for (final root in todosCopy) {
+      final subtreeIds = await _collectSubtreeIds(root);
       allIds.addAll(subtreeIds);
     }
 
@@ -126,7 +127,7 @@ class TaskService {
     }
   }
 
-  Set<int> _collectSubtreeIdsSync(Todos root) {
+  Future<Set<int>> _collectSubtreeIds(Todos root) async {
     final ids = <int>{};
     final stack = <Todos>[root];
 
@@ -134,7 +135,7 @@ class TaskService {
       final node = stack.removeLast();
       if (!ids.add(node.id)) continue;
 
-      final children = _todoRepo.getChildren(node.id);
+      final children = await _todoRepo.getChildren(node.id);
       for (final child in children) {
         if (!ids.contains(child.id)) {
           stack.add(child);
