@@ -185,5 +185,8 @@ class KoKr {
     'unsavedChanges': '저장되지 않은 변경 사항',
     'saveBeforeSubtasks': '데이터가 수정되었습니다. 저장하고 하위 작업으로 이동할까요?',
     'save': '저장',
+    'markWithSubtasks': '하위 작업과 함께 표시',
+    'markWithSubtasksQuery': '이 작업과 모든 하위 작업을 완료로 표시하시겠습니까?',
+    'markAll': '모두 표시',
   };
 }

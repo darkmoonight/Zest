@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/ui/todos/view/todo_todos.dart';
+import 'package:zest/app/ui/widgets/confirmation_dialog.dart';
 import 'package:zest/app/constants/app_constants.dart';
 import 'package:zest/app/utils/notification.dart';
 import 'package:zest/app/utils/responsive_utils.dart';
@@ -216,18 +217,21 @@ class _TodoCardState extends State<TodoCard>
   Widget _buildCheckbox(BuildContext context) {
     return Transform.scale(
       scale: ResponsiveUtils.isMobile(context) ? 1.0 : 1.1,
-      child: Checkbox(
-        value: widget.todo.done,
-        shape: const CircleBorder(),
-        onChanged: (val) {
-          if (val == null) return;
+      child: GestureDetector(
+        onLongPress: () => _showBulkCompletionDialog(context),
+        child: Checkbox(
+          value: widget.todo.done,
+          shape: const CircleBorder(),
+          onChanged: (val) {
+            if (val == null) return;
 
-          setState(() {
-            widget.todo.done = val;
-            widget.todo.todoCompletionTime = val ? DateTime.now() : null;
-          });
-          _handleCheckboxChange(val);
-        },
+            setState(() {
+              widget.todo.done = val;
+              widget.todo.todoCompletionTime = val ? DateTime.now() : null;
+            });
+            _handleCheckboxChange(val);
+          },
+        ),
       ),
     );
   }
@@ -249,6 +253,34 @@ class _TodoCardState extends State<TodoCard>
     Future.delayed(
       AppConstants.shortAnimation,
       () => _todoController.updateTodoCheck(widget.todo),
+    );
+  }
+
+  void _showBulkCompletionDialog(BuildContext context) {
+    if (widget.todo.done) return;
+
+    showDialog<void>(
+      context: context,
+      builder: (context) => ConfirmationDialog(
+        title: 'markWithSubtasks'.tr,
+        message: 'markWithSubtasksQuery'.tr,
+        icon: IconsaxPlusBold.tick_circle,
+        confirmText: 'markAll'.tr,
+        cancelText: 'cancel'.tr,
+        onConfirm: () => _handleBulkCompletion(),
+      ),
+    );
+  }
+
+  void _handleBulkCompletion() {
+    setState(() {
+      widget.todo.done = true;
+      widget.todo.todoCompletionTime = DateTime.now();
+    });
+
+    Future.delayed(
+      AppConstants.shortAnimation,
+      () => _todoController.updateTodoCheckWithSubtasks(widget.todo, true),
     );
   }
 

@@ -189,5 +189,8 @@ class EnUs {
     'unsavedChanges': 'Unsaved Changes',
     'saveBeforeSubtasks': 'Data has been modified. Save and go to subtasks?',
     'save': 'Save',
+    'markWithSubtasks': 'Mark with Subtasks',
+    'markWithSubtasksQuery': 'Do you want to mark this todo and all its subtasks as completed?',
+    'markAll': 'Mark All',
   };
 }

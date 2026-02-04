@@ -191,5 +191,8 @@ class PtPt {
     'saveBeforeSubtasks':
         'Os dados foram modificados. Guardar e ir para as subtarefas?',
     'save': 'Guardar',
+    'markWithSubtasks': 'Marcar com Subtarefas',
+    'markWithSubtasksQuery': 'Deseja marcar esta tarefa e todas as suas subtarefas como concluídas?',
+    'markAll': 'Marcar Todas',
   };
 }

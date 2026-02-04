@@ -191,5 +191,8 @@ class ItIt {
     'saveBeforeSubtasks':
         'I dati sono stati modificati. Salvare e passare alle sottoattività?',
     'save': 'Salva',
+    'markWithSubtasks': 'Segna con Sottoattività',
+    'markWithSubtasksQuery': 'Vuoi segnare questa attività e tutte le sue sottoattività come completate?',
+    'markAll': 'Segna Tutto',
   };
 }

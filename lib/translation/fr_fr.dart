@@ -194,5 +194,8 @@ class FrFr {
     'saveBeforeSubtasks':
         'Les données ont été modifiées. Enregistrer et aller aux sous-tâches ?',
     'save': 'Enregistrer',
+    'markWithSubtasks': 'Marquer avec Sous-tâches',
+    'markWithSubtasksQuery': 'Voulez-vous marquer cette tâche et toutes ses sous-tâches comme terminées ?',
+    'markAll': 'Marquer Tout',
   };
 }

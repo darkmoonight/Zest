@@ -192,5 +192,8 @@ class TrTr {
     'saveBeforeSubtasks':
         'Veriler değiştirildi. Kaydedip alt görevlere geçilsin mi?',
     'save': 'Kaydet',
+    'markWithSubtasks': 'Alt Görevlerle İşaretle',
+    'markWithSubtasksQuery': 'Bu görevi ve tüm alt görevlerini tamamlandı olarak işaretlemek istiyor musunuz?',
+    'markAll': 'Tümünü İşaretle',
   };
 }

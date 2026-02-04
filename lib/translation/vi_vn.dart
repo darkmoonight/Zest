@@ -187,5 +187,8 @@ class ViVn {
     'saveBeforeSubtasks':
         'Dữ liệu đã được sửa đổi. Lưu và chuyển đến các tác vụ con?',
     'save': 'Lưu',
+    'markWithSubtasks': 'Đánh dấu với Tác vụ con',
+    'markWithSubtasksQuery': 'Bạn có muốn đánh dấu tác vụ này và tất cả các tác vụ con của nó là đã hoàn thành không?',
+    'markAll': 'Đánh dấu Tất cả',
   };
 }

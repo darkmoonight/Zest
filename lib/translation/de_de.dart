@@ -192,5 +192,8 @@ class DeDe {
     'saveBeforeSubtasks':
         'Daten wurden geändert. Speichern und zu den Unteraufgaben gehen?',
     'save': 'Speichern',
+    'markWithSubtasks': 'Mit Unteraufgaben markieren',
+    'markWithSubtasksQuery': 'Möchten Sie diese Aufgabe und alle ihre Unteraufgaben als erledigt markieren?',
+    'markAll': 'Alle markieren',
   };
 }

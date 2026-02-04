@@ -192,5 +192,8 @@ class PlPl {
     'saveBeforeSubtasks':
         'Dane zostały zmienione. Zapisać i przejść do podzadań?',
     'save': 'Zapisz',
+    'markWithSubtasks': 'Oznacz z Podzadaniami',
+    'markWithSubtasksQuery': 'Czy chcesz oznaczyć to zadanie i wszystkie jego podzadania jako ukończone?',
+    'markAll': 'Oznacz Wszystkie',
   };
 }

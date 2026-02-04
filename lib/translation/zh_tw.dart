@@ -185,5 +185,8 @@ class ZhTw {
     'unsavedChanges': '未保存的更改',
     'saveBeforeSubtasks': '數據已修改。是否儲存並轉到子任務？',
     'save': '儲存',
+    'markWithSubtasks': '標記包含子任務',
+    'markWithSubtasksQuery': '您想要將此任務及其所有子任務標記為已完成嗎？',
+    'markAll': '全部標記',
   };
 }

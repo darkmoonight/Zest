@@ -185,5 +185,8 @@ class ZhCN {
     'unsavedChanges': '未保存的更改',
     'saveBeforeSubtasks': '数据已修改。是否保存并转到子任务？',
     'save': '保存',
+    'markWithSubtasks': '标记包含子任务',
+    'markWithSubtasksQuery': '您想要将此任务及其所有子任务标记为已完成吗？',
+    'markAll': '全部标记',
   };
 }

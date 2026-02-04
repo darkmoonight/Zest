@@ -138,6 +138,30 @@ class TodoRepository {
     });
   }
 
+  Future<void> updateDoneWithSubtasks({
+    required Todos parentTodo,
+    required bool done,
+  }) async {
+    final allIds = <int>{};
+    final stack = <Todos>[parentTodo];
+
+    while (stack.isNotEmpty) {
+      final current = stack.removeLast();
+      if (!allIds.add(current.id)) continue;
+
+      final children = await getChildren(current.id);
+      for (final child in children) {
+        if (!allIds.contains(child.id)) {
+          stack.add(child);
+        }
+      }
+    }
+
+    if (allIds.isEmpty) return;
+
+    await updateDoneBatch(ids: allIds, done: done);
+  }
+
   Future<void> updateFields({
     required Todos todo,
     required String name,

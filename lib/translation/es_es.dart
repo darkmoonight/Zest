@@ -194,5 +194,8 @@ class EsEs {
     'saveBeforeSubtasks':
         'Los datos han sido modificados. ¿Guardar e ir a las subtareas?',
     'save': 'Guardar',
+    'markWithSubtasks': 'Marcar con Subtareas',
+    'markWithSubtasksQuery': '¿Desea marcar esta tarea y todas sus subtareas como completadas?',
+    'markAll': 'Marcar Todas',
   };
 }

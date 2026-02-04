@@ -91,6 +91,25 @@ class TodoService {
     await _setDoneSingle(todo, todo.done);
   }
 
+  Future<void> toggleDoneWithSubtasks(Todos todo, bool done) async {
+    await _todoRepo.updateDoneWithSubtasks(parentTodo: todo, done: done);
+
+    final allIds = await _collectSubtreeIds(todo);
+    
+    if (done) {
+      await _notificationService.cancelBatch(allIds.toList());
+    } else {
+      for (final id in allIds) {
+        final todoItem = await _todoRepo.getById(id);
+        if (todoItem != null && 
+            todoItem.todoCompletedTime != null && 
+            todoItem.todoCompletedTime!.isAfter(DateTime.now())) {
+          await _notificationService.scheduleForTodo(todoItem);
+        }
+      }
+    }
+  }
+
   Future<void> _setDoneSingle(Todos todo, bool done) async {
     await _todoRepo.updateDone(todo: todo, done: done);
 
