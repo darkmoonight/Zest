@@ -197,5 +197,15 @@ class EnUs {
     'markWithSubtasksQuery':
         'Do you want to mark this todo and all its subtasks as completed?',
     'markAll': 'Mark All',
+    'autoBackup': 'Auto Backup',
+    'autoBackupFrequency': 'Backup Frequency',
+    'daily': 'Daily',
+    'weekly': 'Weekly',
+    'monthly': 'Monthly',
+    'maxAutoBackups': 'Max Backups to Keep',
+    'autoBackupPath': 'Backup Location',
+    'defaultPath': 'App Folder',
+    'customPath': 'Custom Folder',
+    'autoBackupPathSet': 'Backup location updated',
   };
 }

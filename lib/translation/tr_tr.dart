@@ -200,5 +200,15 @@ class TrTr {
     'markWithSubtasksQuery':
         'Bu görevi ve tüm alt görevlerini tamamlandı olarak işaretlemek istiyor musunuz?',
     'markAll': 'Tümünü İşaretle',
+    'autoBackup': 'Otomatik Yedekleme',
+    'autoBackupFrequency': 'Yedekleme Sıklığı',
+    'daily': 'Günlük',
+    'weekly': 'Haftalık',
+    'monthly': 'Aylık',
+    'maxAutoBackups': 'Maksimum Yedek Sayısı',
+    'autoBackupPath': 'Yedekleme Konumu',
+    'defaultPath': 'Uygulama Klasörü',
+    'customPath': 'Özel Klasör',
+    'autoBackupPathSet': 'Konum güncellendi',
   };
 }

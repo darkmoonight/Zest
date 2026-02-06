@@ -199,5 +199,15 @@ class PtPt {
     'markWithSubtasksQuery':
         'Deseja marcar esta tarefa e todas as suas subtarefas como concluídas?',
     'markAll': 'Marcar Todas',
+    'autoBackup': 'Backup Automático',
+    'autoBackupFrequency': 'Frequência de Backup',
+    'daily': 'Diário',
+    'weekly': 'Semanal',
+    'monthly': 'Mensal',
+    'maxAutoBackups': 'Máximo de Backups',
+    'autoBackupPath': 'Local do Backup',
+    'defaultPath': 'Pasta do App',
+    'customPath': 'Pasta Personalizada',
+    'autoBackupPathSet': 'Local atualizado',
   };
 }

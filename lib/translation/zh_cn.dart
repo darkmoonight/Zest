@@ -192,5 +192,15 @@ class ZhCN {
     'markWithSubtasks': '标记包含子任务',
     'markWithSubtasksQuery': '您想要将此任务及其所有子任务标记为已完成吗？',
     'markAll': '全部标记',
+    'autoBackup': '自动备份',
+    'autoBackupFrequency': '备份频率',
+    'daily': '每日',
+    'weekly': '每周',
+    'monthly': '每月',
+    'maxAutoBackups': '最大备份数量',
+    'autoBackupPath': '备份位置',
+    'defaultPath': '应用文件夹',
+    'customPath': '自定义文件夹',
+    'autoBackupPathSet': '位置已更新',
   };
 }

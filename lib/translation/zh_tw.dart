@@ -192,5 +192,15 @@ class ZhTw {
     'markWithSubtasks': '標記包含子任務',
     'markWithSubtasksQuery': '您想要將此任務及其所有子任務標記為已完成嗎？',
     'markAll': '全部標記',
+    'autoBackup': '自動備份',
+    'autoBackupFrequency': '備份頻率',
+    'daily': '每日',
+    'weekly': '每週',
+    'monthly': '每月',
+    'maxAutoBackups': '最大備份數量',
+    'autoBackupPath': '備份位置',
+    'defaultPath': '應用程式資料夾',
+    'customPath': '自訂資料夾',
+    'autoBackupPathSet': '位置已更新',
   };
 }

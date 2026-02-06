@@ -192,5 +192,15 @@ class KoKr {
     'markWithSubtasks': '하위 작업과 함께 표시',
     'markWithSubtasksQuery': '이 작업과 모든 하위 작업을 완료로 표시하시겠습니까?',
     'markAll': '모두 표시',
+    'autoBackup': '자동 백업',
+    'autoBackupFrequency': '백업 빈도',
+    'daily': '매일',
+    'weekly': '매주',
+    'monthly': '매월',
+    'maxAutoBackups': '최대 백업 수',
+    'autoBackupPath': '백업 위치',
+    'defaultPath': '앱 폴더',
+    'customPath': '사용자 폴더',
+    'autoBackupPathSet': '위치가 업데이트되었습니다',
   };
 }

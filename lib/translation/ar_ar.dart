@@ -197,5 +197,15 @@ class ArAr {
     'markWithSubtasksQuery':
         'هل تريد تحديد هذه المهمة وجميع مهامها الفرعية كمكتملة؟',
     'markAll': 'تحديد الكل',
+    'autoBackup': 'النسخ الاحتياطي التلقائي',
+    'autoBackupFrequency': 'تكرار النسخ الاحتياطي',
+    'daily': 'يومي',
+    'weekly': 'أسبوعي',
+    'monthly': 'شهري',
+    'maxAutoBackups': 'الحد الأقصى للنسخ الاحتياطية',
+    'autoBackupPath': 'موقع النسخ الاحتياطي',
+    'defaultPath': 'مجلد التطبيق',
+    'customPath': 'مجلد مخصص',
+    'autoBackupPathSet': 'تم تحديث الموقع',
   };
 }

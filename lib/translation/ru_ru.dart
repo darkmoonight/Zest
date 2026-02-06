@@ -198,5 +198,15 @@ class RuRu {
     'markWithSubtasksQuery':
         'Хотите отметить эту задачу и все её подзадачи как выполненные?',
     'markAll': 'Отметить все',
+    'autoBackup': 'Автоматическое резервное копирование',
+    'autoBackupFrequency': 'Частота резервного копирования',
+    'daily': 'Ежедневно',
+    'weekly': 'Еженедельно',
+    'monthly': 'Ежемесячно',
+    'maxAutoBackups': 'Максимум резервных копий',
+    'autoBackupPath': 'Место сохранения',
+    'defaultPath': 'Папка приложения',
+    'customPath': 'Своя папка',
+    'autoBackupPathSet': 'Место сохранения обновлено',
   };
 }

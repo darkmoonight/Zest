@@ -202,5 +202,15 @@ class FrFr {
     'markWithSubtasksQuery':
         'Voulez-vous marquer cette tâche et toutes ses sous-tâches comme terminées ?',
     'markAll': 'Marquer Tout',
+    'autoBackup': 'Sauvegarde Automatique',
+    'autoBackupFrequency': 'Fréquence de Sauvegarde',
+    'daily': 'Quotidien',
+    'weekly': 'Hebdomadaire',
+    'monthly': 'Mensuel',
+    'maxAutoBackups': 'Nombre Maximum de Sauvegardes',
+    'autoBackupPath': 'Emplacement de Sauvegarde',
+    'defaultPath': 'Dossier de l\'App',
+    'customPath': 'Dossier Personnalisé',
+    'autoBackupPathSet': 'Emplacement mis à jour',
   };
 }

@@ -199,5 +199,15 @@ class ItIt {
     'markWithSubtasksQuery':
         'Vuoi segnare questa attività e tutte le sue sottoattività come completate?',
     'markAll': 'Segna Tutto',
+    'autoBackup': 'Backup Automatico',
+    'autoBackupFrequency': 'Frequenza Backup',
+    'daily': 'Giornaliero',
+    'weekly': 'Settimanale',
+    'monthly': 'Mensile',
+    'maxAutoBackups': 'Numero Massimo di Backup',
+    'autoBackupPath': 'Posizione Backup',
+    'defaultPath': 'Cartella App',
+    'customPath': 'Cartella Personalizzata',
+    'autoBackupPathSet': 'Posizione aggiornata',
   };
 }

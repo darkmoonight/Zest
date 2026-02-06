@@ -200,5 +200,15 @@ class PlPl {
     'markWithSubtasksQuery':
         'Czy chcesz oznaczyć to zadanie i wszystkie jego podzadania jako ukończone?',
     'markAll': 'Oznacz Wszystkie',
+    'autoBackup': 'Automatyczna Kopia Zapasowa',
+    'autoBackupFrequency': 'Częstotliwość Kopii Zapasowych',
+    'daily': 'Codziennie',
+    'weekly': 'Co tydzień',
+    'monthly': 'Co miesiąc',
+    'maxAutoBackups': 'Maksymalna Liczba Kopii',
+    'autoBackupPath': 'Lokalizacja Kopii',
+    'defaultPath': 'Folder Aplikacji',
+    'customPath': 'Własny Folder',
+    'autoBackupPathSet': 'Lokalizacja zaktualizowana',
   };
 }

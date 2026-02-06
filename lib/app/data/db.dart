@@ -22,6 +22,12 @@ class Settings {
   SortOption allTodosSortOption = SortOption.none;
   @enumerated
   SortOption calendarSortOption = SortOption.none;
+  bool autoBackupEnabled = false;
+  @enumerated
+  AutoBackupFrequency autoBackupFrequency = AutoBackupFrequency.daily;
+  DateTime? lastAutoBackupTime;
+  int maxAutoBackups = 7;
+  String? autoBackupPath;
 }
 
 enum SortOption {
@@ -36,6 +42,8 @@ enum SortOption {
   priorityDesc,
   random,
 }
+
+enum AutoBackupFrequency { daily, weekly, monthly }
 
 @collection
 class Tasks {

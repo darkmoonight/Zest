@@ -28,52 +28,78 @@ const SettingsSchema = CollectionSchema(
       name: r'amoledTheme',
       type: IsarType.bool,
     ),
-    r'calendarFormat': PropertySchema(
+    r'autoBackupEnabled': PropertySchema(
       id: 2,
+      name: r'autoBackupEnabled',
+      type: IsarType.bool,
+    ),
+    r'autoBackupFrequency': PropertySchema(
+      id: 3,
+      name: r'autoBackupFrequency',
+      type: IsarType.byte,
+      enumMap: _SettingsautoBackupFrequencyEnumValueMap,
+    ),
+    r'autoBackupPath': PropertySchema(
+      id: 4,
+      name: r'autoBackupPath',
+      type: IsarType.string,
+    ),
+    r'calendarFormat': PropertySchema(
+      id: 5,
       name: r'calendarFormat',
       type: IsarType.string,
     ),
     r'calendarSortOption': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'calendarSortOption',
       type: IsarType.byte,
       enumMap: _SettingscalendarSortOptionEnumValueMap,
     ),
     r'defaultScreen': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'defaultScreen',
       type: IsarType.string,
     ),
     r'firstDay': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'firstDay',
       type: IsarType.string,
     ),
-    r'isImage': PropertySchema(id: 6, name: r'isImage', type: IsarType.bool),
+    r'isImage': PropertySchema(id: 9, name: r'isImage', type: IsarType.bool),
     r'language': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'language',
       type: IsarType.string,
     ),
+    r'lastAutoBackupTime': PropertySchema(
+      id: 11,
+      name: r'lastAutoBackupTime',
+      type: IsarType.dateTime,
+    ),
     r'materialColor': PropertySchema(
-      id: 8,
+      id: 12,
       name: r'materialColor',
       type: IsarType.bool,
     ),
-    r'onboard': PropertySchema(id: 9, name: r'onboard', type: IsarType.bool),
+    r'maxAutoBackups': PropertySchema(
+      id: 13,
+      name: r'maxAutoBackups',
+      type: IsarType.long,
+    ),
+    r'onboard': PropertySchema(id: 14, name: r'onboard', type: IsarType.bool),
     r'screenPrivacy': PropertySchema(
-      id: 10,
+      id: 15,
       name: r'screenPrivacy',
       type: IsarType.bool,
     ),
     r'snoozeDuration': PropertySchema(
-      id: 11,
+      id: 16,
       name: r'snoozeDuration',
       type: IsarType.long,
     ),
-    r'theme': PropertySchema(id: 12, name: r'theme', type: IsarType.string),
+    r'theme': PropertySchema(id: 17, name: r'theme', type: IsarType.string),
     r'timeformat': PropertySchema(
-      id: 13,
+      id: 18,
       name: r'timeformat',
       type: IsarType.string,
     ),
@@ -100,6 +126,12 @@ int _settingsEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  {
+    final value = object.autoBackupPath;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.calendarFormat.length * 3;
   bytesCount += 3 + object.defaultScreen.length * 3;
   bytesCount += 3 + object.firstDay.length * 3;
@@ -127,18 +159,23 @@ void _settingsSerialize(
 ) {
   writer.writeByte(offsets[0], object.allTodosSortOption.index);
   writer.writeBool(offsets[1], object.amoledTheme);
-  writer.writeString(offsets[2], object.calendarFormat);
-  writer.writeByte(offsets[3], object.calendarSortOption.index);
-  writer.writeString(offsets[4], object.defaultScreen);
-  writer.writeString(offsets[5], object.firstDay);
-  writer.writeBool(offsets[6], object.isImage);
-  writer.writeString(offsets[7], object.language);
-  writer.writeBool(offsets[8], object.materialColor);
-  writer.writeBool(offsets[9], object.onboard);
-  writer.writeBool(offsets[10], object.screenPrivacy);
-  writer.writeLong(offsets[11], object.snoozeDuration);
-  writer.writeString(offsets[12], object.theme);
-  writer.writeString(offsets[13], object.timeformat);
+  writer.writeBool(offsets[2], object.autoBackupEnabled);
+  writer.writeByte(offsets[3], object.autoBackupFrequency.index);
+  writer.writeString(offsets[4], object.autoBackupPath);
+  writer.writeString(offsets[5], object.calendarFormat);
+  writer.writeByte(offsets[6], object.calendarSortOption.index);
+  writer.writeString(offsets[7], object.defaultScreen);
+  writer.writeString(offsets[8], object.firstDay);
+  writer.writeBool(offsets[9], object.isImage);
+  writer.writeString(offsets[10], object.language);
+  writer.writeDateTime(offsets[11], object.lastAutoBackupTime);
+  writer.writeBool(offsets[12], object.materialColor);
+  writer.writeLong(offsets[13], object.maxAutoBackups);
+  writer.writeBool(offsets[14], object.onboard);
+  writer.writeBool(offsets[15], object.screenPrivacy);
+  writer.writeLong(offsets[16], object.snoozeDuration);
+  writer.writeString(offsets[17], object.theme);
+  writer.writeString(offsets[18], object.timeformat);
 }
 
 Settings _settingsDeserialize(
@@ -154,23 +191,32 @@ Settings _settingsDeserialize(
       )] ??
       SortOption.none;
   object.amoledTheme = reader.readBool(offsets[1]);
-  object.calendarFormat = reader.readString(offsets[2]);
-  object.calendarSortOption =
-      _SettingscalendarSortOptionValueEnumMap[reader.readByteOrNull(
+  object.autoBackupEnabled = reader.readBool(offsets[2]);
+  object.autoBackupFrequency =
+      _SettingsautoBackupFrequencyValueEnumMap[reader.readByteOrNull(
         offsets[3],
       )] ??
+      AutoBackupFrequency.daily;
+  object.autoBackupPath = reader.readStringOrNull(offsets[4]);
+  object.calendarFormat = reader.readString(offsets[5]);
+  object.calendarSortOption =
+      _SettingscalendarSortOptionValueEnumMap[reader.readByteOrNull(
+        offsets[6],
+      )] ??
       SortOption.none;
-  object.defaultScreen = reader.readString(offsets[4]);
-  object.firstDay = reader.readString(offsets[5]);
+  object.defaultScreen = reader.readString(offsets[7]);
+  object.firstDay = reader.readString(offsets[8]);
   object.id = id;
-  object.isImage = reader.readBoolOrNull(offsets[6]);
-  object.language = reader.readStringOrNull(offsets[7]);
-  object.materialColor = reader.readBool(offsets[8]);
-  object.onboard = reader.readBool(offsets[9]);
-  object.screenPrivacy = reader.readBoolOrNull(offsets[10]);
-  object.snoozeDuration = reader.readLong(offsets[11]);
-  object.theme = reader.readStringOrNull(offsets[12]);
-  object.timeformat = reader.readString(offsets[13]);
+  object.isImage = reader.readBoolOrNull(offsets[9]);
+  object.language = reader.readStringOrNull(offsets[10]);
+  object.lastAutoBackupTime = reader.readDateTimeOrNull(offsets[11]);
+  object.materialColor = reader.readBool(offsets[12]);
+  object.maxAutoBackups = reader.readLong(offsets[13]);
+  object.onboard = reader.readBool(offsets[14]);
+  object.screenPrivacy = reader.readBoolOrNull(offsets[15]);
+  object.snoozeDuration = reader.readLong(offsets[16]);
+  object.theme = reader.readStringOrNull(offsets[17]);
+  object.timeformat = reader.readString(offsets[18]);
   return object;
 }
 
@@ -190,32 +236,46 @@ P _settingsDeserializeProp<P>(
     case 1:
       return (reader.readBool(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 3:
+      return (_SettingsautoBackupFrequencyValueEnumMap[reader.readByteOrNull(
+                offset,
+              )] ??
+              AutoBackupFrequency.daily)
+          as P;
+    case 4:
+      return (reader.readStringOrNull(offset)) as P;
+    case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
       return (_SettingscalendarSortOptionValueEnumMap[reader.readByteOrNull(
                 offset,
               )] ??
               SortOption.none)
           as P;
-    case 4:
-      return (reader.readString(offset)) as P;
-    case 5:
-      return (reader.readString(offset)) as P;
-    case 6:
-      return (reader.readBoolOrNull(offset)) as P;
     case 7:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readBool(offset)) as P;
-    case 10:
       return (reader.readBoolOrNull(offset)) as P;
-    case 11:
-      return (reader.readLong(offset)) as P;
-    case 12:
+    case 10:
       return (reader.readStringOrNull(offset)) as P;
+    case 11:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 12:
+      return (reader.readBool(offset)) as P;
     case 13:
+      return (reader.readLong(offset)) as P;
+    case 14:
+      return (reader.readBool(offset)) as P;
+    case 15:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 16:
+      return (reader.readLong(offset)) as P;
+    case 17:
+      return (reader.readStringOrNull(offset)) as P;
+    case 18:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -245,6 +305,16 @@ const _SettingsallTodosSortOptionValueEnumMap = {
   7: SortOption.priorityAsc,
   8: SortOption.priorityDesc,
   9: SortOption.random,
+};
+const _SettingsautoBackupFrequencyEnumValueMap = {
+  'daily': 0,
+  'weekly': 1,
+  'monthly': 2,
+};
+const _SettingsautoBackupFrequencyValueEnumMap = {
+  0: AutoBackupFrequency.daily,
+  1: AutoBackupFrequency.weekly,
+  2: AutoBackupFrequency.monthly,
 };
 const _SettingscalendarSortOptionEnumValueMap = {
   'none': 0,
@@ -424,6 +494,238 @@ extension SettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.equalTo(property: r'amoledTheme', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupEnabledEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'autoBackupEnabled', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupFrequencyEqualTo(AutoBackupFrequency value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'autoBackupFrequency', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupFrequencyGreaterThan(
+    AutoBackupFrequency value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'autoBackupFrequency',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupFrequencyLessThan(
+    AutoBackupFrequency value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'autoBackupFrequency',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupFrequencyBetween(
+    AutoBackupFrequency lower,
+    AutoBackupFrequency upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'autoBackupFrequency',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupPathIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'autoBackupPath'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupPathIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'autoBackupPath'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> autoBackupPathEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'autoBackupPath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupPathGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'autoBackupPath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupPathLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'autoBackupPath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> autoBackupPathBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'autoBackupPath',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupPathStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'autoBackupPath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupPathEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'autoBackupPath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupPathContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'autoBackupPath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> autoBackupPathMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'autoBackupPath',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupPathIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'autoBackupPath', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoBackupPathIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'autoBackupPath', value: ''),
       );
     });
   }
@@ -1165,12 +1467,140 @@ extension SettingsQueryFilter
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoBackupTimeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'lastAutoBackupTime'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoBackupTimeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'lastAutoBackupTime'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoBackupTimeEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'lastAutoBackupTime', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoBackupTimeGreaterThan(DateTime? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'lastAutoBackupTime',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoBackupTimeLessThan(DateTime? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'lastAutoBackupTime',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoBackupTimeBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'lastAutoBackupTime',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterFilterCondition> materialColorEqualTo(
     bool value,
   ) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.equalTo(property: r'materialColor', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> maxAutoBackupsEqualTo(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'maxAutoBackups', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  maxAutoBackupsGreaterThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'maxAutoBackups',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  maxAutoBackupsLessThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'maxAutoBackups',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> maxAutoBackupsBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'maxAutoBackups',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
       );
     });
   }
@@ -1610,6 +2040,43 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByAutoBackupEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByAutoBackupEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupEnabled', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByAutoBackupFrequency() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupFrequency', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByAutoBackupFrequencyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupFrequency', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByAutoBackupPath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupPath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByAutoBackupPathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupPath', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByCalendarFormat() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'calendarFormat', Sort.asc);
@@ -1683,6 +2150,19 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByLastAutoBackupTime() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastAutoBackupTime', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByLastAutoBackupTimeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastAutoBackupTime', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByMaterialColor() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'materialColor', Sort.asc);
@@ -1692,6 +2172,18 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByMaterialColorDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'materialColor', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByMaxAutoBackups() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'maxAutoBackups', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByMaxAutoBackupsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'maxAutoBackups', Sort.desc);
     });
   }
 
@@ -1783,6 +2275,43 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByAutoBackupEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByAutoBackupEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupEnabled', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByAutoBackupFrequency() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupFrequency', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByAutoBackupFrequencyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupFrequency', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByAutoBackupPath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupPath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByAutoBackupPathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoBackupPath', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByCalendarFormat() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'calendarFormat', Sort.asc);
@@ -1868,6 +2397,19 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByLastAutoBackupTime() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastAutoBackupTime', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByLastAutoBackupTimeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastAutoBackupTime', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByMaterialColor() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'materialColor', Sort.asc);
@@ -1877,6 +2419,18 @@ extension SettingsQuerySortThenBy
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByMaterialColorDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'materialColor', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByMaxAutoBackups() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'maxAutoBackups', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByMaxAutoBackupsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'maxAutoBackups', Sort.desc);
     });
   }
 
@@ -1955,6 +2509,29 @@ extension SettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Settings, Settings, QDistinct> distinctByAutoBackupEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'autoBackupEnabled');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByAutoBackupFrequency() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'autoBackupFrequency');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByAutoBackupPath({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'autoBackupPath',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByCalendarFormat({
     bool caseSensitive = true,
   }) {
@@ -2005,9 +2582,21 @@ extension SettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Settings, Settings, QDistinct> distinctByLastAutoBackupTime() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastAutoBackupTime');
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByMaterialColor() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'materialColor');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByMaxAutoBackups() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'maxAutoBackups');
     });
   }
 
@@ -2067,6 +2656,25 @@ extension SettingsQueryProperty
     });
   }
 
+  QueryBuilder<Settings, bool, QQueryOperations> autoBackupEnabledProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'autoBackupEnabled');
+    });
+  }
+
+  QueryBuilder<Settings, AutoBackupFrequency, QQueryOperations>
+  autoBackupFrequencyProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'autoBackupFrequency');
+    });
+  }
+
+  QueryBuilder<Settings, String?, QQueryOperations> autoBackupPathProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'autoBackupPath');
+    });
+  }
+
   QueryBuilder<Settings, String, QQueryOperations> calendarFormatProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'calendarFormat');
@@ -2104,9 +2712,22 @@ extension SettingsQueryProperty
     });
   }
 
+  QueryBuilder<Settings, DateTime?, QQueryOperations>
+  lastAutoBackupTimeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastAutoBackupTime');
+    });
+  }
+
   QueryBuilder<Settings, bool, QQueryOperations> materialColorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'materialColor');
+    });
+  }
+
+  QueryBuilder<Settings, int, QQueryOperations> maxAutoBackupsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'maxAutoBackups');
     });
   }
 

@@ -275,6 +275,43 @@ class _SettingsPageState extends State<SettingsPage> {
           onTap: isarController.restoreDB,
         ),
         SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.refresh_circle),
+          title: 'autoBackup',
+          trailing: Transform.scale(
+            scale: 0.8,
+            child: Switch(
+              value: settings.autoBackupEnabled,
+              onChanged: (value) async {
+                await isar.writeTxn(() async {
+                  settings.autoBackupEnabled = value;
+                  await isar.settings.put(settings);
+                });
+                setState(() {});
+              },
+            ),
+          ),
+        ),
+        if (settings.autoBackupEnabled) ...[
+          SettingsTile(
+            leading: const Icon(IconsaxPlusLinear.folder),
+            title: 'autoBackupPath',
+            value: _getBackupPathDisplay(),
+            onTap: () => _selectAutoBackupPath(context),
+          ),
+          SettingsTile(
+            leading: const Icon(IconsaxPlusLinear.calendar_tick),
+            title: 'autoBackupFrequency',
+            value: _getFrequencyText(settings.autoBackupFrequency),
+            onTap: () => _showAutoBackupFrequencyDialog(context),
+          ),
+          SettingsTile(
+            leading: const Icon(IconsaxPlusLinear.archive),
+            title: 'maxAutoBackups',
+            value: '${settings.maxAutoBackups}',
+            onTap: () => _showMaxBackupsDialog(context),
+          ),
+        ],
+        SettingsTile(
           leading: const Icon(IconsaxPlusLinear.cloud_minus),
           title: 'deleteAllBD',
           onTap: () => _showDeleteAllDBDialog(context),
@@ -487,6 +524,89 @@ class _SettingsPageState extends State<SettingsPage> {
           todoController.todos.clear();
         });
         showSnackBar('deleteAll'.tr);
+      },
+    );
+  }
+
+  // ==================== HELPERS ====================
+
+  String _getBackupPathDisplay() {
+    final path = settings.autoBackupPath;
+    
+    if (path == null || path.isEmpty) {
+      return 'defaultPath'.tr;
+    }
+
+    final decodedPath = Uri.decodeComponent(path)
+        .replaceAll('%3A', ':')
+        .replaceAll('%2F', '/');
+
+    if (decodedPath.startsWith('content://')) {
+      return 'customPath'.tr;
+    }
+
+    final parts = decodedPath.split('/').where((p) => p.isNotEmpty).toList();
+    return parts.isNotEmpty ? parts.last : 'customPath'.tr;
+  }
+
+  Future<void> _selectAutoBackupPath(BuildContext context) async {
+    try {
+      final path = await isarController.pickAutoBackupDirectory();
+      if (path == null) return;
+
+      await isar.writeTxn(() async {
+        settings.autoBackupPath = path;
+        await isar.settings.put(settings);
+      });
+      
+      if (!mounted) return;
+      setState(() {});
+      showSnackBar('autoBackupPathSet'.tr);
+    } catch (e) {
+      debugPrint('Error selecting auto backup path: $e');
+      if (!mounted) return;
+      showSnackBar('error'.tr, isError: true);
+    }
+  }
+
+  String _getFrequencyText(AutoBackupFrequency frequency) => switch (frequency) {
+        AutoBackupFrequency.daily => 'daily'.tr,
+        AutoBackupFrequency.weekly => 'weekly'.tr,
+        AutoBackupFrequency.monthly => 'monthly'.tr,
+      };
+
+  void _showAutoBackupFrequencyDialog(BuildContext context) {
+    showSelectionDialog<AutoBackupFrequency>(
+      context: context,
+      title: 'autoBackupFrequency'.tr,
+      icon: IconsaxPlusBold.calendar_tick,
+      items: AutoBackupFrequency.values,
+      currentValue: settings.autoBackupFrequency,
+      itemBuilder: (frequency) => _getFrequencyText(frequency),
+      onSelected: (value) async {
+        await isar.writeTxn(() async {
+          settings.autoBackupFrequency = value;
+          await isar.settings.put(settings);
+        });
+        setState(() {});
+      },
+    );
+  }
+
+  void _showMaxBackupsDialog(BuildContext context) {
+    showSelectionDialog<int>(
+      context: context,
+      title: 'maxAutoBackups'.tr,
+      icon: IconsaxPlusBold.archive,
+      items: [3, 5, 7, 10, 15, 20, 30],
+      currentValue: settings.maxAutoBackups,
+      itemBuilder: (count) => '$count',
+      onSelected: (value) async {
+        await isar.writeTxn(() async {
+          settings.maxAutoBackups = value;
+          await isar.settings.put(settings);
+        });
+        setState(() {});
       },
     );
   }

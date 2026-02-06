@@ -28,11 +28,15 @@ class IsarController {
   static Future<Isar> openDB() async {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationSupportDirectory();
-      return isar = await Isar.open(
+      final isarInstance = await Isar.open(
         [TasksSchema, TodosSchema, SettingsSchema],
         directory: dir.path,
         inspector: true,
       );
+
+      isar = isarInstance;
+
+      return isarInstance;
     }
 
     return Future.value(Isar.getInstance());
@@ -241,6 +245,10 @@ class IsarController {
   }
 
   // ==================== Directory Picker ====================
+
+  Future<String?> pickAutoBackupDirectory() async {
+    return await _pickDirectory();
+  }
 
   Future<String?> _pickDirectory() async {
     if (Platform.isAndroid) {

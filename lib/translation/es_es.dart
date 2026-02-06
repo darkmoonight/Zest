@@ -202,5 +202,15 @@ class EsEs {
     'markWithSubtasksQuery':
         '¿Desea marcar esta tarea y todas sus subtareas como completadas?',
     'markAll': 'Marcar Todas',
+    'autoBackup': 'Copia de Seguridad Automática',
+    'autoBackupFrequency': 'Frecuencia de Copia de Seguridad',
+    'daily': 'Diario',
+    'weekly': 'Semanal',
+    'monthly': 'Mensual',
+    'maxAutoBackups': 'Máximo de Copias de Seguridad',
+    'autoBackupPath': 'Ubicación de Copia',
+    'defaultPath': 'Carpeta de la App',
+    'customPath': 'Carpeta Personalizada',
+    'autoBackupPathSet': 'Ubicación actualizada',
   };
 }

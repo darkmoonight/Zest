@@ -200,5 +200,15 @@ class FaIr {
     'markWithSubtasksQuery':
         'آیا می‌خواهید این کار و تمام زیرمجموعه‌هایش را به عنوان تکمیل شده علامت‌گذاری کنید؟',
     'markAll': 'علامت‌گذاری همه',
+    'autoBackup': 'پشتیبان‌گیری خودکار',
+    'autoBackupFrequency': 'فرکانس پشتیبان‌گیری',
+    'daily': 'روزانه',
+    'weekly': 'هفتگی',
+    'monthly': 'ماهانه',
+    'maxAutoBackups': 'حداکثر تعداد پشتیبان',
+    'autoBackupPath': 'محل پشتیبان‌گیری',
+    'defaultPath': 'پوشه برنامه',
+    'customPath': 'پوشه سفارشی',
+    'autoBackupPathSet': 'محل به‌روزرسانی شد',
   };
 }

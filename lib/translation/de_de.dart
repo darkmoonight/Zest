@@ -200,5 +200,15 @@ class DeDe {
     'markWithSubtasksQuery':
         'Möchten Sie diese Aufgabe und alle ihre Unteraufgaben als erledigt markieren?',
     'markAll': 'Alle markieren',
+    'autoBackup': 'Automatische Sicherung',
+    'autoBackupFrequency': 'Sicherungshäufigkeit',
+    'daily': 'Täglich',
+    'weekly': 'Wöchentlich',
+    'monthly': 'Monatlich',
+    'maxAutoBackups': 'Maximale Sicherungen',
+    'autoBackupPath': 'Sicherungsort',
+    'defaultPath': 'App-Ordner',
+    'customPath': 'Eigener Ordner',
+    'autoBackupPathSet': 'Sicherungsort aktualisiert',
   };
 }

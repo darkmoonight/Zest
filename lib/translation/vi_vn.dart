@@ -195,5 +195,15 @@ class ViVn {
     'markWithSubtasksQuery':
         'Bạn có muốn đánh dấu tác vụ này và tất cả các tác vụ con của nó là đã hoàn thành không?',
     'markAll': 'Đánh dấu Tất cả',
+    'autoBackup': 'Sao lưu tự động',
+    'autoBackupFrequency': 'Tần suất sao lưu',
+    'daily': 'Hàng ngày',
+    'weekly': 'Hàng tuần',
+    'monthly': 'Hàng tháng',
+    'maxAutoBackups': 'Số bản sao lưu tối đa',
+    'autoBackupPath': 'Vị trí sao lưu',
+    'defaultPath': 'Thư mục ứng dụng',
+    'customPath': 'Thư mục tùy chỉnh',
+    'autoBackupPathSet': 'Vị trí đã cập nhật',
   };
 }

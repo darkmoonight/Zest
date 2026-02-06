@@ -3,6 +3,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:zest/app/controller/isar_controller.dart';
+import 'package:zest/app/services/auto_backup_service.dart';
 import 'package:zest/app/ui/home.dart';
 import 'package:zest/app/ui/onboarding.dart';
 import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
@@ -77,6 +78,9 @@ Future<void> initializeApp() async {
   await initializeNotifications();
   await IsarController.openDB();
   await initSettings();
+
+  Future.microtask(() => AutoBackupService.checkAndPerformAutoBackup());
+
   await PlatformFeatures.setScreenPrivacy(settings.screenPrivacy ?? false);
 
   if (PlatformFeatures.isMobile) {
