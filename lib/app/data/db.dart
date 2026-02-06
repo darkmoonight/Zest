@@ -26,7 +26,7 @@ class Settings {
   @enumerated
   AutoBackupFrequency autoBackupFrequency = AutoBackupFrequency.daily;
   DateTime? lastAutoBackupTime;
-  int maxAutoBackups = 7;
+  int maxAutoBackups = 5;
   String? autoBackupPath;
 }
 

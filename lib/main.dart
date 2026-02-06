@@ -259,6 +259,9 @@ Future<void> initSettings() async {
   if (settings.snoozeDuration <= 0) {
     settings.snoozeDuration = 10;
   }
+  if (settings.maxAutoBackups <= 0) {
+    settings.maxAutoBackups = 5;
+  }
   await isar.writeTxn(() => isar.settings.put(settings));
 }
 

@@ -188,7 +188,7 @@ class AutoBackupService {
       files.sort(
         (a, b) => b.lastModifiedSync().compareTo(a.lastModifiedSync()),
       );
-      
+
       return files;
     } catch (e) {
       if (kDebugMode) {

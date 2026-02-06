@@ -532,14 +532,14 @@ class _SettingsPageState extends State<SettingsPage> {
 
   String _getBackupPathDisplay() {
     final path = settings.autoBackupPath;
-    
+
     if (path == null || path.isEmpty) {
       return 'defaultPath'.tr;
     }
 
-    final decodedPath = Uri.decodeComponent(path)
-        .replaceAll('%3A', ':')
-        .replaceAll('%2F', '/');
+    final decodedPath = Uri.decodeComponent(
+      path,
+    ).replaceAll('%3A', ':').replaceAll('%2F', '/');
 
     if (decodedPath.startsWith('content://')) {
       return 'customPath'.tr;
@@ -558,7 +558,7 @@ class _SettingsPageState extends State<SettingsPage> {
         settings.autoBackupPath = path;
         await isar.settings.put(settings);
       });
-      
+
       if (!mounted) return;
       setState(() {});
       showSnackBar('autoBackupPathSet'.tr);
@@ -569,7 +569,8 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  String _getFrequencyText(AutoBackupFrequency frequency) => switch (frequency) {
+  String _getFrequencyText(AutoBackupFrequency frequency) =>
+      switch (frequency) {
         AutoBackupFrequency.daily => 'daily'.tr,
         AutoBackupFrequency.weekly => 'weekly'.tr,
         AutoBackupFrequency.monthly => 'monthly'.tr,
