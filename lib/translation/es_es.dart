@@ -215,5 +215,12 @@ class EsEs {
     'createAutoBackupNow': 'Crear Copia Ahora',
     'creatingAutoBackup': 'Creando copia automática...',
     'autoBackupCreated': 'Copia automática creada exitosamente',
+    'statistics': 'Estadísticas',
+    'todayCompleted': 'Hoy',
+    'weekCompleted': 'Esta Semana',
+    'totalTodos': 'Total',
+    'completionRate': 'Completado',
+    'activityHeatmap': 'Mapa de Actividad',
+    'noDataAvailable': 'No hay datos disponibles',
   };
 }

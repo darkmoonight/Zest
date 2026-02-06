@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/controller/fab_controller.dart';
 import 'package:zest/app/ui/settings/view/settings.dart';
+import 'package:zest/app/ui/statistics/view/statistics_page.dart';
 import 'package:zest/app/ui/tasks/view/all_tasks.dart';
 import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
 import 'package:zest/app/ui/todos/view/all_todos.dart';
@@ -37,6 +38,7 @@ class HomePageState extends State<HomePage>
     AllTasks(),
     AllTodos(),
     CalendarTodos(),
+    StatisticsPage(),
     SettingsPage(),
   ];
 
@@ -79,7 +81,12 @@ class HomePageState extends State<HomePage>
     _fabAnimationController.forward();
   }
 
-  List<String> get _screenKeys => ['categories', 'allTodos', 'calendar'];
+  List<String> get _screenKeys => [
+    'categories',
+    'allTodos',
+    'calendar',
+    'statistics',
+  ];
 
   void _initializeTabIndex() {
     allScreens = _screenKeys;
@@ -166,6 +173,11 @@ class HomePageState extends State<HomePage>
           allScreens[2].tr,
         ),
         _buildRailDestination(
+          IconsaxPlusLinear.chart_21,
+          IconsaxPlusBold.chart_2,
+          allScreens[3].tr,
+        ),
+        _buildRailDestination(
           IconsaxPlusLinear.setting_2,
           IconsaxPlusBold.setting_2,
           'settings'.tr,
@@ -212,6 +224,11 @@ class HomePageState extends State<HomePage>
         label: allScreens[2].tr,
       ),
       _buildNavigationDestination(
+        icon: IconsaxPlusLinear.chart_21,
+        selectedIcon: IconsaxPlusBold.chart_2,
+        label: allScreens[3].tr,
+      ),
+      _buildNavigationDestination(
         icon: IconsaxPlusLinear.setting_2,
         selectedIcon: IconsaxPlusBold.setting_2,
         label: 'settings'.tr,
@@ -232,9 +249,12 @@ class HomePageState extends State<HomePage>
   }
 
   Widget? _buildFloatingActionButton() {
-    const settingsTabIndex = 3;
+    const statisticsTabIndex = 3;
+    const settingsTabIndex = 4;
 
-    if (_tabIndex == settingsTabIndex || !_fabController.isVisible.value) {
+    if (_tabIndex == statisticsTabIndex ||
+        _tabIndex == settingsTabIndex ||
+        !_fabController.isVisible.value) {
       return null;
     }
 

@@ -210,5 +210,12 @@ class EnUs {
     'createAutoBackupNow': 'Create Backup Now',
     'creatingAutoBackup': 'Creating auto backup...',
     'autoBackupCreated': 'Auto backup created successfully',
+    'statistics': 'Statistics',
+    'todayCompleted': 'Today',
+    'weekCompleted': 'This Week',
+    'totalTodos': 'Total',
+    'completionRate': 'Completion',
+    'activityHeatmap': 'Activity Heatmap',
+    'noDataAvailable': 'No data available',
   };
 }

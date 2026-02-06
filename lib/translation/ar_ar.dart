@@ -210,5 +210,12 @@ class ArAr {
     'createAutoBackupNow': 'إنشاء نسخة احتياطية الآن',
     'creatingAutoBackup': 'جاري إنشاء النسخة الاحتياطية التلقائية...',
     'autoBackupCreated': 'تم إنشاء النسخة الاحتياطية التلقائية بنجاح',
+    'statistics': 'الإحصائيات',
+    'todayCompleted': 'مكتمل اليوم',
+    'weekCompleted': 'مكتمل هذا الأسبوع',
+    'totalTodos': 'إجمالي المهام',
+    'completionRate': 'معدل الإنجاز',
+    'activityHeatmap': 'خريطة النشاط',
+    'noDataAvailable': 'لا توجد بيانات',
   };
 }

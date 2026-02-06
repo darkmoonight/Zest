@@ -211,5 +211,12 @@ class RuRu {
     'createAutoBackupNow': 'Создать резервную копию сейчас',
     'creatingAutoBackup': 'Создание автоматической резервной копии...',
     'autoBackupCreated': 'Автоматическая резервная копия создана',
+    'statistics': 'Статистика',
+    'todayCompleted': 'Сегодня',
+    'weekCompleted': 'За неделю',
+    'totalTodos': 'Всего',
+    'completionRate': 'Выполнено',
+    'activityHeatmap': 'Тепловая карта активности',
+    'noDataAvailable': 'Нет данных',
   };
 }

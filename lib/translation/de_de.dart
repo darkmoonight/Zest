@@ -213,5 +213,12 @@ class DeDe {
     'createAutoBackupNow': 'Jetzt sichern',
     'creatingAutoBackup': 'Automatische Sicherung wird erstellt...',
     'autoBackupCreated': 'Automatische Sicherung erfolgreich erstellt',
+    'statistics': 'Statistiken',
+    'todayCompleted': 'Heute',
+    'weekCompleted': 'Diese Woche',
+    'totalTodos': 'Gesamt',
+    'completionRate': 'Abschluss',
+    'activityHeatmap': 'Aktivitätskarte',
+    'noDataAvailable': 'Keine Daten verfügbar',
   };
 }

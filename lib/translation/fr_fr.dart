@@ -215,5 +215,12 @@ class FrFr {
     'createAutoBackupNow': 'Créer une Sauvegarde Maintenant',
     'creatingAutoBackup': 'Création de la sauvegarde automatique...',
     'autoBackupCreated': 'Sauvegarde automatique créée avec succès',
+    'statistics': 'Statistiques',
+    'todayCompleted': 'Aujourd\'hui',
+    'weekCompleted': 'Cette Semaine',
+    'totalTodos': 'Total',
+    'completionRate': 'Achèvement',
+    'activityHeatmap': 'Carte d\'Activité',
+    'noDataAvailable': 'Aucune donnée disponible',
   };
 }

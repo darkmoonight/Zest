@@ -205,5 +205,12 @@ class ZhCN {
     'createAutoBackupNow': '立即创建备份',
     'creatingAutoBackup': '正在创建自动备份...',
     'autoBackupCreated': '自动备份创建成功',
+    'statistics': '统计',
+    'todayCompleted': '今日完成',
+    'weekCompleted': '本周完成',
+    'totalTodos': '总任务数',
+    'completionRate': '完成率',
+    'activityHeatmap': '活动热图',
+    'noDataAvailable': '无数据',
   };
 }

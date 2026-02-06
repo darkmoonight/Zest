@@ -205,5 +205,12 @@ class ZhTw {
     'createAutoBackupNow': '立即建立備份',
     'creatingAutoBackup': '正在建立自動備份...',
     'autoBackupCreated': '自動備份建立成功',
+    'statistics': '統計',
+    'todayCompleted': '今日完成',
+    'weekCompleted': '本週完成',
+    'totalTodos': '總任務數',
+    'completionRate': '完成率',
+    'activityHeatmap': '活動熱圖',
+    'noDataAvailable': '無資料',
   };
 }

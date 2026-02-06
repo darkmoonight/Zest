@@ -213,5 +213,12 @@ class TrTr {
     'createAutoBackupNow': 'Şimdi Yedekle',
     'creatingAutoBackup': 'Otomatik yedekleme oluşturuluyor...',
     'autoBackupCreated': 'Otomatik yedekleme başarıyla oluşturuldu',
+    'statistics': 'İstatistikler',
+    'todayCompleted': 'Bugün tamamlanan',
+    'weekCompleted': 'Bu hafta tamamlanan',
+    'totalTodos': 'Toplam görevler',
+    'completionRate': 'Tamamlanma oranı',
+    'activityHeatmap': 'Aktivite haritası',
+    'noDataAvailable': 'Veri yok',
   };
 }

@@ -208,5 +208,12 @@ class ViVn {
     'createAutoBackupNow': 'Tạo Sao Lưu Ngay',
     'creatingAutoBackup': 'Đang tạo sao lưu tự động...',
     'autoBackupCreated': 'Sao lưu tự động đã được tạo thành công',
+    'statistics': 'Thống kê',
+    'todayCompleted': 'Hoàn thành hôm nay',
+    'weekCompleted': 'Hoàn thành tuần này',
+    'totalTodos': 'Tổng số việc',
+    'completionRate': 'Tỷ lệ hoàn thành',
+    'activityHeatmap': 'Bản đồ hoạt động',
+    'noDataAvailable': 'Không có dữ liệu',
   };
 }

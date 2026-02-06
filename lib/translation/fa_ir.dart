@@ -213,5 +213,12 @@ class FaIr {
     'createAutoBackupNow': 'ایجاد پشتیبان اکنون',
     'creatingAutoBackup': 'در حال ایجاد پشتیبان خودکار...',
     'autoBackupCreated': 'پشتیبان خودکار با موفقیت ایجاد شد',
+    'statistics': 'آمار',
+    'todayCompleted': 'تکمیل شده امروز',
+    'weekCompleted': 'تکمیل شده این هفته',
+    'totalTodos': 'کل کارها',
+    'completionRate': 'نرخ تکمیل',
+    'activityHeatmap': 'نقشه فعالیت',
+    'noDataAvailable': 'داده‌ای موجود نیست',
   };
 }

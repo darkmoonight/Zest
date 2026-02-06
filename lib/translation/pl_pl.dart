@@ -213,5 +213,12 @@ class PlPl {
     'createAutoBackupNow': 'Utwórz Kopię Teraz',
     'creatingAutoBackup': 'Tworzenie automatycznej kopii...',
     'autoBackupCreated': 'Automatyczna kopia utworzona pomyślnie',
+    'statistics': 'Statystyki',
+    'todayCompleted': 'Ukończone dzisiaj',
+    'weekCompleted': 'Ukończone w tym tygodniu',
+    'totalTodos': 'Wszystkie zadania',
+    'completionRate': 'Wskaźnik ukończenia',
+    'activityHeatmap': 'Mapa aktywności',
+    'noDataAvailable': 'Brak danych',
   };
 }

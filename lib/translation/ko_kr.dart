@@ -205,5 +205,12 @@ class KoKr {
     'createAutoBackupNow': '지금 백업 생성',
     'creatingAutoBackup': '자동 백업 생성 중...',
     'autoBackupCreated': '자동 백업이 성공적으로 생성되었습니다',
+    'statistics': '통계',
+    'todayCompleted': '오늘 완료',
+    'weekCompleted': '이번 주 완료',
+    'totalTodos': '전체 할 일',
+    'completionRate': '완료율',
+    'activityHeatmap': '활동 히트맵',
+    'noDataAvailable': '데이터 없음',
   };
 }
