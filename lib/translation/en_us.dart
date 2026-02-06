@@ -207,5 +207,8 @@ class EnUs {
     'defaultPath': 'App Folder',
     'customPath': 'Custom Folder',
     'autoBackupPathSet': 'Backup location updated',
+    'createAutoBackupNow': 'Create Backup Now',
+    'creatingAutoBackup': 'Creating auto backup...',
+    'autoBackupCreated': 'Auto backup created successfully',
   };
 }

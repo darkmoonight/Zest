@@ -202,5 +202,8 @@ class KoKr {
     'defaultPath': '앱 폴더',
     'customPath': '사용자 폴더',
     'autoBackupPathSet': '위치가 업데이트되었습니다',
+    'createAutoBackupNow': '지금 백업 생성',
+    'creatingAutoBackup': '자동 백업 생성 중...',
+    'autoBackupCreated': '자동 백업이 성공적으로 생성되었습니다',
   };
 }

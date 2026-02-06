@@ -212,5 +212,8 @@ class EsEs {
     'defaultPath': 'Carpeta de la App',
     'customPath': 'Carpeta Personalizada',
     'autoBackupPathSet': 'Ubicación actualizada',
+    'createAutoBackupNow': 'Crear Copia Ahora',
+    'creatingAutoBackup': 'Creando copia automática...',
+    'autoBackupCreated': 'Copia automática creada exitosamente',
   };
 }

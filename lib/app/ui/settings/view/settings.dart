@@ -8,6 +8,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:zest/app/controller/isar_controller.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/data/db.dart';
+import 'package:zest/app/services/auto_backup_service.dart';
 import 'package:zest/app/ui/settings/widgets/settings_section.dart';
 import 'package:zest/app/ui/settings/widgets/settings_tile.dart';
 import 'package:zest/app/ui/widgets/confirmation_dialog.dart';
@@ -287,6 +288,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   await isar.settings.put(settings);
                 });
                 setState(() {});
+                if (value) {
+                  _createAutoBackupNow();
+                }
               },
             ),
           ),
@@ -305,10 +309,15 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: () => _showAutoBackupFrequencyDialog(context),
           ),
           SettingsTile(
-            leading: const Icon(IconsaxPlusLinear.archive),
+            leading: const Icon(IconsaxPlusLinear.d_square),
             title: 'maxAutoBackups',
             value: '${settings.maxAutoBackups}',
             onTap: () => _showMaxBackupsDialog(context),
+          ),
+          SettingsTile(
+            leading: const Icon(IconsaxPlusLinear.d_rotate),
+            title: 'createAutoBackupNow',
+            onTap: () => _createAutoBackupNow(),
           ),
         ],
         SettingsTile(
@@ -562,8 +571,28 @@ class _SettingsPageState extends State<SettingsPage> {
       if (!mounted) return;
       setState(() {});
       showSnackBar('autoBackupPathSet'.tr);
+      _createAutoBackupNow();
     } catch (e) {
       debugPrint('Error selecting auto backup path: $e');
+      if (!mounted) return;
+      showSnackBar('error'.tr, isError: true);
+    }
+  }
+
+  Future<void> _createAutoBackupNow() async {
+    try {
+      showSnackBar('creatingAutoBackup'.tr, isInfo: true);
+
+      final success = await AutoBackupService.performManualAutoBackup();
+
+      if (!mounted) return;
+      if (success) {
+        showSnackBar('autoBackupCreated'.tr);
+      } else {
+        showSnackBar('error'.tr, isError: true);
+      }
+    } catch (e) {
+      debugPrint('Error creating auto backup: $e');
       if (!mounted) return;
       showSnackBar('error'.tr, isError: true);
     }

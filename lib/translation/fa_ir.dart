@@ -210,5 +210,8 @@ class FaIr {
     'defaultPath': 'پوشه برنامه',
     'customPath': 'پوشه سفارشی',
     'autoBackupPathSet': 'محل به‌روزرسانی شد',
+    'createAutoBackupNow': 'ایجاد پشتیبان اکنون',
+    'creatingAutoBackup': 'در حال ایجاد پشتیبان خودکار...',
+    'autoBackupCreated': 'پشتیبان خودکار با موفقیت ایجاد شد',
   };
 }

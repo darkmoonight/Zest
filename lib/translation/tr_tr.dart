@@ -210,5 +210,8 @@ class TrTr {
     'defaultPath': 'Uygulama Klasörü',
     'customPath': 'Özel Klasör',
     'autoBackupPathSet': 'Konum güncellendi',
+    'createAutoBackupNow': 'Şimdi Yedekle',
+    'creatingAutoBackup': 'Otomatik yedekleme oluşturuluyor...',
+    'autoBackupCreated': 'Otomatik yedekleme başarıyla oluşturuldu',
   };
 }

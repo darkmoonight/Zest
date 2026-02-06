@@ -207,5 +207,8 @@ class ArAr {
     'defaultPath': 'مجلد التطبيق',
     'customPath': 'مجلد مخصص',
     'autoBackupPathSet': 'تم تحديث الموقع',
+    'createAutoBackupNow': 'إنشاء نسخة احتياطية الآن',
+    'creatingAutoBackup': 'جاري إنشاء النسخة الاحتياطية التلقائية...',
+    'autoBackupCreated': 'تم إنشاء النسخة الاحتياطية التلقائية بنجاح',
   };
 }

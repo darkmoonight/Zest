@@ -210,5 +210,8 @@ class DeDe {
     'defaultPath': 'App-Ordner',
     'customPath': 'Eigener Ordner',
     'autoBackupPathSet': 'Sicherungsort aktualisiert',
+    'createAutoBackupNow': 'Jetzt sichern',
+    'creatingAutoBackup': 'Automatische Sicherung wird erstellt...',
+    'autoBackupCreated': 'Automatische Sicherung erfolgreich erstellt',
   };
 }

@@ -210,5 +210,8 @@ class PlPl {
     'defaultPath': 'Folder Aplikacji',
     'customPath': 'Własny Folder',
     'autoBackupPathSet': 'Lokalizacja zaktualizowana',
+    'createAutoBackupNow': 'Utwórz Kopię Teraz',
+    'creatingAutoBackup': 'Tworzenie automatycznej kopii...',
+    'autoBackupCreated': 'Automatyczna kopia utworzona pomyślnie',
   };
 }

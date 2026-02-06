@@ -208,5 +208,8 @@ class RuRu {
     'defaultPath': 'Папка приложения',
     'customPath': 'Своя папка',
     'autoBackupPathSet': 'Место сохранения обновлено',
+    'createAutoBackupNow': 'Создать резервную копию сейчас',
+    'creatingAutoBackup': 'Создание автоматической резервной копии...',
+    'autoBackupCreated': 'Автоматическая резервная копия создана',
   };
 }

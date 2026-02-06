@@ -202,5 +202,8 @@ class ZhTw {
     'defaultPath': '應用程式資料夾',
     'customPath': '自訂資料夾',
     'autoBackupPathSet': '位置已更新',
+    'createAutoBackupNow': '立即建立備份',
+    'creatingAutoBackup': '正在建立自動備份...',
+    'autoBackupCreated': '自動備份建立成功',
   };
 }

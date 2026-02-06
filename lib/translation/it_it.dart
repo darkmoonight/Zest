@@ -209,5 +209,8 @@ class ItIt {
     'defaultPath': 'Cartella App',
     'customPath': 'Cartella Personalizzata',
     'autoBackupPathSet': 'Posizione aggiornata',
+    'createAutoBackupNow': 'Crea Backup Ora',
+    'creatingAutoBackup': 'Creazione backup automatico...',
+    'autoBackupCreated': 'Backup automatico creato con successo',
   };
 }

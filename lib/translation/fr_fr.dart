@@ -212,5 +212,8 @@ class FrFr {
     'defaultPath': 'Dossier de l\'App',
     'customPath': 'Dossier Personnalisé',
     'autoBackupPathSet': 'Emplacement mis à jour',
+    'createAutoBackupNow': 'Créer une Sauvegarde Maintenant',
+    'creatingAutoBackup': 'Création de la sauvegarde automatique...',
+    'autoBackupCreated': 'Sauvegarde automatique créée avec succès',
   };
 }

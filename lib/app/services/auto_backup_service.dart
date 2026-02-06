@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:archive/archive.dart';
 import 'package:intl/intl.dart';
 import 'package:isar_community/isar.dart';
@@ -11,6 +12,7 @@ import 'package:zest/main.dart';
 class AutoBackupService {
   AutoBackupService._();
 
+  static const _platform = MethodChannel('directory_picker');
   static const String _autoBackupPrefix = 'auto_backup_zest_db_';
   static const String _backupExtension = '.isar';
   static const String _compressedExtension = '.gz';
@@ -37,6 +39,23 @@ class AutoBackupService {
     }
   }
 
+  static Future<bool> performManualAutoBackup() async {
+    try {
+      final currentSettings = await isar.settings.where().findFirst();
+      if (currentSettings == null) {
+        return false;
+      }
+
+      await performAutoBackup(currentSettings);
+      return true;
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('Manual auto backup error: $e\n$stackTrace');
+      }
+      return false;
+    }
+  }
+
   static bool _shouldPerformBackup(Settings currentSettings) {
     final lastBackup = currentSettings.lastAutoBackupTime;
     if (lastBackup == null) return true;
@@ -53,18 +72,40 @@ class AutoBackupService {
 
   static Future<void> performAutoBackup(Settings currentSettings) async {
     try {
-      final backupDir = await _getAutoBackupDirectory(currentSettings);
-      if (backupDir == null) {
-        if (kDebugMode) {
-          print('Auto backup skipped: no valid backup directory');
+      final customPath = currentSettings.autoBackupPath;
+      final isAndroidContentUri =
+          customPath != null &&
+          customPath.isNotEmpty &&
+          customPath.startsWith('content://');
+
+      Directory? backupDir;
+      String? allowedPath;
+
+      if (isAndroidContentUri) {
+        allowedPath = await _getDownloadsDirectory();
+        if (allowedPath == null) {
+          if (kDebugMode) {
+            print('Auto backup skipped: no valid backup directory');
+          }
+          return;
         }
-        return;
+      } else {
+        backupDir = await _getAutoBackupDirectory(currentSettings);
+        if (backupDir == null) {
+          if (kDebugMode) {
+            print('Auto backup skipped: no valid backup directory');
+          }
+          return;
+        }
+        allowedPath = backupDir.path;
       }
 
-      await _cleanOldBackups(backupDir, currentSettings);
+      if (!isAndroidContentUri && backupDir != null) {
+        await _cleanOldBackups(backupDir, currentSettings);
+      }
 
       final backupFileName = _generateAutoBackupFileName();
-      final backupFile = File(p.join(backupDir.path, backupFileName));
+      final backupFile = File(p.join(allowedPath, backupFileName));
 
       if (await backupFile.exists()) {
         await backupFile.delete();
@@ -73,10 +114,19 @@ class AutoBackupService {
       await isar.copyToFile(backupFile.path);
 
       final compressedFileName = '$backupFileName$_compressedExtension';
-      final compressedFile = File(p.join(backupDir.path, compressedFileName));
+      final compressedFile = File(p.join(allowedPath, compressedFileName));
 
       await _compressFile(backupFile, compressedFile);
       await backupFile.delete();
+
+      if (isAndroidContentUri) {
+        await _saveBackupAndroid(
+          backupDir: customPath,
+          compressedFile: compressedFile,
+          fileName: compressedFileName,
+        );
+      }
+
       await _updateLastBackupTime(currentSettings);
 
       if (kDebugMode) {
@@ -172,10 +222,64 @@ class AutoBackupService {
     });
   }
 
+  static Future<void> _saveBackupAndroid({
+    required String backupDir,
+    required File compressedFile,
+    required String fileName,
+  }) async {
+    try {
+      final backupData = await compressedFile.readAsBytes();
+
+      final success = await _platform.invokeMethod<bool>('writeFile', {
+        'directoryUri': backupDir,
+        'fileName': fileName,
+        'fileContent': backupData,
+      });
+
+      await compressedFile.delete();
+
+      if (kDebugMode) {
+        if (success == true) {
+          print('Auto backup saved to Android content URI successfully');
+        } else {
+          print('Failed to save auto backup to Android content URI');
+        }
+      }
+    } catch (e) {
+      await compressedFile.delete();
+      if (kDebugMode) {
+        print('Android auto backup save error: $e');
+      }
+    }
+  }
+
+  static Future<String?> _getDownloadsDirectory() async {
+    if (Platform.isAndroid) {
+      return '/storage/emulated/0/Download';
+    } else if (Platform.isIOS) {
+      final dir = await getApplicationDocumentsDirectory();
+      return dir.path;
+    }
+    return null;
+  }
+
   // ==================== Utility Methods ====================
 
   static Future<List<File>> getAutoBackupFiles(Settings currentSettings) async {
     try {
+      final customPath = currentSettings.autoBackupPath;
+      final isAndroidContentUri =
+          customPath != null &&
+          customPath.isNotEmpty &&
+          customPath.startsWith('content://');
+
+      if (isAndroidContentUri) {
+        if (kDebugMode) {
+          print('Cannot list files from Android content URI');
+        }
+        return [];
+      }
+
       final backupDir = await _getAutoBackupDirectory(currentSettings);
       if (backupDir == null) return [];
 

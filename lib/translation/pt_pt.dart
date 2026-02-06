@@ -209,5 +209,8 @@ class PtPt {
     'defaultPath': 'Pasta do App',
     'customPath': 'Pasta Personalizada',
     'autoBackupPathSet': 'Local atualizado',
+    'createAutoBackupNow': 'Criar Backup Agora',
+    'creatingAutoBackup': 'Criando backup automático...',
+    'autoBackupCreated': 'Backup automático criado com sucesso',
   };
 }

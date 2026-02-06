@@ -202,5 +202,8 @@ class ZhCN {
     'defaultPath': '应用文件夹',
     'customPath': '自定义文件夹',
     'autoBackupPathSet': '位置已更新',
+    'createAutoBackupNow': '立即创建备份',
+    'creatingAutoBackup': '正在创建自动备份...',
+    'autoBackupCreated': '自动备份创建成功',
   };
 }

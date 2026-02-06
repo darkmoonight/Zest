@@ -205,5 +205,8 @@ class ViVn {
     'defaultPath': 'Thư mục ứng dụng',
     'customPath': 'Thư mục tùy chỉnh',
     'autoBackupPathSet': 'Vị trí đã cập nhật',
+    'createAutoBackupNow': 'Tạo Sao Lưu Ngay',
+    'creatingAutoBackup': 'Đang tạo sao lưu tự động...',
+    'autoBackupCreated': 'Sao lưu tự động đã được tạo thành công',
   };
 }
