@@ -215,5 +215,12 @@ class ViVn {
     'completionRate': 'Tỷ lệ hoàn thành',
     'activityHeatmap': 'Bản đồ hoạt động',
     'noDataAvailable': 'Không có dữ liệu',
+    'streak': 'Chuỗi',
+    'currentStreak': 'Hiện tại',
+    'longestStreak': 'Dài nhất',
+    'weeklyProgress': 'Tiến độ tuần',
+    'hourlyProgress': 'Tiến độ theo giờ',
+    'errorLoadingStatistics': 'Lỗi tải thống kê',
+    'noStatisticsAvailable': 'Không có thống kê',
   };
 }

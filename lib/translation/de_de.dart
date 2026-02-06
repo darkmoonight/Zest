@@ -220,5 +220,12 @@ class DeDe {
     'completionRate': 'Abschluss',
     'activityHeatmap': 'Aktivitätskarte',
     'noDataAvailable': 'Keine Daten verfügbar',
+    'streak': 'Serie',
+    'currentStreak': 'Aktuell',
+    'longestStreak': 'Längste',
+    'weeklyProgress': 'Wochenfortschritt',
+    'hourlyProgress': 'Stundenfortschritt',
+    'errorLoadingStatistics': 'Fehler beim Laden der Statistiken',
+    'noStatisticsAvailable': 'Keine Statistiken verfügbar',
   };
 }

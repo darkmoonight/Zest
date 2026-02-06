@@ -217,5 +217,12 @@ class EnUs {
     'completionRate': 'Completion',
     'activityHeatmap': 'Activity Heatmap',
     'noDataAvailable': 'No data available',
+    'streak': 'Streak',
+    'currentStreak': 'Current',
+    'longestStreak': 'Longest',
+    'weeklyProgress': 'Weekly Progress',
+    'hourlyProgress': 'Hourly Progress',
+    'errorLoadingStatistics': 'Error loading statistics',
+    'noStatisticsAvailable': 'No statistics available',
   };
 }

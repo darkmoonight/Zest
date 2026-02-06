@@ -212,5 +212,12 @@ class ZhCN {
     'completionRate': '完成率',
     'activityHeatmap': '活动热图',
     'noDataAvailable': '无数据',
+    'streak': '连续',
+    'currentStreak': '当前',
+    'longestStreak': '最长',
+    'weeklyProgress': '每周进度',
+    'hourlyProgress': '每小时进度',
+    'errorLoadingStatistics': '加载统计数据时出错',
+    'noStatisticsAvailable': '无可用统计数据',
   };
 }

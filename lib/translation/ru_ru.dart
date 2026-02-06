@@ -218,5 +218,12 @@ class RuRu {
     'completionRate': 'Выполнено',
     'activityHeatmap': 'Тепловая карта активности',
     'noDataAvailable': 'Нет данных',
+    'streak': 'Серия',
+    'currentStreak': 'Текущая',
+    'longestStreak': 'Рекорд',
+    'weeklyProgress': 'Прогресс за неделю',
+    'hourlyProgress': 'Прогресс по часам',
+    'errorLoadingStatistics': 'Ошибка загрузки статистики',
+    'noStatisticsAvailable': 'Статистика недоступна',
   };
 }

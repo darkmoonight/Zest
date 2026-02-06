@@ -212,5 +212,12 @@ class ZhTw {
     'completionRate': '完成率',
     'activityHeatmap': '活動熱圖',
     'noDataAvailable': '無資料',
+    'streak': '連續',
+    'currentStreak': '目前',
+    'longestStreak': '最長',
+    'weeklyProgress': '每週進度',
+    'hourlyProgress': '每小時進度',
+    'errorLoadingStatistics': '載入統計資料時發生錯誤',
+    'noStatisticsAvailable': '無可用統計資料',
   };
 }

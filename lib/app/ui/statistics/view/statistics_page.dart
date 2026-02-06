@@ -6,7 +6,10 @@ import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/ui/statistics/models/statistics_data.dart';
 import 'package:zest/app/ui/statistics/services/statistics_service.dart';
 import 'package:zest/app/ui/statistics/widgets/completion_heatmap.dart';
+import 'package:zest/app/ui/statistics/widgets/hourly_progress_chart.dart';
 import 'package:zest/app/ui/statistics/widgets/stats_card.dart';
+import 'package:zest/app/ui/statistics/widgets/streak_widget.dart';
+import 'package:zest/app/ui/statistics/widgets/weekly_progress_chart.dart';
 import 'package:zest/app/utils/responsive_utils.dart';
 
 class StatisticsPage extends StatefulWidget {
@@ -101,11 +104,20 @@ class _StatisticsPageState extends State<StatisticsPage> {
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               _buildPageTitle(),
-              const SizedBox(height: AppConstants.spacingL),
+              const SizedBox(height: AppConstants.spacingM),
               _buildOverviewCards(data),
-              const SizedBox(height: AppConstants.spacingXL),
+              const SizedBox(height: AppConstants.spacingM),
+              StreakWidget(
+                currentStreak: data.currentStreak,
+                longestStreak: data.longestStreak,
+              ),
+              const SizedBox(height: AppConstants.spacingM),
+              WeeklyProgressChart(weeklyData: data.weeklyProgress),
+              const SizedBox(height: AppConstants.spacingM),
+              HourlyProgressChart(hourlyData: data.hourlyProgress),
+              const SizedBox(height: AppConstants.spacingL),
               _buildHeatmapSection(data),
-              const SizedBox(height: AppConstants.spacingXXL),
+              const SizedBox(height: AppConstants.spacingXL),
             ]),
           ),
         ),
@@ -116,9 +128,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Widget _buildPageTitle() {
     return Text(
       'statistics'.tr,
-      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+      style: Theme.of(
+        context,
+      ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 
@@ -233,20 +245,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   Widget _buildHeatmapSection(StatisticsData data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: AppConstants.spacingM),
-          child: Text(
-            'activityHeatmap'.tr,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-        ),
-        CompletionHeatmap(heatmapData: data.completionHeatmap),
-      ],
-    );
+    return CompletionHeatmap(heatmapData: data.completionHeatmap);
   }
 }

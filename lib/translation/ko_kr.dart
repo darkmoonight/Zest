@@ -212,5 +212,12 @@ class KoKr {
     'completionRate': '완료율',
     'activityHeatmap': '활동 히트맵',
     'noDataAvailable': '데이터 없음',
+    'streak': '연속',
+    'currentStreak': '현재',
+    'longestStreak': '최장',
+    'weeklyProgress': '주간 진행',
+    'hourlyProgress': '시간별 진행',
+    'errorLoadingStatistics': '통계 로드 오류',
+    'noStatisticsAvailable': '사용 가능한 통계 없음',
   };
 }

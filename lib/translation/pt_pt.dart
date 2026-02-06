@@ -219,5 +219,12 @@ class PtPt {
     'completionRate': 'Taxa de conclusão',
     'activityHeatmap': 'Mapa de atividade',
     'noDataAvailable': 'Sem dados disponíveis',
+    'streak': 'Sequência',
+    'currentStreak': 'Atual',
+    'longestStreak': 'Mais Longa',
+    'weeklyProgress': 'Progresso Semanal',
+    'hourlyProgress': 'Progresso por Hora',
+    'errorLoadingStatistics': 'Erro ao carregar estatísticas',
+    'noStatisticsAvailable': 'Sem estatísticas disponíveis',
   };
 }

@@ -219,5 +219,12 @@ class ItIt {
     'completionRate': 'Tasso di completamento',
     'activityHeatmap': 'Mappa di attività',
     'noDataAvailable': 'Nessun dato disponibile',
+    'streak': 'Serie',
+    'currentStreak': 'Attuale',
+    'longestStreak': 'Più Lunga',
+    'weeklyProgress': 'Progresso Settimanale',
+    'hourlyProgress': 'Progresso Orario',
+    'errorLoadingStatistics': 'Errore nel caricamento delle statistiche',
+    'noStatisticsAvailable': 'Nessuna statistica disponibile',
   };
 }

@@ -222,5 +222,12 @@ class EsEs {
     'completionRate': 'Completado',
     'activityHeatmap': 'Mapa de Actividad',
     'noDataAvailable': 'No hay datos disponibles',
+    'streak': 'Racha',
+    'currentStreak': 'Actual',
+    'longestStreak': 'Más Larga',
+    'weeklyProgress': 'Progreso Semanal',
+    'hourlyProgress': 'Progreso por Hora',
+    'errorLoadingStatistics': 'Error al cargar estadísticas',
+    'noStatisticsAvailable': 'No hay estadísticas disponibles',
   };
 }

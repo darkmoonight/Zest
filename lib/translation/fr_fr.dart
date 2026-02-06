@@ -222,5 +222,12 @@ class FrFr {
     'completionRate': 'Achèvement',
     'activityHeatmap': 'Carte d\'Activité',
     'noDataAvailable': 'Aucune donnée disponible',
+    'streak': 'Série',
+    'currentStreak': 'Actuelle',
+    'longestStreak': 'Plus Longue',
+    'weeklyProgress': 'Progrès Hebdomadaire',
+    'hourlyProgress': 'Progrès Horaire',
+    'errorLoadingStatistics': 'Erreur de chargement des statistiques',
+    'noStatisticsAvailable': 'Aucune statistique disponible',
   };
 }

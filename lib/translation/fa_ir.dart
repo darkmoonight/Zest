@@ -220,5 +220,12 @@ class FaIr {
     'completionRate': 'نرخ تکمیل',
     'activityHeatmap': 'نقشه فعالیت',
     'noDataAvailable': 'داده‌ای موجود نیست',
+    'streak': 'رشته',
+    'currentStreak': 'فعلی',
+    'longestStreak': 'طولانی‌ترین',
+    'weeklyProgress': 'پیشرفت هفتگی',
+    'hourlyProgress': 'پیشرفت ساعتی',
+    'errorLoadingStatistics': 'خطا در بارگذاری آمار',
+    'noStatisticsAvailable': 'آماری موجود نیست',
   };
 }

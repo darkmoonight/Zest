@@ -19,7 +19,6 @@ class StatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isMobile = ResponsiveUtils.isMobile(context);
 
     return Card(
       elevation: AppConstants.elevationLow,
@@ -28,22 +27,24 @@ class StatsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
       ),
       child: Padding(
-        padding: EdgeInsets.all(
-          isMobile ? AppConstants.spacingM : AppConstants.spacingL,
-        ),
+        padding: EdgeInsets.all(AppConstants.spacingM),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(AppConstants.spacingS),
+              padding: const EdgeInsets.all(AppConstants.spacingXS),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(
-                  AppConstants.borderRadiusMedium,
+                  AppConstants.borderRadiusSmall,
                 ),
               ),
-              child: Icon(icon, size: AppConstants.iconSizeLarge, color: color),
+              child: Icon(
+                icon,
+                size: AppConstants.iconSizeMedium,
+                color: color,
+              ),
             ),
-            const SizedBox(width: AppConstants.spacingM),
+            const SizedBox(width: AppConstants.spacingS),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,19 +55,19 @@ class StatsCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontSize: ResponsiveUtils.getResponsiveFontSize(
                         context,
-                        24,
+                        14,
                       ),
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onSurface,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     title,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontSize: ResponsiveUtils.getResponsiveFontSize(
                         context,
-                        13,
+                        10,
                       ),
                       color: colorScheme.onSurfaceVariant,
                     ),

@@ -5,6 +5,10 @@ class StatisticsData {
   final Map<DateTime, int> completionHeatmap;
   final int todayCompleted;
   final int weekCompleted;
+  final int currentStreak;
+  final int longestStreak;
+  final Map<String, int> weeklyProgress;
+  final Map<int, int> hourlyProgress;
 
   StatisticsData({
     required this.totalTodos,
@@ -13,5 +17,9 @@ class StatisticsData {
     required this.completionHeatmap,
     required this.todayCompleted,
     required this.weekCompleted,
+    required this.currentStreak,
+    required this.longestStreak,
+    required this.weeklyProgress,
+    required this.hourlyProgress,
   });
 }

@@ -217,5 +217,12 @@ class ArAr {
     'completionRate': 'معدل الإنجاز',
     'activityHeatmap': 'خريطة النشاط',
     'noDataAvailable': 'لا توجد بيانات',
+    'streak': 'سلسلة',
+    'currentStreak': 'الحالية',
+    'longestStreak': 'الأطول',
+    'weeklyProgress': 'التقدم الأسبوعي',
+    'hourlyProgress': 'التقدم الساعي',
+    'errorLoadingStatistics': 'خطأ في تحميل الإحصائيات',
+    'noStatisticsAvailable': 'لا توجد إحصائيات متاحة',
   };
 }

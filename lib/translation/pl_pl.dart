@@ -220,5 +220,12 @@ class PlPl {
     'completionRate': 'Wskaźnik ukończenia',
     'activityHeatmap': 'Mapa aktywności',
     'noDataAvailable': 'Brak danych',
+    'streak': 'Seria',
+    'currentStreak': 'Obecna',
+    'longestStreak': 'Najdłuższa',
+    'weeklyProgress': 'Postęp Tygodniowy',
+    'hourlyProgress': 'Postęp Godzinowy',
+    'errorLoadingStatistics': 'Błąd ładowania statystyk',
+    'noStatisticsAvailable': 'Brak dostępnych statystyk',
   };
 }

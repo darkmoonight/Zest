@@ -220,5 +220,12 @@ class TrTr {
     'completionRate': 'Tamamlanma oranı',
     'activityHeatmap': 'Aktivite haritası',
     'noDataAvailable': 'Veri yok',
+    'streak': 'Seri',
+    'currentStreak': 'Mevcut',
+    'longestStreak': 'En Uzun',
+    'weeklyProgress': 'Haftalık İlerleme',
+    'hourlyProgress': 'Saatlik İlerleme',
+    'errorLoadingStatistics': 'İstatistikler yüklenirken hata',
+    'noStatisticsAvailable': 'İstatistik mevcut değil',
   };
 }
