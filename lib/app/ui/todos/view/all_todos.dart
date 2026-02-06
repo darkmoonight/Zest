@@ -214,11 +214,14 @@ class _AllTodosState extends State<AllTodos>
         return const SizedBox.shrink();
       }
 
+      final selectedCount = todoController.selectedTodo.length;
+
       return SelectionActionBar(
         onTransfer: () => showTodosTransferSheet(context),
         onDelete: () => showDeleteDialog(context),
         onSelectAll: _toggleSelectAll,
         isAllSelected: _areAllSelectedInCurrentTab(),
+        selectedCount: selectedCount,
       );
     });
   }

@@ -12,12 +12,14 @@ class SelectionActionBar extends StatelessWidget {
     required this.onDelete,
     required this.onSelectAll,
     required this.isAllSelected,
+    required this.selectedCount,
   });
 
   final VoidCallback onTransfer;
   final VoidCallback onDelete;
   final VoidCallback onSelectAll;
   final bool isAllSelected;
+  final int selectedCount;
 
   @override
   Widget build(BuildContext context) {
@@ -65,12 +67,13 @@ class SelectionActionBar extends StatelessWidget {
 
   Widget _buildSelectionCounter(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final todoController = Get.find<TodoController>();
 
-    return Obx(() {
-      final selectedCount = todoController.selectedTodo.length;
-
-      return Container(
+    return InkWell(
+      onTap: onSelectAll,
+      borderRadius: BorderRadius.circular(
+        AppConstants.borderRadiusSmall + 2,
+      ),
+      child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: AppConstants.spacingM,
           vertical: AppConstants.spacingS,
@@ -84,7 +87,7 @@ class SelectionActionBar extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildSelectionBadge(context, selectedCount),
+            _buildSelectionBadge(context),
             SizedBox(width: AppConstants.spacingS + 2),
             Flexible(
               child: Text(
@@ -102,49 +105,19 @@ class SelectionActionBar extends StatelessWidget {
             ),
           ],
         ),
-      );
-    });
+      ),
+    );
   }
 
-  Widget _buildSelectionBadge(BuildContext context, int count) {
+  Widget _buildSelectionBadge(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Icon(
-          IconsaxPlusBold.tick_square,
-          size: AppConstants.iconSizeMedium,
-          color: colorScheme.onPrimaryContainer,
-        ),
-        if (count > 0)
-          Positioned(
-            right: -6,
-            top: -6,
-            child: Container(
-              padding: const EdgeInsets.all(AppConstants.spacingXS),
-              decoration: BoxDecoration(
-                color: colorScheme.primary,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: colorScheme.primaryContainer,
-                  width: 1.5,
-                ),
-              ),
-              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-              child: Text(
-                '$count',
-                style: TextStyle(
-                  color: colorScheme.onPrimary,
-                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 10),
-                  fontWeight: FontWeight.w900,
-                  height: 1.0,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-      ],
+    return Icon(
+      isAllSelected
+          ? IconsaxPlusBold.tick_square
+          : IconsaxPlusLinear.tick_square,
+      size: AppConstants.iconSizeMedium,
+      color: colorScheme.onPrimaryContainer,
     );
   }
 
@@ -155,13 +128,6 @@ class SelectionActionBar extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _ActionButton(
-          icon: isAllSelected
-              ? IconsaxPlusBold.tick_square
-              : IconsaxPlusLinear.tick_square,
-          onPressed: onSelectAll,
-          tooltip: 'selectAll'.tr,
-        ),
         _ActionButton(
           icon: IconsaxPlusLinear.repeat,
           color: colorScheme.tertiary,

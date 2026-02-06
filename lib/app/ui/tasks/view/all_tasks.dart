@@ -286,78 +286,52 @@ class _AllTasksState extends State<AllTasks>
     final colorScheme = Theme.of(context).colorScheme;
     final selectedCount = _todoController.selectedTask.length;
 
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: AppConstants.spacingM,
-        vertical: AppConstants.spacingS,
-      ),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall + 2),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildSelectionBadge(context, selectedCount),
-          SizedBox(width: AppConstants.spacingS + 2),
-          Flexible(
-            child: Text(
-              selectedCount == 1
-                  ? '1 ${'item'.tr}'
-                  : '$selectedCount ${'items'.tr}',
-              style: TextStyle(
-                color: colorScheme.onPrimaryContainer,
-                fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.3,
+    return InkWell(
+      onTap: _toggleSelectAll,
+      borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall + 2),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppConstants.spacingM,
+          vertical: AppConstants.spacingS,
+        ),
+        decoration: BoxDecoration(
+          color: colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall + 2),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSelectionBadge(context),
+            SizedBox(width: AppConstants.spacingS + 2),
+            Flexible(
+              child: Text(
+                selectedCount == 1
+                    ? '1 ${'item'.tr}'
+                    : '$selectedCount ${'items'.tr}',
+                style: TextStyle(
+                  color: colorScheme.onPrimaryContainer,
+                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.3,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSelectionBadge(BuildContext context, int count) {
+  Widget _buildSelectionBadge(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Icon(
-          IconsaxPlusBold.tick_square,
-          size: AppConstants.iconSizeMedium,
-          color: colorScheme.onPrimaryContainer,
-        ),
-        if (count > 0)
-          Positioned(
-            right: -6,
-            top: -6,
-            child: Container(
-              padding: const EdgeInsets.all(AppConstants.spacingXS),
-              decoration: BoxDecoration(
-                color: colorScheme.primary,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: colorScheme.primaryContainer,
-                  width: 1.5,
-                ),
-              ),
-              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-              child: Text(
-                '$count',
-                style: TextStyle(
-                  color: colorScheme.onPrimary,
-                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 10),
-                  fontWeight: FontWeight.w900,
-                  height: 1.0,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-      ],
+    return Icon(
+      _areAllSelectedInCurrentTab()
+          ? IconsaxPlusBold.tick_square
+          : IconsaxPlusLinear.tick_square,
+      size: AppConstants.iconSizeMedium,
+      color: colorScheme.onPrimaryContainer,
     );
   }
 
@@ -367,13 +341,6 @@ class _AllTasksState extends State<AllTasks>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _ActionButton(
-          icon: _areAllSelectedInCurrentTab()
-              ? IconsaxPlusBold.tick_square
-              : IconsaxPlusLinear.tick_square,
-          onPressed: _toggleSelectAll,
-          tooltip: 'selectAll'.tr,
-        ),
         _ActionButton(
           icon: _isArchiveTab
               ? IconsaxPlusLinear.refresh_left_square
