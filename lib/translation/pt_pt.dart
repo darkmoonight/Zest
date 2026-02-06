@@ -86,6 +86,10 @@ class PtPt {
     'active': 'Ativo',
     'archived': 'Arquivado',
     'done': 'Feito',
+    'cancelled': 'Cancelado',
+    'markAsCancelled': 'Marcar como cancelado',
+    'markAsActive': 'Marcar como ativo',
+    'changeStatus': 'Alterar estado',
     'doing': 'Em progresso',
     'color': 'Selecione uma cor',
     'searchCategory': 'Pesquisar por categoria',
@@ -192,7 +196,8 @@ class PtPt {
         'Os dados foram modificados. Guardar e ir para as subtarefas?',
     'save': 'Guardar',
     'markWithSubtasks': 'Marcar com Subtarefas',
-    'markWithSubtasksQuery': 'Deseja marcar esta tarefa e todas as suas subtarefas como concluídas?',
+    'markWithSubtasksQuery':
+        'Deseja marcar esta tarefa e todas as suas subtarefas como concluídas?',
     'markAll': 'Marcar Todas',
   };
 }

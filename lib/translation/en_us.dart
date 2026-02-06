@@ -85,6 +85,10 @@ class EnUs {
     'active': 'Active',
     'archived': 'Archived',
     'done': 'Done',
+    'cancelled': 'Cancelled',
+    'markAsCancelled': 'Mark as Cancelled',
+    'markAsActive': 'Mark as Active',
+    'changeStatus': 'Change Status',
     'doing': 'Doing',
     'color': 'Choose Color',
     'searchCategory': 'Search Category',
@@ -190,7 +194,8 @@ class EnUs {
     'saveBeforeSubtasks': 'Data has been modified. Save and go to subtasks?',
     'save': 'Save',
     'markWithSubtasks': 'Mark with Subtasks',
-    'markWithSubtasksQuery': 'Do you want to mark this todo and all its subtasks as completed?',
+    'markWithSubtasksQuery':
+        'Do you want to mark this todo and all its subtasks as completed?',
     'markAll': 'Mark All',
   };
 }

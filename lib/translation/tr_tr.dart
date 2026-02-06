@@ -87,6 +87,10 @@ class TrTr {
     'active': 'Aktif',
     'archived': 'Arşivlendi',
     'done': 'Tamamlandı',
+    'cancelled': 'İptal edildi',
+    'markAsCancelled': 'İptal edildi olarak işaretle',
+    'markAsActive': 'Aktif olarak işaretle',
+    'changeStatus': 'Durumu değiştir',
     'doing': 'Yapılıyor',
     'color': 'Renk seç',
     'searchCategory': 'Kategori ara',
@@ -193,7 +197,8 @@ class TrTr {
         'Veriler değiştirildi. Kaydedip alt görevlere geçilsin mi?',
     'save': 'Kaydet',
     'markWithSubtasks': 'Alt Görevlerle İşaretle',
-    'markWithSubtasksQuery': 'Bu görevi ve tüm alt görevlerini tamamlandı olarak işaretlemek istiyor musunuz?',
+    'markWithSubtasksQuery':
+        'Bu görevi ve tüm alt görevlerini tamamlandı olarak işaretlemek istiyor musunuz?',
     'markAll': 'Tümünü İşaretle',
   };
 }

@@ -87,6 +87,10 @@ class PlPl {
     'active': 'Aktywne',
     'archived': 'Zarchiwizowane',
     'done': 'Ukończone',
+    'cancelled': 'Anulowane',
+    'markAsCancelled': 'Oznacz jako anulowane',
+    'markAsActive': 'Oznacz jako aktywne',
+    'changeStatus': 'Zmień status',
     'doing': 'W trakcie',
     'color': 'Wybierz kolor',
     'searchCategory': 'Szukaj kategorii',
@@ -193,7 +197,8 @@ class PlPl {
         'Dane zostały zmienione. Zapisać i przejść do podzadań?',
     'save': 'Zapisz',
     'markWithSubtasks': 'Oznacz z Podzadaniami',
-    'markWithSubtasksQuery': 'Czy chcesz oznaczyć to zadanie i wszystkie jego podzadania jako ukończone?',
+    'markWithSubtasksQuery':
+        'Czy chcesz oznaczyć to zadanie i wszystkie jego podzadania jako ukończone?',
     'markAll': 'Oznacz Wszystkie',
   };
 }

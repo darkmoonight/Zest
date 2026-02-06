@@ -216,9 +216,10 @@ Future<void> markTodoAsDone(int todoId) async {
     final todo = await isarInstance.todos.get(todoId);
     if (todo == null) return;
 
-    if (!todo.done) {
+    if (todo.status != TodoStatus.done) {
       await isarInstance.writeTxn(() async {
         todo.done = true;
+        todo.status = TodoStatus.done;
         todo.todoCompletionTime = DateTime.now();
         await isarInstance.todos.put(todo);
       });

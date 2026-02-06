@@ -85,6 +85,10 @@ class ArAr {
     'active': 'الشغالة',
     'archived': 'المؤرشفة',
     'done': 'منجز',
+    'cancelled': 'ملغى',
+    'markAsCancelled': 'وضع علامة كملغى',
+    'markAsActive': 'وضع علامة كنشط',
+    'changeStatus': 'تغيير الحالة',
     'doing': 'القيام',
     'color': 'اختر لون',
     'searchCategory': 'ابحث عن فئة',
@@ -190,7 +194,8 @@ class ArAr {
         'تم تعديل البيانات. هل تريد الحفظ والانتقال إلى المهام الفرعية؟',
     'save': 'حفظ',
     'markWithSubtasks': 'تحديد مع المهام الفرعية',
-    'markWithSubtasksQuery': 'هل تريد تحديد هذه المهمة وجميع مهامها الفرعية كمكتملة؟',
+    'markWithSubtasksQuery':
+        'هل تريد تحديد هذه المهمة وجميع مهامها الفرعية كمكتملة؟',
     'markAll': 'تحديد الكل',
   };
 }

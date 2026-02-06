@@ -85,6 +85,10 @@ class RuRu {
     'active': 'Активные',
     'archived': 'Архивные',
     'done': 'Выполненные',
+    'cancelled': 'Отменено',
+    'markAsCancelled': 'Отметить как отмененное',
+    'markAsActive': 'Отметить как активное',
+    'changeStatus': 'Изменить статус',
     'doing': 'В процессе',
     'color': 'Выберите цвет',
     'searchCategory': 'Поиск категории',
@@ -191,7 +195,8 @@ class RuRu {
     'saveBeforeSubtasks': 'Данные изменены. Сохранить и перейти к подзадачам?',
     'save': 'Сохранить',
     'markWithSubtasks': 'Отметить с подзадачами',
-    'markWithSubtasksQuery': 'Хотите отметить эту задачу и все её подзадачи как выполненные?',
+    'markWithSubtasksQuery':
+        'Хотите отметить эту задачу и все её подзадачи как выполненные?',
     'markAll': 'Отметить все',
   };
 }

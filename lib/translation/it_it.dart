@@ -86,6 +86,10 @@ class ItIt {
     'active': 'Attivo',
     'archived': 'Archiviato',
     'done': 'Fatto',
+    'cancelled': 'Annullato',
+    'markAsCancelled': 'Contrassegna come annullato',
+    'markAsActive': 'Contrassegna come attivo',
+    'changeStatus': 'Cambia stato',
     'doing': 'In corso',
     'color': 'Scegli il colore',
     'searchCategory': 'Cerca categoria',
@@ -192,7 +196,8 @@ class ItIt {
         'I dati sono stati modificati. Salvare e passare alle sottoattività?',
     'save': 'Salva',
     'markWithSubtasks': 'Segna con Sottoattività',
-    'markWithSubtasksQuery': 'Vuoi segnare questa attività e tutte le sue sottoattività come completate?',
+    'markWithSubtasksQuery':
+        'Vuoi segnare questa attività e tutte le sue sottoattività come completate?',
     'markAll': 'Segna Tutto',
   };
 }

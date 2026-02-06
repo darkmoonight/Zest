@@ -70,9 +70,7 @@ class SelectionActionBar extends StatelessWidget {
 
     return InkWell(
       onTap: onSelectAll,
-      borderRadius: BorderRadius.circular(
-        AppConstants.borderRadiusSmall + 2,
-      ),
+      borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall + 2),
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: AppConstants.spacingM,

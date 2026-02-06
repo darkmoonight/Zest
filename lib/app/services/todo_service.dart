@@ -95,14 +95,14 @@ class TodoService {
     await _todoRepo.updateDoneWithSubtasks(parentTodo: todo, done: done);
 
     final allIds = await _collectSubtreeIds(todo);
-    
+
     if (done) {
       await _notificationService.cancelBatch(allIds.toList());
     } else {
       for (final id in allIds) {
         final todoItem = await _todoRepo.getById(id);
-        if (todoItem != null && 
-            todoItem.todoCompletedTime != null && 
+        if (todoItem != null &&
+            todoItem.todoCompletedTime != null &&
             todoItem.todoCompletedTime!.isAfter(DateTime.now())) {
           await _notificationService.scheduleForTodo(todoItem);
         }
@@ -273,7 +273,7 @@ class TodoService {
   int countForCalendar(DateTime date, List<Todos> allTodos) {
     return allTodos.where((todo) {
       final completedTime = todo.todoCompletedTime;
-      return !todo.done &&
+      return todo.status == TodoStatus.active &&
           completedTime != null &&
           todo.task.value?.archive == false &&
           todo.parent.value == null &&
@@ -317,7 +317,14 @@ class TodoService {
     final lowerQuery = searchQuery.trim().toLowerCase();
 
     return allTodos.where((todo) {
-      if (todo.done != done) return false;
+      if (done) {
+        if (todo.status != TodoStatus.done &&
+            todo.status != TodoStatus.cancelled) {
+          return false;
+        }
+      } else {
+        if (todo.status != TodoStatus.active) return false;
+      }
 
       if (lowerQuery.isNotEmpty) {
         final nameMatch = todo.name.toLowerCase().contains(lowerQuery);

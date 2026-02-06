@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/ui/todos/view/todo_todos.dart';
-import 'package:zest/app/ui/widgets/confirmation_dialog.dart';
 import 'package:zest/app/constants/app_constants.dart';
 import 'package:zest/app/utils/notification.dart';
 import 'package:zest/app/utils/responsive_utils.dart';
@@ -215,23 +214,40 @@ class _TodoCardState extends State<TodoCard>
   }
 
   Widget _buildCheckbox(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Transform.scale(
       scale: ResponsiveUtils.isMobile(context) ? 1.0 : 1.1,
       child: GestureDetector(
-        onLongPress: () => _showBulkCompletionDialog(context),
-        child: Checkbox(
-          value: widget.todo.done,
-          shape: const CircleBorder(),
-          onChanged: (val) {
-            if (val == null) return;
+        onLongPress: () => _showStatusMenu(context),
+        child: widget.todo.status == TodoStatus.cancelled
+            ? IconButton(
+                icon: Icon(
+                  IconsaxPlusBold.close_circle,
+                  color: colorScheme.error.withValues(alpha: 0.7),
+                ),
+                onPressed: () => _showStatusMenu(context),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              )
+            : Checkbox(
+                value: widget.todo.done,
+                shape: const CircleBorder(),
+                onChanged: (val) {
+                  if (val == null) return;
 
-            setState(() {
-              widget.todo.done = val;
-              widget.todo.todoCompletionTime = val ? DateTime.now() : null;
-            });
-            _handleCheckboxChange(val);
-          },
-        ),
+                  setState(() {
+                    widget.todo.done = val;
+                    widget.todo.status = val
+                        ? TodoStatus.done
+                        : TodoStatus.active;
+                    widget.todo.todoCompletionTime = val
+                        ? DateTime.now()
+                        : null;
+                  });
+                  _handleCheckboxChange(val);
+                },
+              ),
       ),
     );
   }
@@ -256,25 +272,136 @@ class _TodoCardState extends State<TodoCard>
     );
   }
 
-  void _showBulkCompletionDialog(BuildContext context) {
-    if (widget.todo.done) return;
+  void _showStatusMenu(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final currentStatus = widget.todo.status;
+    final hasIncompleteChildren =
+        widget.todo.children.isNotEmpty &&
+        widget.todo.children.any((child) => !child.done);
 
-    showDialog<void>(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => ConfirmationDialog(
-        title: 'markWithSubtasks'.tr,
-        message: 'markWithSubtasksQuery'.tr,
-        icon: IconsaxPlusBold.tick_circle,
-        confirmText: 'markAll'.tr,
-        cancelText: 'cancel'.tr,
-        onConfirm: () => _handleBulkCompletion(),
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppConstants.borderRadiusXLarge),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(
+                top: AppConstants.spacingM,
+                bottom: AppConstants.spacingS,
+              ),
+              width: 32,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppConstants.spacingL),
+              child: Text(
+                'changeStatus'.tr,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+            if (currentStatus != TodoStatus.done)
+              ListTile(
+                leading: Icon(
+                  IconsaxPlusBold.tick_circle,
+                  color: colorScheme.primary,
+                ),
+                title: Text('markAsDone'.tr),
+                onTap: () {
+                  Navigator.pop(context);
+                  _changeStatus(TodoStatus.done);
+                },
+              ),
+            if (currentStatus != TodoStatus.cancelled)
+              ListTile(
+                leading: Icon(
+                  IconsaxPlusBold.close_circle,
+                  color: colorScheme.error,
+                ),
+                title: Text('markAsCancelled'.tr),
+                onTap: () {
+                  Navigator.pop(context);
+                  _changeStatus(TodoStatus.cancelled);
+                },
+              ),
+            if (currentStatus != TodoStatus.active)
+              ListTile(
+                leading: Icon(
+                  IconsaxPlusBold.refresh,
+                  color: colorScheme.tertiary,
+                ),
+                title: Text('markAsActive'.tr),
+                onTap: () {
+                  Navigator.pop(context);
+                  _changeStatus(TodoStatus.active);
+                },
+              ),
+            if (hasIncompleteChildren &&
+                currentStatus == TodoStatus.active &&
+                !widget.todo.done)
+              ListTile(
+                leading: Icon(
+                  IconsaxPlusBold.tick_circle,
+                  color: colorScheme.secondary,
+                ),
+                title: Text('markWithSubtasks'.tr),
+                onTap: () {
+                  Navigator.pop(context);
+                  _handleBulkCompletion();
+                },
+              ),
+            const SizedBox(height: AppConstants.spacingM),
+          ],
+        ),
       ),
+    );
+  }
+
+  void _changeStatus(TodoStatus newStatus) {
+    setState(() {
+      widget.todo.status = newStatus;
+      widget.todo.done = newStatus == TodoStatus.done;
+      widget.todo.todoCompletionTime = newStatus == TodoStatus.done
+          ? DateTime.now()
+          : null;
+    });
+
+    final date = widget.todo.todoCompletedTime;
+
+    if (newStatus == TodoStatus.done || newStatus == TodoStatus.cancelled) {
+      flutterLocalNotificationsPlugin?.cancel(id: widget.todo.id);
+    } else if (date != null && DateTime.now().isBefore(date)) {
+      NotificationShow().showNotification(
+        widget.todo.id,
+        widget.todo.name,
+        widget.todo.description,
+        widget.todo.todoCompletedTime,
+      );
+    }
+
+    Future.delayed(
+      AppConstants.shortAnimation,
+      () => _todoController.updateTodoCheck(widget.todo),
     );
   }
 
   void _handleBulkCompletion() {
     setState(() {
       widget.todo.done = true;
+      widget.todo.status = TodoStatus.done;
       widget.todo.todoCompletionTime = DateTime.now();
     });
 
@@ -285,16 +412,21 @@ class _TodoCardState extends State<TodoCard>
   }
 
   Widget _buildTodoName(ColorScheme colorScheme) {
+    final isCancelled = widget.todo.status == TodoStatus.cancelled;
+    final isDone = widget.todo.done;
+
     return Text(
       widget.todo.name,
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
         fontSize: ResponsiveUtils.getResponsiveFontSize(context, 15),
         fontWeight: FontWeight.w600,
-        color: widget.todo.done
-            ? colorScheme.onSurfaceVariant
-            : colorScheme.onSurface,
-        decoration: widget.todo.done ? TextDecoration.lineThrough : null,
-        decorationColor: colorScheme.onSurfaceVariant,
+        color: isCancelled
+            ? colorScheme.error.withValues(alpha: 0.6)
+            : (isDone ? colorScheme.onSurfaceVariant : colorScheme.onSurface),
+        decoration: (isDone || isCancelled) ? TextDecoration.lineThrough : null,
+        decorationColor: isCancelled
+            ? colorScheme.error.withValues(alpha: 0.6)
+            : colorScheme.onSurfaceVariant,
       ),
       overflow: TextOverflow.visible,
     );

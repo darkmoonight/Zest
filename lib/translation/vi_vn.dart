@@ -86,6 +86,10 @@ class ViVn {
     'active': 'Hoạt động',
     'archived': 'Đã lưu trữ',
     'done': 'Xong',
+    'cancelled': 'Đã hủy',
+    'markAsCancelled': 'Đánh dấu là đã hủy',
+    'markAsActive': 'Đánh dấu là đang hoạt động',
+    'changeStatus': 'Thay đổi trạng thái',
     'doing': 'Đang làm',
     'color': 'Chọn màu',
     'searchCategory': 'Tìm danh mục',
@@ -188,7 +192,8 @@ class ViVn {
         'Dữ liệu đã được sửa đổi. Lưu và chuyển đến các tác vụ con?',
     'save': 'Lưu',
     'markWithSubtasks': 'Đánh dấu với Tác vụ con',
-    'markWithSubtasksQuery': 'Bạn có muốn đánh dấu tác vụ này và tất cả các tác vụ con của nó là đã hoàn thành không?',
+    'markWithSubtasksQuery':
+        'Bạn có muốn đánh dấu tác vụ này và tất cả các tác vụ con của nó là đã hoàn thành không?',
     'markAll': 'Đánh dấu Tất cả',
   };
 }

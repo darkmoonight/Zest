@@ -89,6 +89,10 @@ class EsEs {
     'active': 'Activo',
     'archived': 'Archivado',
     'done': 'Hecho',
+    'cancelled': 'Cancelado',
+    'markAsCancelled': 'Marcar como cancelado',
+    'markAsActive': 'Marcar como activo',
+    'changeStatus': 'Cambiar estado',
     'doing': 'En progreso',
     'color': 'Selecciona un color',
     'searchCategory': 'Buscar categoría',
@@ -195,7 +199,8 @@ class EsEs {
         'Los datos han sido modificados. ¿Guardar e ir a las subtareas?',
     'save': 'Guardar',
     'markWithSubtasks': 'Marcar con Subtareas',
-    'markWithSubtasksQuery': '¿Desea marcar esta tarea y todas sus subtareas como completadas?',
+    'markWithSubtasksQuery':
+        '¿Desea marcar esta tarea y todas sus subtareas como completadas?',
     'markAll': 'Marcar Todas',
   };
 }

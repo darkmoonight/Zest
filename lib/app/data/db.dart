@@ -74,6 +74,8 @@ class Todos {
   bool fix;
   @enumerated
   Priority priority;
+  @enumerated
+  TodoStatus status;
   List<String> tags = [];
   int? index;
   @enumerated
@@ -96,6 +98,7 @@ class Todos {
     this.done = false,
     this.fix = false,
     this.priority = Priority.none,
+    this.status = TodoStatus.active,
     this.tags = const [],
     this.index,
   });
@@ -112,3 +115,5 @@ enum Priority {
   final String name;
   final Color? color;
 }
+
+enum TodoStatus { active, done, cancelled }

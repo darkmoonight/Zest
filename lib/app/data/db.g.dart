@@ -3283,14 +3283,20 @@ const TodosSchema = CollectionSchema(
       type: IsarType.byte,
       enumMap: _TodospriorityEnumValueMap,
     ),
-    r'tags': PropertySchema(id: 8, name: r'tags', type: IsarType.stringList),
+    r'status': PropertySchema(
+      id: 8,
+      name: r'status',
+      type: IsarType.byte,
+      enumMap: _TodosstatusEnumValueMap,
+    ),
+    r'tags': PropertySchema(id: 9, name: r'tags', type: IsarType.stringList),
     r'todoCompletedTime': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'todoCompletedTime',
       type: IsarType.dateTime,
     ),
     r'todoCompletionTime': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'todoCompletionTime',
       type: IsarType.dateTime,
     ),
@@ -3363,9 +3369,10 @@ void _todosSerialize(
   writer.writeLong(offsets[5], object.index);
   writer.writeString(offsets[6], object.name);
   writer.writeByte(offsets[7], object.priority.index);
-  writer.writeStringList(offsets[8], object.tags);
-  writer.writeDateTime(offsets[9], object.todoCompletedTime);
-  writer.writeDateTime(offsets[10], object.todoCompletionTime);
+  writer.writeByte(offsets[8], object.status.index);
+  writer.writeStringList(offsets[9], object.tags);
+  writer.writeDateTime(offsets[10], object.todoCompletedTime);
+  writer.writeDateTime(offsets[11], object.todoCompletionTime);
 }
 
 Todos _todosDeserialize(
@@ -3385,9 +3392,12 @@ Todos _todosDeserialize(
     priority:
         _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[7])] ??
         Priority.none,
-    tags: reader.readStringList(offsets[8]) ?? const [],
-    todoCompletedTime: reader.readDateTimeOrNull(offsets[9]),
-    todoCompletionTime: reader.readDateTimeOrNull(offsets[10]),
+    status:
+        _TodosstatusValueEnumMap[reader.readByteOrNull(offsets[8])] ??
+        TodoStatus.active,
+    tags: reader.readStringList(offsets[9]) ?? const [],
+    todoCompletedTime: reader.readDateTimeOrNull(offsets[10]),
+    todoCompletionTime: reader.readDateTimeOrNull(offsets[11]),
   );
   object.childrenSortOption =
       _TodoschildrenSortOptionValueEnumMap[reader.readByteOrNull(offsets[0])] ??
@@ -3425,10 +3435,14 @@ P _todosDeserializeProp<P>(
               Priority.none)
           as P;
     case 8:
-      return (reader.readStringList(offset) ?? const []) as P;
+      return (_TodosstatusValueEnumMap[reader.readByteOrNull(offset)] ??
+              TodoStatus.active)
+          as P;
     case 9:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringList(offset) ?? const []) as P;
     case 10:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 11:
       return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -3470,6 +3484,12 @@ const _TodospriorityValueEnumMap = {
   1: Priority.medium,
   2: Priority.low,
   3: Priority.none,
+};
+const _TodosstatusEnumValueMap = {'active': 0, 'done': 1, 'cancelled': 2};
+const _TodosstatusValueEnumMap = {
+  0: TodoStatus.active,
+  1: TodoStatus.done,
+  2: TodoStatus.cancelled,
 };
 
 Id _todosGetId(Todos object) {
@@ -4179,6 +4199,65 @@ extension TodosQueryFilter on QueryBuilder<Todos, Todos, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> statusEqualTo(
+    TodoStatus value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'status', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> statusGreaterThan(
+    TodoStatus value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'status',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> statusLessThan(
+    TodoStatus value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'status',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> statusBetween(
+    TodoStatus lower,
+    TodoStatus upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'status',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterFilterCondition> tagsElementEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -4719,6 +4798,18 @@ extension TodosQuerySortBy on QueryBuilder<Todos, Todos, QSortBy> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> sortByTodoCompletedTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'todoCompletedTime', Sort.asc);
@@ -4853,6 +4944,18 @@ extension TodosQuerySortThenBy on QueryBuilder<Todos, Todos, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> thenByTodoCompletedTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'todoCompletedTime', Sort.asc);
@@ -4931,6 +5034,12 @@ extension TodosQueryWhereDistinct on QueryBuilder<Todos, Todos, QDistinct> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QDistinct> distinctByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'status');
+    });
+  }
+
   QueryBuilder<Todos, Todos, QDistinct> distinctByTags() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'tags');
@@ -5003,6 +5112,12 @@ extension TodosQueryProperty on QueryBuilder<Todos, Todos, QQueryProperty> {
   QueryBuilder<Todos, Priority, QQueryOperations> priorityProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'priority');
+    });
+  }
+
+  QueryBuilder<Todos, TodoStatus, QQueryOperations> statusProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'status');
     });
   }
 

@@ -86,6 +86,10 @@ class DeDe {
     'active': 'Aktiv',
     'archived': 'Archiviert',
     'done': 'erledigt',
+    'cancelled': 'Abgebrochen',
+    'markAsCancelled': 'Als abgebrochen markieren',
+    'markAsActive': 'Als aktiv markieren',
+    'changeStatus': 'Status ändern',
     'doing': 'zu erledigen',
     'color': 'Farbe wählen',
     'searchCategory': 'Kategorie suchen',
@@ -193,7 +197,8 @@ class DeDe {
         'Daten wurden geändert. Speichern und zu den Unteraufgaben gehen?',
     'save': 'Speichern',
     'markWithSubtasks': 'Mit Unteraufgaben markieren',
-    'markWithSubtasksQuery': 'Möchten Sie diese Aufgabe und alle ihre Unteraufgaben als erledigt markieren?',
+    'markWithSubtasksQuery':
+        'Möchten Sie diese Aufgabe und alle ihre Unteraufgaben als erledigt markieren?',
     'markAll': 'Alle markieren',
   };
 }

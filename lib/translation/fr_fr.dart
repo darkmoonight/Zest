@@ -89,6 +89,10 @@ class FrFr {
     'active': 'Active',
     'archived': 'Archivé',
     'done': 'Fait',
+    'cancelled': 'Annulé',
+    'markAsCancelled': 'Marquer comme annulé',
+    'markAsActive': 'Marquer comme actif',
+    'changeStatus': 'Changer le statut',
     'doing': 'Faire',
     'color': 'Choisir la couleur',
     'searchCategory': 'Recherche par catégorie',
@@ -195,7 +199,8 @@ class FrFr {
         'Les données ont été modifiées. Enregistrer et aller aux sous-tâches ?',
     'save': 'Enregistrer',
     'markWithSubtasks': 'Marquer avec Sous-tâches',
-    'markWithSubtasksQuery': 'Voulez-vous marquer cette tâche et toutes ses sous-tâches comme terminées ?',
+    'markWithSubtasksQuery':
+        'Voulez-vous marquer cette tâche et toutes ses sous-tâches comme terminées ?',
     'markAll': 'Marquer Tout',
   };
 }

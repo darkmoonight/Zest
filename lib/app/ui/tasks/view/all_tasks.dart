@@ -296,7 +296,9 @@ class _AllTasksState extends State<AllTasks>
         ),
         decoration: BoxDecoration(
           color: colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall + 2),
+          borderRadius: BorderRadius.circular(
+            AppConstants.borderRadiusSmall + 2,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
