@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/controller/fab_controller.dart';
 import 'package:zest/app/ui/settings/view/settings.dart';
-import 'package:zest/app/ui/statistics/view/statistics_page.dart';
+import 'package:zest/app/ui/statistics/view/statistics.dart';
 import 'package:zest/app/ui/tasks/view/all_tasks.dart';
 import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
 import 'package:zest/app/ui/todos/view/all_todos.dart';

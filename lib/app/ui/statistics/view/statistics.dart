@@ -4,7 +4,7 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/app/constants/app_constants.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/ui/statistics/models/statistics_data.dart';
-import 'package:zest/app/ui/statistics/services/statistics_service.dart';
+import 'package:zest/app/services/statistics_service.dart';
 import 'package:zest/app/ui/statistics/widgets/completion_heatmap.dart';
 import 'package:zest/app/ui/statistics/widgets/hourly_progress_chart.dart';
 import 'package:zest/app/ui/statistics/widgets/stats_card.dart';
@@ -95,12 +95,16 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   Widget _buildContent(StatisticsData data) {
     final isMobile = ResponsiveUtils.isMobile(context);
-    final padding = isMobile ? AppConstants.spacingL : AppConstants.spacingXXL;
 
     return CustomScrollView(
       slivers: [
         SliverPadding(
-          padding: EdgeInsets.all(padding),
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile
+                ? AppConstants.spacingS
+                : AppConstants.spacingM,
+            vertical: AppConstants.spacingXS,
+          ),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               _buildPageTitle(),
