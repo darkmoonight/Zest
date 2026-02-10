@@ -41,11 +41,11 @@ class _AllTodosState extends State<AllTodos>
     if (!mounted) return;
 
     if (todoController.isMultiSelectionTodo.value) {
-      fabController.hide();
+      fabController.setVisibility(false);
     } else if (tabController.index == 0) {
-      fabController.show();
+      fabController.setVisibility(true);
     } else {
-      fabController.hide();
+      fabController.setVisibility(false);
     }
   }
 

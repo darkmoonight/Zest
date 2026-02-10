@@ -69,37 +69,19 @@ class TaskRepository {
     });
   }
 
-  Future<void> archive(Tasks task) async {
+  Future<void> updateArchiveStatus(Tasks task, bool archived) async {
     await _isar.writeTxn(() async {
-      task.archive = true;
+      task.archive = archived;
       await _isar.tasks.put(task);
     });
   }
 
-  Future<void> unarchive(Tasks task) async {
-    await _isar.writeTxn(() async {
-      task.archive = false;
-      await _isar.tasks.put(task);
-    });
-  }
-
-  Future<void> archiveBatch(List<Tasks> tasks) async {
+  Future<void> updateArchiveStatusBatch(List<Tasks> tasks, bool archived) async {
     if (tasks.isEmpty) return;
 
     await _isar.writeTxn(() async {
       for (final task in tasks) {
-        task.archive = true;
-      }
-      await _isar.tasks.putAll(tasks);
-    });
-  }
-
-  Future<void> unarchiveBatch(List<Tasks> tasks) async {
-    if (tasks.isEmpty) return;
-
-    await _isar.writeTxn(() async {
-      for (final task in tasks) {
-        task.archive = false;
+        task.archive = archived;
       }
       await _isar.tasks.putAll(tasks);
     });

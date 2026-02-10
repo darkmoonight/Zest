@@ -73,7 +73,7 @@ class TaskService {
     }
 
     await _notificationService.cancelForTask(allTodos);
-    await _taskRepo.archiveBatch(tasksCopy);
+    await _taskRepo.updateArchiveStatusBatch(tasksCopy, true);
 
     showSnackBar('categoryArchive'.tr);
   }
@@ -89,7 +89,7 @@ class TaskService {
       allTodos.addAll(todos);
     }
     await _notificationService.scheduleForTask(allTodos);
-    await _taskRepo.unarchiveBatch(tasksCopy);
+    await _taskRepo.updateArchiveStatusBatch(tasksCopy, false);
 
     showSnackBar('noCategoryArchive'.tr);
   }

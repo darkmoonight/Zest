@@ -50,14 +50,14 @@ class ScrollFabHandler {
     required int hideFabOnTabIndex,
   }) {
     if (tabController.index == hideFabOnTabIndex) {
-      fabController.hide();
+      fabController.setVisibility(false);
       return;
     }
 
     if (direction == ScrollDirection.reverse) {
-      fabController.hide();
+      fabController.setVisibility(false);
     } else if (direction == ScrollDirection.forward) {
-      fabController.show();
+      fabController.setVisibility(true);
     }
   }
 

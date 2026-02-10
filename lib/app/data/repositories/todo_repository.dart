@@ -90,54 +90,6 @@ class TodoRepository {
     await _isar.writeTxn(() => _isar.todos.put(todo));
   }
 
-  Future<void> updateDone({required Todos todo, required bool done}) async {
-    final now = DateTime.now();
-    await _isar.writeTxn(() async {
-      todo.status = done ? TodoStatus.done : TodoStatus.active;
-      todo.todoCompletionTime = done ? now : null;
-      await _isar.todos.put(todo);
-    });
-  }
-
-  Future<void> updateDoneById({required int id, required bool done}) async {
-    final todo = await getById(id);
-    if (todo == null) return;
-
-    final now = DateTime.now();
-    await _isar.writeTxn(() async {
-      todo.status = done ? TodoStatus.done : TodoStatus.active;
-      todo.todoCompletionTime = done ? now : null;
-      await _isar.todos.put(todo);
-    });
-  }
-
-  Future<void> updateDoneBatch({
-    required Set<int> ids,
-    required bool done,
-  }) async {
-    if (ids.isEmpty) return;
-
-    final todos = <Todos>[];
-    for (final id in ids) {
-      final todo = await _isar.todos.get(id);
-      if (todo != null) {
-        todos.add(todo);
-      }
-    }
-
-    if (todos.isEmpty) return;
-
-    final now = DateTime.now();
-    await _isar.writeTxn(() async {
-      for (final todo in todos) {
-        todo.status = done ? TodoStatus.done : TodoStatus.active;
-        todo.todoCompletionTime = done ? now : null;
-      }
-
-      await _isar.todos.putAll(todos);
-    });
-  }
-
   Future<void> updateStatusWithSubtasks({
     required Todos parentTodo,
     required TodoStatus status,
@@ -320,8 +272,7 @@ class TodoRepository {
     return await _isar.todos.filter().fixEqualTo(true).sortByIndex().findAll();
   }
 
-  Future<List<Todos>> getByDoneStatus(bool done) async {
-    final status = done ? TodoStatus.done : TodoStatus.active;
+  Future<List<Todos>> getByStatus(TodoStatus status) async {
     return await _isar.todos
         .filter()
         .statusEqualTo(status)

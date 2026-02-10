@@ -268,7 +268,7 @@ class _TodoCardState extends State<TodoCard>
 
     Future.delayed(
       AppConstants.shortAnimation,
-      () => _todoController.updateTodoCheck(widget.todo),
+      () => _todoController.updateTodoStatus(widget.todo),
     );
   }
 
