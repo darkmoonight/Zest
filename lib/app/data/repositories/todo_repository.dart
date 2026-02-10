@@ -93,7 +93,7 @@ class TodoRepository {
   Future<void> updateDone({required Todos todo, required bool done}) async {
     final now = DateTime.now();
     await _isar.writeTxn(() async {
-      todo.done = done;
+      todo.status = done ? TodoStatus.done : TodoStatus.active;
       todo.todoCompletionTime = done ? now : null;
       await _isar.todos.put(todo);
     });
@@ -105,7 +105,7 @@ class TodoRepository {
 
     final now = DateTime.now();
     await _isar.writeTxn(() async {
-      todo.done = done;
+      todo.status = done ? TodoStatus.done : TodoStatus.active;
       todo.todoCompletionTime = done ? now : null;
       await _isar.todos.put(todo);
     });
@@ -130,7 +130,7 @@ class TodoRepository {
     final now = DateTime.now();
     await _isar.writeTxn(() async {
       for (final todo in todos) {
-        todo.done = done;
+        todo.status = done ? TodoStatus.done : TodoStatus.active;
         todo.todoCompletionTime = done ? now : null;
       }
 
@@ -304,7 +304,12 @@ class TodoRepository {
   }
 
   Future<List<Todos>> getByDoneStatus(bool done) async {
-    return await _isar.todos.filter().doneEqualTo(done).sortByIndex().findAll();
+    final status = done ? TodoStatus.done : TodoStatus.active;
+    return await _isar.todos
+        .filter()
+        .statusEqualTo(status)
+        .sortByIndex()
+        .findAll();
   }
 
   Future<List<Todos>> getByDateRange(DateTime start, DateTime end) async {
@@ -323,7 +328,10 @@ class TodoRepository {
     return await _isar.todos
         .filter()
         .task((q) => q.idEqualTo(taskId))
-        .doneEqualTo(true)
+        .group((q) => q
+            .statusEqualTo(TodoStatus.done)
+            .or()
+            .statusEqualTo(TodoStatus.cancelled))
         .count();
   }
 }

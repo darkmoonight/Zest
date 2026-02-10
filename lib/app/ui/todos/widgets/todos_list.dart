@@ -157,7 +157,10 @@ class _TodosListState extends State<TodosList>
     return _todoController.todos.where((todo) {
       final inSameTask = todo.task.value?.id == widget.task!.id;
       final isRoot = todo.parent.value == null;
-      final matchesDone = todo.done == widget.done;
+      final matchesDone = widget.done
+          ? (todo.status == TodoStatus.done)
+          : todo.status == TodoStatus.active ||
+                todo.status == TodoStatus.cancelled;
       return inSameTask && isRoot && matchesDone;
     }).toList();
   }
@@ -165,7 +168,10 @@ class _TodosListState extends State<TodosList>
   List<Todos> _getSubTodos() {
     return _todoController.todos.where((todo) {
       final isChild = todo.parent.value?.id == widget.todo!.id;
-      final matchesDone = todo.done == widget.done;
+      final matchesDone = widget.done
+          ? (todo.status == TodoStatus.done)
+          : todo.status == TodoStatus.active ||
+                todo.status == TodoStatus.cancelled;
       return isChild && matchesDone;
     }).toList();
   }
@@ -174,7 +180,10 @@ class _TodosListState extends State<TodosList>
     return _todoController.todos.where((todo) {
       final notArchived = todo.task.value?.archive == false;
       final isRoot = todo.parent.value == null;
-      final matchesDone = todo.done == widget.done;
+      final matchesDone = widget.done
+          ? (todo.status == TodoStatus.done)
+          : todo.status == TodoStatus.active ||
+                todo.status == TodoStatus.cancelled;
       return notArchived && isRoot && matchesDone;
     }).toList();
   }
@@ -184,7 +193,10 @@ class _TodosListState extends State<TodosList>
       final notArchived = todo.task.value?.archive == false;
       final hasTime = todo.todoCompletedTime != null;
       final inSelectedDay = hasTime && _isWithinSelectedDay(todo);
-      final matchesDone = todo.done == widget.done;
+      final matchesDone = widget.done
+          ? (todo.status == TodoStatus.done)
+          : todo.status == TodoStatus.active ||
+                todo.status == TodoStatus.cancelled;
       return notArchived && hasTime && inSelectedDay && matchesDone;
     }).toList();
   }

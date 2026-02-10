@@ -231,13 +231,12 @@ class _TodoCardState extends State<TodoCard>
                 constraints: const BoxConstraints(),
               )
             : Checkbox(
-                value: widget.todo.done,
+                value: widget.todo.status == TodoStatus.done,
                 shape: const CircleBorder(),
                 onChanged: (val) {
                   if (val == null) return;
 
                   setState(() {
-                    widget.todo.done = val;
                     widget.todo.status = val
                         ? TodoStatus.done
                         : TodoStatus.active;
@@ -277,7 +276,7 @@ class _TodoCardState extends State<TodoCard>
     final currentStatus = widget.todo.status;
     final hasIncompleteChildren =
         widget.todo.children.isNotEmpty &&
-        widget.todo.children.any((child) => !child.done);
+        widget.todo.children.any((child) => child.status != TodoStatus.done);
 
     showModalBottomSheet(
       context: context,
@@ -351,7 +350,7 @@ class _TodoCardState extends State<TodoCard>
               ),
             if (hasIncompleteChildren &&
                 currentStatus == TodoStatus.active &&
-                !widget.todo.done)
+                widget.todo.status != TodoStatus.done)
               ListTile(
                 leading: Icon(
                   IconsaxPlusBold.tick_circle,
@@ -373,8 +372,8 @@ class _TodoCardState extends State<TodoCard>
   void _changeStatus(TodoStatus newStatus) {
     setState(() {
       widget.todo.status = newStatus;
-      widget.todo.done = newStatus == TodoStatus.done;
-      widget.todo.todoCompletionTime = newStatus == TodoStatus.done
+      widget.todo.todoCompletionTime =
+          (newStatus == TodoStatus.done || newStatus == TodoStatus.cancelled)
           ? DateTime.now()
           : null;
     });
@@ -394,13 +393,12 @@ class _TodoCardState extends State<TodoCard>
 
     Future.delayed(
       AppConstants.shortAnimation,
-      () => _todoController.updateTodoCheck(widget.todo),
+      () => _todoController.updateTodoStatus(widget.todo),
     );
   }
 
   void _handleBulkCompletion() {
     setState(() {
-      widget.todo.done = true;
       widget.todo.status = TodoStatus.done;
       widget.todo.todoCompletionTime = DateTime.now();
     });
@@ -413,7 +411,7 @@ class _TodoCardState extends State<TodoCard>
 
   Widget _buildTodoName(ColorScheme colorScheme) {
     final isCancelled = widget.todo.status == TodoStatus.cancelled;
-    final isDone = widget.todo.done;
+    final isDone = widget.todo.status == TodoStatus.done;
 
     return Text(
       widget.todo.name,
@@ -452,7 +450,9 @@ class _TodoCardState extends State<TodoCard>
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
               color: colorScheme.onSurfaceVariant,
-              decoration: widget.todo.done ? TextDecoration.lineThrough : null,
+              decoration: widget.todo.status == TodoStatus.done
+                  ? TextDecoration.lineThrough
+                  : null,
               decorationColor: colorScheme.onSurfaceVariant,
             ),
             overflow: TextOverflow.ellipsis,
@@ -468,7 +468,7 @@ class _TodoCardState extends State<TodoCard>
                   fontSize: ResponsiveUtils.getResponsiveFontSize(context, 11),
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1,
-                  decoration: widget.todo.done
+                  decoration: widget.todo.status == TodoStatus.done
                       ? TextDecoration.lineThrough
                       : null,
                   decorationColor: colorScheme.onSurfaceVariant.withValues(

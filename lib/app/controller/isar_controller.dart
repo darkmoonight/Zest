@@ -36,10 +36,45 @@ class IsarController {
 
       isar = isarInstance;
 
+      await _migrateToStatusField(isarInstance);
+
       return isarInstance;
     }
 
     return Future.value(Isar.getInstance());
+  }
+
+  static Future<void> _migrateToStatusField(Isar isar) async {
+    try {
+      final todos = await isar.todos.where().findAll();
+
+      final needsMigration = todos.any(
+        (todo) => todo.done == true && todo.status == TodoStatus.active,
+      );
+
+      if (!needsMigration) {
+        debugPrint('Migration: No migration needed');
+        return;
+      }
+
+      int migratedCount = 0;
+      await isar.writeTxn(() async {
+        for (final todo in todos) {
+          if (todo.done == true && todo.status == TodoStatus.active) {
+            todo.status = TodoStatus.done;
+            todo.todoCompletionTime ??= todo.createdTime;
+            await isar.todos.put(todo);
+            migratedCount++;
+          }
+        }
+      });
+
+      debugPrint(
+        'Migration completed: Updated $migratedCount of ${todos.length} todos from done field to status field',
+      );
+    } catch (e) {
+      debugPrint('Migration error: $e');
+    }
   }
 
   // ==================== Backup ====================

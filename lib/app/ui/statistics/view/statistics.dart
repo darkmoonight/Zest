@@ -107,8 +107,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _buildPageTitle(),
-              const SizedBox(height: AppConstants.spacingM),
               _buildOverviewCards(data),
               const SizedBox(height: AppConstants.spacingM),
               StreakWidget(
@@ -126,15 +124,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildPageTitle() {
-    return Text(
-      'statistics'.tr,
-      style: Theme.of(
-        context,
-      ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 

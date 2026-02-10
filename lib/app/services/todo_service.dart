@@ -87,8 +87,19 @@ class TodoService {
     showSnackBar('updateTodo'.tr);
   }
 
-  Future<void> toggleDone(Todos todo, List<Todos> allTodos) async {
-    await _setDoneSingle(todo, todo.done);
+  Future<void> updateTodoStatus(Todos todo) async {
+    await _todoRepo.update(todo);
+
+    final now = DateTime.now();
+    final completedTime = todo.todoCompletedTime;
+
+    if (todo.status == TodoStatus.done || todo.status == TodoStatus.cancelled) {
+      await _notificationService.cancel(todo.id);
+    } else if (completedTime != null && completedTime.isAfter(now)) {
+      await _notificationService.scheduleForTodo(todo);
+    } else {
+      await _notificationService.cancel(todo.id);
+    }
   }
 
   Future<void> toggleDoneWithSubtasks(Todos todo, bool done) async {
@@ -107,23 +118,6 @@ class TodoService {
           await _notificationService.scheduleForTodo(todoItem);
         }
       }
-    }
-  }
-
-  Future<void> _setDoneSingle(Todos todo, bool done) async {
-    await _todoRepo.updateDone(todo: todo, done: done);
-
-    final now = DateTime.now();
-    final completedTime = todo.todoCompletedTime;
-
-    if (completedTime != null && completedTime.isAfter(now)) {
-      if (done) {
-        await _notificationService.cancel(todo.id);
-      } else {
-        await _notificationService.scheduleForTodo(todo);
-      }
-    } else {
-      await _notificationService.cancel(todo.id);
     }
   }
 
@@ -248,7 +242,9 @@ class TodoService {
     return allTodos
         .where(
           (t) =>
-              t.task.value?.id == task.id && t.done && t.parent.value == null,
+              t.task.value?.id == task.id &&
+              t.status.isCompleted &&
+              t.parent.value == null,
         )
         .length;
   }
@@ -264,7 +260,7 @@ class TodoService {
         .where(
           (t) =>
               t.task.value?.archive == false &&
-              t.done &&
+              t.status.isCompleted &&
               t.parent.value == null,
         )
         .length;
@@ -287,7 +283,11 @@ class TodoService {
 
   int countCompletedForParent(Todos parent, List<Todos> allTodos) {
     return allTodos
-        .where((t) => t.parent.value?.id == parent.id && t.done)
+        .where(
+          (t) => 
+              t.parent.value?.id == parent.id && 
+              t.status.isCompleted,
+        )
         .length;
   }
 

@@ -78,6 +78,7 @@ class Todos {
   DateTime? todoCompletedTime;
   DateTime createdTime;
   DateTime? todoCompletionTime;
+  @Deprecated('Use status field instead')
   bool done;
   bool fix;
   @enumerated
@@ -124,4 +125,10 @@ enum Priority {
   final Color? color;
 }
 
-enum TodoStatus { active, done, cancelled }
+enum TodoStatus { 
+  active, 
+  done, 
+  cancelled;
+
+  bool get isCompleted => this == TodoStatus.done || this == TodoStatus.cancelled;
+}

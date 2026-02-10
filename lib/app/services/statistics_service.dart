@@ -11,7 +11,7 @@ class StatisticsService {
     final weekAgo = today.subtract(const Duration(days: 7));
 
     final completedTodos = todos
-        .where((t) => t.status == TodoStatus.done)
+        .where((t) => t.status.isCompleted)
         .toList();
 
     final todayCompleted = completedTodos.where((t) {
