@@ -6,6 +6,7 @@ import 'package:zest/app/data/db.dart';
 import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/ui/todos/view/todo_todos.dart';
 import 'package:zest/app/constants/app_constants.dart';
+import 'package:zest/app/utils/navigation_helper.dart';
 import 'package:zest/app/utils/notification.dart';
 import 'package:zest/app/utils/responsive_utils.dart';
 import 'package:zest/main.dart';
@@ -320,7 +321,7 @@ class _TodoCardState extends State<TodoCard>
                 ),
                 title: Text('markAsDone'.tr),
                 onTap: () {
-                  Navigator.pop(context);
+                  NavigationHelper.back();
                   _changeStatus(TodoStatus.done);
                 },
               ),
@@ -332,7 +333,7 @@ class _TodoCardState extends State<TodoCard>
                 ),
                 title: Text('markAsCancelled'.tr),
                 onTap: () {
-                  Navigator.pop(context);
+                  NavigationHelper.back();
                   _changeStatus(TodoStatus.cancelled);
                 },
               ),
@@ -344,7 +345,7 @@ class _TodoCardState extends State<TodoCard>
                 ),
                 title: Text('markAsActive'.tr),
                 onTap: () {
-                  Navigator.pop(context);
+                  NavigationHelper.back();
                   _changeStatus(TodoStatus.active);
                 },
               ),
@@ -358,8 +359,21 @@ class _TodoCardState extends State<TodoCard>
                 ),
                 title: Text('markWithSubtasks'.tr),
                 onTap: () {
-                  Navigator.pop(context);
+                  NavigationHelper.back();
                   _handleBulkCompletion();
+                },
+              ),
+            if (hasIncompleteChildren &&
+                currentStatus == TodoStatus.active)
+              ListTile(
+                leading: Icon(
+                  IconsaxPlusBold.close_circle,
+                  color: colorScheme.error,
+                ),
+                title: Text('markWithSubtasks'.tr),
+                onTap: () {
+                  NavigationHelper.back();
+                  _handleBulkCancellation();
                 },
               ),
             const SizedBox(height: AppConstants.spacingM),
@@ -405,7 +419,19 @@ class _TodoCardState extends State<TodoCard>
 
     Future.delayed(
       AppConstants.shortAnimation,
-      () => _todoController.updateTodoCheckWithSubtasks(widget.todo, true),
+      () => _todoController.updateTodoStatusWithSubtasks(widget.todo, TodoStatus.done),
+    );
+  }
+
+  void _handleBulkCancellation() {
+    setState(() {
+      widget.todo.status = TodoStatus.cancelled;
+      widget.todo.todoCompletionTime = DateTime.now();
+    });
+
+    Future.delayed(
+      AppConstants.shortAnimation,
+      () => _todoController.updateTodoStatusWithSubtasks(widget.todo, TodoStatus.cancelled),
     );
   }
 

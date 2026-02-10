@@ -138,9 +138,9 @@ class TodoRepository {
     });
   }
 
-  Future<void> updateDoneWithSubtasks({
+  Future<void> updateStatusWithSubtasks({
     required Todos parentTodo,
-    required bool done,
+    required TodoStatus status,
   }) async {
     final allIds = <int>{};
     final stack = <Todos>[parentTodo];
@@ -159,7 +159,24 @@ class TodoRepository {
 
     if (allIds.isEmpty) return;
 
-    await updateDoneBatch(ids: allIds, done: done);
+    final todos = <Todos>[];
+    for (final id in allIds) {
+      final todo = await _isar.todos.get(id);
+      if (todo != null) {
+        todos.add(todo);
+      }
+    }
+
+    if (todos.isEmpty) return;
+
+    final now = DateTime.now();
+    await _isar.writeTxn(() async {
+      for (final todo in todos) {
+        todo.status = status;
+        todo.todoCompletionTime = status.isCompleted ? now : null;
+      }
+      await _isar.todos.putAll(todos);
+    });
   }
 
   Future<void> updateFields({

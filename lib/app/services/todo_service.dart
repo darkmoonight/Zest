@@ -102,12 +102,12 @@ class TodoService {
     }
   }
 
-  Future<void> toggleDoneWithSubtasks(Todos todo, bool done) async {
-    await _todoRepo.updateDoneWithSubtasks(parentTodo: todo, done: done);
+  Future<void> updateStatusWithSubtasks(Todos todo, TodoStatus status) async {
+    await _todoRepo.updateStatusWithSubtasks(parentTodo: todo, status: status);
 
     final allIds = await _collectSubtreeIds(todo);
 
-    if (done) {
+    if (status.isCompleted) {
       await _notificationService.cancelBatch(allIds.toList());
     } else {
       for (final id in allIds) {
