@@ -273,102 +273,16 @@ class _TodoCardState extends State<TodoCard>
   }
 
   void _showStatusMenu(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final currentStatus = widget.todo.status;
-    final hasIncompleteChildren =
-        widget.todo.children.isNotEmpty &&
-        widget.todo.children.any((child) => child.status != TodoStatus.done);
+    final isMobile = ResponsiveUtils.isMobile(context);
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(
-              top: AppConstants.spacingM,
-              bottom: AppConstants.spacingS,
-            ),
-            width: 32,
-            height: 4,
-            decoration: BoxDecoration(
-              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(AppConstants.spacingL),
-            child: Text(
-              'changeStatus'.tr,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-            ),
-          ),
-          if (currentStatus != TodoStatus.done)
-            ListTile(
-              leading: Icon(
-                IconsaxPlusBold.tick_circle,
-                color: colorScheme.primary,
-              ),
-              title: Text('markAsDone'.tr),
-              onTap: () {
-                NavigationHelper.back();
-                _changeStatus(TodoStatus.done);
-              },
-            ),
-          if (currentStatus != TodoStatus.cancelled)
-            ListTile(
-              leading: Icon(
-                IconsaxPlusBold.close_circle,
-                color: colorScheme.error,
-              ),
-              title: Text('markAsCancelled'.tr),
-              onTap: () {
-                NavigationHelper.back();
-                _changeStatus(TodoStatus.cancelled);
-              },
-            ),
-          if (currentStatus != TodoStatus.active)
-            ListTile(
-              leading: Icon(
-                IconsaxPlusBold.refresh,
-                color: colorScheme.tertiary,
-              ),
-              title: Text('markAsActive'.tr),
-              onTap: () {
-                NavigationHelper.back();
-                _changeStatus(TodoStatus.active);
-              },
-            ),
-          if (hasIncompleteChildren &&
-              currentStatus == TodoStatus.active &&
-              widget.todo.status != TodoStatus.done)
-            ListTile(
-              leading: Icon(
-                IconsaxPlusBold.tick_circle,
-                color: colorScheme.secondary,
-              ),
-              title: Text('markWithSubtasks'.tr),
-              onTap: () {
-                NavigationHelper.back();
-                _handleBulkCompletion();
-              },
-            ),
-          if (hasIncompleteChildren && currentStatus == TodoStatus.active)
-            ListTile(
-              leading: Icon(
-                IconsaxPlusBold.close_circle,
-                color: colorScheme.error,
-              ),
-              title: Text('markWithSubtasks'.tr),
-              onTap: () {
-                NavigationHelper.back();
-                _handleBulkCancellation();
-              },
-            ),
-          const SizedBox(height: AppConstants.spacingM),
-        ],
+      builder: (context) => _StatusChangeDialog(
+        todo: widget.todo,
+        isMobile: isMobile,
+        onStatusChanged: _changeStatus,
+        onBulkCompletion: _handleBulkCompletion,
+        onBulkCancellation: _handleBulkCancellation,
       ),
     );
   }
@@ -840,6 +754,332 @@ class _StatusChip extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ==================== Status Change Dialog ====================
+
+class _StatusChangeDialog extends StatefulWidget {
+  final Todos todo;
+  final bool isMobile;
+  final Function(TodoStatus) onStatusChanged;
+  final VoidCallback onBulkCompletion;
+  final VoidCallback onBulkCancellation;
+
+  const _StatusChangeDialog({
+    required this.todo,
+    required this.isMobile,
+    required this.onStatusChanged,
+    required this.onBulkCompletion,
+    required this.onBulkCancellation,
+  });
+
+  @override
+  State<_StatusChangeDialog> createState() => _StatusChangeDialogState();
+}
+
+class _StatusChangeDialogState extends State<_StatusChangeDialog>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _initAnimation();
+  }
+
+  void _initAnimation() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: AppConstants.animationDuration,
+    );
+
+    _scaleAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    );
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final currentStatus = widget.todo.status;
+    final hasIncompleteChildren =
+        widget.todo.children.isNotEmpty &&
+        widget.todo.children.any((child) => child.status != TodoStatus.done);
+
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: widget.isMobile
+                  ? double.infinity
+                  : AppConstants.maxModalWidth,
+            ),
+            child: Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  AppConstants.borderRadiusXXLarge,
+                ),
+                side: BorderSide(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                  width: AppConstants.borderWidthThin,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildHeader(colorScheme),
+                  Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                  ),
+                  _buildStatusOptions(
+                    colorScheme,
+                    currentStatus,
+                    hasIncompleteChildren,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(ColorScheme colorScheme) {
+    return Padding(
+      padding: const EdgeInsets.all(AppConstants.borderRadiusXLarge),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppConstants.spacingS + 2),
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(
+                AppConstants.borderRadiusMedium,
+              ),
+            ),
+            child: Icon(
+              IconsaxPlusBold.status,
+              size: AppConstants.iconSizeLarge,
+              color: colorScheme.onPrimaryContainer,
+            ),
+          ),
+          SizedBox(width: AppConstants.spacingM),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'changeStatus'.tr,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                    fontSize: ResponsiveUtils.getResponsiveFontSize(
+                      context,
+                      20,
+                    ),
+                  ),
+                ),
+                SizedBox(height: AppConstants.spacingXS / 2),
+                Text(
+                  'selectNewStatus'.tr,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontSize: ResponsiveUtils.getResponsiveFontSize(
+                      context,
+                      12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusOptions(
+    ColorScheme colorScheme,
+    TodoStatus currentStatus,
+    bool hasIncompleteChildren,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(AppConstants.spacingL),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (currentStatus != TodoStatus.done)
+            _buildStatusOption(
+              icon: IconsaxPlusBold.tick_circle,
+              color: colorScheme.primary,
+              title: 'markAsDone'.tr,
+              subtitle: 'markAsDoneHint'.tr,
+              onTap: () {
+                NavigationHelper.back();
+                widget.onStatusChanged(TodoStatus.done);
+              },
+            ),
+          if (currentStatus != TodoStatus.cancelled)
+            _buildStatusOption(
+              icon: IconsaxPlusBold.close_circle,
+              color: colorScheme.error,
+              title: 'markAsCancelled'.tr,
+              subtitle: 'markAsCancelledHint'.tr,
+              onTap: () {
+                NavigationHelper.back();
+                widget.onStatusChanged(TodoStatus.cancelled);
+              },
+            ),
+          if (currentStatus != TodoStatus.active)
+            _buildStatusOption(
+              icon: IconsaxPlusBold.refresh,
+              color: colorScheme.tertiary,
+              title: 'markAsActive'.tr,
+              subtitle: 'markAsActiveHint'.tr,
+              onTap: () {
+                NavigationHelper.back();
+                widget.onStatusChanged(TodoStatus.active);
+              },
+            ),
+          if (hasIncompleteChildren &&
+              currentStatus == TodoStatus.active &&
+              widget.todo.status != TodoStatus.done)
+            _buildStatusOption(
+              icon: IconsaxPlusBold.tick_circle,
+              color: colorScheme.secondary,
+              title: 'markWithSubtasks'.tr,
+              subtitle: 'markWithSubtasksCompleteHint'.tr,
+              onTap: () {
+                NavigationHelper.back();
+                widget.onBulkCompletion();
+              },
+            ),
+          if (hasIncompleteChildren && currentStatus == TodoStatus.active)
+            _buildStatusOption(
+              icon: IconsaxPlusBold.close_circle,
+              color: colorScheme.error.withValues(alpha: 0.8),
+              title: 'markWithSubtasks'.tr,
+              subtitle: 'markWithSubtasksCancelHint'.tr,
+              onTap: () {
+                NavigationHelper.back();
+                widget.onBulkCancellation();
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusOption({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppConstants.spacingS),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
+          child: Container(
+            padding: const EdgeInsets.all(AppConstants.spacingM),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(
+                AppConstants.borderRadiusMedium,
+              ),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                width: AppConstants.borderWidthThin,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppConstants.spacingS),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(
+                      AppConstants.borderRadiusSmall,
+                    ),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: AppConstants.iconSizeMedium,
+                    color: color,
+                  ),
+                ),
+                SizedBox(width: AppConstants.spacingM),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                          fontSize: ResponsiveUtils.getResponsiveFontSize(
+                            context,
+                            14,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: AppConstants.spacingXS / 2),
+                      Text(
+                        subtitle,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          fontSize: ResponsiveUtils.getResponsiveFontSize(
+                            context,
+                            12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  IconsaxPlusLinear.arrow_right_3,
+                  size: AppConstants.iconSizeSmall,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
