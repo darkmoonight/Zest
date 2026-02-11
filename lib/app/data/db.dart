@@ -125,10 +125,11 @@ enum Priority {
   final Color? color;
 }
 
-enum TodoStatus { 
-  active, 
-  done, 
+enum TodoStatus {
+  active,
+  done,
   cancelled;
 
-  bool get isCompleted => this == TodoStatus.done || this == TodoStatus.cancelled;
+  bool get isCompleted =>
+      this == TodoStatus.done || this == TodoStatus.cancelled;
 }

@@ -283,7 +283,10 @@ class TodoController extends GetxController {
     _resyncSelectedTodoFromIds();
   }
 
-  Future<void> updateTodoStatusWithSubtasks(Todos todo, TodoStatus status) async {
+  Future<void> updateTodoStatusWithSubtasks(
+    Todos todo,
+    TodoStatus status,
+  ) async {
     await _todoService.updateStatusWithSubtasks(todo, status);
     _resyncSelectedTodoFromIds();
   }

@@ -70,20 +70,6 @@ class TodoRepository {
         .findAll();
   }
 
-  Future<List<Todos>> getRoots() async {
-    return await _isar.todos.filter().parentIsNull().sortByIndex().findAll();
-  }
-
-  Future<List<Todos>> getRootsByTask(int taskId) async {
-    return await _isar.todos
-        .filter()
-        .task((q) => q.idEqualTo(taskId))
-        .and()
-        .parentIsNull()
-        .sortByIndex()
-        .findAll();
-  }
-
   // ==================== UPDATE ====================
 
   Future<void> update(Todos todo) async {
@@ -256,50 +242,5 @@ class TodoRepository {
 
   Stream<void> watchLazy() {
     return _isar.todos.watchLazy();
-  }
-
-  // ==================== ADDITIONAL QUERIES ====================
-
-  Future<List<Todos>> getByPriority(Priority priority) async {
-    return await _isar.todos
-        .filter()
-        .priorityEqualTo(priority)
-        .sortByIndex()
-        .findAll();
-  }
-
-  Future<List<Todos>> getPinned() async {
-    return await _isar.todos.filter().fixEqualTo(true).sortByIndex().findAll();
-  }
-
-  Future<List<Todos>> getByStatus(TodoStatus status) async {
-    return await _isar.todos
-        .filter()
-        .statusEqualTo(status)
-        .sortByIndex()
-        .findAll();
-  }
-
-  Future<List<Todos>> getByDateRange(DateTime start, DateTime end) async {
-    return await _isar.todos
-        .filter()
-        .todoCompletedTimeBetween(start, end)
-        .sortByIndex()
-        .findAll();
-  }
-
-  Future<int> countByTask(int taskId) async {
-    return await _isar.todos.filter().task((q) => q.idEqualTo(taskId)).count();
-  }
-
-  Future<int> countCompletedByTask(int taskId) async {
-    return await _isar.todos
-        .filter()
-        .task((q) => q.idEqualTo(taskId))
-        .group((q) => q
-            .statusEqualTo(TodoStatus.done)
-            .or()
-            .statusEqualTo(TodoStatus.cancelled))
-        .count();
   }
 }

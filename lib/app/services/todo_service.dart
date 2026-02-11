@@ -283,11 +283,7 @@ class TodoService {
 
   int countCompletedForParent(Todos parent, List<Todos> allTodos) {
     return allTodos
-        .where(
-          (t) => 
-              t.parent.value?.id == parent.id && 
-              t.status.isCompleted,
-        )
+        .where((t) => t.parent.value?.id == parent.id && t.status.isCompleted)
         .length;
   }
 
