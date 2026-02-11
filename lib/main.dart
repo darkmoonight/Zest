@@ -222,7 +222,6 @@ Future<void> markTodoAsDone(int todoId) async {
 
     if (todo.status != TodoStatus.done) {
       await isarInstance.writeTxn(() async {
-        todo.done = true;
         todo.status = TodoStatus.done;
         todo.todoCompletionTime = DateTime.now();
         await isarInstance.todos.put(todo);
@@ -359,6 +358,11 @@ class _MyAppState extends State<MyApp> {
         localizedTitle: 'calendar'.tr,
         icon: 'ic_shortcut_calendar_todos',
       ),
+      QuickActionItem(
+        type: 'action_statistics',
+        localizedTitle: 'statistics'.tr,
+        icon: 'ic_shortcut_calendar_todos',
+      ),
     ]);
   }
 
@@ -439,6 +443,12 @@ class _MyAppState extends State<MyApp> {
           _navigatorKey.currentState?.push(
             MaterialPageRoute(builder: (_) => const CalendarTodos()),
           );
+        }
+        break;
+      case 'action_statistics':
+        if (_homeKey.currentState != null) {
+          _homeKey.currentState!.changeTabIndex(3);
+          _navigatorKey.currentState?.popUntil((r) => r.isFirst);
         }
         break;
       default:

@@ -36,10 +36,10 @@ mixin TodosScreenMixin<T extends StatefulWidget> on State<T> {
 
   void _handleMultiSelectionChanged(bool isMultiSelection) {
     if (isMultiSelection) {
-      fabController.hide();
+      fabController.setVisibility(false);
     } else {
       if (tabController.index == 0) {
-        fabController.show();
+        fabController.setVisibility(true);
       }
     }
   }
@@ -48,9 +48,9 @@ mixin TodosScreenMixin<T extends StatefulWidget> on State<T> {
     if (!mounted) return;
 
     if (tabController.index == 0) {
-      fabController.show();
+      fabController.setVisibility(true);
     } else {
-      fabController.hide();
+      fabController.setVisibility(false);
     }
 
     if (todoController.isMultiSelectionTodo.value) {

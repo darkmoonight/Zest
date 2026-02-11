@@ -41,10 +41,6 @@ class NotificationService {
     }
   }
 
-  Future<void> scheduleBatch(List<Todos> todos) async {
-    await scheduleForTask(todos);
-  }
-
   // ==================== CANCEL ====================
 
   Future<void> cancel(int todoId) async {

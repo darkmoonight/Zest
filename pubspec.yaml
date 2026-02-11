@@ -44,8 +44,8 @@ dependencies:
   flutter_local_notifications: ^20.0.0
   isar_community: ^3.3.0
   isar_community_flutter_libs: ^3.3.0
-  # flutter_heatmap_calendar: ^1.0.5
-  # fl_chart: ^1.1.1
+  flutter_heatmap_calendar: ^1.0.5
+  fl_chart: ^1.1.1
 
 dev_dependencies:
   flutter_test:

@@ -5,15 +5,9 @@ class FabController extends GetxController {
 
   RxBool get isVisible => _isVisible;
 
-  void show() {
-    if (!_isVisible.value) {
-      _isVisible.value = true;
-    }
-  }
-
-  void hide() {
-    if (_isVisible.value) {
-      _isVisible.value = false;
+  void setVisibility(bool visible) {
+    if (_isVisible.value != visible) {
+      _isVisible.value = visible;
     }
   }
 }

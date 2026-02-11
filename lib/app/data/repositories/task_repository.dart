@@ -41,14 +41,6 @@ class TaskRepository {
     return count > 0;
   }
 
-  Future<List<Tasks>> getByArchiveStatus(bool archived) async {
-    return await _isar.tasks
-        .filter()
-        .archiveEqualTo(archived)
-        .sortByIndex()
-        .findAll();
-  }
-
   // ==================== UPDATE ====================
 
   Future<void> update(Tasks task) async {
@@ -69,37 +61,22 @@ class TaskRepository {
     });
   }
 
-  Future<void> archive(Tasks task) async {
+  Future<void> updateArchiveStatus(Tasks task, bool archived) async {
     await _isar.writeTxn(() async {
-      task.archive = true;
+      task.archive = archived;
       await _isar.tasks.put(task);
     });
   }
 
-  Future<void> unarchive(Tasks task) async {
-    await _isar.writeTxn(() async {
-      task.archive = false;
-      await _isar.tasks.put(task);
-    });
-  }
-
-  Future<void> archiveBatch(List<Tasks> tasks) async {
+  Future<void> updateArchiveStatusBatch(
+    List<Tasks> tasks,
+    bool archived,
+  ) async {
     if (tasks.isEmpty) return;
 
     await _isar.writeTxn(() async {
       for (final task in tasks) {
-        task.archive = true;
-      }
-      await _isar.tasks.putAll(tasks);
-    });
-  }
-
-  Future<void> unarchiveBatch(List<Tasks> tasks) async {
-    if (tasks.isEmpty) return;
-
-    await _isar.writeTxn(() async {
-      for (final task in tasks) {
-        task.archive = false;
+        task.archive = archived;
       }
       await _isar.tasks.putAll(tasks);
     });
@@ -120,14 +97,6 @@ class TaskRepository {
 
   Future<void> delete(Tasks task) async {
     await _isar.writeTxn(() => _isar.tasks.delete(task.id));
-  }
-
-  Future<void> deleteByIds(List<int> ids) async {
-    if (ids.isEmpty) return;
-
-    await _isar.writeTxn(() async {
-      await _isar.tasks.deleteAll(ids);
-    });
   }
 
   // ==================== WATCH ====================

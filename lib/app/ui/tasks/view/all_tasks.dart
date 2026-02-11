@@ -56,10 +56,10 @@ class _AllTasksState extends State<AllTasks>
 
   void _handleMultiSelectionChanged(bool isMultiSelection) {
     if (isMultiSelection) {
-      _fabController.hide();
+      _fabController.setVisibility(false);
     } else {
       if (_tabController.index == 0) {
-        _fabController.show();
+        _fabController.setVisibility(true);
       }
     }
   }
@@ -68,10 +68,10 @@ class _AllTasksState extends State<AllTasks>
     if (!mounted) return;
 
     if (_tabController.index == 1) {
-      _fabController.hide();
+      _fabController.setVisibility(false);
     } else {
       if (!_todoController.isMultiSelectionTask.value) {
-        _fabController.show();
+        _fabController.setVisibility(true);
       }
     }
   }

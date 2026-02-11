@@ -278,13 +278,16 @@ class TodoController extends GetxController {
     );
   }
 
-  Future<void> updateTodoCheck(Todos todo) async {
-    await _todoService.toggleDone(todo, todos);
+  Future<void> updateTodoStatus(Todos todo) async {
+    await _todoService.updateTodoStatus(todo);
     _resyncSelectedTodoFromIds();
   }
 
-  Future<void> updateTodoCheckWithSubtasks(Todos todo, bool done) async {
-    await _todoService.toggleDoneWithSubtasks(todo, done);
+  Future<void> updateTodoStatusWithSubtasks(
+    Todos todo,
+    TodoStatus status,
+  ) async {
+    await _todoService.updateStatusWithSubtasks(todo, status);
     _resyncSelectedTodoFromIds();
   }
 
