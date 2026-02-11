@@ -281,104 +281,94 @@ class _TodoCardState extends State<TodoCard>
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AppConstants.borderRadiusXLarge),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(
+              top: AppConstants.spacingM,
+              bottom: AppConstants.spacingS,
+            ),
+            width: 32,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(
-                top: AppConstants.spacingM,
-                bottom: AppConstants.spacingS,
-              ),
-              width: 32,
-              height: 4,
-              decoration: BoxDecoration(
-                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(2),
-              ),
+          Padding(
+            padding: const EdgeInsets.all(AppConstants.spacingL),
+            child: Text(
+              'changeStatus'.tr,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
-            Padding(
-              padding: const EdgeInsets.all(AppConstants.spacingL),
-              child: Text(
-                'changeStatus'.tr,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          if (currentStatus != TodoStatus.done)
+            ListTile(
+              leading: Icon(
+                IconsaxPlusBold.tick_circle,
+                color: colorScheme.primary,
               ),
+              title: Text('markAsDone'.tr),
+              onTap: () {
+                NavigationHelper.back();
+                _changeStatus(TodoStatus.done);
+              },
             ),
-            if (currentStatus != TodoStatus.done)
-              ListTile(
-                leading: Icon(
-                  IconsaxPlusBold.tick_circle,
-                  color: colorScheme.primary,
-                ),
-                title: Text('markAsDone'.tr),
-                onTap: () {
-                  NavigationHelper.back();
-                  _changeStatus(TodoStatus.done);
-                },
+          if (currentStatus != TodoStatus.cancelled)
+            ListTile(
+              leading: Icon(
+                IconsaxPlusBold.close_circle,
+                color: colorScheme.error,
               ),
-            if (currentStatus != TodoStatus.cancelled)
-              ListTile(
-                leading: Icon(
-                  IconsaxPlusBold.close_circle,
-                  color: colorScheme.error,
-                ),
-                title: Text('markAsCancelled'.tr),
-                onTap: () {
-                  NavigationHelper.back();
-                  _changeStatus(TodoStatus.cancelled);
-                },
+              title: Text('markAsCancelled'.tr),
+              onTap: () {
+                NavigationHelper.back();
+                _changeStatus(TodoStatus.cancelled);
+              },
+            ),
+          if (currentStatus != TodoStatus.active)
+            ListTile(
+              leading: Icon(
+                IconsaxPlusBold.refresh,
+                color: colorScheme.tertiary,
               ),
-            if (currentStatus != TodoStatus.active)
-              ListTile(
-                leading: Icon(
-                  IconsaxPlusBold.refresh,
-                  color: colorScheme.tertiary,
-                ),
-                title: Text('markAsActive'.tr),
-                onTap: () {
-                  NavigationHelper.back();
-                  _changeStatus(TodoStatus.active);
-                },
+              title: Text('markAsActive'.tr),
+              onTap: () {
+                NavigationHelper.back();
+                _changeStatus(TodoStatus.active);
+              },
+            ),
+          if (hasIncompleteChildren &&
+              currentStatus == TodoStatus.active &&
+              widget.todo.status != TodoStatus.done)
+            ListTile(
+              leading: Icon(
+                IconsaxPlusBold.tick_circle,
+                color: colorScheme.secondary,
               ),
-            if (hasIncompleteChildren &&
-                currentStatus == TodoStatus.active &&
-                widget.todo.status != TodoStatus.done)
-              ListTile(
-                leading: Icon(
-                  IconsaxPlusBold.tick_circle,
-                  color: colorScheme.secondary,
-                ),
-                title: Text('markWithSubtasks'.tr),
-                onTap: () {
-                  NavigationHelper.back();
-                  _handleBulkCompletion();
-                },
+              title: Text('markWithSubtasks'.tr),
+              onTap: () {
+                NavigationHelper.back();
+                _handleBulkCompletion();
+              },
+            ),
+          if (hasIncompleteChildren && currentStatus == TodoStatus.active)
+            ListTile(
+              leading: Icon(
+                IconsaxPlusBold.close_circle,
+                color: colorScheme.error,
               ),
-            if (hasIncompleteChildren &&
-                currentStatus == TodoStatus.active)
-              ListTile(
-                leading: Icon(
-                  IconsaxPlusBold.close_circle,
-                  color: colorScheme.error,
-                ),
-                title: Text('markWithSubtasks'.tr),
-                onTap: () {
-                  NavigationHelper.back();
-                  _handleBulkCancellation();
-                },
-              ),
-            const SizedBox(height: AppConstants.spacingM),
-          ],
-        ),
+              title: Text('markWithSubtasks'.tr),
+              onTap: () {
+                NavigationHelper.back();
+                _handleBulkCancellation();
+              },
+            ),
+          const SizedBox(height: AppConstants.spacingM),
+        ],
       ),
     );
   }
@@ -419,7 +409,10 @@ class _TodoCardState extends State<TodoCard>
 
     Future.delayed(
       AppConstants.shortAnimation,
-      () => _todoController.updateTodoStatusWithSubtasks(widget.todo, TodoStatus.done),
+      () => _todoController.updateTodoStatusWithSubtasks(
+        widget.todo,
+        TodoStatus.done,
+      ),
     );
   }
 
@@ -431,7 +424,10 @@ class _TodoCardState extends State<TodoCard>
 
     Future.delayed(
       AppConstants.shortAnimation,
-      () => _todoController.updateTodoStatusWithSubtasks(widget.todo, TodoStatus.cancelled),
+      () => _todoController.updateTodoStatusWithSubtasks(
+        widget.todo,
+        TodoStatus.cancelled,
+      ),
     );
   }
 
