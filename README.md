@@ -29,41 +29,23 @@
 
 ## ✨ Features
 
-### 🎯 Core Functionality
-- **Smart Task Organization**: Create categories with custom colors and organize tasks hierarchically
-- **Subtasks Support**: Break down complex tasks with parent-child relationships
-- **Priority Levels**: Mark tasks as high, medium, low, or no priority
-- **Task Status**: Track tasks as active, done, or cancelled
-- **Tags System**: Organize tasks with custom tags for better filtering
-- **Quick Actions**: Access key features instantly from your home screen
+**🎯 Task Management**
+- Categories with custom colors • Hierarchical subtasks • Priority levels • Tags system • Quick actions
 
-### 📊 Advanced Statistics
-- **Completion Tracking**: Monitor your productivity with detailed completion rates
-- **Heatmap Visualization**: 365-day activity heatmap to track your consistency
-- **Streak Counter**: Track current and longest completion streaks
-- **Progress Charts**: Weekly and hourly progress visualization
-- **Daily/Weekly Insights**: See how many tasks you've completed today and this week
+**📊 Advanced Statistics**
+- 365-day heatmap • Completion streaks • Weekly/hourly charts • Productivity insights
 
-### 🔔 Smart Notifications
-- **Scheduled Reminders**: Never miss a deadline with timezone-aware notifications
-- **Snooze Functionality**: Configurable snooze duration for flexible task management
-- **Quick Actions**: Mark tasks as done directly from notifications
-- **Background Processing**: Reliable notification delivery even when app is closed
+**🔔 Smart Notifications**
+- Timezone-aware reminders • Snooze functionality • Quick actions • Background processing
 
-### 💾 Backup & Data Management
-- **Automatic Backups**: Schedule daily, weekly, or monthly backups
-- **Compression**: Efficient storage with GZip compression
-- **Retention Policy**: Configurable backup retention (default: 5 backups)
-- **Manual Backup**: Create backups on-demand
-- **Easy Recovery**: Restore your data from any backup file
-- **Data Export**: Full control over your data
+**💾 Backup & Data**
+- Auto backups (daily/weekly/monthly) • GZip compression • Easy restore • Data export
 
-### 🎨 Beautiful Design
-- **Material Design 3**: Modern, clean interface following latest design guidelines
-- **Material You**: Dynamic color theming based on your wallpaper (Android 12+)
-- **AMOLED Theme**: True black theme for OLED displays
-- **Light/Dark/System**: Multiple theme modes to match your preference
-- **Edge-to-Edge**: Immersive full-screen experience
+**🎨 Beautiful Design**
+- Material You theming • AMOLED theme • Light/Dark/System modes • Edge-to-edge UI
+
+**🌍 Localization**
+- 15 languages: English, Русский, 中文, العربية, فارسی, Español, Français, Deutsch, Italiano, Türkçe, Tiếng Việt, 한국어, Português, Polski
 
 ---
 
