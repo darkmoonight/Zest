@@ -126,8 +126,7 @@ class StatisticsService {
     const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
     for (var todo in completedTodos) {
-      if (todo.todoCompletionTime != null &&
-          todo.todoCompletionTime!.isAfter(weekAgo)) {
+      if (todo.todoCompletionTime != null) {
         final dayName = dayNames[todo.todoCompletionTime!.weekday - 1];
         weeklyData[dayName] = (weeklyData[dayName] ?? 0) + 1;
       }
