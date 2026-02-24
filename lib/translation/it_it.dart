@@ -87,6 +87,8 @@ class ItIt {
     'archived': 'Archiviato',
     'done': 'Fatto',
     'cancelled': 'Annullato',
+    'cancelledTodos': 'Compiti annullati',
+    'cancelledTodosHint': 'Nessun compito annullato ancora',
     'markAsCancelled': 'Contrassegna come annullato',
     'markAsActive': 'Contrassegna come attivo',
     'changeStatus': 'Cambia stato',

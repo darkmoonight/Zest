@@ -86,6 +86,8 @@ class RuRu {
     'archived': 'Архивные',
     'done': 'Выполненные',
     'cancelled': 'Отменено',
+    'cancelledTodos': 'Отмененные задачи',
+    'cancelledTodosHint': 'Пока нет отмененных задач',
     'markAsCancelled': 'Отметить как отмененное',
     'markAsActive': 'Отметить как активное',
     'changeStatus': 'Изменить статус',

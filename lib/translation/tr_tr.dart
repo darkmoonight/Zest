@@ -88,6 +88,8 @@ class TrTr {
     'archived': 'Arşivlendi',
     'done': 'Tamamlandı',
     'cancelled': 'İptal edildi',
+    'cancelledTodos': 'İptal edilen görevler',
+    'cancelledTodosHint': 'Henüz iptal edilen görev yok',
     'markAsCancelled': 'İptal edildi olarak işaretle',
     'markAsActive': 'Aktif olarak işaretle',
     'changeStatus': 'Durumu değiştir',

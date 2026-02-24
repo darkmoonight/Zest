@@ -44,7 +44,7 @@ class TodoService {
       parent: parent,
     );
 
-    if (date != null && DateTime.now().isBefore(date)) {
+    if (date != null) {
       await _notificationService.scheduleForTodo(todo);
     }
 
@@ -65,7 +65,6 @@ class TodoService {
     required List<String> tags,
   }) async {
     final date = _parseDate(timeString);
-    final now = DateTime.now();
 
     await _todoRepo.updateFields(
       todo: todo,
@@ -78,7 +77,7 @@ class TodoService {
       task: task,
     );
 
-    if (date != null && now.isBefore(date)) {
+    if (date != null) {
       await _notificationService.reschedule(todo);
     } else {
       await _notificationService.cancel(todo.id);
@@ -90,12 +89,11 @@ class TodoService {
   Future<void> updateTodoStatus(Todos todo) async {
     await _todoRepo.update(todo);
 
-    final now = DateTime.now();
     final completedTime = todo.todoCompletedTime;
 
     if (todo.status == TodoStatus.done || todo.status == TodoStatus.cancelled) {
       await _notificationService.cancel(todo.id);
-    } else if (completedTime != null && completedTime.isAfter(now)) {
+    } else if (completedTime != null) {
       await _notificationService.scheduleForTodo(todo);
     } else {
       await _notificationService.cancel(todo.id);
@@ -112,9 +110,7 @@ class TodoService {
     } else {
       for (final id in allIds) {
         final todoItem = await _todoRepo.getById(id);
-        if (todoItem != null &&
-            todoItem.todoCompletedTime != null &&
-            todoItem.todoCompletedTime!.isAfter(DateTime.now())) {
+        if (todoItem != null && todoItem.todoCompletedTime != null) {
           await _notificationService.scheduleForTodo(todoItem);
         }
       }
@@ -291,7 +287,7 @@ class TodoService {
 
   List<Todos> filterTodos({
     required List<Todos> allTodos,
-    required bool done,
+    required TodoStatus? statusFilter,
     String searchQuery = '',
     DateTime? selectedDay,
     Tasks? task,
@@ -313,13 +309,8 @@ class TodoService {
     final lowerQuery = searchQuery.trim().toLowerCase();
 
     return allTodos.where((todo) {
-      if (done) {
-        if (todo.status != TodoStatus.done &&
-            todo.status != TodoStatus.cancelled) {
-          return false;
-        }
-      } else {
-        if (todo.status != TodoStatus.active) return false;
+      if (statusFilter != null && todo.status != statusFilter) {
+        return false;
       }
 
       if (lowerQuery.isNotEmpty) {

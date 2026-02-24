@@ -11,16 +11,23 @@ class NotificationService {
   Future<void> scheduleForTodo(Todos todo) async {
     final completedTime = todo.todoCompletedTime;
 
-    if (completedTime == null || !DateTime.now().isBefore(completedTime)) {
+    if (completedTime == null) {
       return;
     }
 
+    final now = DateTime.now();
+
     try {
+      final effectiveTime = completedTime.isBefore(now) ||
+              completedTime.difference(now).inSeconds <= 0
+          ? now.add(const Duration(seconds: 1))
+          : completedTime;
+
       await _notificationShow.showNotification(
         todo.id,
         todo.name,
         todo.description,
-        completedTime,
+        effectiveTime,
       );
     } catch (e) {
       debugPrint('Error scheduling notification for todo ${todo.id}: $e');
@@ -30,10 +37,8 @@ class NotificationService {
   Future<void> scheduleForTask(List<Todos> todos) async {
     if (todos.isEmpty) return;
 
-    final now = DateTime.now();
     final todosToSchedule = todos.where((todo) {
-      final completedTime = todo.todoCompletedTime;
-      return completedTime != null && completedTime.isAfter(now);
+      return todo.todoCompletedTime != null;
     }).toList();
 
     for (final todo in todosToSchedule) {
@@ -62,12 +67,8 @@ class NotificationService {
   Future<void> cancelForTask(List<Todos> todos) async {
     if (todos.isEmpty) return;
 
-    final now = DateTime.now();
     final idsToCancel = todos
-        .where((todo) {
-          final completedTime = todo.todoCompletedTime;
-          return completedTime != null && completedTime.isAfter(now);
-        })
+        .where((todo) => todo.todoCompletedTime != null)
         .map((todo) => todo.id)
         .toList();
 

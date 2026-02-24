@@ -90,6 +90,8 @@ class EsEs {
     'archived': 'Archivado',
     'done': 'Hecho',
     'cancelled': 'Cancelado',
+    'cancelledTodos': 'Tareas canceladas',
+    'cancelledTodosHint': 'Aún no hay tareas canceladas',
     'markAsCancelled': 'Marcar como cancelado',
     'markAsActive': 'Marcar como activo',
     'changeStatus': 'Cambiar estado',

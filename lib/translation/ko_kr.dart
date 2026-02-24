@@ -83,6 +83,8 @@ class KoKr {
     'archived': '보관됨',
     'done': '완료됨',
     'cancelled': '취소됨',
+    'cancelledTodos': '취소된 할 일',
+    'cancelledTodosHint': '아직 취소된 할 일이 없습니다',
     'markAsCancelled': '취소됨으로 표시',
     'markAsActive': '활성으로 표시',
     'changeStatus': '상태 변경',

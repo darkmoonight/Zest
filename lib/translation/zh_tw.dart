@@ -83,6 +83,8 @@ class ZhTw {
     'archived': '已封存',
     'done': '已完成',
     'cancelled': '已取消',
+    'cancelledTodos': '已取消的任務',
+    'cancelledTodosHint': '還沒有已取消的任務',
     'markAsCancelled': '標記為已取消',
     'markAsActive': '標記為活動',
     'changeStatus': '更改狀態',

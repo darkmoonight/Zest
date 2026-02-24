@@ -140,6 +140,13 @@ class _TodosTransferState extends State<TodosTransfer>
 
   Future<Iterable<Tasks>> _getAvailableTasks(String pattern) async {
     final tasks = await isar.tasks.filter().archiveEqualTo(false).findAll();
+
+    tasks.sort((a, b) {
+      final aIndex = a.index ?? double.maxFinite.toInt();
+      final bIndex = b.index ?? double.maxFinite.toInt();
+      return aIndex.compareTo(bIndex);
+    });
+
     final query = pattern.toLowerCase();
 
     if (query.isEmpty) return tasks;

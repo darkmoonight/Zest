@@ -90,6 +90,8 @@ class FrFr {
     'archived': 'Archivé',
     'done': 'Fait',
     'cancelled': 'Annulé',
+    'cancelledTodos': 'Tâches annulées',
+    'cancelledTodosHint': 'Aucune tâche annulée pour le moment',
     'markAsCancelled': 'Marquer comme annulé',
     'markAsActive': 'Marquer comme actif',
     'changeStatus': 'Changer le statut',

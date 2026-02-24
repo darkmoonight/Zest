@@ -87,6 +87,8 @@ class DeDe {
     'archived': 'Archiviert',
     'done': 'erledigt',
     'cancelled': 'Abgebrochen',
+    'cancelledTodos': 'Abgebrochene Aufgaben',
+    'cancelledTodosHint': 'Noch keine abgebrochenen Aufgaben',
     'markAsCancelled': 'Als abgebrochen markieren',
     'markAsActive': 'Als aktiv markieren',
     'changeStatus': 'Status ändern',

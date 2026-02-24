@@ -15,7 +15,7 @@ import 'package:zest/main.dart';
 class TodosList extends StatefulWidget {
   const TodosList({
     super.key,
-    required this.done,
+    required this.statusFilter,
     this.task,
     this.todo,
     required this.allTodos,
@@ -25,7 +25,7 @@ class TodosList extends StatefulWidget {
     this.sortOption,
   });
 
-  final bool done;
+  final TodoStatus? statusFilter;
   final Tasks? task;
   final Todos? todo;
   final bool allTodos;
@@ -102,12 +102,18 @@ class _TodosListState extends State<TodosList>
           img: widget.calendar
               ? 'assets/images/Calendar.png'
               : 'assets/images/Todo.png',
-          text: widget.done ? 'completedTodo'.tr : 'addTodo'.tr,
-          subtitle: widget.done
+          text: widget.statusFilter == TodoStatus.done
+              ? 'completedTodo'.tr
+              : widget.statusFilter == TodoStatus.cancelled
+                  ? 'cancelledTodos'.tr
+                  : 'addTodo'.tr,
+          subtitle: widget.statusFilter == TodoStatus.done
               ? 'completedTodoHint'.tr
-              : (widget.calendar ? 'addCalendarTodoHint'.tr : 'addTodoHint'.tr),
+              : widget.statusFilter == TodoStatus.cancelled
+                  ? 'cancelledTodosHint'.tr
+                  : (widget.calendar ? 'addCalendarTodoHint'.tr : 'addTodoHint'.tr),
           icon: showIcon
-              ? (widget.done
+              ? (widget.statusFilter == TodoStatus.done
                     ? IconsaxPlusBold.tick_circle
                     : (widget.calendar
                           ? IconsaxPlusBold.calendar_tick
@@ -157,22 +163,18 @@ class _TodosListState extends State<TodosList>
     return _todoController.todos.where((todo) {
       final inSameTask = todo.task.value?.id == widget.task!.id;
       final isRoot = todo.parent.value == null;
-      final matchesDone = widget.done
-          ? (todo.status == TodoStatus.done)
-          : todo.status == TodoStatus.active ||
-                todo.status == TodoStatus.cancelled;
-      return inSameTask && isRoot && matchesDone;
+      final matchesStatus = widget.statusFilter == null ||
+          todo.status == widget.statusFilter;
+      return inSameTask && isRoot && matchesStatus;
     }).toList();
   }
 
   List<Todos> _getSubTodos() {
     return _todoController.todos.where((todo) {
       final isChild = todo.parent.value?.id == widget.todo!.id;
-      final matchesDone = widget.done
-          ? (todo.status == TodoStatus.done)
-          : todo.status == TodoStatus.active ||
-                todo.status == TodoStatus.cancelled;
-      return isChild && matchesDone;
+      final matchesStatus = widget.statusFilter == null ||
+          todo.status == widget.statusFilter;
+      return isChild && matchesStatus;
     }).toList();
   }
 
@@ -180,11 +182,9 @@ class _TodosListState extends State<TodosList>
     return _todoController.todos.where((todo) {
       final notArchived = todo.task.value?.archive == false;
       final isRoot = todo.parent.value == null;
-      final matchesDone = widget.done
-          ? (todo.status == TodoStatus.done)
-          : todo.status == TodoStatus.active ||
-                todo.status == TodoStatus.cancelled;
-      return notArchived && isRoot && matchesDone;
+      final matchesStatus = widget.statusFilter == null ||
+          todo.status == widget.statusFilter;
+      return notArchived && isRoot && matchesStatus;
     }).toList();
   }
 
@@ -193,11 +193,9 @@ class _TodosListState extends State<TodosList>
       final notArchived = todo.task.value?.archive == false;
       final hasTime = todo.todoCompletedTime != null;
       final inSelectedDay = hasTime && _isWithinSelectedDay(todo);
-      final matchesDone = widget.done
-          ? (todo.status == TodoStatus.done)
-          : todo.status == TodoStatus.active ||
-                todo.status == TodoStatus.cancelled;
-      return notArchived && hasTime && inSelectedDay && matchesDone;
+      final matchesStatus = widget.statusFilter == null ||
+          todo.status == widget.statusFilter;
+      return notArchived && hasTime && inSelectedDay && matchesStatus;
     }).toList();
   }
 

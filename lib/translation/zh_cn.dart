@@ -83,6 +83,8 @@ class ZhCN {
     'archived': '已存档',
     'done': '已完成',
     'cancelled': '已取消',
+    'cancelledTodos': '已取消的任务',
+    'cancelledTodosHint': '还没有已取消的任务',
     'markAsCancelled': '标记为已取消',
     'markAsActive': '标记为活动',
     'changeStatus': '更改状态',

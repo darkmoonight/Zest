@@ -370,7 +370,7 @@ class TodoController extends GetxController {
   }
 
   List<Todos> getFilteredTodos({
-    required bool done,
+    required TodoStatus? statusFilter,
     String searchQuery = '',
     DateTime? selectedDay,
     Tasks? task,
@@ -378,7 +378,7 @@ class TodoController extends GetxController {
   }) {
     return _todoService.filterTodos(
       allTodos: todos,
-      done: done,
+      statusFilter: statusFilter,
       searchQuery: searchQuery,
       selectedDay: selectedDay,
       task: task,
@@ -518,14 +518,14 @@ class TodoController extends GetxController {
   }
 
   bool areAllSelected({
-    required bool done,
+    required TodoStatus? statusFilter,
     String searchQuery = '',
     DateTime? selectedDay,
     Tasks? task,
     Todos? parent,
   }) {
     final filtered = getFilteredTodos(
-      done: done,
+      statusFilter: statusFilter,
       searchQuery: searchQuery,
       selectedDay: selectedDay,
       task: task,
@@ -538,14 +538,14 @@ class TodoController extends GetxController {
 
   void selectAll({
     required bool select,
-    required bool done,
+    required TodoStatus? statusFilter,
     String searchQuery = '',
     DateTime? selectedDay,
     Tasks? task,
     Todos? parent,
   }) {
     final filtered = getFilteredTodos(
-      done: done,
+      statusFilter: statusFilter,
       searchQuery: searchQuery,
       selectedDay: selectedDay,
       task: task,

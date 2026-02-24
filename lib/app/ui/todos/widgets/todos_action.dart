@@ -657,6 +657,12 @@ class _TodosActionState extends State<TodosAction>
   ) async {
     final tasks = await isar.tasks.filter().archiveEqualTo(false).findAll();
 
+    tasks.sort((a, b) {
+      final aIndex = a.index ?? double.maxFinite.toInt();
+      final bIndex = b.index ?? double.maxFinite.toInt();
+      return aIndex.compareTo(bIndex);
+    });
+
     final query = textEditingValue.text.toLowerCase();
     if (query.isEmpty) return tasks;
 
@@ -871,6 +877,8 @@ class _TodosActionState extends State<TodosAction>
       _todoTags = List.from(_todoTags)..add(tag);
       _editingController.tags.value = _todoTags;
     });
+    
+    _refreshTagOptions();
   }
 
   void _onTagSelected(String tag) {
@@ -1234,11 +1242,12 @@ class _TodosActionState extends State<TodosAction>
   }
 
   Future<void> _showDateTimePicker() async {
+    final now = DateTime.now();
     final DateTime? dateTime = await showOmniDateTimePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 1000)),
+      initialDate: now,
+      firstDate: now.subtract(const Duration(hours: 1)),
+      lastDate: now.add(const Duration(days: 1000)),
       is24HourMode: timeformat.value != '12',
       borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
     );

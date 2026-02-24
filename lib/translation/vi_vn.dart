@@ -87,6 +87,8 @@ class ViVn {
     'archived': 'Đã lưu trữ',
     'done': 'Xong',
     'cancelled': 'Đã hủy',
+    'cancelledTodos': 'Việc cần làm đã hủy',
+    'cancelledTodosHint': 'Chưa có việc cần làm nào bị hủy',
     'markAsCancelled': 'Đánh dấu là đã hủy',
     'markAsActive': 'Đánh dấu là đang hoạt động',
     'changeStatus': 'Thay đổi trạng thái',

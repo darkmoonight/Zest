@@ -88,6 +88,8 @@ class PlPl {
     'archived': 'Zarchiwizowane',
     'done': 'Ukończone',
     'cancelled': 'Anulowane',
+    'cancelledTodos': 'Anulowane zadania',
+    'cancelledTodosHint': 'Brak anulowanych zadań',
     'markAsCancelled': 'Oznacz jako anulowane',
     'markAsActive': 'Oznacz jako aktywne',
     'changeStatus': 'Zmień status',

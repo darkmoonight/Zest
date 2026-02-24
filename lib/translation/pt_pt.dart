@@ -87,6 +87,8 @@ class PtPt {
     'archived': 'Arquivado',
     'done': 'Feito',
     'cancelled': 'Cancelado',
+    'cancelledTodos': 'Tarefas canceladas',
+    'cancelledTodosHint': 'Ainda não há tarefas canceladas',
     'markAsCancelled': 'Marcar como cancelado',
     'markAsActive': 'Marcar como ativo',
     'changeStatus': 'Alterar estado',

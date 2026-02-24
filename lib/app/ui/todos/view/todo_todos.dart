@@ -233,6 +233,7 @@ class _TodosTodoState extends State<TodosTodo>
                   tabs: [
                     Tab(text: 'doing'.tr),
                     Tab(text: 'done'.tr),
+                    Tab(text: 'cancelled'.tr),
                   ],
                 ),
               ),
@@ -263,7 +264,7 @@ class _TodosTodoState extends State<TodosTodo>
         TodosList(
           calendar: false,
           allTodos: false,
-          done: false,
+          statusFilter: TodoStatus.active,
           todo: widget.todo,
           searchTodo: searchFilter,
           sortOption: sortOption,
@@ -271,7 +272,15 @@ class _TodosTodoState extends State<TodosTodo>
         TodosList(
           calendar: false,
           allTodos: false,
-          done: true,
+          statusFilter: TodoStatus.done,
+          todo: widget.todo,
+          searchTodo: searchFilter,
+          sortOption: sortOption,
+        ),
+        TodosList(
+          calendar: false,
+          allTodos: false,
+          statusFilter: TodoStatus.cancelled,
           todo: widget.todo,
           searchTodo: searchFilter,
           sortOption: sortOption,
@@ -321,9 +330,13 @@ class _TodosTodoState extends State<TodosTodo>
   }
 
   bool _areAllSelectedInCurrentTab() {
-    final isDone = tabController.index == 1;
+    final statusFilter = tabController.index == 0
+        ? TodoStatus.active
+        : tabController.index == 1
+            ? TodoStatus.done
+            : TodoStatus.cancelled;
     return todoController.areAllSelected(
-      done: isDone,
+      statusFilter: statusFilter,
       searchQuery: searchFilter,
       parent: widget.todo,
     );
@@ -331,11 +344,15 @@ class _TodosTodoState extends State<TodosTodo>
 
   void _toggleSelectAll() {
     final allSelected = _areAllSelectedInCurrentTab();
-    final isDone = tabController.index == 1;
+    final statusFilter = tabController.index == 0
+        ? TodoStatus.active
+        : tabController.index == 1
+            ? TodoStatus.done
+            : TodoStatus.cancelled;
 
     todoController.selectAll(
       select: !allSelected,
-      done: isDone,
+      statusFilter: statusFilter,
       searchQuery: searchFilter,
       parent: widget.todo,
     );

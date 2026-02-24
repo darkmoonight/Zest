@@ -86,6 +86,8 @@ class ArAr {
     'archived': 'المؤرشفة',
     'done': 'منجز',
     'cancelled': 'ملغى',
+    'cancelledTodos': 'المهام الملغاة',
+    'cancelledTodosHint': 'لا توجد مهام ملغاة بعد',
     'markAsCancelled': 'وضع علامة كملغى',
     'markAsActive': 'وضع علامة كنشط',
     'changeStatus': 'تغيير الحالة',

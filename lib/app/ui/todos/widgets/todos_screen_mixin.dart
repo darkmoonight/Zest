@@ -24,7 +24,7 @@ mixin TodosScreenMixin<T extends StatefulWidget> on State<T> {
     fabController = Get.find<FabController>();
     searchController = TextEditingController();
     sortOption = initialSortOption;
-    tabController = TabController(length: 2, vsync: vsync);
+    tabController = TabController(length: 3, vsync: vsync);
     tabController.addListener(_onTabChanged);
     _setupListeners();
   }

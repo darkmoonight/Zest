@@ -88,6 +88,8 @@ class FaIr {
     'archived': 'بایگانی',
     'done': 'انجام شده',
     'cancelled': 'لغو شده',
+    'cancelledTodos': 'وظایف لغو شده',
+    'cancelledTodosHint': 'هنوز وظیفه لغو شده‌ای وجود ندارد',
     'markAsCancelled': 'علامت به عنوان لغو‌شده',
     'markAsActive': 'علامت به عنوان فعال',
     'changeStatus': 'تغییر وضعیت',

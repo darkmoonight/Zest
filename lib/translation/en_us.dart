@@ -86,6 +86,8 @@ class EnUs {
     'archived': 'Archived',
     'done': 'Done',
     'cancelled': 'Cancelled',
+    'cancelledTodos': 'Cancelled Todos',
+    'cancelledTodosHint': 'No cancelled todos yet',
     'markAsCancelled': 'Mark as Cancelled',
     'markAsActive': 'Mark as Active',
     'changeStatus': 'Change Status',
