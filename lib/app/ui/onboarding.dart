@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zest/app/data/db.dart';
-import 'package:zest/app/ui/home.dart';
 import 'package:zest/app/constants/app_constants.dart';
-import 'package:zest/app/utils/navigation_helper.dart';
 import 'package:zest/app/utils/responsive_utils.dart';
 import 'package:zest/main.dart';
 
@@ -73,7 +71,8 @@ class _OnBoardingState extends State<OnBoarding> {
     settings.onboard = true;
     await isar.writeTxn(() => isar.settings.put(settings));
 
-    NavigationHelper.replace(const HomePage());
+    if (!mounted) return;
+    MyApp.updateAppState(context, completeOnboarding: true);
   }
 
   void _goToNextPage() {

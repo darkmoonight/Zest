@@ -275,11 +275,13 @@ class MyApp extends StatefulWidget {
     String? newTimeformat,
     String? newFirstDay,
     Locale? newLocale,
+    bool completeOnboarding = false,
   }) async {
     final state = context.findAncestorStateOfType<_MyAppState>()!;
     if (newAmoledTheme != null) state.changeAmoledTheme(newAmoledTheme);
     if (newMaterialColor != null) state.changeMaterialTheme(newMaterialColor);
     if (newLocale != null) state.changeLocale(newLocale);
+    if (completeOnboarding) state.completeOnboarding();
   }
 
   @override
@@ -454,6 +456,10 @@ class _MyAppState extends State<MyApp> {
       default:
         break;
     }
+  }
+
+  void completeOnboarding() {
+    setState(() {});
   }
 
   @override
