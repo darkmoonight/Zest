@@ -834,6 +834,7 @@ class _TodosActionState extends State<TodosAction>
         _addTag(value);
         fieldTextEditingController.clear();
         _tagsFocusNode.requestFocus();
+        _forceTagOptionsRefresh();
       },
     );
   }
@@ -877,26 +878,30 @@ class _TodosActionState extends State<TodosAction>
       _todoTags = List.from(_todoTags)..add(tag);
       _editingController.tags.value = _todoTags;
     });
-    
-    _refreshTagOptions();
   }
 
   void _onTagSelected(String tag) {
     _addTag(tag);
     _tagsController.clear();
     _tagsFocusNode.unfocus();
+    _forceTagOptionsRefresh();
   }
 
-  void _refreshTagOptions() {
-    final currentText = _tagsController.text;
-    final selection = _tagsController.selection;
-
-    _tagsController.text = '$currentText ';
-    _tagsController.text = currentText;
-
-    if (selection.isValid && selection.end <= currentText.length) {
-      _tagsController.selection = selection;
-    }
+  void _forceTagOptionsRefresh() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _tagsController.value = const TextEditingValue(
+        text: '\u200B',
+        selection: TextSelection.collapsed(offset: 1),
+      );
+      Future.microtask(() {
+        if (!mounted) return;
+        _tagsController.value = const TextEditingValue(
+          text: '',
+          selection: TextSelection.collapsed(offset: 0),
+        );
+      });
+    });
   }
 
   Widget _buildTagOptionsView(
@@ -983,7 +988,7 @@ class _TodosActionState extends State<TodosAction>
               _todoTags = List.from(_todoTags)..removeAt(i);
               _editingController.tags.value = _todoTags;
             });
-            _refreshTagOptions();
+            _forceTagOptionsRefresh();
           },
           backgroundColor: colorScheme.secondaryContainer,
           labelStyle: TextStyle(
