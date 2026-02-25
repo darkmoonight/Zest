@@ -97,8 +97,10 @@ class PlPl {
     'markAsDoneHint': 'Oznacz to zadanie jako ukończone',
     'markAsCancelledHint': 'Oznacz to zadanie jako anulowane',
     'markAsActiveHint': 'Przywróć to zadanie do statusu aktywnego',
-    'markWithSubtasksCompleteHint': 'Oznacz to zadanie i wszystkie podzadania jako ukończone',
-    'markWithSubtasksCancelHint': 'Oznacz to zadanie i wszystkie podzadania jako anulowane',
+    'markWithSubtasksCompleteHint':
+        'Oznacz to zadanie i wszystkie podzadania jako ukończone',
+    'markWithSubtasksCancelHint':
+        'Oznacz to zadanie i wszystkie podzadania jako anulowane',
     'doing': 'W trakcie',
     'color': 'Wybierz kolor',
     'searchCategory': 'Szukaj kategorii',

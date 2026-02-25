@@ -105,13 +105,13 @@ class _TodosListState extends State<TodosList>
           text: widget.statusFilter == TodoStatus.done
               ? 'completedTodo'.tr
               : widget.statusFilter == TodoStatus.cancelled
-                  ? 'cancelledTodos'.tr
-                  : 'addTodo'.tr,
+              ? 'cancelledTodos'.tr
+              : 'addTodo'.tr,
           subtitle: widget.statusFilter == TodoStatus.done
               ? 'completedTodoHint'.tr
               : widget.statusFilter == TodoStatus.cancelled
-                  ? 'cancelledTodosHint'.tr
-                  : (widget.calendar ? 'addCalendarTodoHint'.tr : 'addTodoHint'.tr),
+              ? 'cancelledTodosHint'.tr
+              : (widget.calendar ? 'addCalendarTodoHint'.tr : 'addTodoHint'.tr),
           icon: showIcon
               ? (widget.statusFilter == TodoStatus.done
                     ? IconsaxPlusBold.tick_circle
@@ -163,8 +163,8 @@ class _TodosListState extends State<TodosList>
     return _todoController.todos.where((todo) {
       final inSameTask = todo.task.value?.id == widget.task!.id;
       final isRoot = todo.parent.value == null;
-      final matchesStatus = widget.statusFilter == null ||
-          todo.status == widget.statusFilter;
+      final matchesStatus =
+          widget.statusFilter == null || todo.status == widget.statusFilter;
       return inSameTask && isRoot && matchesStatus;
     }).toList();
   }
@@ -172,8 +172,8 @@ class _TodosListState extends State<TodosList>
   List<Todos> _getSubTodos() {
     return _todoController.todos.where((todo) {
       final isChild = todo.parent.value?.id == widget.todo!.id;
-      final matchesStatus = widget.statusFilter == null ||
-          todo.status == widget.statusFilter;
+      final matchesStatus =
+          widget.statusFilter == null || todo.status == widget.statusFilter;
       return isChild && matchesStatus;
     }).toList();
   }
@@ -182,8 +182,8 @@ class _TodosListState extends State<TodosList>
     return _todoController.todos.where((todo) {
       final notArchived = todo.task.value?.archive == false;
       final isRoot = todo.parent.value == null;
-      final matchesStatus = widget.statusFilter == null ||
-          todo.status == widget.statusFilter;
+      final matchesStatus =
+          widget.statusFilter == null || todo.status == widget.statusFilter;
       return notArchived && isRoot && matchesStatus;
     }).toList();
   }
@@ -193,8 +193,8 @@ class _TodosListState extends State<TodosList>
       final notArchived = todo.task.value?.archive == false;
       final hasTime = todo.todoCompletedTime != null;
       final inSelectedDay = hasTime && _isWithinSelectedDay(todo);
-      final matchesStatus = widget.statusFilter == null ||
-          todo.status == widget.statusFilter;
+      final matchesStatus =
+          widget.statusFilter == null || todo.status == widget.statusFilter;
       return notArchived && hasTime && inSelectedDay && matchesStatus;
     }).toList();
   }

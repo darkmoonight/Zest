@@ -97,8 +97,10 @@ class TrTr {
     'markAsDoneHint': 'Bu görevi tamamlandı olarak işaretle',
     'markAsCancelledHint': 'Bu görevi iptal edildi olarak işaretle',
     'markAsActiveHint': 'Bu görevi aktif duruma geri yükle',
-    'markWithSubtasksCompleteHint': 'Bu görevi ve tüm alt görevleri tamamlandı olarak işaretle',
-    'markWithSubtasksCancelHint': 'Bu görevi ve tüm alt görevleri iptal edildi olarak işaretle',
+    'markWithSubtasksCompleteHint':
+        'Bu görevi ve tüm alt görevleri tamamlandı olarak işaretle',
+    'markWithSubtasksCancelHint':
+        'Bu görevi ve tüm alt görevleri iptal edildi olarak işaretle',
     'doing': 'Yapılıyor',
     'color': 'Renk seç',
     'searchCategory': 'Kategori ara',

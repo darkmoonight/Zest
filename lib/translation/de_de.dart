@@ -96,8 +96,10 @@ class DeDe {
     'markAsDoneHint': 'Diese Aufgabe als erledigt markieren',
     'markAsCancelledHint': 'Diese Aufgabe als abgebrochen markieren',
     'markAsActiveHint': 'Diese Aufgabe auf aktiven Status zurücksetzen',
-    'markWithSubtasksCompleteHint': 'Diese Aufgabe und alle Unteraufgaben als erledigt markieren',
-    'markWithSubtasksCancelHint': 'Diese Aufgabe und alle Unteraufgaben als abgebrochen markieren',
+    'markWithSubtasksCompleteHint':
+        'Diese Aufgabe und alle Unteraufgaben als erledigt markieren',
+    'markWithSubtasksCancelHint':
+        'Diese Aufgabe und alle Unteraufgaben als abgebrochen markieren',
     'doing': 'zu erledigen',
     'color': 'Farbe wählen',
     'searchCategory': 'Kategorie suchen',

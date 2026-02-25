@@ -96,8 +96,10 @@ class ItIt {
     'markAsDoneHint': 'Contrassegna questo compito come completato',
     'markAsCancelledHint': 'Contrassegna questo compito come annullato',
     'markAsActiveHint': 'Ripristina questo compito allo stato attivo',
-    'markWithSubtasksCompleteHint': 'Contrassegna questo compito e tutti i sottocompiti come completati',
-    'markWithSubtasksCancelHint': 'Contrassegna questo compito e tutti i sottocompiti come annullati',
+    'markWithSubtasksCompleteHint':
+        'Contrassegna questo compito e tutti i sottocompiti come completati',
+    'markWithSubtasksCancelHint':
+        'Contrassegna questo compito e tutti i sottocompiti come annullati',
     'doing': 'In corso',
     'color': 'Scegli il colore',
     'searchCategory': 'Cerca categoria',

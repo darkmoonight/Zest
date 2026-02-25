@@ -18,7 +18,8 @@ class NotificationService {
     final now = DateTime.now();
 
     try {
-      final effectiveTime = completedTime.isBefore(now) ||
+      final effectiveTime =
+          completedTime.isBefore(now) ||
               completedTime.difference(now).inSeconds <= 0
           ? now.add(const Duration(seconds: 1))
           : completedTime;

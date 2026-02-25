@@ -95,8 +95,10 @@ class ArAr {
     'markAsDoneHint': 'وضع علامة على هذه المهمة كمكتملة',
     'markAsCancelledHint': 'وضع علامة على هذه المهمة كملغاة',
     'markAsActiveHint': 'استعادة هذه المهمة إلى الحالة النشطة',
-    'markWithSubtasksCompleteHint': 'وضع علامة على هذه المهمة وجميع المهام الفرعية كمكتملة',
-    'markWithSubtasksCancelHint': 'وضع علامة على هذه المهمة وجميع المهام الفرعية كملغاة',
+    'markWithSubtasksCompleteHint':
+        'وضع علامة على هذه المهمة وجميع المهام الفرعية كمكتملة',
+    'markWithSubtasksCancelHint':
+        'وضع علامة على هذه المهمة وجميع المهام الفرعية كملغاة',
     'doing': 'القيام',
     'color': 'اختر لون',
     'searchCategory': 'ابحث عن فئة',

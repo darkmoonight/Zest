@@ -96,8 +96,10 @@ class PtPt {
     'markAsDoneHint': 'Marcar esta tarefa como concluída',
     'markAsCancelledHint': 'Marcar esta tarefa como cancelada',
     'markAsActiveHint': 'Restaurar esta tarefa para o estado ativo',
-    'markWithSubtasksCompleteHint': 'Marcar esta tarefa e todas as subtarefas como concluídas',
-    'markWithSubtasksCancelHint': 'Marcar esta tarefa e todas as subtarefas como canceladas',
+    'markWithSubtasksCompleteHint':
+        'Marcar esta tarefa e todas as subtarefas como concluídas',
+    'markWithSubtasksCancelHint':
+        'Marcar esta tarefa e todas as subtarefas como canceladas',
     'doing': 'Em progresso',
     'color': 'Selecione uma cor',
     'searchCategory': 'Pesquisar por categoria',

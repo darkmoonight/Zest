@@ -96,8 +96,10 @@ class ViVn {
     'markAsDoneHint': 'Đánh dấu việc cần làm này là đã hoàn thành',
     'markAsCancelledHint': 'Đánh dấu việc cần làm này là đã hủy',
     'markAsActiveHint': 'Khôi phục việc cần làm này về trạng thái hoạt động',
-    'markWithSubtasksCompleteHint': 'Đánh dấu việc cần làm này và tất cả công việc con là đã hoàn thành',
-    'markWithSubtasksCancelHint': 'Đánh dấu việc cần làm này và tất cả công việc con là đã hủy',
+    'markWithSubtasksCompleteHint':
+        'Đánh dấu việc cần làm này và tất cả công việc con là đã hoàn thành',
+    'markWithSubtasksCancelHint':
+        'Đánh dấu việc cần làm này và tất cả công việc con là đã hủy',
     'doing': 'Đang làm',
     'color': 'Chọn màu',
     'searchCategory': 'Tìm danh mục',

@@ -96,7 +96,8 @@ class EnUs {
     'markAsCancelledHint': 'Mark this todo as cancelled',
     'markAsActiveHint': 'Restore this todo to active status',
     'markWithSubtasksCompleteHint': 'Mark this todo and all subtasks as done',
-    'markWithSubtasksCancelHint': 'Mark this todo and all subtasks as cancelled',
+    'markWithSubtasksCancelHint':
+        'Mark this todo and all subtasks as cancelled',
     'doing': 'Doing',
     'color': 'Choose Color',
     'searchCategory': 'Search Category',

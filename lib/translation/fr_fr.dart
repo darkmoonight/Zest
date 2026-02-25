@@ -99,8 +99,10 @@ class FrFr {
     'markAsDoneHint': 'Marquer cette tâche comme terminée',
     'markAsCancelledHint': 'Marquer cette tâche comme annulée',
     'markAsActiveHint': 'Restaurer cette tâche au statut actif',
-    'markWithSubtasksCompleteHint': 'Marquer cette tâche et toutes les sous-tâches comme terminées',
-    'markWithSubtasksCancelHint': 'Marquer cette tâche et toutes les sous-tâches comme annulées',
+    'markWithSubtasksCompleteHint':
+        'Marquer cette tâche et toutes les sous-tâches comme terminées',
+    'markWithSubtasksCancelHint':
+        'Marquer cette tâche et toutes les sous-tâches comme annulées',
     'doing': 'Faire',
     'color': 'Choisir la couleur',
     'searchCategory': 'Recherche par catégorie',

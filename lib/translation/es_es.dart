@@ -99,8 +99,10 @@ class EsEs {
     'markAsDoneHint': 'Marcar esta tarea como completada',
     'markAsCancelledHint': 'Marcar esta tarea como cancelada',
     'markAsActiveHint': 'Restaurar esta tarea al estado activo',
-    'markWithSubtasksCompleteHint': 'Marcar esta tarea y todas las subtareas como completadas',
-    'markWithSubtasksCancelHint': 'Marcar esta tarea y todas las subtareas como canceladas',
+    'markWithSubtasksCompleteHint':
+        'Marcar esta tarea y todas las subtareas como completadas',
+    'markWithSubtasksCancelHint':
+        'Marcar esta tarea y todas las subtareas como canceladas',
     'doing': 'En progreso',
     'color': 'Selecciona un color',
     'searchCategory': 'Buscar categoría',

@@ -97,8 +97,10 @@ class FaIr {
     'markAsDoneHint': 'این وظیفه را به عنوان تکمیل شده علامت‌گذاری کنید',
     'markAsCancelledHint': 'این وظیفه را به عنوان لغو شده علامت‌گذاری کنید',
     'markAsActiveHint': 'این وظیفه را به وضعیت فعال بازگردانید',
-    'markWithSubtasksCompleteHint': 'این وظیفه و تمام زیروظایف را به عنوان تکمیل شده علامت‌گذاری کنید',
-    'markWithSubtasksCancelHint': 'این وظیفه و تمام زیروظایف را به عنوان لغو شده علامت‌گذاری کنید',
+    'markWithSubtasksCompleteHint':
+        'این وظیفه و تمام زیروظایف را به عنوان تکمیل شده علامت‌گذاری کنید',
+    'markWithSubtasksCancelHint':
+        'این وظیفه و تمام زیروظایف را به عنوان لغو شده علامت‌گذاری کنید',
     'doing': 'در حال انجام',
     'color': 'انتخاب رنگ',
     'searchCategory': 'جستجوی دسته‌بندی',

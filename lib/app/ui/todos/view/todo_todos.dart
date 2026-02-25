@@ -333,8 +333,8 @@ class _TodosTodoState extends State<TodosTodo>
     final statusFilter = tabController.index == 0
         ? TodoStatus.active
         : tabController.index == 1
-            ? TodoStatus.done
-            : TodoStatus.cancelled;
+        ? TodoStatus.done
+        : TodoStatus.cancelled;
     return todoController.areAllSelected(
       statusFilter: statusFilter,
       searchQuery: searchFilter,
@@ -347,8 +347,8 @@ class _TodosTodoState extends State<TodosTodo>
     final statusFilter = tabController.index == 0
         ? TodoStatus.active
         : tabController.index == 1
-            ? TodoStatus.done
-            : TodoStatus.cancelled;
+        ? TodoStatus.done
+        : TodoStatus.cancelled;
 
     todoController.selectAll(
       select: !allSelected,

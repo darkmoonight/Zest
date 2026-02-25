@@ -95,8 +95,10 @@ class RuRu {
     'markAsDoneHint': 'Отметить эту задачу как выполненную',
     'markAsCancelledHint': 'Отметить эту задачу как отмененную',
     'markAsActiveHint': 'Восстановить эту задачу в активный статус',
-    'markWithSubtasksCompleteHint': 'Отметить эту задачу и все подзадачи как выполненные',
-    'markWithSubtasksCancelHint': 'Отметить эту задачу и все подзадачи как отмененные',
+    'markWithSubtasksCompleteHint':
+        'Отметить эту задачу и все подзадачи как выполненные',
+    'markWithSubtasksCancelHint':
+        'Отметить эту задачу и все подзадачи как отмененные',
     'doing': 'В процессе',
     'color': 'Выберите цвет',
     'searchCategory': 'Поиск категории',
