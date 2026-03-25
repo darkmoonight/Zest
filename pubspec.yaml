@@ -42,8 +42,8 @@ dependencies:
   line_awesome_flutter: ^3.0.1
   sleek_circular_slider: ^2.1.0
   flutter_local_notifications: ^21.0.0
-  isar_community: ^3.3.1
-  isar_community_flutter_libs: ^3.3.1
+  isar_community: ^3.3.2
+  isar_community_flutter_libs: ^3.3.2
   flutter_heatmap_calendar: ^1.0.5
   fl_chart: ^1.2.0
 
@@ -54,7 +54,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_native_splash: ^2.4.7
   flutter_launcher_icons: ^0.14.4
-  isar_community_generator: ^3.3.1
+  isar_community_generator: ^3.3.2
 
 flutter_launcher_icons:
   android: true
