@@ -263,6 +263,7 @@ class _TodoCardState extends State<TodoCard>
         widget.todo.name,
         widget.todo.description,
         widget.todo.todoCompletedTime,
+        priority: widget.todo.priority,
       );
     }
 
@@ -306,6 +307,7 @@ class _TodoCardState extends State<TodoCard>
         widget.todo.name,
         widget.todo.description,
         widget.todo.todoCompletedTime,
+        priority: widget.todo.priority,
       );
     }
 

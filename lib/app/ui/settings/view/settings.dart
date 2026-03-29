@@ -84,6 +84,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   SizedBox(height: padding * 1.5),
                   _buildDateTimeSection(context),
                   SizedBox(height: padding * 1.5),
+                  _buildNotificationsSection(context),
+                  SizedBox(height: padding * 1.5),
                   _buildPrivacySecuritySection(context),
                   SizedBox(height: padding * 1.5),
                   _buildAppPreferencesSection(context),
@@ -102,8 +104,6 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
-
-  // ==================== SECTIONS ====================
 
   Widget _buildAppearanceSection(BuildContext context) {
     return SettingsSection(
@@ -197,6 +197,91 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget _buildNotificationsSection(BuildContext context) {
+    return SettingsSection(
+      title: 'notifications',
+      icon: IconsaxPlusBold.notification,
+      children: [
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.notification),
+          title: 'highPriority',
+          subtitle: 'highPrioritySubtitle'.tr,
+          trailing: Transform.scale(
+            scale: 0.8,
+            child: Switch(
+              value: settings.highPrioritySound && settings.highPriorityVibration,
+              onChanged: (value) async {
+                await isar.writeTxn(() async {
+                  settings.highPrioritySound = value;
+                  settings.highPriorityVibration = value;
+                  await isar.settings.put(settings);
+                });
+                setState(() {});
+              },
+            ),
+          ),
+        ),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.notification),
+          title: 'mediumPriority',
+          subtitle: 'mediumPrioritySubtitle'.tr,
+          trailing: Transform.scale(
+            scale: 0.8,
+            child: Switch(
+              value: settings.mediumPrioritySound && settings.mediumPriorityVibration,
+              onChanged: (value) async {
+                await isar.writeTxn(() async {
+                  settings.mediumPrioritySound = value;
+                  settings.mediumPriorityVibration = value;
+                  await isar.settings.put(settings);
+                });
+                setState(() {});
+              },
+            ),
+          ),
+        ),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.notification),
+          title: 'lowPriority',
+          subtitle: 'lowPrioritySubtitle'.tr,
+          trailing: Transform.scale(
+            scale: 0.8,
+            child: Switch(
+              value: settings.lowPrioritySound && settings.lowPriorityVibration,
+              onChanged: (value) async {
+                await isar.writeTxn(() async {
+                  settings.lowPrioritySound = value;
+                  settings.lowPriorityVibration = value;
+                  await isar.settings.put(settings);
+                });
+                setState(() {});
+              },
+            ),
+          ),
+        ),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.notification),
+          title: 'noPriority',
+          subtitle: 'noPrioritySubtitle'.tr,
+          trailing: Transform.scale(
+            scale: 0.8,
+            child: Switch(
+              value: settings.noPrioritySound && settings.noPriorityVibration,
+              onChanged: (value) async {
+                await isar.writeTxn(() async {
+                  settings.noPrioritySound = value;
+                  settings.noPriorityVibration = value;
+                  await isar.settings.put(settings);
+                });
+                setState(() {});
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildPrivacySecuritySection(BuildContext context) {
     return SettingsSection(
       title: 'privacySecurity',
@@ -222,7 +307,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   });
                   setState(() {});
                 } on PlatformException {
-                  // ignore
                 }
               },
             ),
@@ -390,8 +474,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  // ==================== DIALOGS ====================
-
   void _showThemeDialog(BuildContext context) {
     showSelectionDialog<String>(
       context: context,
@@ -536,8 +618,6 @@ class _SettingsPageState extends State<SettingsPage> {
       },
     );
   }
-
-  // ==================== HELPERS ====================
 
   String _getBackupPathDisplay() {
     final path = settings.autoBackupPath;

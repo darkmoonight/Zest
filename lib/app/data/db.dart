@@ -28,6 +28,14 @@ class Settings {
   DateTime? lastAutoBackupTime;
   int maxAutoBackups = 5;
   String? autoBackupPath;
+  bool highPrioritySound = true;
+  bool highPriorityVibration = true;
+  bool mediumPrioritySound = true;
+  bool mediumPriorityVibration = true;
+  bool lowPrioritySound = false;
+  bool lowPriorityVibration = true;
+  bool noPrioritySound = false;
+  bool noPriorityVibration = false;
 }
 
 enum SortOption {

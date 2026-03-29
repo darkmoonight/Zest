@@ -197,6 +197,7 @@ Future<void> snoozeTodo(int todoId) async {
       body,
       snoozeActionText: snoozeText,
       markDoneActionText: markDoneText,
+      priority: todo.priority,
     );
 
     await isarInstance.writeTxn(() async {

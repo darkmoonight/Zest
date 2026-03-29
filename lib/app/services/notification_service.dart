@@ -29,6 +29,7 @@ class NotificationService {
         todo.name,
         todo.description,
         effectiveTime,
+        priority: todo.priority,
       );
     } catch (e) {
       debugPrint('Error scheduling notification for todo ${todo.id}: $e');

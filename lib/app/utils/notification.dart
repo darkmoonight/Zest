@@ -3,13 +3,122 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:zest/main.dart';
 import 'package:get/get.dart';
+import 'package:zest/app/data/db.dart';
 
 class NotificationShow {
-  final String _channelId = 'Zest';
-  final String _channelName = 'DARK NIGHT';
+  static const String channelIdHigh = 'zest_high_priority';
+  static const String channelNameHigh = 'High Priority';
+  
+  static const String channelIdMedium = 'zest_medium_priority';
+  static const String channelNameMedium = 'Medium Priority';
+  
+  static const String channelIdLow = 'zest_low_priority';
+  static const String channelNameLow = 'Low Priority';
+  
+  static const String channelIdNone = 'zest_no_priority';
+  static const String channelNameNone = 'No Priority';
 
   static const String actionIdMarkDone = 'mark_done';
   static const String actionIdSnooze = 'snooze';
+  
+  Map<String, String> _getChannelForPriority(Priority priority) {
+    switch (priority) {
+      case Priority.high:
+        return {'channelId': channelIdHigh, 'channelName': channelNameHigh};
+      case Priority.medium:
+        return {'channelId': channelIdMedium, 'channelName': channelNameMedium};
+      case Priority.low:
+        return {'channelId': channelIdLow, 'channelName': channelNameLow};
+      case Priority.none:
+      default:
+        return {'channelId': channelIdNone, 'channelName': channelNameNone};
+    }
+  }
+  
+  AndroidNotificationDetails _getAndroidNotificationDetails(
+    Priority priority,
+    String title,
+    String body, {
+    String? markDoneActionText,
+    String? snoozeActionText,
+  }) {
+    final channelInfo = _getChannelForPriority(priority);
+    final channelId = channelInfo['channelId']!;
+    final channelName = channelInfo['channelName']!;
+    
+    Priority importance;
+    Priority priorityLevel;
+    bool playSound;
+    bool enableVibration;
+    VibrationPattern? vibrationPattern;
+    
+    switch (priority) {
+      case Priority.high:
+        importance = Priority.max;
+        priorityLevel = Priority.max;
+        playSound = settings.highPrioritySound;
+        enableVibration = settings.highPriorityVibration;
+        vibrationPattern = settings.highPriorityVibration 
+            ? Int64List.fromList([0, 250, 250, 250])
+            : null;
+        break;
+      case Priority.medium:
+        importance = Priority.high;
+        priorityLevel = Priority.high;
+        playSound = settings.mediumPrioritySound;
+        enableVibration = settings.mediumPriorityVibration;
+        vibrationPattern = settings.mediumPriorityVibration 
+            ? Int64List.fromList([0, 100, 100, 100])
+            : null;
+        break;
+      case Priority.low:
+        importance = Priority.defaultPriority;
+        priorityLevel = Priority.defaultPriority;
+        playSound = settings.lowPrioritySound;
+        enableVibration = settings.lowPriorityVibration;
+        vibrationPattern = settings.lowPriorityVibration 
+            ? Int64List.fromList([0, 50])
+            : null;
+        break;
+      case Priority.none:
+      default:
+        importance = Priority.min;
+        priorityLevel = Priority.min;
+        playSound = settings.noPrioritySound;
+        enableVibration = settings.noPriorityVibration;
+        vibrationPattern = settings.noPriorityVibration 
+            ? Int64List.fromList([0, 50])
+            : null;
+        break;
+    }
+
+    final markText = markDoneActionText ?? 'markAsDone'.tr;
+    final snoozeText =
+        snoozeActionText ??
+        '${'snooze'.tr} ${settings.snoozeDuration} ${'min'.tr}';
+
+    return AndroidNotificationDetails(
+      channelId,
+      channelName,
+      priority: priorityLevel,
+      importance: importance,
+      playSound: playSound,
+      enableVibration: enableVibration,
+      vibrationPattern: vibrationPattern,
+      styleInformation: BigTextStyleInformation(
+        body,
+        contentTitle: title,
+        summaryText: null,
+        htmlFormatBigText: true,
+        htmlFormatContentTitle: true,
+        htmlFormatSummaryText: true,
+      ),
+      actions: [
+        AndroidNotificationAction(actionIdMarkDone, markText),
+        AndroidNotificationAction(actionIdSnooze, snoozeText),
+      ],
+    );
+  }
 
   Future<void> showNotification(
     int id,
@@ -19,6 +128,7 @@ class NotificationShow {
     bool requestPermission = true,
     String? markDoneActionText,
     String? snoozeActionText,
+    Priority priority = Priority.none,
   }) async {
     if (flutterLocalNotificationsPlugin == null) {
       debugPrint('Notifications not supported on this platform');
@@ -32,6 +142,7 @@ class NotificationShow {
     }
 
     final notificationDetails = _buildNotificationDetails(
+      priority,
       title,
       body,
       markDoneActionText: markDoneActionText,
@@ -79,33 +190,18 @@ class NotificationShow {
   }
 
   NotificationDetails _buildNotificationDetails(
+    Priority priority,
     String title,
     String body, {
     String? markDoneActionText,
     String? snoozeActionText,
   }) {
-    final markText = markDoneActionText ?? 'markAsDone'.tr;
-    final snoozeText =
-        snoozeActionText ??
-        '${'snooze'.tr} ${settings.snoozeDuration} ${'min'.tr}';
-
-    final androidNotificationDetails = AndroidNotificationDetails(
-      _channelId,
-      _channelName,
-      priority: Priority.high,
-      importance: Importance.max,
-      styleInformation: BigTextStyleInformation(
-        body,
-        contentTitle: title,
-        summaryText: null,
-        htmlFormatBigText: true,
-        htmlFormatContentTitle: true,
-        htmlFormatSummaryText: true,
-      ),
-      actions: [
-        AndroidNotificationAction(actionIdMarkDone, markText),
-        AndroidNotificationAction(actionIdSnooze, snoozeText),
-      ],
+    final androidNotificationDetails = _getAndroidNotificationDetails(
+      priority,
+      title,
+      body,
+      markDoneActionText: markDoneActionText,
+      snoozeActionText: snoozeActionText,
     );
 
     final darwinNotificationDetails = DarwinNotificationDetails(
@@ -117,8 +213,8 @@ class NotificationShow {
 
     final linuxNotificationDetails = LinuxNotificationDetails(
       actions: [
-        LinuxNotificationAction(key: actionIdMarkDone, label: markText),
-        LinuxNotificationAction(key: actionIdSnooze, label: snoozeText),
+        LinuxNotificationAction(key: actionIdMarkDone, label: markDoneActionText ?? 'markAsDone'.tr),
+        LinuxNotificationAction(key: actionIdSnooze, label: snoozeActionText ?? '${'snooze'.tr} ${settings.snoozeDuration} ${'min'.tr}'),
       ],
     );
 
@@ -145,6 +241,7 @@ class NotificationShow {
     String body, {
     String? markDoneActionText,
     String? snoozeActionText,
+    Priority priority = Priority.none,
   }) async {
     if (flutterLocalNotificationsPlugin == null) return;
 
@@ -161,6 +258,7 @@ class NotificationShow {
         requestPermission: false,
         markDoneActionText: markDoneActionText,
         snoozeActionText: snoozeActionText,
+        priority: priority,
       );
     } catch (e) {
       debugPrint('Error snoozing notification: $e');
