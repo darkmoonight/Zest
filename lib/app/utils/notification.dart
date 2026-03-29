@@ -21,22 +21,22 @@ class NotificationShow {
   static const String actionIdMarkDone = 'mark_done';
   static const String actionIdSnooze = 'snooze';
   
-  Map<String, String> _getChannelForPriority(Priority priority) {
+  Map<String, String> _getChannelForPriority(db.Priority priority) {
     switch (priority) {
-      case Priority.high:
+      case db.Priority.high:
         return {'channelId': channelIdHigh, 'channelName': channelNameHigh};
-      case Priority.medium:
+      case db.Priority.medium:
         return {'channelId': channelIdMedium, 'channelName': channelNameMedium};
-      case Priority.low:
+      case db.Priority.low:
         return {'channelId': channelIdLow, 'channelName': channelNameLow};
-      case Priority.none:
+      case db.Priority.none:
       default:
         return {'channelId': channelIdNone, 'channelName': channelNameNone};
     }
   }
   
   AndroidNotificationDetails _getAndroidNotificationDetails(
-    Priority priority,
+    db.Priority priority,
     String title,
     String body, {
     String? markDoneActionText,
@@ -46,44 +46,44 @@ class NotificationShow {
     final channelId = channelInfo['channelId']!;
     final channelName = channelInfo['channelName']!;
     
-    Priority importance;
-    Priority priorityLevel;
+    android.Priority importance;
+    android.Priority priorityLevel;
     bool playSound;
     bool enableVibration;
-    VibrationPattern? vibrationPattern;
+    Int64List? vibrationPattern;
     
     switch (priority) {
-      case Priority.high:
-        importance = Priority.max;
-        priorityLevel = Priority.max;
+      case db.Priority.high:
+        importance = android.Priority.max;
+        priorityLevel = android.Priority.max;
         playSound = settings.highPrioritySound;
         enableVibration = settings.highPriorityVibration;
         vibrationPattern = settings.highPriorityVibration 
             ? Int64List.fromList([0, 250, 250, 250])
             : null;
         break;
-      case Priority.medium:
-        importance = Priority.high;
-        priorityLevel = Priority.high;
+      case db.Priority.medium:
+        importance = android.Priority.high;
+        priorityLevel = android.Priority.high;
         playSound = settings.mediumPrioritySound;
         enableVibration = settings.mediumPriorityVibration;
         vibrationPattern = settings.mediumPriorityVibration 
             ? Int64List.fromList([0, 100, 100, 100])
             : null;
         break;
-      case Priority.low:
-        importance = Priority.defaultPriority;
-        priorityLevel = Priority.defaultPriority;
+      case db.Priority.low:
+        importance = android.Priority.defaultPriority;
+        priorityLevel = android.Priority.defaultPriority;
         playSound = settings.lowPrioritySound;
         enableVibration = settings.lowPriorityVibration;
         vibrationPattern = settings.lowPriorityVibration 
             ? Int64List.fromList([0, 50])
             : null;
         break;
-      case Priority.none:
+      case db.Priority.none:
       default:
-        importance = Priority.min;
-        priorityLevel = Priority.min;
+        importance = android.Priority.min;
+        priorityLevel = android.Priority.min;
         playSound = settings.noPrioritySound;
         enableVibration = settings.noPriorityVibration;
         vibrationPattern = settings.noPriorityVibration 
@@ -128,7 +128,7 @@ class NotificationShow {
     bool requestPermission = true,
     String? markDoneActionText,
     String? snoozeActionText,
-    Priority priority = Priority.none,
+    db.Priority priority = db.Priority.none,
   }) async {
     if (flutterLocalNotificationsPlugin == null) {
       debugPrint('Notifications not supported on this platform');
@@ -190,7 +190,7 @@ class NotificationShow {
   }
 
   NotificationDetails _buildNotificationDetails(
-    Priority priority,
+    db.Priority priority,
     String title,
     String body, {
     String? markDoneActionText,
@@ -241,7 +241,7 @@ class NotificationShow {
     String body, {
     String? markDoneActionText,
     String? snoozeActionText,
-    Priority priority = Priority.none,
+    db.Priority priority = db.Priority.none,
   }) async {
     if (flutterLocalNotificationsPlugin == null) return;
 

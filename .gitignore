@@ -1,20 +1,18 @@
 ```
-# Dependencies
+# Flutter/Dart specific
 .dart_tool/
 .build/
-.dependencies/
-
-# Generated code
-lib/generated/
-
-# Logs
+coverage/
 *.log
-**/logs
+
+# Dependencies
+.pub/
+vendor/
 
 # Environment variables
 .env
+.env.local
 .env.*
-!.env.example
 
 # IDE files
 .idea/
@@ -26,17 +24,9 @@ lib/generated/
 .DS_Store
 Thumbs.db
 
-# Build outputs
-/build/
-/bin/
-/dist/
-
-# Test coverage
-/coverage/
-/lcov.info
+# Logs
+*.log
 
 # Temporary files
 *.tmp
-*.temp
-**/temp/
 ```
