@@ -93,11 +93,7 @@ class _TasksActionState extends State<TasksAction>
           ),
         );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _animationController.forward();
-      }
-    });
+    _animationController.forward();
   }
 
   @override

@@ -151,11 +151,7 @@ class _TodosActionState extends State<TodosAction>
           ),
         );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _animationController.forward();
-      }
-    });
+    _animationController.forward();
   }
 
   void _setupListeners() {
@@ -861,8 +857,9 @@ class _TodosActionState extends State<TodosAction>
         ? tagsList
         : tagsList.where((tag) => tag.toLowerCase().contains(query)).toList();
 
+    final lowerCaseTodoTags = _todoTags.map((e) => e.toLowerCase()).toSet();
     filteredTags = filteredTags
-        .where((tag) => !_todoTags.contains(tag))
+        .where((tag) => !lowerCaseTodoTags.contains(tag.toLowerCase()))
         .toList();
 
     _tagOptionsCount = filteredTags.length;
