@@ -1,7 +1,7 @@
 <div align='center'>
     <img src='/readme/icon.png' width='150'/>
     <h1>📝 Zest</h1>
-    <p><strong>A beautiful, feature-rich task management app built with Flutter</strong></p>
+    <p><strong>A beautiful, feature-rich task management application built with Flutter</strong></p>
 </div>
 
 <p align='center'>
@@ -18,34 +18,55 @@
 </p>
 
 <p align='center'>
-    Tired of task chaos? Zest keeps you in control with powerful features, beautiful design, and cross-platform support. 📱📅✅
+    Tired of task chaos? Zest keeps you in control with powerful organization, advanced statistics, and beautiful design. 📱📅✅
 </p>
 
 <p align='center'>
-    <strong>🌍 Available in 15 languages</strong> • <strong>🎨 Material You support</strong> • <strong>📊 Advanced statistics</strong> • <strong>🔔 Smart notifications</strong>
+    <strong>🌍 Available in 16 languages</strong> • <strong>🎨 Material You & AMOLED</strong> • <strong>📊 365-day heatmap</strong> • <strong>🔔 Smart reminders</strong>
 </p>
 
 ---
 
 ## ✨ Features
 
-**🎯 Task Management**
-- Categories with custom colors • Hierarchical subtasks • Priority levels • Tags system • Quick actions
+**🎯 Powerful Task Management**
+- Color-coded categories • Hierarchical subtasks with parent/child relationships • Priority levels (high, medium, low, none)
+- Tags system for flexible organization • Sort by name, date, priority, or randomly • Archive completed categories
+- Pin important todos • Drag-to-reorder • Calendar view for task overview
 
 **📊 Advanced Statistics**
-- 365-day heatmap • Completion streaks • Weekly/hourly charts • Productivity insights
+- 365-day productivity heatmap • Completion streaks tracking
+- Weekly and hourly completion charts • Visual productivity insights
+- Beautiful data visualization with fl_chart
 
 **🔔 Smart Notifications**
-- Timezone-aware reminders • Snooze functionality • Quick actions • Background processing
+- Timezone-aware scheduled reminders • Actionable notifications with "Mark as Done" and "Snooze" buttons
+- Configurable snooze duration (5–60 minutes) • Background notification handling
+- Automatic timezone detection
 
-**💾 Backup & Data**
-- Auto backups (daily/weekly/monthly) • GZip compression • Easy restore • Data export
+**💾 Backup & Data Management**
+- Manual backup and restore with GZip compression
+- Automatic backups (daily, weekly, monthly) with configurable retention
+- Selectable backup directory (Storage Access Framework support)
+- Full data deletion option
 
 **🎨 Beautiful Design**
-- Material You theming • AMOLED theme • Light/Dark/System modes • Edge-to-edge UI
+- Material You dynamic theming (wallpaper colors) • Pure AMOLED black theme
+- Light/Dark/System modes • Edge-to-edge display • Google Fonts (Ubuntu)
+- Smooth animations • Responsive layouts for all screen sizes
 
-**🌍 Localization**
-- 15 languages: English, Русский, 中文, العربية, فارسی, Español, Français, Deutsch, Italiano, Türkçe, Tiếng Việt, 한국어, Português, Polski
+**🚀 Platform Integration**
+- Home screen quick actions (New Category, New Todo, All Todos, Calendar, Statistics)
+- Screen privacy protection (prevent screenshots/recording)
+- Optimal display mode selection (high refresh rate support)
+- Haptic feedback • Portrait-only orientation
+
+**🌍 Extensive Localization**
+- 16 languages including: English, Русский, 中文 (简体/繁體), العربية, فارسی, Español, Français, Deutsch, Italiano, Türkçe, Tiếng Việt, 한국어, Português, Polski
+
+**🧮 Customization Options**
+- Custom category colors with color picker • Sorting preferences per category
+- Theme mode selection • Language preferences
 
 ---
 
@@ -71,6 +92,7 @@ Get the latest APK or builds for other platforms from the [Releases Section](htt
 ### Prerequisites
 - Flutter SDK 3.41.6 or higher
 - Dart SDK 3.11.4 or higher
+- Android Studio / Xcode for platform-specific builds
 
 ### Steps
 ```bash
@@ -81,19 +103,28 @@ cd Zest
 # Install dependencies
 flutter pub get
 
-# Generate code (for Isar database)
+# Generate code (for Isar database schemas)
 dart run build_runner build
 
 # Run the app
 flutter run
 
 # Build for production
-flutter build apk --release  # Android
+flutter build apk --release        # Android APK
+flutter build appbundle --release  # Android App Bundle (Play Store)
+flutter build ios --release        # iOS
 ```
 
----
+### Code Generation
+The project uses code generation for:
+- **Isar** - Database schemas and queries
 
-## 🤝 Contributing
+After modifying files with `@collection` annotations, run:
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+---🤝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
@@ -101,7 +132,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for gu
 
 ## 💰 Support the Project
 
-If Zest has become an indispensable part of your life, consider supporting development:
+If Zest has become an indispensable part of your daily routine, consider supporting development:
 
 [![ЮMoney](https://img.shields.io/badge/ЮMoney-violet?style=for-the-badge)](https://yoomoney.ru/to/4100117672775961)
 
