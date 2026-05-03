@@ -14,6 +14,7 @@ import 'package:zest/translation/zh_tw.dart';
 import 'package:zest/translation/tr_tr.dart';
 import 'package:zest/translation/vi_vn.dart';
 import 'package:zest/translation/pt_pt.dart';
+import 'package:zest/translation/ja_jp.dart';
 
 class Translation extends Translations {
   @override
@@ -33,5 +34,6 @@ class Translation extends Translations {
     'ko_KR': KoKr().messages,
     'pt_PT': PtPt().messages,
     'pl_PL': PlPl().messages,
+    'ja_JP': JaJp().messages,
   };
 }
