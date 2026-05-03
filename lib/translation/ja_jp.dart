@@ -3,12 +3,9 @@ class JaJp {
     'title1': 'Todoを整理しよう',
     'title2': '使いやすいデザイン',
     'title3': 'お問い合わせ',
-    'subtitle1':
-        'Todoをカテゴリ分けして、一つずつ完了していけます。',
-    'subtitle2':
-        'アプリをできるだけ快適・スピーディに使えるよう、ナビゲーションが設計されています。',
-    'subtitle3':
-        '問題が発生した場合は、メールまたはアプリのレビューからご連絡ください。',
+    'subtitle1': 'Todoをカテゴリ分けして、一つずつ完了していけます。',
+    'subtitle2': 'アプリをできるだけ快適・スピーディに使えるよう、ナビゲーションが設計されています。',
+    'subtitle3': '問題が発生した場合は、メールまたはアプリのレビューからご連絡ください。',
     'getStart': 'はじめる',
     'next': '次へ',
     'week': '週',
@@ -96,8 +93,7 @@ class JaJp {
     'markAsCancelledHint': 'このTodoをキャンセル済みにする',
     'markAsActiveHint': 'このTodoをアクティブに戻す',
     'markWithSubtasksCompleteHint': 'このTodoとすべてのサブタスクを完了済みにする',
-    'markWithSubtasksCancelHint':
-        'このTodoとすべてのサブタスクをキャンセル済みにする',
+    'markWithSubtasksCancelHint': 'このTodoとすべてのサブタスクをキャンセル済みにする',
     'doing': '進行中',
     'color': '色を選択',
     'searchCategory': 'カテゴリを検索',
@@ -113,8 +109,7 @@ class JaJp {
     'select': '選択',
     'isImages': '画像を表示',
     'clearText': 'テキストをクリア',
-    'clearTextWarning':
-        '未保存の変更があります。破棄してもよいですか？',
+    'clearTextWarning': '未保存の変更があります。破棄してもよいですか？',
     'groups': 'グループ',
     'firstDayOfWeek': '週の始まり',
     'monday': '月曜日',
@@ -203,8 +198,7 @@ class JaJp {
     'saveBeforeSubtasks': 'データが変更されました。保存してサブタスクに移動しますか？',
     'save': '保存',
     'markWithSubtasks': 'サブタスクと一緒にマーク',
-    'markWithSubtasksQuery':
-        'このTodoとすべてのサブタスクを完了済みにしますか？',
+    'markWithSubtasksQuery': 'このTodoとすべてのサブタスクを完了済みにしますか？',
     'markAll': 'すべてマーク',
     'autoBackup': '自動バックアップ',
     'autoBackupFrequency': 'バックアップ頻度',
