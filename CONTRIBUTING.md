@@ -1,10 +1,10 @@
 # Contribution Guidelines
 
-Thank you for considering contributing to our project! We welcome your input and appreciate your efforts. To ensure a smooth collaboration, please take a moment to review the following guidelines.
+Thank you for considering contributing to Zest! Please review these guidelines before opening a pull request.
 
 ## Code of Conduct
 
-This project and everyone participating in it are governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [project email].
+This project is governed by our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## How to Contribute
 
@@ -12,32 +12,39 @@ This project and everyone participating in it are governed by our [Code of Condu
 2. Create a new branch for your feature or bug fix.
 3. Make your changes and commit them.
 4. Push your changes to your fork on GitHub.
-5. Open a pull request in the original repository. Provide a clear title and description of your changes.
+5. Open a pull request with a clear title and description.
 
-## Translation addition steps:
+## Translations
 
-1. Create a localization file in the ToDark/lib/translation folder.
-2. Fill it out following the example of the en_us.dart file.
-3. Add a new import statement for your localization and include it in the list of supported localizations in the translation.dart file.
-   
+Zest uses [Slang](https://pub.dev/packages/slang) with JSON files in `assets/i18n/`.
+
+1. Add or update keys in `assets/i18n/en-US.i18n.json`.
+2. Mirror the key in all other locale files under `assets/i18n/`.
+3. Run `dart run slang` to regenerate `lib/i18n/strings*.g.dart`.
+
 ## Coding Standards
 
-Follow the coding standards and style guide used in the project. If there's no specific guide, stick to the existing code style.
+- Follow existing patterns: Riverpod notifiers, feature folders, Rain-style settings sections.
+- Run `flutter analyze` before submitting.
+- Match surrounding code style and naming.
 
 ## Testing
 
-Ensure that your code changes do not break existing functionality. Write tests for new features or bug fixes if applicable.
+Add tests in `test/` when fixing bugs or adding testable logic. Run:
+
+```bash
+flutter test
+```
 
 ## Documentation
 
-Update the documentation if your changes affect it. This includes the README.md file and any additional documentation files.
+- Add `///` dartdoc to public and private classes, methods, and fields (Rain style).
+- Persisted defaults and picker lists belong in [`lib/core/constants/app_constants.dart`](lib/core/constants/app_constants.dart).
+- Date/time formatting uses [`lib/core/utils/date_time_format_helper.dart`](lib/core/utils/date_time_format_helper.dart).
+- Settings enum pickers are defined in [`lib/core/config/setting_enum_pickers.dart`](lib/core/config/setting_enum_pickers.dart).
 
-## Issues
-
-Before starting work on a new feature or bug fix, check the issue tracker for related discussions or known issues.
+Update `README.md` when changing architecture, i18n workflow, or notifications.
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the project's license.
-
-Thank you for your contribution!
+By contributing, you agree that your contributions will be licensed under the project's [MIT License](LICENSE).

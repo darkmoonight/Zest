@@ -1,0 +1,104 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:isar_community/isar.dart';
+import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/bootstrap/isar_bootstrap.dart';
+import 'package:zest/core/bootstrap/app_bootstrap.dart';
+import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
+import 'package:zest/core/bootstrap/notification_bootstrap.dart';
+import 'package:zest/core/bootstrap/notification_handlers.dart';
+import 'package:zest/core/utils/device_info.dart';
+import 'package:zest/data/models/db.dart';
+import 'package:zest/i18n/locale_utils.dart';
+import 'package:zest/platform/platform_features.dart'
+    if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
+
+/// One-time startup: platform hooks, DB, locale, and notifications.
+class AppInitializer {
+  /// Runs all bootstrap steps and returns the loaded [AppBootstrap].
+  static Future<AppBootstrap> initialize() async {
+    await DeviceFeature().init();
+    await PlatformFeatures.initialize();
+
+    if (kDebugMode) {
+      PlatformFeatures.logPlatformInfo();
+    }
+
+    await initializeNotificationTimeZone();
+    await initializeNotificationsPlugin(
+      onDidReceiveNotificationResponse: (response) async {
+        await handleNotificationResponse(response);
+        await NotificationHandlerBridge.notifyForegroundActionCompleted();
+      },
+      onDidReceiveBackgroundNotificationResponse: kIsWeb
+          ? null
+          : notificationTapBackground,
+    );
+    final bootstrap = await _initializeIsar();
+
+    await PlatformFeatures.setScreenPrivacy(
+      bootstrap.settings.screenPrivacy ?? false,
+    );
+
+    if (PlatformFeatures.isMobile) {
+      await PlatformFeatures.setSystemUIMode(edgeToEdge: true);
+    }
+
+    return bootstrap;
+  }
+
+  /// Opens Isar, seeds default settings, runs migrations, and applies locale.
+  static Future<AppBootstrap> _initializeIsar() async {
+    final isar = await IsarBootstrap.openAppIsar();
+    var settings = await isar.settings.where().findFirst() ?? Settings();
+
+    _seedDefaultSettings(settings, PlatformDispatcher.instance.locale);
+    await isar.writeTxn(() => isar.settings.put(settings));
+
+    final appLocale = appLocaleFromLanguageCode(settings.language);
+    await applyAppLocale(appLocale);
+
+    return AppBootstrap(isar: isar, settings: settings);
+  }
+}
+
+/// Seeds missing defaults on [settings].
+///
+/// Returns `true` when [settings] was modified and should be persisted.
+bool _seedDefaultSettings(Settings settings, Locale deviceLocale) {
+  var changed = false;
+
+  if (settings.language == null) {
+    settings.language =
+        '${deviceLocale.languageCode}_${deviceLocale.countryCode}';
+    changed = true;
+  }
+
+  if (settings.theme == null) {
+    settings.theme = AppConstants.defaultTheme;
+    changed = true;
+  }
+
+  if (settings.isImage == null) {
+    settings.isImage = AppConstants.defaultIsImage;
+    changed = true;
+  }
+
+  if (settings.screenPrivacy == null) {
+    settings.screenPrivacy = false;
+    changed = true;
+  }
+
+  if (settings.snoozeDuration <= 0) {
+    settings.snoozeDuration = 10;
+    changed = true;
+  }
+
+  if (settings.maxAutoBackups <= 0) {
+    settings.maxAutoBackups = 5;
+    changed = true;
+  }
+
+  return changed;
+}

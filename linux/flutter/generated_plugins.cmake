@@ -3,7 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  dynamic_color
+  dynamic_system_colors
   file_selector_linux
   flutter_timezone
   isar_community_flutter_libs

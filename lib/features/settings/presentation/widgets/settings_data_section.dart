@@ -1,0 +1,215 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:zest/core/config/setting_enum_pickers.dart';
+import 'package:zest/core/di/provider_refs.dart';
+import 'package:zest/core/services/isar_service.dart';
+import 'package:zest/core/utils/show_snack_bar.dart';
+import 'package:zest/core/widgets/confirmation_dialog.dart';
+import 'package:zest/data/models/db.dart';
+import 'package:zest/features/settings/presentation/widgets/settings_selection.dart';
+import 'package:zest/features/settings/presentation/widgets/settings_section.dart';
+import 'package:zest/features/settings/presentation/widgets/settings_section_state.dart';
+import 'package:zest/features/settings/presentation/widgets/settings_switch_tile.dart';
+import 'package:zest/features/settings/presentation/widgets/settings_tile.dart';
+import 'package:zest/features/tasks/application/tasks_notifier.dart';
+import 'package:zest/features/todos/application/todos_notifier.dart';
+import 'package:zest/i18n/tr.dart';
+
+/// Backup, restore, auto-backup, and data clearing settings.
+class SettingsDataSection extends ConsumerStatefulWidget {
+  /// Creates a [SettingsDataSection].
+  const SettingsDataSection({super.key});
+
+  @override
+  /// Creates the state for this widget.
+  ConsumerState<SettingsDataSection> createState() =>
+      _SettingsDataSectionState();
+}
+
+/// Widget that settings data section state.
+class _SettingsDataSectionState
+    extends SettingsSectionConsumerState<SettingsDataSection> {
+  @override
+  /// Builds the widget subtree.
+  Widget build(BuildContext context) {
+    final backupSettings = ref.watch(
+      settingsProvider.select(
+        (s) => (
+          s.autoBackupEnabled,
+          s.autoBackupPath,
+          s.autoBackupFrequency,
+          s.maxAutoBackups,
+        ),
+      ),
+    );
+    final settings = ref.read(settingsProvider);
+    final isar = ref.read(isarProvider);
+    final isarService = IsarService(isar, context);
+
+    return SettingsSection(
+      title: 'dataManagement',
+      icon: IconsaxPlusBold.cloud,
+      children: [
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.cloud_plus),
+          title: 'backup',
+          onTap: isarService.createBackup,
+        ),
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.cloud_add),
+          title: 'restore',
+          onTap: isarService.restoreDB,
+        ),
+        SettingsSwitchTile(
+          leading: const Icon(IconsaxPlusLinear.refresh_circle),
+          title: 'autoBackup',
+          value: backupSettings.$1,
+          onChanged: (value) {
+            actions.saveSettingsOptimistic(
+              mutate: (s) => s.autoBackupEnabled = value,
+              afterSave: value ? _createAutoBackupNow : null,
+            );
+          },
+        ),
+        if (backupSettings.$1) ...[
+          SettingsTile(
+            leading: const Icon(IconsaxPlusLinear.folder),
+            title: 'autoBackupPath',
+            value: formatAutoBackupPathDisplay(settings),
+            onTap: () => _selectAutoBackupPath(settings),
+          ),
+          SettingsTile(
+            leading: const Icon(IconsaxPlusLinear.calendar_tick),
+            title: 'autoBackupFrequency',
+            value: _getFrequencyText(backupSettings.$3),
+            onTap: () => _showAutoBackupFrequencyDialog(settings),
+          ),
+          SettingsTile(
+            leading: const Icon(IconsaxPlusLinear.d_square),
+            title: 'maxAutoBackups',
+            value: '${backupSettings.$4}',
+            onTap: () => _showMaxBackupsDialog(settings),
+          ),
+          SettingsTile(
+            leading: const Icon(IconsaxPlusLinear.d_rotate),
+            title: 'createAutoBackupNow',
+            onTap: _createAutoBackupNow,
+          ),
+        ],
+        SettingsTile(
+          leading: const Icon(IconsaxPlusLinear.cloud_minus),
+          title: 'deleteAllBD',
+          onTap: () => _showDeleteAllDBDialog(),
+        ),
+      ],
+    );
+  }
+
+  /// Show auto backup frequency dialog.
+  void _showAutoBackupFrequencyDialog(Settings settings) {
+    showSettingsSelection<AutoBackupFrequency>(
+      context: context,
+      title: 'autoBackupFrequency',
+      icon: IconsaxPlusBold.calendar_tick,
+      items: AutoBackupFrequency.values,
+      currentValue: settings.autoBackupFrequency,
+      itemBuilder: (frequency) => _getFrequencyText(frequency),
+      onSelected: (value) async {
+        actions.saveSettingsOptimistic(
+          mutate: (s) => s.autoBackupFrequency = value,
+        );
+      },
+    );
+  }
+
+  /// Show max backups dialog.
+  void _showMaxBackupsDialog(Settings settings) {
+    final picker = settingMaxAutoBackupsPicker;
+    showSettingsSelection<int>(
+      context: context,
+      title: picker.titleKey,
+      icon: picker.icon,
+      items: picker.items,
+      currentValue: picker.read(settings),
+      itemBuilder: (count) => '$count',
+      onSelected: (value) async {
+        actions.saveSettingsOptimistic(mutate: (s) => picker.write(s, value));
+      },
+    );
+  }
+
+  /// Void.
+  Future<void> _selectAutoBackupPath(Settings settings) async {
+    try {
+      final path = await IsarService(
+        ref.read(isarProvider),
+        context,
+      ).pickAutoBackupDirectory();
+      if (path == null) return;
+
+      settings.autoBackupPath = path;
+      await actions.saveSettings(
+        afterSave: () async {
+          if (!mounted) return;
+          showSnackBar('autoBackupPathSet'.tr);
+          await _createAutoBackupNow();
+        },
+      );
+    } catch (e) {
+      debugPrint('Error selecting auto backup path: $e');
+      if (!mounted) return;
+      showSnackBar('error'.tr, isError: true);
+    }
+  }
+
+  /// Void.
+  Future<void> _createAutoBackupNow() async {
+    try {
+      showSnackBar('creatingAutoBackup'.tr, isInfo: true);
+
+      final success = await actions.createAutoBackupNow();
+
+      if (!mounted) return;
+      if (success) {
+        showSnackBar('autoBackupCreated'.tr);
+      } else {
+        showSnackBar('error'.tr, isError: true);
+      }
+    } catch (e) {
+      debugPrint('Error creating auto backup: $e');
+      if (!mounted) return;
+      showSnackBar('error'.tr, isError: true);
+    }
+  }
+
+  /// Get frequency text.
+  String _getFrequencyText(AutoBackupFrequency frequency) =>
+      switch (frequency) {
+        AutoBackupFrequency.daily => 'daily'.tr,
+        AutoBackupFrequency.weekly => 'weekly'.tr,
+        AutoBackupFrequency.monthly => 'monthly'.tr,
+      };
+
+  /// Show delete all db dialog.
+  void _showDeleteAllDBDialog() {
+    showConfirmationDialog(
+      context: context,
+      title: 'deleteAllBDTitle',
+      message: 'deleteAllBDQuery',
+      icon: IconsaxPlusBold.trash,
+      isDestructive: true,
+      confirmText: 'delete',
+      onConfirm: () async {
+        final isar = ref.read(isarProvider);
+        await isar.writeTxn(() async {
+          await isar.todos.clear();
+          await isar.tasks.clear();
+        });
+        await ref.read(tasksNotifierProvider.notifier).reloadTasks();
+        await ref.read(todosNotifierProvider.notifier).reloadTodos();
+        showSnackBar('deleteAll'.tr);
+      },
+    );
+  }
+}

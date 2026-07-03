@@ -1,0 +1,263 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:dynamic_system_colors/dynamic_system_colors.dart';
+import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/theme/app_font.dart';
+import 'package:zest/core/theme/color_palette.dart';
+
+/// Base Material 3 light theme before accent overrides.
+final ThemeData baseLight = ThemeData.light(useMaterial3: true);
+
+/// Base Material 3 dark theme before accent overrides.
+final ThemeData baseDark = ThemeData.dark(useMaterial3: true);
+
+/// Disables Material ink splash and press/hover/focus overlays app-wide.
+const _noSplashFactory = NoSplash.splashFactory;
+const _transparentOverlay = WidgetStatePropertyAll<Color>(Colors.transparent);
+
+/// Shared overrides for Material buttons (ripple and overlay disabled).
+ButtonStyle _noSplashButtonStyle() => const ButtonStyle(
+  splashFactory: _noSplashFactory,
+  overlayColor: _transparentOverlay,
+);
+
+// Colors
+
+/// Default light scaffold/surface color.
+const Color lightColor = Colors.white;
+
+/// Default dark scaffold/surface color.
+const Color darkColor = Color.fromRGBO(30, 30, 30, 1);
+
+/// Pure black surface used for AMOLED dark theme.
+const Color oledColor = Colors.black;
+
+/// Default light color scheme from the indigo palette.
+ColorScheme colorSchemeLight = AppColorPalette.of(null).lightScheme();
+
+/// Default dark color scheme from the indigo palette.
+ColorScheme colorSchemeDark = AppColorPalette.of(null).darkScheme();
+
+// Theme builders
+
+/// Builds the light app theme with optional accent and dynamic color scheme.
+ThemeData lightTheme(
+  Color? color,
+  ColorScheme? colorScheme,
+  bool edgeToEdgeAvailable, {
+  String appFont = AppFont.defaultId,
+}) => _buildTheme(
+  baseTheme: baseLight,
+  brightness: Brightness.light,
+  color: color,
+  colorScheme: colorScheme,
+  edgeToEdgeAvailable: edgeToEdgeAvailable,
+  appFont: appFont,
+);
+
+/// Builds the dark app theme with optional accent and dynamic color scheme.
+ThemeData darkTheme(
+  Color? color,
+  ColorScheme? colorScheme,
+  bool edgeToEdgeAvailable, {
+  String appFont = AppFont.defaultId,
+}) => _buildTheme(
+  baseTheme: baseDark,
+  brightness: Brightness.dark,
+  color: color,
+  colorScheme: colorScheme,
+  edgeToEdgeAvailable: edgeToEdgeAvailable,
+  appFont: appFont,
+);
+
+/// Assembles a full [ThemeData] from base tokens and optional accent colors.
+ThemeData _buildTheme({
+  required ThemeData baseTheme,
+  required Brightness brightness,
+  required Color? color,
+  required ColorScheme? colorScheme,
+  required bool edgeToEdgeAvailable,
+  required String appFont,
+}) {
+  final harmonizedColorScheme = colorScheme
+      ?.copyWith(brightness: brightness, surface: baseTheme.colorScheme.surface)
+      .harmonized();
+
+  return baseTheme.copyWith(
+    brightness: brightness,
+    colorScheme: harmonizedColorScheme,
+    textTheme: AppFont.textTheme(appFont, baseTheme.textTheme),
+    primaryTextTheme: AppFont.textTheme(appFont, baseTheme.primaryTextTheme),
+    splashFactory: _noSplashFactory,
+    splashColor: Colors.transparent,
+    highlightColor: Colors.transparent,
+    hoverColor: Colors.transparent,
+    focusColor: Colors.transparent,
+    textButtonTheme: TextButtonThemeData(style: _noSplashButtonStyle()),
+    filledButtonTheme: FilledButtonThemeData(style: _noSplashButtonStyle()),
+    outlinedButtonTheme: OutlinedButtonThemeData(style: _noSplashButtonStyle()),
+    elevatedButtonTheme: ElevatedButtonThemeData(style: _noSplashButtonStyle()),
+    iconButtonTheme: IconButtonThemeData(style: _noSplashButtonStyle()),
+    listTileTheme: const ListTileThemeData(enableFeedback: false),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      splashColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      highlightElevation: 0,
+    ),
+    appBarTheme: _buildAppBarTheme(
+      color,
+      harmonizedColorScheme,
+      edgeToEdgeAvailable,
+      brightness,
+    ),
+    primaryColor: color,
+    canvasColor: color,
+    scaffoldBackgroundColor: color,
+    chipTheme: _buildChipTheme(color, harmonizedColorScheme),
+    cardTheme: _buildCardTheme(color, harmonizedColorScheme),
+    bottomSheetTheme: _buildBottomSheetTheme(color, harmonizedColorScheme),
+    navigationRailTheme: baseTheme.navigationRailTheme.copyWith(
+      backgroundColor: color,
+    ),
+    navigationBarTheme: _buildNavigationBarTheme(color, harmonizedColorScheme),
+    inputDecorationTheme: _buildInputDecorationTheme(baseTheme),
+  );
+}
+
+// Component themes
+
+/// Builds app bar styling including edge-to-edge system overlay colors.
+AppBarTheme _buildAppBarTheme(
+  Color? color,
+  ColorScheme? colorScheme,
+  bool edgeToEdgeAvailable,
+  Brightness brightness,
+) => AppBarTheme(
+  backgroundColor: color,
+  foregroundColor: colorScheme?.onSurface,
+  shadowColor: Colors.transparent,
+  surfaceTintColor: Colors.transparent,
+  elevation: 0,
+  systemOverlayStyle: SystemUiOverlayStyle(
+    statusBarIconBrightness: brightness == Brightness.light
+        ? Brightness.dark
+        : Brightness.light,
+    statusBarColor: Colors.transparent,
+    systemStatusBarContrastEnforced: false,
+    systemNavigationBarContrastEnforced: false,
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarIconBrightness: brightness == Brightness.light
+        ? Brightness.dark
+        : Brightness.light,
+    systemNavigationBarColor: edgeToEdgeAvailable
+        ? Colors.transparent
+        : colorScheme?.surface,
+  ),
+);
+
+/// Builds chip styling with OLED-aware surface tint handling.
+ChipThemeData _buildChipTheme(Color? color, ColorScheme? colorScheme) =>
+    ChipThemeData(
+      side: BorderSide.none,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: color == oledColor
+          ? Colors.transparent
+          : colorScheme?.surfaceTint,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      shadowColor: Colors.transparent,
+    );
+
+/// Builds card styling with OLED-aware surface tint handling.
+CardThemeData _buildCardTheme(Color? color, ColorScheme? colorScheme) =>
+    CardThemeData(
+      color: color,
+      surfaceTintColor: color == oledColor
+          ? Colors.transparent
+          : colorScheme?.surfaceTint,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusXLarge),
+      ),
+      shadowColor: Colors.transparent,
+    );
+
+/// Builds bottom sheet background and tint colors.
+BottomSheetThemeData _buildBottomSheetTheme(
+  Color? color,
+  ColorScheme? colorScheme,
+) => BottomSheetThemeData(
+  backgroundColor: color,
+  surfaceTintColor: color == oledColor
+      ? Colors.transparent
+      : colorScheme?.surfaceTint,
+);
+
+/// Builds navigation bar background and label text styling.
+NavigationBarThemeData _buildNavigationBarTheme(
+  Color? color,
+  ColorScheme? colorScheme,
+) => NavigationBarThemeData(
+  backgroundColor: color,
+  surfaceTintColor: color == oledColor
+      ? Colors.transparent
+      : colorScheme?.surfaceTint,
+  overlayColor: _transparentOverlay,
+  labelTextStyle: WidgetStateProperty.all(
+    const TextStyle(overflow: TextOverflow.ellipsis, fontSize: 12),
+  ),
+);
+
+/// Builds rounded outline borders for text fields.
+InputDecorationTheme _buildInputDecorationTheme(ThemeData baseTheme) =>
+    InputDecorationTheme(
+      labelStyle: WidgetStateTextStyle.resolveWith(
+        (Set<WidgetState> states) => const TextStyle(fontSize: 14),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusXLarge),
+        borderSide: BorderSide(color: baseTheme.disabledColor),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusXLarge),
+        borderSide: BorderSide(color: baseTheme.disabledColor),
+      ),
+    );
+
+/// Light and dark themes for the current appearance and font settings.
+typedef AppThemes = ({ThemeData light, ThemeData dark});
+
+/// Picks surface colors and schemes from dynamic color and palette settings.
+AppThemes resolveAppThemes({
+  required bool materialColor,
+  required bool amoledTheme,
+  required String colorPalette,
+  required ColorScheme? lightDynamic,
+  required ColorScheme? darkDynamic,
+  required bool edgeToEdgeAvailable,
+  required String appFont,
+}) {
+  final font = AppFont.resolve(appFont);
+  final palette = AppColorPalette.of(colorPalette);
+  final paletteLight = palette.lightScheme();
+  final paletteDark = palette.darkScheme();
+
+  ThemeData buildLight(Color? color, ColorScheme? scheme) =>
+      lightTheme(color, scheme, edgeToEdgeAvailable, appFont: font);
+
+  ThemeData buildDark(Color? color, ColorScheme? scheme) =>
+      darkTheme(color, scheme, edgeToEdgeAvailable, appFont: font);
+
+  final light = materialColor && lightDynamic != null
+      ? buildLight(lightDynamic.surface, lightDynamic)
+      : buildLight(paletteLight.surface, paletteLight);
+
+  final dark = amoledTheme
+      ? (materialColor && darkDynamic != null
+            ? buildDark(oledColor, darkDynamic)
+            : buildDark(oledColor, paletteDark))
+      : materialColor && darkDynamic != null
+      ? buildDark(darkDynamic.surface, darkDynamic)
+      : buildDark(paletteDark.surface, paletteDark);
+
+  return (light: light, dark: dark);
+}

@@ -1,0 +1,57 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zest/core/di/provider_refs.dart';
+import 'package:zest/core/settings/app_settings_notifier.dart';
+import 'package:zest/data/models/db.dart';
+import 'package:zest/i18n/tr.dart';
+
+/// Provides the persisted theme mode preference as [ThemeMode].
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
+  ThemeModeNotifier.new,
+);
+
+/// User-visible label for a persisted theme preference (`system`, `dark`, `light`).
+String themePreferenceLabel(String? themeKey) => (themeKey ?? 'system').tr;
+
+/// Persists and exposes theme mode; also saves AMOLED and Material You toggles.
+class ThemeModeNotifier extends Notifier<ThemeMode> {
+  /// Initializes theme mode from persisted [Settings].
+  @override
+  ThemeMode build() => _fromSettings(ref.watch(settingsProvider));
+
+  /// Maps stored theme string to [ThemeMode].
+  ThemeMode _fromSettings(Settings settings) {
+    switch (settings.theme) {
+      case 'system':
+        return ThemeMode.system;
+      case 'dark':
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.light;
+    }
+  }
+
+  /// Persists the selected theme mode string and refreshes state.
+  Future<void> setTheme(String themeMode) async {
+    final settings = ref.read(settingsProvider);
+    settings.theme = themeMode;
+    state = _fromSettings(settings);
+    await ref.read(settingsRepositoryProvider).save(settings);
+  }
+
+  /// Persists the AMOLED (pure black) theme toggle.
+  Future<void> saveOledTheme(bool isOled) async {
+    final settings = ref.read(settingsProvider);
+    settings.amoledTheme = isOled;
+    ref.read(appSettingsProvider.notifier).update(amoledTheme: isOled);
+    await ref.read(settingsRepositoryProvider).save(settings);
+  }
+
+  /// Persists the Material You dynamic color toggle.
+  Future<void> saveMaterialTheme(bool isMaterial) async {
+    final settings = ref.read(settingsProvider);
+    settings.materialColor = isMaterial;
+    ref.read(appSettingsProvider.notifier).update(materialColor: isMaterial);
+    await ref.read(settingsRepositoryProvider).save(settings);
+  }
+}

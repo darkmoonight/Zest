@@ -1,0 +1,318 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/di/provider_refs.dart';
+import 'package:zest/core/services/task_service.dart';
+import 'package:zest/data/models/db.dart';
+import 'package:zest/data/repositories/task_repository.dart';
+import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/features/todos/application/todos_notifier.dart';
+
+/// Riverpod state and notifier for task categories.
+class TasksState {
+  /// Creates a [TasksState].
+  const TasksState({
+    this.tasks = const [],
+    this.selectedTask = const [],
+    this.isMultiSelectionTask = false,
+    this.isPop = true,
+  });
+
+  /// Loaded task categories for the home list.
+  final List<Tasks> tasks;
+
+  /// Selected categories during multi-select mode.
+  final List<Tasks> selectedTask;
+
+  /// Whether the categories screen is in multi-select mode.
+  final bool isMultiSelectionTask;
+
+  /// Whether [PopScope] should allow popping (false during multi-select).
+  final bool isPop;
+
+  /// Returns a copy with the given fields replaced.
+  TasksState copyWith({
+    List<Tasks>? tasks,
+    List<Tasks>? selectedTask,
+    bool? isMultiSelectionTask,
+    bool? isPop,
+  }) {
+    return TasksState(
+      tasks: tasks ?? this.tasks,
+      selectedTask: selectedTask ?? this.selectedTask,
+      isMultiSelectionTask: isMultiSelectionTask ?? this.isMultiSelectionTask,
+      isPop: isPop ?? this.isPop,
+    );
+  }
+}
+
+/// Loads and mutates task categories; watches Isar for live list updates.
+class TasksNotifier extends Notifier<TasksState> {
+  /// The task repo.
+  late final TaskRepository _taskRepo;
+
+  /// The todo repo.
+  late final TodoRepository _todoRepo;
+
+  /// The task service.
+  late final TaskService _taskService;
+
+  /// The load debounce.
+  Timer? _loadDebounce;
+
+  @override
+  /// Initializes repositories, watchers, and returns initial [TasksState].
+  TasksState build() {
+    _taskRepo = ref.read(taskRepositoryProvider);
+    _todoRepo = ref.read(todoRepositoryProvider);
+    _taskService = TaskService(
+      taskRepo: _taskRepo,
+      todoRepo: _todoRepo,
+      notificationService: ref.read(notificationServiceProvider),
+    );
+
+    StreamSubscription<void>? taskWatcherSubscription;
+    StreamSubscription<void>? todoWatcherSubscription;
+
+    taskWatcherSubscription = _taskRepo.watchLazy().listen((_) {
+      _debounceLoad();
+    });
+
+    todoWatcherSubscription = _todoRepo.watchLazy().listen((_) {
+      _debounceLoad();
+    });
+
+    ref.onDispose(() {
+      _loadDebounce?.cancel();
+      taskWatcherSubscription?.cancel();
+      todoWatcherSubscription?.cancel();
+    });
+
+    Future.microtask(reloadTasks);
+
+    return const TasksState();
+  }
+
+  /// Debounce load.
+  void _debounceLoad() {
+    _loadDebounce?.cancel();
+    _loadDebounce = Timer(AppConstants.debounceDelay, () async {
+      await reloadTasks();
+    });
+  }
+
+  /// Void.
+  Future<void> reloadTasks() async {
+    final newTasks = await _taskRepo.getAll();
+    state = state.copyWith(tasks: newTasks);
+  }
+
+  // ==================== Tasks CRUD ====================
+
+  /// Void.
+  Future<void> addTask(String title, String description, Color color) async {
+    await _taskService.createTask(
+      title: title,
+      description: description,
+      color: color,
+      currentTaskCount: state.tasks.length,
+    );
+  }
+
+  /// Void.
+  Future<void> updateTask(
+    Tasks task,
+    String title,
+    String description,
+    Color color,
+  ) async {
+    await _taskService.updateTask(
+      task: task,
+      title: title,
+      description: description,
+      color: color,
+    );
+  }
+
+  /// Void.
+  Future<void> deleteTask(List<Tasks> taskList) async {
+    if (taskList.isEmpty) return;
+
+    _loadDebounce?.cancel();
+
+    await _taskService.deleteTasks(taskList);
+
+    state = state.copyWith(tasks: await _taskRepo.getAll());
+    await _reindexTasks();
+  }
+
+  /// Void.
+  Future<void> archiveTask(List<Tasks> taskList) async {
+    if (taskList.isEmpty) return;
+
+    _loadDebounce?.cancel();
+    await _taskService.archiveTasks(taskList);
+    state = state.copyWith(tasks: await _taskRepo.getAll());
+    doMultiSelectionTaskClear();
+    await ref.read(todosNotifierProvider.notifier).reloadTodos();
+    ref.read(todosNotifierProvider.notifier).resyncSelectedTodoFromIds();
+  }
+
+  /// Void.
+  Future<void> noArchiveTask(List<Tasks> taskList) async {
+    if (taskList.isEmpty) return;
+
+    _loadDebounce?.cancel();
+    await _taskService.unarchiveTasks(taskList);
+    state = state.copyWith(tasks: await _taskRepo.getAll());
+    doMultiSelectionTaskClear();
+    await ref.read(todosNotifierProvider.notifier).reloadTodos();
+    ref.read(todosNotifierProvider.notifier).resyncSelectedTodoFromIds();
+  }
+
+  /// Void.
+  Future<void> reorderTasks({
+    required List<Tasks> filteredTasks,
+    required bool archived,
+  }) async {
+    if (filteredTasks.isEmpty) return;
+
+    await _taskService.reorderTasks(
+      allTasks: state.tasks.toList(),
+      filteredTasks: filteredTasks,
+    );
+
+    state = state.copyWith(tasks: await _taskRepo.getAll());
+  }
+
+  /// Void.
+  Future<void> _reindexTasks() async {
+    final all = state.tasks.toList();
+
+    for (int i = 0; i < all.length; i++) {
+      all[i].index = i;
+    }
+
+    await _taskRepo.updateIndexes(all);
+    state = state.copyWith(tasks: all);
+  }
+
+  // ==================== Filters ====================
+
+  /// Tasks.
+  List<Tasks> getFilteredTasks({
+    required bool archived,
+    String searchQuery = '',
+  }) {
+    return _taskService.filterTasks(
+      tasks: state.tasks,
+      archived: archived,
+      searchQuery: searchQuery,
+    );
+  }
+
+  // ==================== Multi-Selection Tasks ====================
+
+  /// Do multi selection task.
+  void doMultiSelectionTask(Tasks task) {
+    if (!state.isMultiSelectionTask) return;
+
+    final selected = List<Tasks>.from(state.selectedTask);
+
+    if (selected.contains(task)) {
+      selected.remove(task);
+    } else {
+      selected.add(task);
+    }
+
+    if (selected.isEmpty) {
+      state = state.copyWith(
+        selectedTask: selected,
+        isMultiSelectionTask: false,
+        isPop: true,
+      );
+    } else {
+      state = state.copyWith(selectedTask: selected, isPop: false);
+    }
+  }
+
+  /// Do multi selection task clear.
+  void doMultiSelectionTaskClear() {
+    state = state.copyWith(
+      selectedTask: const [],
+      isMultiSelectionTask: false,
+      isPop: true,
+    );
+  }
+
+  /// Toggle multi selection task.
+  void toggleMultiSelectionTask() {
+    if (state.isMultiSelectionTask) {
+      doMultiSelectionTaskClear();
+    } else {
+      state = state.copyWith(isMultiSelectionTask: true, isPop: false);
+    }
+  }
+
+  /// Sets is pop.
+  void setIsPop(bool value) {
+    if (state.isPop != value) {
+      state = state.copyWith(isPop: value);
+    }
+  }
+
+  /// Whether are all tasks selected.
+  bool areAllTasksSelected({required bool archived, String searchQuery = ''}) {
+    final filtered = getFilteredTasks(
+      archived: archived,
+      searchQuery: searchQuery,
+    );
+
+    return filtered.isNotEmpty &&
+        filtered.every((task) => state.selectedTask.contains(task));
+  }
+
+  /// Select all tasks.
+  void selectAllTasks({
+    required bool select,
+    required bool archived,
+    String searchQuery = '',
+  }) {
+    final filtered = getFilteredTasks(
+      archived: archived,
+      searchQuery: searchQuery,
+    );
+
+    if (select) {
+      final selected = List<Tasks>.from(state.selectedTask);
+      final tasksToAdd = filtered.where((t) => !selected.contains(t)).toList();
+      selected.addAll(tasksToAdd);
+
+      state = state.copyWith(
+        selectedTask: selected,
+        isMultiSelectionTask: true,
+        isPop: false,
+      );
+    } else {
+      final selected = List<Tasks>.from(state.selectedTask)
+        ..removeWhere((t) => filtered.contains(t));
+
+      if (selected.isEmpty) {
+        state = state.copyWith(
+          selectedTask: selected,
+          isMultiSelectionTask: false,
+          isPop: true,
+        );
+      } else {
+        state = state.copyWith(selectedTask: selected);
+      }
+    }
+  }
+}
+
+/// Tasks notifier provider.
+final tasksNotifierProvider = NotifierProvider<TasksNotifier, TasksState>(
+  TasksNotifier.new,
+);
