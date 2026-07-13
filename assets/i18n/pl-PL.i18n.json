@@ -234,7 +234,8 @@
   "settings": "Ustawienia",
   "skip": "Pomiń",
   "showArchived": "Pokaż zarchiwizowane",
-  "snooze": "Drzemka",
+  "snooze": "Odłóż",
+  "snoozeActionLabel": "Odłóż na {minutes} min",
   "snoozeDuration": "Czas drzemki",
   "sort": "Sortuj",
   "sortByDateAsc": "Według daty (najstarsze pierwsze)",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "Otwórz powiadomienie",
-  "notificationChannelName": "Przypomnienia",
   "isarDatabase": "Baza Isar",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "Przypomnienia wysokiego priorytetu",
+  "notificationChannelMedium": "Przypomnienia średniego priorytetu",
+  "notificationChannelLow": "Przypomnienia niskiego priorytetu",
+  "notificationChannelNone": "Przypomnienia bez priorytetu",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

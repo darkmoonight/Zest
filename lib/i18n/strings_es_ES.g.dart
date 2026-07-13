@@ -275,6 +275,7 @@ class TranslationsEsEs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get skip => 'Omitir';
 	@override String get show_archived => 'Mostrar archivados';
 	@override String get snooze => 'Posponer';
+	@override String get snooze_action_label => 'Posponer {minutes} min';
 	@override String get snooze_duration => 'Duración de posposición';
 	@override String get sort => 'Ordenar';
 	@override String get sort_by_date_asc => 'Por fecha (más antiguas primero)';
@@ -347,9 +348,16 @@ class TranslationsEsEs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => 'Abrir notificación';
-	@override String get notification_channel_name => 'Recordatorios';
 	@override String get isar_database => 'Base de datos Isar';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => 'Recordatorios de alta prioridad';
+	@override String get notification_channel_medium => 'Recordatorios de prioridad media';
+	@override String get notification_channel_low => 'Recordatorios de baja prioridad';
+	@override String get notification_channel_none => 'Recordatorios sin prioridad';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <es-ES>.
@@ -596,6 +604,7 @@ extension on TranslationsEsEs {
 			'skip' => 'Omitir',
 			'show_archived' => 'Mostrar archivados',
 			'snooze' => 'Posponer',
+			'snooze_action_label' => 'Posponer {minutes} min',
 			'snooze_duration' => 'Duración de posposición',
 			'sort' => 'Ordenar',
 			'sort_by_date_asc' => 'Por fecha (más antiguas primero)',
@@ -668,9 +677,16 @@ extension on TranslationsEsEs {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'Abrir notificación',
-			'notification_channel_name' => 'Recordatorios',
 			'isar_database' => 'Base de datos Isar',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'Recordatorios de alta prioridad',
+			'notification_channel_medium' => 'Recordatorios de prioridad media',
+			'notification_channel_low' => 'Recordatorios de baja prioridad',
+			'notification_channel_none' => 'Recordatorios sin prioridad',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

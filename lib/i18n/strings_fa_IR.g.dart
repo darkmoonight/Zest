@@ -274,7 +274,8 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get settings => 'تنظیمات';
 	@override String get skip => 'رد شدن';
 	@override String get show_archived => 'نمایش بایگانی‌شده';
-	@override String get snooze => 'چرت';
+	@override String get snooze => 'تعویق';
+	@override String get snooze_action_label => 'تعویق {minutes} دقیقه';
 	@override String get snooze_duration => 'مدت چرت';
 	@override String get sort => 'مرتب‌سازی';
 	@override String get sort_by_date_asc => 'بر اساس تاریخ (قدیمی‌ترین اول)';
@@ -347,9 +348,16 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => 'باز کردن اعلان';
-	@override String get notification_channel_name => 'یادآورها';
 	@override String get isar_database => 'پایگاه Isar';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => 'یادآورهای اولویت بالا';
+	@override String get notification_channel_medium => 'یادآورهای اولویت متوسط';
+	@override String get notification_channel_low => 'یادآورهای اولویت پایین';
+	@override String get notification_channel_none => 'یادآورهای بدون اولویت';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <fa-IR>.
@@ -595,7 +603,8 @@ extension on TranslationsFaIr {
 			'settings' => 'تنظیمات',
 			'skip' => 'رد شدن',
 			'show_archived' => 'نمایش بایگانی‌شده',
-			'snooze' => 'چرت',
+			'snooze' => 'تعویق',
+			'snooze_action_label' => 'تعویق {minutes} دقیقه',
 			'snooze_duration' => 'مدت چرت',
 			'sort' => 'مرتب‌سازی',
 			'sort_by_date_asc' => 'بر اساس تاریخ (قدیمی‌ترین اول)',
@@ -668,9 +677,16 @@ extension on TranslationsFaIr {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'باز کردن اعلان',
-			'notification_channel_name' => 'یادآورها',
 			'isar_database' => 'پایگاه Isar',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'یادآورهای اولویت بالا',
+			'notification_channel_medium' => 'یادآورهای اولویت متوسط',
+			'notification_channel_low' => 'یادآورهای اولویت پایین',
+			'notification_channel_none' => 'یادآورهای بدون اولویت',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

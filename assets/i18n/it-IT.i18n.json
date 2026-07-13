@@ -235,6 +235,7 @@
   "skip": "Salta",
   "showArchived": "Mostra archiviati",
   "snooze": "Posponi",
+  "snoozeActionLabel": "Posponi di {minutes} min",
   "snoozeDuration": "Durata posponi",
   "sort": "Ordina",
   "sortByDateAsc": "Per data (più vecchie prima)",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "Apri notifica",
-  "notificationChannelName": "Promemoria",
   "isarDatabase": "Database Isar",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "Promemoria alta priorità",
+  "notificationChannelMedium": "Promemoria priorità media",
+  "notificationChannelLow": "Promemoria bassa priorità",
+  "notificationChannelNone": "Promemoria senza priorità",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

@@ -275,6 +275,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get skip => 'Пропустить';
 	@override String get show_archived => 'Показывать архивные';
 	@override String get snooze => 'Отложить';
+	@override String get snooze_action_label => 'Отложить на {minutes} мин';
 	@override String get snooze_duration => 'Продолжительность отсрочки';
 	@override String get sort => 'Сортировка';
 	@override String get sort_by_date_asc => 'По дате (сначала старые)';
@@ -347,9 +348,16 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => 'Открыть уведомление';
-	@override String get notification_channel_name => 'Напоминания';
 	@override String get isar_database => 'База Isar';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => 'Напоминания высокого приоритета';
+	@override String get notification_channel_medium => 'Напоминания среднего приоритета';
+	@override String get notification_channel_low => 'Напоминания низкого приоритета';
+	@override String get notification_channel_none => 'Напоминания без приоритета';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -596,6 +604,7 @@ extension on TranslationsRuRu {
 			'skip' => 'Пропустить',
 			'show_archived' => 'Показывать архивные',
 			'snooze' => 'Отложить',
+			'snooze_action_label' => 'Отложить на {minutes} мин',
 			'snooze_duration' => 'Продолжительность отсрочки',
 			'sort' => 'Сортировка',
 			'sort_by_date_asc' => 'По дате (сначала старые)',
@@ -668,9 +677,16 @@ extension on TranslationsRuRu {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'Открыть уведомление',
-			'notification_channel_name' => 'Напоминания',
 			'isar_database' => 'База Isar',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'Напоминания высокого приоритета',
+			'notification_channel_medium' => 'Напоминания среднего приоритета',
+			'notification_channel_low' => 'Напоминания низкого приоритета',
+			'notification_channel_none' => 'Напоминания без приоритета',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

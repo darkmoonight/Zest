@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/di/providers.dart';
-import 'package:zest/core/constants/app_constants.dart';
-import 'package:zest/core/utils/responsive_utils.dart';
+import 'package:zest/core/widgets/multi_select_action_bar.dart';
+import 'package:zest/i18n/tr.dart';
 
-/// Widget that selection action bar.
+/// Floating action bar for bulk todo selection.
 class SelectionActionBar extends ConsumerWidget {
   /// Creates a [SelectionActionBar].
   const SelectionActionBar({
@@ -18,222 +17,46 @@ class SelectionActionBar extends ConsumerWidget {
     required this.selectedCount,
   });
 
-  /// The on transfer.
+  /// Opens the transfer sheet for selected todos.
   final VoidCallback onTransfer;
 
-  /// The on delete.
+  /// Deletes selected todos after confirmation.
   final VoidCallback onDelete;
 
-  /// The on select all.
+  /// Toggles select-all for the current list.
   final VoidCallback onSelectAll;
 
-  /// The is all selected.
+  /// Whether all visible todos are selected.
   final bool isAllSelected;
 
-  /// The selected count.
+  /// Number of selected todos.
   final int selectedCount;
 
   @override
-  /// Builds the widget subtree.
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isMobile = ResponsiveUtils.isMobile(context);
 
-    return Positioned(
-      bottom: isMobile ? AppConstants.spacingL : AppConstants.spacingXXL,
-      left: isMobile ? AppConstants.spacingL : AppConstants.spacingXXL,
-      right: isMobile ? AppConstants.spacingL : AppConstants.spacingXXL,
-      child: _AnimatedMultiSelectBar(
-        child: Material(
-          elevation: AppConstants.elevationMedium,
-          shadowColor: colorScheme.shadow.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: isMobile
-                  ? AppConstants.spacingM
-                  : AppConstants.spacingL,
-              vertical: AppConstants.spacingM,
-            ),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(
-                AppConstants.borderRadiusLarge,
-              ),
-              border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                width: AppConstants.borderWidthThin,
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(child: _buildSelectionCounter(context)),
-                SizedBox(width: AppConstants.spacingS),
-                _buildActionButtons(context, ref),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Builds the selection counter widget.
-  Widget _buildSelectionCounter(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return InkWell(
-      onTap: onSelectAll,
-      borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall + 2),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: AppConstants.spacingM,
-          vertical: AppConstants.spacingS,
-        ),
-        decoration: BoxDecoration(
-          color: colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(
-            AppConstants.borderRadiusSmall + 2,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildSelectionBadge(context),
-            SizedBox(width: AppConstants.spacingS + 2),
-            Flexible(
-              child: Text(
-                selectedCount == 1
-                    ? '1 ${'item'.tr}'
-                    : '$selectedCount ${'items'.tr}',
-                style: TextStyle(
-                  color: colorScheme.onPrimaryContainer,
-                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.3,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Builds the selection badge widget.
-  Widget _buildSelectionBadge(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Icon(
-      isAllSelected
-          ? IconsaxPlusBold.tick_square
-          : IconsaxPlusLinear.tick_square,
-      size: AppConstants.iconSizeMedium,
-      color: colorScheme.onPrimaryContainer,
-    );
-  }
-
-  /// Builds the action buttons widget.
-  Widget _buildActionButtons(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _ActionButton(
+    return MultiSelectActionBar(
+      selectedCount: selectedCount,
+      isAllSelected: isAllSelected,
+      onSelectAll: onSelectAll,
+      onClose: ref
+          .read(todosNotifierProvider.notifier)
+          .doMultiSelectionTodoClear,
+      actions: [
+        MultiSelectAction(
           icon: IconsaxPlusLinear.repeat,
           color: colorScheme.tertiary,
           onPressed: onTransfer,
           tooltip: 'transfer'.tr,
         ),
-        _ActionButton(
+        MultiSelectAction(
           icon: IconsaxPlusLinear.trash,
           color: colorScheme.error,
           onPressed: onDelete,
           tooltip: 'delete'.tr,
         ),
-        SizedBox(width: AppConstants.spacingXS),
-        FilledButton.tonal(
-          onPressed: ref
-              .read(todosNotifierProvider.notifier)
-              .doMultiSelectionTodoClear,
-          style: FilledButton.styleFrom(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppConstants.spacingL,
-              vertical: AppConstants.spacingS + 2,
-            ),
-            minimumSize: const Size(0, 40),
-          ),
-          child: Icon(
-            IconsaxPlusLinear.close_circle,
-            size: AppConstants.iconSizeSmall,
-          ),
-        ),
       ],
-    );
-  }
-}
-
-/// Widget that action button.
-class _ActionButton extends StatelessWidget {
-  /// The icon.
-  final IconData icon;
-
-  /// The on pressed.
-  final VoidCallback onPressed;
-
-  /// The color.
-  final Color? color;
-
-  /// The tooltip.
-  final String? tooltip;
-
-  /// Creates a [_ActionButton].
-  const _ActionButton({
-    required this.icon,
-    required this.onPressed,
-    this.color,
-    this.tooltip,
-  });
-
-  @override
-  /// Builds the widget subtree.
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Icon(icon, size: AppConstants.iconSizeMedium + 2, color: color),
-      style: IconButton.styleFrom(
-        minimumSize: const Size(40, 40),
-        padding: EdgeInsets.zero,
-      ),
-      tooltip: tooltip,
-    );
-  }
-}
-
-/// Widget that animated multi select bar.
-class _AnimatedMultiSelectBar extends StatelessWidget {
-  /// The child.
-  final Widget child;
-
-  /// Creates a [_AnimatedMultiSelectBar].
-  const _AnimatedMultiSelectBar({required this.child});
-
-  @override
-  /// Builds the widget subtree.
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: AppConstants.animationDuration,
-      curve: Curves.easeOutCubic,
-      builder: (context, value, child) {
-        return Transform.translate(
-          offset: Offset(0, 20 * (1 - value)),
-          child: Opacity(opacity: value, child: child),
-        );
-      },
-      child: child,
     );
   }
 }

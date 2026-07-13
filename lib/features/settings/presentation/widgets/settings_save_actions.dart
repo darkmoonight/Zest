@@ -7,14 +7,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/app.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/di/settings_revision.dart';
+import 'package:zest/core/notifications/notification_channels.dart';
 import 'package:zest/core/services/auto_backup_service.dart';
+import 'package:zest/core/services/notification_plugin.dart';
 import 'package:zest/data/models/db.dart';
 
 /// Shared save and side-effect helpers for settings sections.
 class SettingsSaveActions {
   SettingsSaveActions(this.ref);
 
-  /// The ref.
+  /// Riverpod ref used to read settings and repositories.
   final WidgetRef ref;
 
   Settings get settings => ref.read(settingsProvider);
@@ -49,19 +51,26 @@ class SettingsSaveActions {
     );
   }
 
-  /// Void.
+  /// Updates app locale, persists the choice, refreshes UI, and re-registers
+  /// Android notification channel names for the new language.
   Future<void> updateLanguage(Locale locale) async {
     settings.language = '$locale';
     ZestApp.updateAppState(ref, newLocale: locale);
+
+    final plugin = NotificationPlugin.instance;
+    if (plugin != null) {
+      unawaited(registerAndroidNotificationChannels(plugin));
+    }
+
     unawaited(_persistSettings());
   }
 
-  /// Void.
+  /// Saves the default home screen preference optimistically.
   Future<void> updateDefaultScreen(String defaultScreen) async {
     saveSettingsOptimistic(mutate: (s) => s.defaultScreen = defaultScreen);
   }
 
-  /// Void.
+  /// Enables or disables screen privacy via [FlagSecure] and persists the flag.
   Future<void> saveScreenPrivacy(bool enabled) async {
     try {
       if (enabled) {
@@ -75,7 +84,7 @@ class SettingsSaveActions {
     }
   }
 
-  /// Void.
+  /// Saves the clock time format and updates app-wide formatting.
   Future<void> saveTimeFormat(String format) async {
     saveSettingsOptimistic(
       mutate: (s) => s.timeformat = format,
@@ -83,7 +92,7 @@ class SettingsSaveActions {
     );
   }
 
-  /// Void.
+  /// Saves the calendar first day of week and updates app state.
   Future<void> saveFirstDayOfWeek(String day) async {
     saveSettingsOptimistic(
       mutate: (s) => s.firstDay = day,
@@ -91,7 +100,7 @@ class SettingsSaveActions {
     );
   }
 
-  /// Bool.
+  /// Triggers an immediate auto-backup and returns whether it succeeded.
   Future<bool> createAutoBackupNow() async {
     return AutoBackupService.performManualAutoBackup(ref.read(isarProvider));
   }

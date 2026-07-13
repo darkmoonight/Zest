@@ -92,30 +92,35 @@ const SettingsSchema = CollectionSchema(
       name: r'maxAutoBackups',
       type: IsarType.long,
     ),
-    r'onboard': PropertySchema(id: 16, name: r'onboard', type: IsarType.bool),
+    r'notificationChannelsMigrated': PropertySchema(
+      id: 16,
+      name: r'notificationChannelsMigrated',
+      type: IsarType.bool,
+    ),
+    r'onboard': PropertySchema(id: 17, name: r'onboard', type: IsarType.bool),
     r'screenPrivacy': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'screenPrivacy',
       type: IsarType.bool,
     ),
     r'showArchivedInAllTodos': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'showArchivedInAllTodos',
       type: IsarType.bool,
     ),
     r'showArchivedInCalendar': PropertySchema(
-      id: 19,
+      id: 20,
       name: r'showArchivedInCalendar',
       type: IsarType.bool,
     ),
     r'snoozeDuration': PropertySchema(
-      id: 20,
+      id: 21,
       name: r'snoozeDuration',
       type: IsarType.long,
     ),
-    r'theme': PropertySchema(id: 21, name: r'theme', type: IsarType.string),
+    r'theme': PropertySchema(id: 22, name: r'theme', type: IsarType.string),
     r'timeformat': PropertySchema(
-      id: 22,
+      id: 23,
       name: r'timeformat',
       type: IsarType.string,
     ),
@@ -191,13 +196,14 @@ void _settingsSerialize(
   writer.writeDateTime(offsets[13], object.lastAutoBackupTime);
   writer.writeBool(offsets[14], object.materialColor);
   writer.writeLong(offsets[15], object.maxAutoBackups);
-  writer.writeBool(offsets[16], object.onboard);
-  writer.writeBool(offsets[17], object.screenPrivacy);
-  writer.writeBool(offsets[18], object.showArchivedInAllTodos);
-  writer.writeBool(offsets[19], object.showArchivedInCalendar);
-  writer.writeLong(offsets[20], object.snoozeDuration);
-  writer.writeString(offsets[21], object.theme);
-  writer.writeString(offsets[22], object.timeformat);
+  writer.writeBool(offsets[16], object.notificationChannelsMigrated);
+  writer.writeBool(offsets[17], object.onboard);
+  writer.writeBool(offsets[18], object.screenPrivacy);
+  writer.writeBool(offsets[19], object.showArchivedInAllTodos);
+  writer.writeBool(offsets[20], object.showArchivedInCalendar);
+  writer.writeLong(offsets[21], object.snoozeDuration);
+  writer.writeString(offsets[22], object.theme);
+  writer.writeString(offsets[23], object.timeformat);
 }
 
 Settings _settingsDeserialize(
@@ -236,13 +242,14 @@ Settings _settingsDeserialize(
   object.lastAutoBackupTime = reader.readDateTimeOrNull(offsets[13]);
   object.materialColor = reader.readBool(offsets[14]);
   object.maxAutoBackups = reader.readLong(offsets[15]);
-  object.onboard = reader.readBool(offsets[16]);
-  object.screenPrivacy = reader.readBoolOrNull(offsets[17]);
-  object.showArchivedInAllTodos = reader.readBool(offsets[18]);
-  object.showArchivedInCalendar = reader.readBool(offsets[19]);
-  object.snoozeDuration = reader.readLong(offsets[20]);
-  object.theme = reader.readStringOrNull(offsets[21]);
-  object.timeformat = reader.readString(offsets[22]);
+  object.notificationChannelsMigrated = reader.readBool(offsets[16]);
+  object.onboard = reader.readBool(offsets[17]);
+  object.screenPrivacy = reader.readBoolOrNull(offsets[18]);
+  object.showArchivedInAllTodos = reader.readBool(offsets[19]);
+  object.showArchivedInCalendar = reader.readBool(offsets[20]);
+  object.snoozeDuration = reader.readLong(offsets[21]);
+  object.theme = reader.readStringOrNull(offsets[22]);
+  object.timeformat = reader.readString(offsets[23]);
   return object;
 }
 
@@ -300,16 +307,18 @@ P _settingsDeserializeProp<P>(
     case 16:
       return (reader.readBool(offset)) as P;
     case 17:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 18:
       return (reader.readBool(offset)) as P;
+    case 18:
+      return (reader.readBoolOrNull(offset)) as P;
     case 19:
       return (reader.readBool(offset)) as P;
     case 20:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 21:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 22:
+      return (reader.readStringOrNull(offset)) as P;
+    case 23:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1932,6 +1941,18 @@ extension SettingsQueryFilter
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  notificationChannelsMigratedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'notificationChannelsMigrated',
+          value: value,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterFilterCondition> onboardEqualTo(
     bool value,
   ) {
@@ -2562,6 +2583,20 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByNotificationChannelsMigrated() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationChannelsMigrated', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByNotificationChannelsMigratedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationChannelsMigrated', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByOnboard() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'onboard', Sort.asc);
@@ -2861,6 +2896,20 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByNotificationChannelsMigrated() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationChannelsMigrated', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByNotificationChannelsMigratedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationChannelsMigrated', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByOnboard() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'onboard', Sort.asc);
@@ -3071,6 +3120,13 @@ extension SettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Settings, Settings, QDistinct>
+  distinctByNotificationChannelsMigrated() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'notificationChannelsMigrated');
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByOnboard() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'onboard');
@@ -3225,6 +3281,13 @@ extension SettingsQueryProperty
   QueryBuilder<Settings, int, QQueryOperations> maxAutoBackupsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'maxAutoBackups');
+    });
+  }
+
+  QueryBuilder<Settings, bool, QQueryOperations>
+  notificationChannelsMigratedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'notificationChannelsMigrated');
     });
   }
 

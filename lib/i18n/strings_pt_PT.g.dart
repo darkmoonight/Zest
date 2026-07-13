@@ -275,6 +275,7 @@ class TranslationsPtPt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get skip => 'Ignorar';
 	@override String get show_archived => 'Mostrar arquivados';
 	@override String get snooze => 'Adiar';
+	@override String get snooze_action_label => 'Adiar {minutes} min';
 	@override String get snooze_duration => 'Duração do adiamento';
 	@override String get sort => 'Ordenar';
 	@override String get sort_by_date_asc => 'Por data (mais antigas primeiro)';
@@ -347,9 +348,16 @@ class TranslationsPtPt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => 'Abrir notificação';
-	@override String get notification_channel_name => 'Lembretes';
 	@override String get isar_database => 'Base de dados Isar';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => 'Lembretes de alta prioridade';
+	@override String get notification_channel_medium => 'Lembretes de prioridade média';
+	@override String get notification_channel_low => 'Lembretes de baixa prioridade';
+	@override String get notification_channel_none => 'Lembretes sem prioridade';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <pt-PT>.
@@ -596,6 +604,7 @@ extension on TranslationsPtPt {
 			'skip' => 'Ignorar',
 			'show_archived' => 'Mostrar arquivados',
 			'snooze' => 'Adiar',
+			'snooze_action_label' => 'Adiar {minutes} min',
 			'snooze_duration' => 'Duração do adiamento',
 			'sort' => 'Ordenar',
 			'sort_by_date_asc' => 'Por data (mais antigas primeiro)',
@@ -668,9 +677,16 @@ extension on TranslationsPtPt {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'Abrir notificação',
-			'notification_channel_name' => 'Lembretes',
 			'isar_database' => 'Base de dados Isar',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'Lembretes de alta prioridade',
+			'notification_channel_medium' => 'Lembretes de prioridade média',
+			'notification_channel_low' => 'Lembretes de baixa prioridade',
+			'notification_channel_none' => 'Lembretes sem prioridade',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

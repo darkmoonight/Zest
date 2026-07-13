@@ -235,6 +235,7 @@
   "skip": "スキップ",
   "showArchived": "アーカイブを表示",
   "snooze": "スヌーズ",
+  "snoozeActionLabel": "{minutes}分スヌーズ",
   "snoozeDuration": "スヌーズ時間",
   "sort": "並び替え",
   "sortByDateAsc": "日付順（古い順）",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "通知を開く",
-  "notificationChannelName": "リマインダー",
   "isarDatabase": "Isarデータベース",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "高優先度リマインダー",
+  "notificationChannelMedium": "中優先度リマインダー",
+  "notificationChannelLow": "低優先度リマインダー",
+  "notificationChannelNone": "優先度なしリマインダー",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

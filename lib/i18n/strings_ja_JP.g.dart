@@ -275,6 +275,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get skip => 'スキップ';
 	@override String get show_archived => 'アーカイブを表示';
 	@override String get snooze => 'スヌーズ';
+	@override String get snooze_action_label => '{minutes}分スヌーズ';
 	@override String get snooze_duration => 'スヌーズ時間';
 	@override String get sort => '並び替え';
 	@override String get sort_by_date_asc => '日付順（古い順）';
@@ -347,9 +348,16 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => '通知を開く';
-	@override String get notification_channel_name => 'リマインダー';
 	@override String get isar_database => 'Isarデータベース';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => '高優先度リマインダー';
+	@override String get notification_channel_medium => '中優先度リマインダー';
+	@override String get notification_channel_low => '低優先度リマインダー';
+	@override String get notification_channel_none => '優先度なしリマインダー';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -596,6 +604,7 @@ extension on TranslationsJaJp {
 			'skip' => 'スキップ',
 			'show_archived' => 'アーカイブを表示',
 			'snooze' => 'スヌーズ',
+			'snooze_action_label' => '{minutes}分スヌーズ',
 			'snooze_duration' => 'スヌーズ時間',
 			'sort' => '並び替え',
 			'sort_by_date_asc' => '日付順（古い順）',
@@ -668,9 +677,16 @@ extension on TranslationsJaJp {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => '通知を開く',
-			'notification_channel_name' => 'リマインダー',
 			'isar_database' => 'Isarデータベース',
 			'github' => 'GitHub',
+			'notification_channel_high' => '高優先度リマインダー',
+			'notification_channel_medium' => '中優先度リマインダー',
+			'notification_channel_low' => '低優先度リマインダー',
+			'notification_channel_none' => '優先度なしリマインダー',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

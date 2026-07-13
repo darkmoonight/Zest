@@ -275,6 +275,7 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get skip => '跳过';
 	@override String get show_archived => '显示已归档';
 	@override String get snooze => '稍后提醒';
+	@override String get snooze_action_label => '稍后提醒 {minutes} 分钟';
 	@override String get snooze_duration => '稍后提醒时长';
 	@override String get sort => '排序';
 	@override String get sort_by_date_asc => '按日期（最早优先）';
@@ -347,9 +348,16 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => '打开通知';
-	@override String get notification_channel_name => '提醒';
 	@override String get isar_database => 'Isar 数据库';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => '高优先级提醒';
+	@override String get notification_channel_medium => '中优先级提醒';
+	@override String get notification_channel_low => '低优先级提醒';
+	@override String get notification_channel_none => '无优先级提醒';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -596,6 +604,7 @@ extension on TranslationsZhCn {
 			'skip' => '跳过',
 			'show_archived' => '显示已归档',
 			'snooze' => '稍后提醒',
+			'snooze_action_label' => '稍后提醒 {minutes} 分钟',
 			'snooze_duration' => '稍后提醒时长',
 			'sort' => '排序',
 			'sort_by_date_asc' => '按日期（最早优先）',
@@ -668,9 +677,16 @@ extension on TranslationsZhCn {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => '打开通知',
-			'notification_channel_name' => '提醒',
 			'isar_database' => 'Isar 数据库',
 			'github' => 'GitHub',
+			'notification_channel_high' => '高优先级提醒',
+			'notification_channel_medium' => '中优先级提醒',
+			'notification_channel_low' => '低优先级提醒',
+			'notification_channel_none' => '无优先级提醒',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

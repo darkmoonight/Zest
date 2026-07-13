@@ -235,6 +235,7 @@
   "skip": "Bỏ qua",
   "showArchived": "Hiển thị đã lưu trữ",
   "snooze": "Báo lại",
+  "snoozeActionLabel": "Báo lại sau {minutes} phút",
   "snoozeDuration": "Thời gian báo lại",
   "sort": "Sắp xếp",
   "sortByDateAsc": "Theo ngày (cũ nhất trước)",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "Mở thông báo",
-  "notificationChannelName": "Nhắc nhở",
   "isarDatabase": "Cơ sở dữ liệu Isar",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "Nhắc nhở ưu tiên cao",
+  "notificationChannelMedium": "Nhắc nhở ưu tiên trung bình",
+  "notificationChannelLow": "Nhắc nhở ưu tiên thấp",
+  "notificationChannelNone": "Nhắc nhở không ưu tiên",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

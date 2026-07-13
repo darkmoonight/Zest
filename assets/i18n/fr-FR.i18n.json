@@ -234,7 +234,8 @@
   "settings": "Paramètres",
   "skip": "Ignorer",
   "showArchived": "Afficher les archives",
-  "snooze": "Rappel",
+  "snooze": "Reporter",
+  "snoozeActionLabel": "Reporter de {minutes} min",
   "snoozeDuration": "Durée du rappel",
   "sort": "Trier",
   "sortByDateAsc": "Par date (les plus anciennes d’abord)",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "Ouvrir la notification",
-  "notificationChannelName": "Rappels",
   "isarDatabase": "Base de données Isar",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "Rappels haute priorité",
+  "notificationChannelMedium": "Rappels priorité moyenne",
+  "notificationChannelLow": "Rappels basse priorité",
+  "notificationChannelNone": "Rappels sans priorité",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

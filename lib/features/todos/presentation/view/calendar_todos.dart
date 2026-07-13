@@ -250,7 +250,7 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
                 width: AppConstants.borderWidthThin,
               ),
               borderRadius: BorderRadius.circular(
-                AppConstants.borderRadiusSmall + 2,
+                AppConstants.borderRadiusCompact,
               ),
             ),
             leftChevronIcon: Icon(

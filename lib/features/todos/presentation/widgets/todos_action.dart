@@ -9,9 +9,13 @@ import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:zest/core/di/providers.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/features/todos/presentation/view/todo_todos.dart';
+import 'package:zest/core/widgets/form_dirty_tracker.dart';
+import 'package:zest/core/widgets/icon_container.dart';
 import 'package:zest/core/widgets/confirmation_dialog.dart';
-import 'package:zest/core/widgets/modal_sheet_drag_handle.dart';
+import 'package:zest/core/widgets/modal_sheet_animation_mixin.dart';
+import 'package:zest/core/widgets/modal_sheet_header.dart';
 import 'package:zest/core/widgets/modal_sheet_save_button.dart';
+import 'package:zest/core/widgets/modal_sheet_scaffold.dart';
 import 'package:zest/core/widgets/text_form.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
@@ -52,7 +56,10 @@ class TodosAction extends ConsumerStatefulWidget {
 
 /// State for [TodosAction] managing form fields and submission.
 class _TodosActionState extends ConsumerState<TodosAction>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with
+        SingleTickerProviderStateMixin,
+        WidgetsBindingObserver,
+        ModalSheetAnimationMixin {
   /// Form key.
   final _formKey = GlobalKey<FormState>();
   final GlobalKey _tagsKey = GlobalKey();
@@ -97,15 +104,6 @@ class _TodosActionState extends ConsumerState<TodosAction>
   /// The editing controller.
   late final _EditingController _editingController;
 
-  /// The animation controller.
-  late final AnimationController _animationController;
-
-  /// The fade animation.
-  late final Animation<double> _fadeAnimation;
-
-  /// The slide animation.
-  late final Animation<Offset> _slideAnimation;
-
   /// Previous keyboard height.
   double _previousKeyboardHeight = 0;
 
@@ -126,7 +124,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
     _initializeControllers();
     _initializeEditMode();
     _initializeEditingController();
-    _initAnimations();
+    initModalSheetAnimations();
     _setupListeners();
     _loadAllTags();
   }
@@ -188,27 +186,22 @@ class _TodosActionState extends ConsumerState<TodosAction>
     );
   }
 
-  /// Init animations.
-  void _initAnimations() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: AppConstants.shortAnimation,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _animationController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
-
-    _animationController.forward();
+  @override
+  /// Releases resources when the widget is removed.
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _categoryController.dispose();
+    _titleController.dispose();
+    _descController.dispose();
+    _timeController.dispose();
+    _tagsController.removeListener(_refreshFilteredTags);
+    _tagsController.dispose();
+    _categoryFocusNode.dispose();
+    _tagsFocusNode.dispose();
+    _editingController.dispose();
+    disposeModalSheetAnimations();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   /// Setup listeners.
@@ -299,24 +292,6 @@ class _TodosActionState extends ConsumerState<TodosAction>
         }
       });
     });
-  }
-
-  @override
-  /// Releases resources when the widget is removed.
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _categoryController.dispose();
-    _titleController.dispose();
-    _descController.dispose();
-    _timeController.dispose();
-    _tagsController.removeListener(_refreshFilteredTags);
-    _tagsController.dispose();
-    _categoryFocusNode.dispose();
-    _tagsFocusNode.dispose();
-    _editingController.dispose();
-    _animationController.dispose();
-    _scrollController.dispose();
-    super.dispose();
   }
 
   /// Format date time.
@@ -452,109 +427,35 @@ class _TodosActionState extends ConsumerState<TodosAction>
     final isMobile = ResponsiveUtils.isMobile(context);
     final colorScheme = Theme.of(context).colorScheme;
 
-    return PopScope(
-      canPop: false,
+    return ModalSheetScaffold(
+      isMobile: isMobile,
+      maxHeightFractionMobile: AppConstants.modalHeightFractionLargeMobile,
+      maxHeightFractionDesktop:
+          AppConstants.modalHeightFractionLargeDesktopWide,
       onPopInvokedWithResult: _onPopInvokedWithResult,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: isMobile ? double.infinity : AppConstants.maxModalWidth,
-          maxHeight:
-              MediaQuery.of(context).size.height * (isMobile ? 0.95 : 0.90),
+      fadeAnimation: modalSheetFadeAnimation,
+      slideAnimation: modalSheetSlideAnimation,
+      header: ModalSheetHeader(
+        padding: padding,
+        title: widget.text,
+        subtitle: widget.edit ? 'editTodoHint'.tr : 'createTodoHint'.tr,
+        leading: IconContainer(
+          icon: widget.edit
+              ? IconsaxPlusBold.edit
+              : IconsaxPlusBold.task_square,
+          backgroundColor: colorScheme.tertiaryContainer,
+          iconColor: colorScheme.onTertiaryContainer,
+          iconSize: AppConstants.iconSizeLarge,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ModalSheetDragHandle(isMobile: isMobile),
-            _buildHeader(colorScheme, padding),
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-            ),
-            Flexible(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: _buildForm(context, padding),
-                ),
-              ),
-            ),
-          ],
+        trailing: ModalSheetSaveButton(
+          canComposeListenable: _editingController.canCompose,
+          onSave: _onSavePressed,
+          accentColor: colorScheme.tertiary,
+          onAccentColor: colorScheme.onTertiary,
+          label: 'ready'.tr,
         ),
       ),
-    );
-  }
-
-  /// Builds the header widget.
-  Widget _buildHeader(ColorScheme colorScheme, double padding) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: padding * 1.5,
-        vertical: padding,
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppConstants.spacingS + 2),
-            decoration: BoxDecoration(
-              color: colorScheme.tertiaryContainer,
-              borderRadius: BorderRadius.circular(
-                AppConstants.borderRadiusMedium,
-              ),
-            ),
-            child: Icon(
-              widget.edit ? IconsaxPlusBold.edit : IconsaxPlusBold.task_square,
-              size: AppConstants.iconSizeLarge,
-              color: colorScheme.onTertiaryContainer,
-            ),
-          ),
-          SizedBox(width: padding * 1.2),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.text,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                    fontSize: ResponsiveUtils.getResponsiveFontSize(
-                      context,
-                      20,
-                    ),
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                SizedBox(height: AppConstants.spacingXS),
-                Text(
-                  widget.edit ? 'editTodoHint'.tr : 'createTodoHint'.tr,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontSize: ResponsiveUtils.getResponsiveFontSize(
-                      context,
-                      12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: padding * 0.8),
-          _buildSaveButton(colorScheme),
-        ],
-      ),
-    );
-  }
-
-  /// Builds the save button widget.
-  Widget _buildSaveButton(ColorScheme colorScheme) {
-    return ModalSheetSaveButton(
-      canComposeListenable: _editingController.canCompose,
-      onSave: _onSavePressed,
-      accentColor: colorScheme.tertiary,
-      onAccentColor: colorScheme.onTertiary,
-      label: 'ready'.tr,
+      body: _buildForm(context, padding),
     );
   }
 
@@ -1434,8 +1335,8 @@ class _TodosActionState extends ConsumerState<TodosAction>
   }
 }
 
-/// Class representing editing controller.
-class _EditingController extends ChangeNotifier {
+/// Tracks dirty state for the todo create/edit form.
+class _EditingController {
   _EditingController(
     this._initialTitle,
     this._initialDesc,
@@ -1445,45 +1346,6 @@ class _EditingController extends ChangeNotifier {
     this._initialPriority,
     this._initialTags,
   ) {
-    _initializeListeners();
-  }
-
-  /// The initial title.
-  final String _initialTitle;
-
-  /// The initial desc.
-  final String _initialDesc;
-
-  /// The initial time.
-  final String _initialTime;
-
-  /// The initial pinned.
-  final bool _initialPinned;
-
-  /// The initial task.
-  final Tasks? _initialTask;
-
-  /// The initial priority.
-  final Priority _initialPriority;
-
-  /// The initial tags.
-  final List<String> _initialTags;
-
-  final ValueNotifier<String> title = ValueNotifier<String>('');
-  final ValueNotifier<String> description = ValueNotifier<String>('');
-  final ValueNotifier<String> time = ValueNotifier<String>('');
-  final ValueNotifier<bool> pinned = ValueNotifier<bool>(false);
-  final ValueNotifier<Tasks?> task = ValueNotifier<Tasks?>(null);
-  final ValueNotifier<Priority> priority = ValueNotifier<Priority>(
-    Priority.none,
-  );
-  final ValueNotifier<List<String>> tags = ValueNotifier<List<String>>([]);
-  final ValueNotifier<bool> _canCompose = ValueNotifier<bool>(false);
-
-  ValueListenable<bool> get canCompose => _canCompose;
-
-  /// Initialize listeners.
-  void _initializeListeners() {
     title.value = _initialTitle;
     description.value = _initialDesc;
     time.value = _initialTime;
@@ -1492,40 +1354,52 @@ class _EditingController extends ChangeNotifier {
     priority.value = _initialPriority;
     tags.value = List.from(_initialTags);
 
-    title.addListener(_updateCanCompose);
-    description.addListener(_updateCanCompose);
-    time.addListener(_updateCanCompose);
-    pinned.addListener(_updateCanCompose);
-    task.addListener(_updateCanCompose);
-    priority.addListener(_updateCanCompose);
-    tags.addListener(_updateCanCompose);
+    for (final listenable in [
+      title,
+      description,
+      time,
+      pinned,
+      task,
+      priority,
+      tags,
+    ]) {
+      _dirtyTracker.watch(listenable, _hasChanges);
+    }
   }
 
-  /// Update can compose.
-  void _updateCanCompose() {
-    final hasChanges =
-        title.value != _initialTitle ||
-        description.value != _initialDesc ||
-        time.value != _initialTime ||
-        pinned.value != _initialPinned ||
-        task.value?.id != _initialTask?.id ||
-        priority.value != _initialPriority ||
-        !listEquals(tags.value, _initialTags);
+  final String _initialTitle;
+  final String _initialDesc;
+  final String _initialTime;
+  final bool _initialPinned;
+  final Tasks? _initialTask;
+  final Priority _initialPriority;
+  final List<String> _initialTags;
 
-    _canCompose.value = hasChanges;
-  }
+  final title = ValueNotifier<String>('');
+  final description = ValueNotifier<String>('');
+  final ValueNotifier<String> time = ValueNotifier<String>('');
+  final ValueNotifier<bool> pinned = ValueNotifier<bool>(false);
+  final ValueNotifier<Tasks?> task = ValueNotifier<Tasks?>(null);
+  final ValueNotifier<Priority> priority = ValueNotifier<Priority>(
+    Priority.none,
+  );
+  final ValueNotifier<List<String>> tags = ValueNotifier<List<String>>([]);
 
-  @override
-  /// Releases resources when the widget is removed.
+  final FormDirtyTracker _dirtyTracker = FormDirtyTracker();
+
+  ValueListenable<bool> get canCompose => _dirtyTracker.canCompose;
+
+  bool _hasChanges() =>
+      title.value != _initialTitle ||
+      description.value != _initialDesc ||
+      time.value != _initialTime ||
+      pinned.value != _initialPinned ||
+      task.value?.id != _initialTask?.id ||
+      priority.value != _initialPriority ||
+      !listEquals(tags.value, _initialTags);
+
   void dispose() {
-    title.removeListener(_updateCanCompose);
-    description.removeListener(_updateCanCompose);
-    time.removeListener(_updateCanCompose);
-    pinned.removeListener(_updateCanCompose);
-    task.removeListener(_updateCanCompose);
-    priority.removeListener(_updateCanCompose);
-    tags.removeListener(_updateCanCompose);
-
+    _dirtyTracker.dispose();
     title.dispose();
     description.dispose();
     time.dispose();
@@ -1533,7 +1407,5 @@ class _EditingController extends ChangeNotifier {
     task.dispose();
     priority.dispose();
     tags.dispose();
-    _canCompose.dispose();
-    super.dispose();
   }
 }

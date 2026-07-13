@@ -255,7 +255,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
 
   /// Builds the floating action button widget.
   Widget? _buildFloatingActionButton(bool fabVisible) {
-    const statisticsTabIndex = 3;
     const settingsTabIndex = 4;
 
     if (_tabIndex == statisticsTabIndex ||

@@ -275,6 +275,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get skip => 'Salta';
 	@override String get show_archived => 'Mostra archiviati';
 	@override String get snooze => 'Posponi';
+	@override String get snooze_action_label => 'Posponi di {minutes} min';
 	@override String get snooze_duration => 'Durata posponi';
 	@override String get sort => 'Ordina';
 	@override String get sort_by_date_asc => 'Per data (più vecchie prima)';
@@ -347,9 +348,16 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => 'Apri notifica';
-	@override String get notification_channel_name => 'Promemoria';
 	@override String get isar_database => 'Database Isar';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => 'Promemoria alta priorità';
+	@override String get notification_channel_medium => 'Promemoria priorità media';
+	@override String get notification_channel_low => 'Promemoria bassa priorità';
+	@override String get notification_channel_none => 'Promemoria senza priorità';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <it-IT>.
@@ -596,6 +604,7 @@ extension on TranslationsItIt {
 			'skip' => 'Salta',
 			'show_archived' => 'Mostra archiviati',
 			'snooze' => 'Posponi',
+			'snooze_action_label' => 'Posponi di {minutes} min',
 			'snooze_duration' => 'Durata posponi',
 			'sort' => 'Ordina',
 			'sort_by_date_asc' => 'Per data (più vecchie prima)',
@@ -668,9 +677,16 @@ extension on TranslationsItIt {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'Apri notifica',
-			'notification_channel_name' => 'Promemoria',
 			'isar_database' => 'Database Isar',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'Promemoria alta priorità',
+			'notification_channel_medium' => 'Promemoria priorità media',
+			'notification_channel_low' => 'Promemoria bassa priorità',
+			'notification_channel_none' => 'Promemoria senza priorità',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

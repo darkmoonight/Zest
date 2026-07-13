@@ -7,24 +7,32 @@ class RecordedNotification {
     required this.title,
     required this.body,
     required this.date,
+    required this.priority,
   });
 
   final int id;
   final String title;
   final String body;
   final DateTime? date;
+  final Priority priority;
 }
 
 class RecordedSnooze {
-  const RecordedSnooze({required this.id, required this.snoozeMinutes});
+  const RecordedSnooze({
+    required this.id,
+    required this.snoozeMinutes,
+    required this.priority,
+  });
 
   final int id;
   final int? snoozeMinutes;
+  final Priority priority;
 }
 
 /// Test double for [NotificationShow] that records calls.
 class FakeNotificationShow extends NotificationShow {
   final List<RecordedNotification> shown = [];
+  final List<Settings> shownSettings = [];
   final List<int> cancelled = [];
   final List<RecordedSnooze> snoozed = [];
   bool cancelAllCalled = false;
@@ -39,10 +47,20 @@ class FakeNotificationShow extends NotificationShow {
     String? markDoneActionText,
     String? snoozeActionText,
     Settings? settings,
+    Priority priority = Priority.none,
   }) async {
     shown.add(
-      RecordedNotification(id: id, title: title, body: body, date: date),
+      RecordedNotification(
+        id: id,
+        title: title,
+        body: body,
+        date: date,
+        priority: priority,
+      ),
     );
+    if (settings != null) {
+      shownSettings.add(settings);
+    }
   }
 
   @override
@@ -64,12 +82,16 @@ class FakeNotificationShow extends NotificationShow {
     String? snoozeActionText,
     int? snoozeMinutes,
     Settings? settings,
+    Priority priority = Priority.none,
   }) async {
-    snoozed.add(RecordedSnooze(id: id, snoozeMinutes: snoozeMinutes));
+    snoozed.add(
+      RecordedSnooze(id: id, snoozeMinutes: snoozeMinutes, priority: priority),
+    );
   }
 
   void clear() {
     shown.clear();
+    shownSettings.clear();
     cancelled.clear();
     snoozed.clear();
     cancelAllCalled = false;

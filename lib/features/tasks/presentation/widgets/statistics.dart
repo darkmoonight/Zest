@@ -7,7 +7,7 @@ import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/progress_calculator.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
-import 'package:zest/features/tasks/presentation/widgets/icon_container.dart';
+import 'package:zest/core/widgets/icon_container.dart';
 import 'package:zest/features/tasks/presentation/widgets/stat_chip.dart';
 
 /// Widget that statistics.

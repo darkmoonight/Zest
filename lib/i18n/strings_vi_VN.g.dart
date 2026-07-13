@@ -275,6 +275,7 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get skip => 'Bỏ qua';
 	@override String get show_archived => 'Hiển thị đã lưu trữ';
 	@override String get snooze => 'Báo lại';
+	@override String get snooze_action_label => 'Báo lại sau {minutes} phút';
 	@override String get snooze_duration => 'Thời gian báo lại';
 	@override String get sort => 'Sắp xếp';
 	@override String get sort_by_date_asc => 'Theo ngày (cũ nhất trước)';
@@ -347,9 +348,16 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => 'Mở thông báo';
-	@override String get notification_channel_name => 'Nhắc nhở';
 	@override String get isar_database => 'Cơ sở dữ liệu Isar';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => 'Nhắc nhở ưu tiên cao';
+	@override String get notification_channel_medium => 'Nhắc nhở ưu tiên trung bình';
+	@override String get notification_channel_low => 'Nhắc nhở ưu tiên thấp';
+	@override String get notification_channel_none => 'Nhắc nhở không ưu tiên';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <vi-VN>.
@@ -596,6 +604,7 @@ extension on TranslationsViVn {
 			'skip' => 'Bỏ qua',
 			'show_archived' => 'Hiển thị đã lưu trữ',
 			'snooze' => 'Báo lại',
+			'snooze_action_label' => 'Báo lại sau {minutes} phút',
 			'snooze_duration' => 'Thời gian báo lại',
 			'sort' => 'Sắp xếp',
 			'sort_by_date_asc' => 'Theo ngày (cũ nhất trước)',
@@ -668,9 +677,16 @@ extension on TranslationsViVn {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'Mở thông báo',
-			'notification_channel_name' => 'Nhắc nhở',
 			'isar_database' => 'Cơ sở dữ liệu Isar',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'Nhắc nhở ưu tiên cao',
+			'notification_channel_medium' => 'Nhắc nhở ưu tiên trung bình',
+			'notification_channel_low' => 'Nhắc nhở ưu tiên thấp',
+			'notification_channel_none' => 'Nhắc nhở không ưu tiên',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

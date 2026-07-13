@@ -111,7 +111,7 @@ class CircularProgressWidget extends StatelessWidget {
         ),
         customColors: CustomSliderColors(
           progressBarColor: progressColor,
-          trackColor: colorScheme.surfaceContainerHighest,
+          trackColor: progressColor.withValues(alpha: 0.22),
           gradientStartAngle: 270,
           gradientEndAngle: 270 + 360,
           shadowColor: progressColor.withValues(alpha: 0.3),

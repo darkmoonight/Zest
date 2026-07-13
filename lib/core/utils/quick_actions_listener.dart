@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zest/core/navigation/home_navigation.dart';
+import 'package:zest/core/navigation/home_screen_key.dart';
+import 'package:zest/core/navigation/home_tabs.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
-import 'package:zest/features/shell/presentation/home_screen.dart';
-import 'package:zest/features/tasks/presentation/widgets/tasks_action.dart';
 import 'package:zest/features/todos/presentation/view/all_todos.dart';
 import 'package:zest/features/todos/presentation/view/calendar_todos.dart';
+import 'package:zest/features/tasks/presentation/widgets/tasks_action.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_action.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:zest/platform/platform_features.dart'
     if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
-
-/// Global key for [HomeScreen] tab control from quick actions.
-final homeScreenKey = GlobalKey<HomeScreenState>();
 
 /// Initializes Android/iOS quick actions and handles shortcut navigation.
 class QuickActionsListener extends ConsumerStatefulWidget {
@@ -96,21 +95,15 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
   /// Handles a deferred shortcut once [HomeScreen] context is available.
   void _tryHandlePending() {
     if (_pendingShortcut == null) return;
-    final ctx = homeScreenKey.currentContext ?? context;
-    if (!ctx.mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _tryHandlePending());
-      return;
-    }
-    final hasMaterialLocalizations =
-        Localizations.of<MaterialLocalizations>(ctx, MaterialLocalizations) !=
-        null;
-    if (!hasMaterialLocalizations) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _tryHandlePending());
-      return;
-    }
-    final type = _pendingShortcut!;
-    _pendingShortcut = null;
-    _handleShortcut(type, ctx);
+
+    whenHomeContextReady(
+      fallback: context,
+      action: (ctx) {
+        final type = _pendingShortcut!;
+        _pendingShortcut = null;
+        _handleShortcut(type, ctx);
+      },
+    );
   }
 
   /// Shows [sheet] as a modal bottom sheet, guarding against re-entry.
@@ -126,27 +119,19 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
     _isShowingBottomSheet = false;
   }
 
-  /// Pops nested routes back to the home root before switching tabs.
-  void _popToHomeRoot(BuildContext ctx) {
-    final navigator = Navigator.of(ctx, rootNavigator: true);
-    if (navigator.canPop()) {
-      navigator.popUntil((route) => route.isFirst);
-    }
-  }
-
   /// Routes [type] to the matching tab or creation sheet.
   void _handleShortcut(String type, BuildContext ctx) {
     switch (type) {
       case 'action_new_categories':
-        _popToHomeRoot(ctx);
-        homeScreenKey.currentState?.changeTabIndex(0);
+        popToHomeRoot(ctx);
+        homeScreenKey.currentState?.changeTabIndex(categoriesTabIndex);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _showCreateSheet(ctx, TasksAction(text: 'create'.tr, edit: false));
         });
         break;
       case 'action_new_todo':
-        _popToHomeRoot(ctx);
-        homeScreenKey.currentState?.changeTabIndex(1);
+        popToHomeRoot(ctx);
+        homeScreenKey.currentState?.changeTabIndex(allTodosTabIndex);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _showCreateSheet(
             ctx,
@@ -156,8 +141,8 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
         break;
       case 'action_all_todos':
         if (homeScreenKey.currentState != null) {
-          _popToHomeRoot(ctx);
-          homeScreenKey.currentState!.changeTabIndex(1);
+          popToHomeRoot(ctx);
+          homeScreenKey.currentState!.changeTabIndex(allTodosTabIndex);
         } else {
           Navigator.of(
             ctx,
@@ -166,8 +151,8 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
         break;
       case 'action_calendar_todos':
         if (homeScreenKey.currentState != null) {
-          _popToHomeRoot(ctx);
-          homeScreenKey.currentState!.changeTabIndex(2);
+          popToHomeRoot(ctx);
+          homeScreenKey.currentState!.changeTabIndex(calendarTabIndex);
         } else {
           Navigator.of(
             ctx,
@@ -175,8 +160,8 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
         }
         break;
       case 'action_statistics':
-        _popToHomeRoot(ctx);
-        homeScreenKey.currentState?.changeTabIndex(3);
+        popToHomeRoot(ctx);
+        homeScreenKey.currentState?.changeTabIndex(statisticsTabIndex);
         break;
       default:
         break;

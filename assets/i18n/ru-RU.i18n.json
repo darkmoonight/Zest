@@ -235,6 +235,7 @@
   "skip": "Пропустить",
   "showArchived": "Показывать архивные",
   "snooze": "Отложить",
+  "snoozeActionLabel": "Отложить на {minutes} мин",
   "snoozeDuration": "Продолжительность отсрочки",
   "sort": "Сортировка",
   "sortByDateAsc": "По дате (сначала старые)",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "Открыть уведомление",
-  "notificationChannelName": "Напоминания",
   "isarDatabase": "База Isar",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "Напоминания высокого приоритета",
+  "notificationChannelMedium": "Напоминания среднего приоритета",
+  "notificationChannelLow": "Напоминания низкого приоритета",
+  "notificationChannelNone": "Напоминания без приоритета",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

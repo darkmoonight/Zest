@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Class representing package license info.
+/// Summary of a dependency package and its license paragraph count.
 class PackageLicenseInfo {
   /// Creates a [PackageLicenseInfo].
   const PackageLicenseInfo({
@@ -9,44 +9,40 @@ class PackageLicenseInfo {
     required this.paragraphCount,
   });
 
-  /// The package name.
+  /// Dependency name as reported by [LicenseRegistry].
   final String packageName;
 
-  /// The paragraph count.
+  /// Number of license paragraphs aggregated for this package.
   final int paragraphCount;
 }
 
 final Map<String, String> _packageLicenseTextCache = {};
 
-/// Clear package license caches.
+/// Clears cached full license text loaded by [loadPackageLicenseText].
 void clearPackageLicenseCaches() => _packageLicenseTextCache.clear();
 
+/// Clears license caches; intended for tests only.
 @visibleForTesting
-/// Clear package license caches for test.
 void clearPackageLicenseCachesForTest() => clearPackageLicenseCaches();
 
-/// License paragraphs text.
+/// Joins [LicenseParagraph] texts with blank lines between entries.
 String licenseParagraphsText(Iterable<LicenseParagraph> paragraphs) =>
     paragraphs.map((paragraph) => paragraph.text).join('\n\n');
 
-/// Void.
 Future<void> _yieldToUi(int processed, {required int every}) async {
   if (processed % every == 0) {
     await Future<void>.delayed(Duration.zero);
   }
 }
 
-/// Package license info.
+/// Loads package names and paragraph counts from [LicenseRegistry].
 Future<List<PackageLicenseInfo>> loadPackageLicenses() async {
   await Future<void>.delayed(Duration.zero);
 
-  /// Paragraph counts.
   final paragraphCounts = <String, int>{};
 
-  /// Processed.
   var processed = 0;
 
-  /// For.
   await for (final entry in LicenseRegistry.licenses) {
     for (final package in entry.packages) {
       paragraphCounts[package] =
@@ -70,21 +66,17 @@ Future<List<PackageLicenseInfo>> loadPackageLicenses() async {
     );
 }
 
-/// String.
+/// Loads and caches the full license text for [packageName].
 Future<String> loadPackageLicenseText(String packageName) async {
-  /// Cached.
   final cached = _packageLicenseTextCache[packageName];
   if (cached != null) return cached;
 
   await Future<void>.delayed(Duration.zero);
 
-  /// Buffer.
   final buffer = StringBuffer();
 
-  /// Processed.
   var processed = 0;
 
-  /// For.
   await for (final entry in LicenseRegistry.licenses) {
     if (!entry.packages.contains(packageName)) continue;
 
@@ -97,13 +89,12 @@ Future<String> loadPackageLicenseText(String packageName) async {
     await _yieldToUi(processed, every: 25);
   }
 
-  /// Text.
   final text = buffer.toString();
   _packageLicenseTextCache[packageName] = text;
   return text;
 }
 
-/// Package licenses provider.
+/// Async provider that loads sorted [PackageLicenseInfo] for the licenses screen.
 final packageLicensesProvider =
     FutureProvider.autoDispose<List<PackageLicenseInfo>>((ref) async {
       ref.onDispose(clearPackageLicenseCaches);

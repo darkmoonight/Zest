@@ -52,5 +52,5 @@ final settingsRepositoryProvider = Provider<SettingsRepository>(
 
 /// Provides the local notification scheduling service.
 final notificationServiceProvider = Provider<NotificationService>(
-  (ref) => NotificationService(),
+  (ref) => NotificationService(settings: ref.watch(settingsProvider)),
 );

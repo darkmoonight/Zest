@@ -50,16 +50,12 @@ class TasksState {
 
 /// Loads and mutates task categories; watches Isar for live list updates.
 class TasksNotifier extends Notifier<TasksState> {
-  /// The task repo.
   late final TaskRepository _taskRepo;
 
-  /// The todo repo.
   late final TodoRepository _todoRepo;
 
-  /// The task service.
   late final TaskService _taskService;
 
-  /// The load debounce.
   Timer? _loadDebounce;
 
   @override
@@ -103,7 +99,7 @@ class TasksNotifier extends Notifier<TasksState> {
     });
   }
 
-  /// Void.
+  /// Reloads task categories from the database into state.
   Future<void> reloadTasks() async {
     final newTasks = await _taskRepo.getAll();
     state = state.copyWith(tasks: newTasks);
@@ -111,7 +107,7 @@ class TasksNotifier extends Notifier<TasksState> {
 
   // ==================== Tasks CRUD ====================
 
-  /// Void.
+  /// Creates a task category with the given title, description, and color.
   Future<void> addTask(String title, String description, Color color) async {
     await _taskService.createTask(
       title: title,
@@ -121,7 +117,7 @@ class TasksNotifier extends Notifier<TasksState> {
     );
   }
 
-  /// Void.
+  /// Persists edits to an existing task category.
   Future<void> updateTask(
     Tasks task,
     String title,
@@ -136,7 +132,7 @@ class TasksNotifier extends Notifier<TasksState> {
     );
   }
 
-  /// Void.
+  /// Deletes [taskList] and reindexes remaining categories.
   Future<void> deleteTask(List<Tasks> taskList) async {
     if (taskList.isEmpty) return;
 
@@ -148,7 +144,7 @@ class TasksNotifier extends Notifier<TasksState> {
     await _reindexTasks();
   }
 
-  /// Void.
+  /// Archives [taskList], clears selection, and reloads todos.
   Future<void> archiveTask(List<Tasks> taskList) async {
     if (taskList.isEmpty) return;
 
@@ -160,7 +156,7 @@ class TasksNotifier extends Notifier<TasksState> {
     ref.read(todosNotifierProvider.notifier).resyncSelectedTodoFromIds();
   }
 
-  /// Void.
+  /// Restores [taskList] from archive and reloads todos.
   Future<void> noArchiveTask(List<Tasks> taskList) async {
     if (taskList.isEmpty) return;
 
@@ -172,7 +168,7 @@ class TasksNotifier extends Notifier<TasksState> {
     ref.read(todosNotifierProvider.notifier).resyncSelectedTodoFromIds();
   }
 
-  /// Void.
+  /// Persists a new order for [filteredTasks] within the full task list.
   Future<void> reorderTasks({
     required List<Tasks> filteredTasks,
     required bool archived,
@@ -187,7 +183,6 @@ class TasksNotifier extends Notifier<TasksState> {
     state = state.copyWith(tasks: await _taskRepo.getAll());
   }
 
-  /// Void.
   Future<void> _reindexTasks() async {
     final all = state.tasks.toList();
 
@@ -201,7 +196,7 @@ class TasksNotifier extends Notifier<TasksState> {
 
   // ==================== Filters ====================
 
-  /// Tasks.
+  /// Returns task categories filtered by archive state and search query.
   List<Tasks> getFilteredTasks({
     required bool archived,
     String searchQuery = '',

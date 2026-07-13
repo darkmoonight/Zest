@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:zest/core/notifications/notification_i18n.dart';
 import 'package:zest/core/utils/notification.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/i18n/tr.dart';
@@ -6,17 +7,20 @@ import 'package:zest/i18n/tr.dart';
 /// Schedules, snoozes, and cancels local todo reminder notifications.
 class NotificationService {
   /// Creates a service with an optional custom [NotificationShow] delegate.
-  NotificationService({NotificationShow? notificationShow})
+  NotificationService({NotificationShow? notificationShow, this._settings})
     : _notificationShow = notificationShow ?? NotificationShow();
 
   /// Platform wrapper that shows and cancels local notifications.
   final NotificationShow _notificationShow;
 
-  /// Schedules a reminder at [todo.todoCompletedTime], or skips when null.
-  Future<void> scheduleForTodo(Todos todo) async {
+  /// Default snooze/action labels source when callers omit [settings].
+  final Settings? _settings;
+
+  /// Schedules a reminder at [todo.todoCompletedTime] for active todos only.
+  Future<void> scheduleForTodo(Todos todo, {Settings? settings}) async {
     final completedTime = todo.todoCompletedTime;
 
-    if (completedTime == null) {
+    if (completedTime == null || todo.status != TodoStatus.active) {
       return;
     }
 
@@ -34,6 +38,8 @@ class NotificationService {
         todo.name,
         todo.description,
         effectiveTime,
+        settings: settings ?? _settings,
+        priority: todo.priority,
       );
     } catch (e) {
       debugPrint('Error scheduling notification for todo ${todo.id}: $e');
@@ -100,7 +106,7 @@ class NotificationService {
 
   /// Delays [todo]'s reminder by [settings.snoozeDuration] minutes.
   Future<void> snooze(Todos todo, Settings settings) async {
-    final snoozeText = '${'snooze'.tr} ${settings.snoozeDuration} ${'min'.tr}';
+    final snoozeText = snoozeActionLabel(settings.snoozeDuration);
 
     await _notificationShow.snoozeNotification(
       todo.id,
@@ -110,6 +116,7 @@ class NotificationService {
       markDoneActionText: 'markAsDone'.tr,
       snoozeMinutes: settings.snoozeDuration,
       settings: settings,
+      priority: todo.priority,
     );
   }
 }

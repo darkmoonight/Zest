@@ -6,9 +6,13 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/di/providers.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/core/widgets/form_dirty_tracker.dart';
+import 'package:zest/core/widgets/icon_container.dart';
 import 'package:zest/core/widgets/confirmation_dialog.dart';
-import 'package:zest/core/widgets/modal_sheet_drag_handle.dart';
+import 'package:zest/core/widgets/modal_sheet_animation_mixin.dart';
+import 'package:zest/core/widgets/modal_sheet_header.dart';
 import 'package:zest/core/widgets/modal_sheet_save_button.dart';
+import 'package:zest/core/widgets/modal_sheet_scaffold.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
@@ -22,10 +26,10 @@ class TodosTransfer extends ConsumerStatefulWidget {
   /// Creates a [TodosTransfer].
   const TodosTransfer({super.key, required this.text, required this.todos});
 
-  /// The text.
+  /// Dialog title describing the transfer action.
   final String text;
 
-  /// The todos.
+  /// Todos being moved to the chosen destination.
   final List<Todos> todos;
 
   @override
@@ -35,7 +39,7 @@ class TodosTransfer extends ConsumerStatefulWidget {
 
 /// State for [TodosTransfer] handling transfer mode and selection.
 class _TodosTransferState extends ConsumerState<TodosTransfer>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, ModalSheetAnimationMixin {
   /// The task controller.
   late final TextEditingController _taskController;
 
@@ -63,21 +67,12 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
   /// The editing controller.
   late final _EditingController _editingController;
 
-  /// The animation controller.
-  late final AnimationController _animationController;
-
-  /// The fade animation.
-  late final Animation<double> _fadeAnimation;
-
-  /// The slide animation.
-  late final Animation<Offset> _slideAnimation;
-
   @override
   /// Initializes state when the widget is first inserted.
   void initState() {
     super.initState();
     _initializeControllers();
-    _initializeAnimations();
+    initModalSheetAnimations(duration: AppConstants.animationDuration);
   }
 
   /// Initialize controllers.
@@ -90,29 +85,6 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
     _editingController = _EditingController();
   }
 
-  /// Initialize animations.
-  void _initializeAnimations() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: AppConstants.animationDuration,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _animationController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
-
-    _animationController.forward();
-  }
-
   @override
   /// Releases resources when the widget is removed.
   void dispose() {
@@ -121,7 +93,7 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
     _taskFocusNode.dispose();
     _todoFocusNode.dispose();
     _editingController.dispose();
-    _animationController.dispose();
+    disposeModalSheetAnimations();
     super.dispose();
   }
 
@@ -278,109 +250,32 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
     final isMobile = ResponsiveUtils.isMobile(context);
     final colorScheme = Theme.of(context).colorScheme;
 
-    return PopScope(
-      canPop: false,
+    return ModalSheetScaffold(
+      isMobile: isMobile,
+      maxHeightFractionMobile: AppConstants.modalHeightFractionMediumMobile,
+      maxHeightFractionDesktop: AppConstants.modalHeightFractionMediumDesktop,
       onPopInvokedWithResult: _onPopInvokedWithResult,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: isMobile ? double.infinity : AppConstants.maxModalWidth,
-          maxHeight:
-              MediaQuery.of(context).size.height * (isMobile ? 0.70 : 0.65),
+      fadeAnimation: modalSheetFadeAnimation,
+      slideAnimation: modalSheetSlideAnimation,
+      header: ModalSheetHeader(
+        padding: padding,
+        title: widget.text,
+        subtitle: 'transferTodoHint'.tr,
+        leading: IconContainer(
+          icon: IconsaxPlusBold.convert,
+          backgroundColor: colorScheme.secondaryContainer,
+          iconColor: colorScheme.onSecondaryContainer,
+          iconSize: AppConstants.iconSizeLarge,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ModalSheetDragHandle(isMobile: isMobile),
-            _buildHeader(colorScheme, padding),
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-            ),
-            Flexible(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: _buildForm(context, padding),
-                ),
-              ),
-            ),
-          ],
+        trailing: ModalSheetSaveButton(
+          canComposeListenable: _editingController.canCompose,
+          onSave: _onSavePressed,
+          accentColor: colorScheme.secondary,
+          onAccentColor: colorScheme.onSecondary,
+          label: 'move'.tr,
         ),
       ),
-    );
-  }
-
-  /// Builds the header widget.
-  Widget _buildHeader(ColorScheme colorScheme, double padding) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: padding * 1.5,
-        vertical: padding,
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppConstants.spacingS + 2),
-            decoration: BoxDecoration(
-              color: colorScheme.secondaryContainer,
-              borderRadius: BorderRadius.circular(
-                AppConstants.borderRadiusMedium,
-              ),
-            ),
-            child: Icon(
-              IconsaxPlusBold.convert,
-              size: AppConstants.iconSizeLarge,
-              color: colorScheme.onSecondaryContainer,
-            ),
-          ),
-          SizedBox(width: padding * 1.2),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.text,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                    fontSize: ResponsiveUtils.getResponsiveFontSize(
-                      context,
-                      20,
-                    ),
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(height: AppConstants.spacingXS),
-                Text(
-                  'transferTodoHint'.tr,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontSize: ResponsiveUtils.getResponsiveFontSize(
-                      context,
-                      12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: padding * 0.8),
-          _buildSaveButton(colorScheme),
-        ],
-      ),
-    );
-  }
-
-  /// Builds the save button widget.
-  Widget _buildSaveButton(ColorScheme colorScheme) {
-    return ModalSheetSaveButton(
-      canComposeListenable: _editingController.canCompose,
-      onSave: _onSavePressed,
-      accentColor: colorScheme.secondary,
-      onAccentColor: colorScheme.onSecondary,
-      label: 'move'.tr,
+      body: _buildForm(context, padding),
     );
   }
 
@@ -441,7 +336,7 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
           SizedBox(width: padding),
           Expanded(
             child: Text(
-              '${'movingTodos'.tr}: ${widget.todos.length}',
+              'movingTodosCount'.trFormat({'count': widget.todos.length}),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurface,
                 fontWeight: FontWeight.w500,
@@ -814,36 +709,28 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
   }
 }
 
-/// Class representing editing controller.
+/// Tracks dirty state for the transfer form.
 class _EditingController {
   _EditingController() {
-    _task.addListener(_updateCanCompose);
-    _todo.addListener(_updateCanCompose);
+    _dirtyTracker.watch(_task, _hasSelection);
+    _dirtyTracker.watch(_todo, _hasSelection);
   }
 
   final ValueNotifier<Tasks?> _task = ValueNotifier(null);
   final ValueNotifier<Todos?> _todo = ValueNotifier(null);
-  final ValueNotifier<bool> _canCompose = ValueNotifier(false);
+  final FormDirtyTracker _dirtyTracker = FormDirtyTracker();
 
-  ValueListenable<bool> get canCompose => _canCompose;
+  ValueListenable<bool> get canCompose => _dirtyTracker.canCompose;
 
-  /// Sets task.
   void setTask(Tasks? task) => _task.value = task;
 
-  /// Sets todo.
   void setTodo(Todos? todo) => _todo.value = todo;
 
-  /// Update can compose.
-  void _updateCanCompose() {
-    _canCompose.value = _task.value != null || _todo.value != null;
-  }
+  bool _hasSelection() => _task.value != null || _todo.value != null;
 
-  /// Releases resources when the widget is removed.
   void dispose() {
-    _task.removeListener(_updateCanCompose);
-    _todo.removeListener(_updateCanCompose);
+    _dirtyTracker.dispose();
     _task.dispose();
     _todo.dispose();
-    _canCompose.dispose();
   }
 }

@@ -274,7 +274,8 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get settings => 'Paramètres';
 	@override String get skip => 'Ignorer';
 	@override String get show_archived => 'Afficher les archives';
-	@override String get snooze => 'Rappel';
+	@override String get snooze => 'Reporter';
+	@override String get snooze_action_label => 'Reporter de {minutes} min';
 	@override String get snooze_duration => 'Durée du rappel';
 	@override String get sort => 'Trier';
 	@override String get sort_by_date_asc => 'Par date (les plus anciennes d’abord)';
@@ -347,9 +348,16 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => 'Ouvrir la notification';
-	@override String get notification_channel_name => 'Rappels';
 	@override String get isar_database => 'Base de données Isar';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => 'Rappels haute priorité';
+	@override String get notification_channel_medium => 'Rappels priorité moyenne';
+	@override String get notification_channel_low => 'Rappels basse priorité';
+	@override String get notification_channel_none => 'Rappels sans priorité';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <fr-FR>.
@@ -595,7 +603,8 @@ extension on TranslationsFrFr {
 			'settings' => 'Paramètres',
 			'skip' => 'Ignorer',
 			'show_archived' => 'Afficher les archives',
-			'snooze' => 'Rappel',
+			'snooze' => 'Reporter',
+			'snooze_action_label' => 'Reporter de {minutes} min',
 			'snooze_duration' => 'Durée du rappel',
 			'sort' => 'Trier',
 			'sort_by_date_asc' => 'Par date (les plus anciennes d’abord)',
@@ -668,9 +677,16 @@ extension on TranslationsFrFr {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'Ouvrir la notification',
-			'notification_channel_name' => 'Rappels',
 			'isar_database' => 'Base de données Isar',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'Rappels haute priorité',
+			'notification_channel_medium' => 'Rappels priorité moyenne',
+			'notification_channel_low' => 'Rappels basse priorité',
+			'notification_channel_none' => 'Rappels sans priorité',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

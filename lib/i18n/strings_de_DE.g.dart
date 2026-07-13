@@ -275,6 +275,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get skip => 'Überspringen';
 	@override String get show_archived => 'Archivierte anzeigen';
 	@override String get snooze => 'Schlummern';
+	@override String get snooze_action_label => 'Schlummern {minutes} Min.';
 	@override String get snooze_duration => 'Schlummerdauer';
 	@override String get sort => 'Sortieren';
 	@override String get sort_by_date_asc => 'Nach Datum (älteste zuerst)';
@@ -347,9 +348,16 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => 'Benachrichtigung öffnen';
-	@override String get notification_channel_name => 'Erinnerungen';
 	@override String get isar_database => 'Isar-Datenbank';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => 'Erinnerungen hoher Priorität';
+	@override String get notification_channel_medium => 'Erinnerungen mittlerer Priorität';
+	@override String get notification_channel_low => 'Erinnerungen niedriger Priorität';
+	@override String get notification_channel_none => 'Erinnerungen ohne Priorität';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -596,6 +604,7 @@ extension on TranslationsDeDe {
 			'skip' => 'Überspringen',
 			'show_archived' => 'Archivierte anzeigen',
 			'snooze' => 'Schlummern',
+			'snooze_action_label' => 'Schlummern {minutes} Min.',
 			'snooze_duration' => 'Schlummerdauer',
 			'sort' => 'Sortieren',
 			'sort_by_date_asc' => 'Nach Datum (älteste zuerst)',
@@ -668,9 +677,16 @@ extension on TranslationsDeDe {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'Benachrichtigung öffnen',
-			'notification_channel_name' => 'Erinnerungen',
 			'isar_database' => 'Isar-Datenbank',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'Erinnerungen hoher Priorität',
+			'notification_channel_medium' => 'Erinnerungen mittlerer Priorität',
+			'notification_channel_low' => 'Erinnerungen niedriger Priorität',
+			'notification_channel_none' => 'Erinnerungen ohne Priorität',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

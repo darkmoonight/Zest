@@ -234,7 +234,8 @@
   "settings": "تنظیمات",
   "skip": "رد شدن",
   "showArchived": "نمایش بایگانی‌شده",
-  "snooze": "چرت",
+  "snooze": "تعویق",
+  "snoozeActionLabel": "تعویق {minutes} دقیقه",
   "snoozeDuration": "مدت چرت",
   "sort": "مرتب‌سازی",
   "sortByDateAsc": "بر اساس تاریخ (قدیمی‌ترین اول)",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "باز کردن اعلان",
-  "notificationChannelName": "یادآورها",
   "isarDatabase": "پایگاه Isar",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "یادآورهای اولویت بالا",
+  "notificationChannelMedium": "یادآورهای اولویت متوسط",
+  "notificationChannelLow": "یادآورهای اولویت پایین",
+  "notificationChannelNone": "یادآورهای بدون اولویت",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

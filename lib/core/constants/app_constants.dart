@@ -15,9 +15,15 @@ class AppConstants {
   /// Card tap scale animation duration.
   static const Duration cardTapAnimation = Duration(milliseconds: 240);
 
+  /// Snackbar display duration before auto-dismiss.
+  static const Duration snackbarDisplayDuration = Duration(milliseconds: 2500);
+
   // Size
   /// Small border radius for chips and compact controls.
   static const double borderRadiusSmall = 8.0;
+
+  /// Compact border radius for counters and inline chips (between small and medium).
+  static const double borderRadiusCompact = 10.0;
 
   /// Medium border radius for cards and dialogs.
   static const double borderRadiusMedium = 12.0;
@@ -73,6 +79,15 @@ class AppConstants {
   /// Extra-large icon size.
   static const double iconSizeXLarge = 32.0;
 
+  /// Inline icon size on metadata chips and compact labels.
+  static const double iconSizeInline = 11.0;
+
+  /// App bar action icon size.
+  static const double iconSizeAppBarAction = 22.0;
+
+  /// Square icon container size in modals and statistics.
+  static const double iconBoxSize = 44.0;
+
   // Constraints
   /// Maximum width for dialogs on wide screens.
   static const double maxDialogWidth = 400.0;
@@ -83,6 +98,21 @@ class AppConstants {
   /// Maximum width for modal bottom sheets.
   static const double maxModalWidth = 500.0;
 
+  /// Modal sheet height fraction on mobile (large forms).
+  static const double modalHeightFractionLargeMobile = 0.95;
+
+  /// Modal sheet height fraction on desktop (large forms).
+  static const double modalHeightFractionLargeDesktop = 0.85;
+
+  /// Modal sheet height fraction on desktop (todo action sheet).
+  static const double modalHeightFractionLargeDesktopWide = 0.90;
+
+  /// Modal sheet height fraction on mobile (transfer sheet).
+  static const double modalHeightFractionMediumMobile = 0.70;
+
+  /// Modal sheet height fraction on desktop (transfer sheet).
+  static const double modalHeightFractionMediumDesktop = 0.65;
+
   // Opacity
   /// Light opacity overlay.
   static const double opacityLight = 0.3;
@@ -92,6 +122,15 @@ class AppConstants {
 
   /// Heavy opacity overlay.
   static const double opacityHeavy = 0.8;
+
+  /// Background alpha for tinted chips and badges.
+  static const double chipBackgroundAlpha = 0.15;
+
+  /// Border alpha for tinted chips and badges.
+  static const double chipBorderAlpha = 0.3;
+
+  /// Scale factor when a card is pressed.
+  static const double cardTapScale = 0.97;
 
   // Border width
   /// Thin border width.
@@ -191,10 +230,6 @@ class AppConstants {
   /// Empty-state illustration for task/todo lists.
   static const String emptyStateTaskImage = 'assets/images/Task.png';
 
-  // Notifications
-  /// Android notification channel id for todo reminders.
-  static const String notificationChannelId = 'Zest';
-
-  /// Slang key for the Android notification channel display name.
-  static const String notificationChannelNameKey = 'notificationChannelName';
+  /// Default color for newly created tasks.
+  static const Color defaultTaskColor = Color(0xFF2196F3);
 }

@@ -3,6 +3,8 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/progress_calculator.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
+import 'package:zest/core/widgets/card_tap_scale_mixin.dart';
+import 'package:zest/core/widgets/selectable_card_shell.dart';
 import 'package:zest/core/widgets/metadata_chip.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/features/tasks/presentation/widgets/circular_progress_widget.dart';
@@ -50,47 +52,18 @@ class TaskCard extends StatefulWidget {
 
 /// Widget that task card state.
 class _TaskCardState extends State<TaskCard>
-    with SingleTickerProviderStateMixin {
-  /// The animation controller.
-  late final AnimationController _animationController;
-
-  /// The scale animation.
-  late final Animation<double> _scaleAnimation;
-
+    with SingleTickerProviderStateMixin, CardTapScaleMixin {
   @override
-  /// Initializes state when the widget is first inserted.
   void initState() {
     super.initState();
-    _initializeAnimation();
-  }
-
-  /// Initialize animation.
-  void _initializeAnimation() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: AppConstants.shortAnimation,
-    );
-
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
+    initCardTapScaleAnimation();
   }
 
   @override
-  /// Releases resources when the widget is removed.
   void dispose() {
-    _animationController.dispose();
+    disposeCardTapScaleAnimation();
     super.dispose();
   }
-
-  /// Handle tap down.
-  void _handleTapDown(TapDownDetails details) => _animationController.forward();
-
-  /// Handle tap up.
-  void _handleTapUp(TapUpDetails details) => _animationController.reverse();
-
-  /// Handle tap cancel.
-  void _handleTapCancel() => _animationController.reverse();
 
   @override
   /// Builds the widget subtree.
@@ -109,69 +82,24 @@ class _TaskCardState extends State<TaskCard>
         vertical: AppConstants.spacingXS,
       ),
       child: ScaleTransition(
-        scale: _scaleAnimation,
+        scale: cardTapScaleAnimation,
         child: GestureDetector(
           onTap: widget.onTap,
           onDoubleTap: widget.onDoubleTap,
-          onTapDown: _handleTapDown,
-          onTapUp: _handleTapUp,
-          onTapCancel: _handleTapCancel,
-          child: _buildCardWithSelection(
-            context,
-            isMobile,
-            progress,
-            taskColor,
+          onTapDown: handleCardTapDown,
+          onTapUp: handleCardTapUp,
+          onTapCancel: handleCardTapCancel,
+          child: SelectableCardShell(
+            isSelected: widget.isSelected,
+            child: _buildCardContent(
+              context,
+              Theme.of(context).colorScheme,
+              isMobile,
+              widget.isSelected,
+              progress,
+              taskColor,
+            ),
           ),
-        ),
-      ),
-    );
-  }
-
-  /// Builds the card with selection widget.
-  Widget _buildCardWithSelection(
-    BuildContext context,
-    bool isMobile,
-    ProgressCalculator progress,
-    Color taskColor,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isSelected = widget.isSelected;
-
-    return AnimatedContainer(
-      duration: AppConstants.shortAnimation,
-      curve: Curves.easeInOut,
-      decoration: BoxDecoration(
-        border: isSelected
-            ? Border.all(
-                color: colorScheme.primary,
-                width: AppConstants.borderWidthThick,
-              )
-            : null,
-        borderRadius: BorderRadius.circular(
-          isSelected
-              ? AppConstants.borderRadiusXLarge
-              : AppConstants.borderRadiusLarge,
-        ),
-      ),
-      child: Card(
-        elevation: isSelected
-            ? AppConstants.elevationMedium
-            : AppConstants.elevationLow,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            isSelected
-                ? AppConstants.borderRadiusXLarge
-                : AppConstants.borderRadiusLarge,
-          ),
-        ),
-        child: _buildCardContent(
-          context,
-          colorScheme,
-          isMobile,
-          isSelected,
-          progress,
-          taskColor,
         ),
       ),
     );
@@ -262,7 +190,7 @@ class _TaskCardState extends State<TaskCard>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        _buildTaskCounter(context, colorScheme),
+        _buildTaskCounter(context, colorScheme, taskColor),
         if (progress.isComplete) ...[
           SizedBox(height: AppConstants.spacingXS + 1),
           _buildCompletedBadge(context, taskColor),
@@ -272,11 +200,17 @@ class _TaskCardState extends State<TaskCard>
   }
 
   /// Builds the task counter widget.
-  Widget _buildTaskCounter(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildTaskCounter(
+    BuildContext context,
+    ColorScheme colorScheme,
+    Color taskColor,
+  ) {
     final hasNoTodos = widget.createdTodos == 0;
     final allComplete =
         widget.createdTodos > 0 && widget.completedTodos == widget.createdTodos;
     final shouldDim = hasNoTodos || allComplete;
+    final fillAlpha = shouldDim ? 0.08 : 0.14;
+    final borderAlpha = shouldDim ? 0.18 : 0.32;
 
     return AnimatedContainer(
       duration: AppConstants.shortAnimation,
@@ -285,10 +219,12 @@ class _TaskCardState extends State<TaskCard>
         vertical: AppConstants.spacingXS + 1,
       ),
       decoration: BoxDecoration(
-        color: shouldDim
-            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-            : colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall + 2),
+        color: taskColor.withValues(alpha: fillAlpha),
+        border: Border.all(
+          color: taskColor.withValues(alpha: borderAlpha),
+          width: AppConstants.borderWidthThin,
+        ),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusCompact),
       ),
       child: Text(
         '${widget.completedTodos}/${widget.createdTodos}',

@@ -275,6 +275,7 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get skip => 'تخطّي';
 	@override String get show_archived => 'عرض المؤرشف';
 	@override String get snooze => 'غفوة';
+	@override String get snooze_action_label => 'غفوة {minutes} دقيقة';
 	@override String get snooze_duration => 'مدة الغفوة';
 	@override String get sort => 'ترتیب';
 	@override String get sort_by_date_asc => 'حسب التاريخ (الأقدم أولاً)';
@@ -347,9 +348,16 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => 'فتح الإشعار';
-	@override String get notification_channel_name => 'التذكيرات';
 	@override String get isar_database => 'قاعدة Isar';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => 'تذكيرات الأولوية العالية';
+	@override String get notification_channel_medium => 'تذكيرات الأولوية المتوسطة';
+	@override String get notification_channel_low => 'تذكيرات الأولوية المنخفضة';
+	@override String get notification_channel_none => 'تذكيرات بدون أولوية';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <ar-AR>.
@@ -596,6 +604,7 @@ extension on TranslationsArAr {
 			'skip' => 'تخطّي',
 			'show_archived' => 'عرض المؤرشف',
 			'snooze' => 'غفوة',
+			'snooze_action_label' => 'غفوة {minutes} دقيقة',
 			'snooze_duration' => 'مدة الغفوة',
 			'sort' => 'ترتیب',
 			'sort_by_date_asc' => 'حسب التاريخ (الأقدم أولاً)',
@@ -668,9 +677,16 @@ extension on TranslationsArAr {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'فتح الإشعار',
-			'notification_channel_name' => 'التذكيرات',
 			'isar_database' => 'قاعدة Isar',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'تذكيرات الأولوية العالية',
+			'notification_channel_medium' => 'تذكيرات الأولوية المتوسطة',
+			'notification_channel_low' => 'تذكيرات الأولوية المنخفضة',
+			'notification_channel_none' => 'تذكيرات بدون أولوية',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

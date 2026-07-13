@@ -8,6 +8,7 @@ import 'package:zest/core/navigation/app_router.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/theme/app_themes_provider.dart';
 import 'package:zest/core/theme/theme_mode_notifier.dart';
+import 'package:zest/core/bootstrap/notification_navigation_listener.dart';
 import 'package:zest/core/bootstrap/notification_sync_listener.dart';
 import 'package:zest/core/services/auto_backup_lifecycle_listener.dart';
 import 'package:zest/core/utils/quick_actions_listener.dart';
@@ -80,23 +81,25 @@ class ZestApp extends ConsumerWidget {
           return TranslationProvider(
             child: AutoBackupLifecycleListener(
               child: NotificationSyncListener(
-                child: QuickActionsListener(
-                  child: MaterialApp.router(
-                    routerConfig: router,
-                    themeMode: themeMode,
-                    theme: themes.light,
-                    darkTheme: themes.dark,
-                    locale: locale,
-                    supportedLocales: AppLocaleUtils.supportedLocales,
-                    localizationsDelegates: const [
-                      GlobalMaterialLocalizations.delegate,
-                      GlobalWidgetsLocalizations.delegate,
-                      GlobalCupertinoLocalizations.delegate,
-                    ],
-                    debugShowCheckedModeBanner: false,
-                    title: 'Zest',
-                    builder: (context, child) => Stack(
-                      children: [?child, const SnackBarOverlayWidget()],
+                child: NotificationNavigationListener(
+                  child: QuickActionsListener(
+                    child: MaterialApp.router(
+                      routerConfig: router,
+                      themeMode: themeMode,
+                      theme: themes.light,
+                      darkTheme: themes.dark,
+                      locale: locale,
+                      supportedLocales: AppLocaleUtils.supportedLocales,
+                      localizationsDelegates: const [
+                        GlobalMaterialLocalizations.delegate,
+                        GlobalWidgetsLocalizations.delegate,
+                        GlobalCupertinoLocalizations.delegate,
+                      ],
+                      debugShowCheckedModeBanner: false,
+                      title: 'Zest',
+                      builder: (context, child) => Stack(
+                        children: [?child, const SnackBarOverlayWidget()],
+                      ),
                     ),
                   ),
                 ),

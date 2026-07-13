@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 
-/// Widget that stat chip.
+/// Compact pill showing an icon, numeric value, and label.
 class StatChip extends StatelessWidget {
-  /// The icon.
+  /// Icon displayed at the start of the chip.
   final IconData icon;
 
-  /// The label.
+  /// Descriptive text beside the value.
   final String label;
 
-  /// The value.
+  /// Primary statistic text.
   final String value;
 
-  /// The color.
+  /// Background fill color.
   final Color color;
 
-  /// The text color.
+  /// Color for icon and text.
   final Color textColor;
 
-  /// The compact.
+  /// Uses tighter padding for dense layouts.
   final bool compact;
 
   /// Creates a [StatChip].

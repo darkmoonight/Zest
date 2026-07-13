@@ -8,6 +8,7 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_list_dialog_shell.dart';
 import 'package:zest/i18n/tr.dart';
 
+/// Shows a modal picker dialog and returns the selected value.
 Future<T?> showSelectionDialog<T>({
   required BuildContext context,
   required String title,
@@ -17,10 +18,10 @@ Future<T?> showSelectionDialog<T>({
   required String Function(T) itemBuilder,
   required FutureOr<void> Function(T) onSelected,
 
-  /// Enable search.
+  /// When true, adds a filter field above the list.
   bool enableSearch = false,
 
-  /// Function.
+  /// Optional builder for a leading widget per list item.
   Widget? Function(T)? leadingBuilder,
 }) async {
   return NavigationHelper.showAppDialog<T>(
@@ -38,7 +39,7 @@ Future<T?> showSelectionDialog<T>({
   );
 }
 
-/// Widget that selection dialog.
+/// Modal list for choosing one item from a typed collection.
 class SelectionDialog<T> extends StatefulWidget {
   /// Creates a [SelectionDialog].
   const SelectionDialog({
@@ -53,28 +54,28 @@ class SelectionDialog<T> extends StatefulWidget {
     this.leadingBuilder,
   });
 
-  /// The title.
+  /// Dialog title shown in the header.
   final String title;
 
-  /// The icon.
+  /// Header icon beside the title.
   final IconData icon;
 
-  /// The items.
+  /// Options displayed in the list.
   final List<T> items;
 
-  /// The current value.
+  /// Item marked as selected.
   final T currentValue;
 
-  /// The item builder.
+  /// Maps each item to its display label.
   final String Function(T) itemBuilder;
 
-  /// The on selected.
+  /// Called with the tapped item before the dialog closes.
   final FutureOr<void> Function(T) onSelected;
 
-  /// The enable search.
+  /// Whether to show a search field above the list.
   final bool enableSearch;
 
-  /// The leading builder.
+  /// Optional builder for a leading widget per item.
   final Widget? Function(T)? leadingBuilder;
 
   @override

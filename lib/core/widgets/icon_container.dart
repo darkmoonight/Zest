@@ -1,42 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:zest/core/constants/app_constants.dart';
 
-/// Widget that icon container.
+/// Rounded icon box used in modal headers and statistics cards.
 class IconContainer extends StatelessWidget {
-  /// The icon.
-  final IconData icon;
-
-  /// The background color.
-  final Color? backgroundColor;
-
-  /// The icon color.
-  final Color? iconColor;
-
-  /// The size.
-  final double size;
-
-  /// The icon size.
-  final double iconSize;
-
-  /// The shape.
-  final BoxShape shape;
-
-  /// The border radius.
-  final double borderRadius;
-
-  /// Creates a [IconContainer].
+  /// Creates an [IconContainer].
   const IconContainer({
     super.key,
     required this.icon,
     this.backgroundColor,
     this.iconColor,
-    this.size = 44,
-    this.iconSize = 24,
+    this.size = AppConstants.iconBoxSize,
+    this.iconSize = AppConstants.iconSizeLarge,
     this.shape = BoxShape.rectangle,
-    this.borderRadius = 12,
+    this.borderRadius = AppConstants.borderRadiusMedium,
   });
 
+  /// Icon displayed inside the container.
+  final IconData icon;
+
+  /// Background fill; defaults to [ColorScheme.primaryContainer].
+  final Color? backgroundColor;
+
+  /// Icon tint; defaults to [ColorScheme.onPrimaryContainer].
+  final Color? iconColor;
+
+  /// Outer width and height.
+  final double size;
+
+  /// Icon glyph size.
+  final double iconSize;
+
+  /// Box or circle shape.
+  final BoxShape shape;
+
+  /// Corner radius when [shape] is [BoxShape.rectangle].
+  final double borderRadius;
+
   @override
-  /// Builds the widget subtree.
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 

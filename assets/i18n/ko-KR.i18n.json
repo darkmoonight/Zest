@@ -235,6 +235,7 @@
   "skip": "건너뛰기",
   "showArchived": "보관함 표시",
   "snooze": "스누즈",
+  "snoozeActionLabel": "{minutes}분 스누즈",
   "snoozeDuration": "스누즈 기간",
   "sort": "정렬",
   "sortByDateAsc": "날짜순 (오래된 순)",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "알림 열기",
-  "notificationChannelName": "알림",
   "isarDatabase": "Isar 데이터베이스",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "높은 우선순위 알림",
+  "notificationChannelMedium": "중간 우선순위 알림",
+  "notificationChannelLow": "낮은 우선순위 알림",
+  "notificationChannelNone": "우선순위 없음 알림",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

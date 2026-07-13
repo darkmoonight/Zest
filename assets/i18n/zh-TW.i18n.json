@@ -235,6 +235,7 @@
   "skip": "略過",
   "showArchived": "顯示已封存",
   "snooze": "稍後提醒",
+  "snoozeActionLabel": "稍後提醒 {minutes} 分鐘",
   "snoozeDuration": "稍後提醒時長",
   "sort": "排序",
   "sortByDateAsc": "按日期（最早優先）",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "開啟通知",
-  "notificationChannelName": "提醒",
   "isarDatabase": "Isar 資料庫",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "高優先度提醒",
+  "notificationChannelMedium": "中優先度提醒",
+  "notificationChannelLow": "低優先度提醒",
+  "notificationChannelNone": "無優先度提醒",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

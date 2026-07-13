@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/task_service.dart';
+import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/task_repository.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 
@@ -119,5 +120,25 @@ void main() {
     final reloaded = await taskRepo.getById(task.id);
     expect(reloaded?.archive, isFalse);
     expect(fakeNotifications.shown.any((n) => n.id == todo.id), isTrue);
+  });
+
+  test('unarchiveTasks skips done todos with due times', () async {
+    final task = await createTestTask(
+      isar,
+      title: 'Archived done',
+      archive: true,
+    );
+    final doneTodo = await createTestTodo(
+      isar,
+      task: task,
+      name: 'Done todo',
+      completedTime: DateTime.now().add(const Duration(hours: 1)),
+      status: TodoStatus.done,
+    );
+    fakeNotifications.clear();
+
+    await service.unarchiveTasks([task]);
+
+    expect(fakeNotifications.shown.any((n) => n.id == doneTodo.id), isFalse);
   });
 }

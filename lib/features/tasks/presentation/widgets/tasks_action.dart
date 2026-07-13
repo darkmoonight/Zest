@@ -7,10 +7,13 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:zest/features/tasks/application/tasks_notifier.dart';
 import 'package:zest/data/models/db.dart';
-import 'package:zest/features/tasks/presentation/widgets/icon_container.dart';
+import 'package:zest/core/widgets/form_dirty_tracker.dart';
+import 'package:zest/core/widgets/icon_container.dart';
 import 'package:zest/core/widgets/confirmation_dialog.dart';
-import 'package:zest/core/widgets/modal_sheet_drag_handle.dart';
+import 'package:zest/core/widgets/modal_sheet_animation_mixin.dart';
+import 'package:zest/core/widgets/modal_sheet_header.dart';
 import 'package:zest/core/widgets/modal_sheet_save_button.dart';
+import 'package:zest/core/widgets/modal_sheet_scaffold.dart';
 import 'package:zest/core/widgets/text_form.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/color_extensions.dart';
@@ -48,7 +51,7 @@ class TasksAction extends ConsumerStatefulWidget {
 
 /// Widget that tasks action state.
 class _TasksActionState extends ConsumerState<TasksAction>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, ModalSheetAnimationMixin {
   /// Form key.
   final _formKey = GlobalKey<FormState>();
 
@@ -64,22 +67,13 @@ class _TasksActionState extends ConsumerState<TasksAction>
   /// The editing controller.
   late final _EditingController _editingController;
 
-  /// The animation controller.
-  late final AnimationController _animationController;
-
-  /// The fade animation.
-  late final Animation<double> _fadeAnimation;
-
-  /// The slide animation.
-  late final Animation<Offset> _slideAnimation;
-
   @override
   /// Initializes state when the widget is first inserted.
   void initState() {
     super.initState();
     _initializeControllers();
     _initializeEditMode();
-    _initAnimations();
+    initModalSheetAnimations();
   }
 
   /// Initialize controllers.
@@ -87,7 +81,9 @@ class _TasksActionState extends ConsumerState<TasksAction>
     _titleController = TextEditingController();
     _descController = TextEditingController();
     _colorNotifier = ValueNotifier(
-      widget.edit ? Color(widget.task!.taskColor) : const Color(0xFF2196F3),
+      widget.edit
+          ? Color(widget.task!.taskColor)
+          : AppConstants.defaultTaskColor,
     );
   }
 
@@ -105,29 +101,6 @@ class _TasksActionState extends ConsumerState<TasksAction>
     );
   }
 
-  /// Init animations.
-  void _initAnimations() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: AppConstants.shortAnimation,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _animationController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
-
-    _animationController.forward();
-  }
-
   @override
   /// Releases resources when the widget is removed.
   void dispose() {
@@ -135,7 +108,7 @@ class _TasksActionState extends ConsumerState<TasksAction>
     _descController.dispose();
     _colorNotifier.dispose();
     _editingController.dispose();
-    _animationController.dispose();
+    disposeModalSheetAnimations();
     super.dispose();
   }
 
@@ -211,105 +184,35 @@ class _TasksActionState extends ConsumerState<TasksAction>
     final isMobile = ResponsiveUtils.isMobile(context);
     final colorScheme = Theme.of(context).colorScheme;
 
-    return PopScope(
-      canPop: false,
+    return ModalSheetScaffold(
+      isMobile: isMobile,
+      maxHeightFractionMobile: AppConstants.modalHeightFractionLargeMobile,
+      maxHeightFractionDesktop: AppConstants.modalHeightFractionLargeDesktop,
       onPopInvokedWithResult: _onPopInvokedWithResult,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: isMobile ? double.infinity : AppConstants.maxModalWidth,
-          maxHeight:
-              MediaQuery.of(context).size.height * (isMobile ? 0.95 : 0.85),
+      fadeAnimation: modalSheetFadeAnimation,
+      slideAnimation: modalSheetSlideAnimation,
+      header: ModalSheetHeader(
+        padding: padding,
+        title: widget.text,
+        subtitle: widget.edit ? 'editCategoryHint'.tr : 'createCategoryHint'.tr,
+        leading: Hero(
+          tag: widget.edit ? 'task_icon_${widget.task!.id}' : 'task_icon_new',
+          child: IconContainer(
+            icon: widget.edit
+                ? IconsaxPlusBold.edit
+                : IconsaxPlusBold.folder_add,
+            iconSize: AppConstants.iconSizeLarge,
+          ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ModalSheetDragHandle(isMobile: isMobile),
-            _buildHeader(colorScheme, padding),
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-            ),
-            Flexible(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: _buildForm(context, padding),
-                ),
-              ),
-            ),
-          ],
+        trailing: ModalSheetSaveButton(
+          canComposeListenable: _editingController.canCompose,
+          onSave: _onSavePressed,
+          accentColor: colorScheme.primary,
+          onAccentColor: colorScheme.onPrimary,
+          label: 'ready'.tr,
         ),
       ),
-    );
-  }
-
-  /// Builds the header widget.
-  Widget _buildHeader(ColorScheme colorScheme, double padding) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: padding * 1.5,
-        vertical: padding,
-      ),
-      child: Row(
-        children: [
-          Hero(
-            tag: widget.edit ? 'task_icon_${widget.task!.id}' : 'task_icon_new',
-            child: IconContainer(
-              icon: widget.edit
-                  ? IconsaxPlusBold.edit
-                  : IconsaxPlusBold.folder_add,
-              size: 44,
-              iconSize: AppConstants.iconSizeLarge,
-            ),
-          ),
-          SizedBox(width: padding * 1.2),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.text,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                    fontSize: ResponsiveUtils.getResponsiveFontSize(
-                      context,
-                      20,
-                    ),
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                SizedBox(height: AppConstants.spacingXS),
-                Text(
-                  widget.edit ? 'editCategoryHint'.tr : 'createCategoryHint'.tr,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontSize: ResponsiveUtils.getResponsiveFontSize(
-                      context,
-                      12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: padding * 0.8),
-          _buildSaveButton(colorScheme),
-        ],
-      ),
-    );
-  }
-
-  /// Builds the save button widget.
-  Widget _buildSaveButton(ColorScheme colorScheme) {
-    return ModalSheetSaveButton(
-      canComposeListenable: _editingController.canCompose,
-      onSave: _onSavePressed,
-      accentColor: colorScheme.primary,
-      onAccentColor: colorScheme.onPrimary,
-      label: 'ready'.tr,
+      body: _buildForm(context, padding),
     );
   }
 
@@ -425,7 +328,7 @@ class _TasksActionState extends ConsumerState<TasksAction>
       height: 44,
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall + 2),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusCompact),
         border: Border.all(
           color: colorScheme.outline.withValues(alpha: 0.3),
           width: 1.5,
@@ -754,68 +657,43 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog>
 
 // ==================== Editing Controller ====================
 
-/// Class representing editing controller.
-class _EditingController extends ChangeNotifier {
+/// Tracks dirty state for the task create/edit form.
+class _EditingController {
   _EditingController(
     this.initialTitle,
     this.initialDescription,
     this.initialColor,
   ) {
-    _initializeListeners();
-  }
-
-  /// The initial title.
-  final String? initialTitle;
-
-  /// The initial description.
-  final String? initialDescription;
-
-  /// The initial color.
-  final Color? initialColor;
-
-  /// Title.
-  final title = ValueNotifier<String?>(null);
-
-  /// Description.
-  final description = ValueNotifier<String?>(null);
-
-  /// Color.
-  final color = ValueNotifier<Color?>(null);
-
-  /// Can compose.
-  final _canCompose = ValueNotifier<bool>(false);
-
-  ValueListenable<bool> get canCompose => _canCompose;
-
-  /// Initialize listeners.
-  void _initializeListeners() {
     title.value = initialTitle;
     description.value = initialDescription;
     color.value = initialColor;
 
-    title.addListener(_updateCanCompose);
-    description.addListener(_updateCanCompose);
-    color.addListener(_updateCanCompose);
+    _dirtyTracker.watch(title, _hasChanges);
+    _dirtyTracker.watch(description, _hasChanges);
+    _dirtyTracker.watch(color, _hasChanges);
   }
 
-  /// Update can compose.
-  void _updateCanCompose() {
-    _canCompose.value =
-        title.value != initialTitle ||
-        description.value != initialDescription ||
-        color.value != initialColor;
-  }
+  final String? initialTitle;
+  final String? initialDescription;
+  final Color? initialColor;
 
-  @override
-  /// Releases resources when the widget is removed.
+  final title = ValueNotifier<String?>(null);
+  final description = ValueNotifier<String?>(null);
+  final color = ValueNotifier<Color?>(null);
+
+  final FormDirtyTracker _dirtyTracker = FormDirtyTracker();
+
+  ValueListenable<bool> get canCompose => _dirtyTracker.canCompose;
+
+  bool _hasChanges() =>
+      title.value != initialTitle ||
+      description.value != initialDescription ||
+      color.value != initialColor;
+
   void dispose() {
-    title.removeListener(_updateCanCompose);
-    description.removeListener(_updateCanCompose);
-    color.removeListener(_updateCanCompose);
+    _dirtyTracker.dispose();
     title.dispose();
     description.dispose();
     color.dispose();
-    _canCompose.dispose();
-    super.dispose();
   }
 }

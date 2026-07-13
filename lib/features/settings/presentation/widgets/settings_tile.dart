@@ -4,7 +4,7 @@ import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Widget that settings tile.
+/// Standard list row used on settings screens for a single preference or action.
 class SettingsTile extends StatelessWidget {
   /// Creates a [SettingsTile].
   const SettingsTile({
@@ -21,34 +21,34 @@ class SettingsTile extends StatelessWidget {
     this.iconColor,
   });
 
-  /// The leading.
+  /// Icon or widget shown at the start of the row.
   final Widget leading;
 
-  /// The title.
+  /// Localized title key passed to [tr].
   final String? title;
 
-  /// The title text.
+  /// Pre-translated title text when no localization key is used.
   final String? titleText;
 
-  /// The subtitle.
+  /// Localized subtitle key passed to [tr].
   final String? subtitle;
 
-  /// The subtitle text.
+  /// Pre-translated subtitle text when no localization key is used.
   final String? subtitleText;
 
-  /// The value.
+  /// Current value shown before the trailing chevron.
   final String? value;
 
-  /// The trailing.
+  /// Optional widget replacing the default trailing chevron or value row.
   final Widget? trailing;
 
-  /// The on tap.
+  /// Called when the row is tapped; also controls chevron visibility.
   final VoidCallback? onTap;
 
-  /// The title color.
+  /// Override color for the title text.
   final Color? titleColor;
 
-  /// The icon color.
+  /// Override color for the leading icon.
   final Color? iconColor;
 
   @override

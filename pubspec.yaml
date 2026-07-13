@@ -7,7 +7,7 @@ version: 1.6.1+55
 
 environment:
   sdk: ">=3.12.2 <4.0.0"
-  flutter: "^3.44.4"
+  flutter: "^3.44.6"
 
 dependencies:
   # Flutter SDK
@@ -75,7 +75,7 @@ dev_dependencies:
     sdk: flutter
 
   # Code generation
-  build_runner: ^2.15.0
+  build_runner: ^2.15.1
   isar_community_generator: ^3.3.2
   slang_build_runner: ^4.18.0
 

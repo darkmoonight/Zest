@@ -274,7 +274,8 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get settings => 'Ustawienia';
 	@override String get skip => 'Pomiń';
 	@override String get show_archived => 'Pokaż zarchiwizowane';
-	@override String get snooze => 'Drzemka';
+	@override String get snooze => 'Odłóż';
+	@override String get snooze_action_label => 'Odłóż na {minutes} min';
 	@override String get snooze_duration => 'Czas drzemki';
 	@override String get sort => 'Sortuj';
 	@override String get sort_by_date_asc => 'Według daty (najstarsze pierwsze)';
@@ -347,9 +348,16 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => 'Otwórz powiadomienie';
-	@override String get notification_channel_name => 'Przypomnienia';
 	@override String get isar_database => 'Baza Isar';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => 'Przypomnienia wysokiego priorytetu';
+	@override String get notification_channel_medium => 'Przypomnienia średniego priorytetu';
+	@override String get notification_channel_low => 'Przypomnienia niskiego priorytetu';
+	@override String get notification_channel_none => 'Przypomnienia bez priorytetu';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <pl-PL>.
@@ -595,7 +603,8 @@ extension on TranslationsPlPl {
 			'settings' => 'Ustawienia',
 			'skip' => 'Pomiń',
 			'show_archived' => 'Pokaż zarchiwizowane',
-			'snooze' => 'Drzemka',
+			'snooze' => 'Odłóż',
+			'snooze_action_label' => 'Odłóż na {minutes} min',
 			'snooze_duration' => 'Czas drzemki',
 			'sort' => 'Sortuj',
 			'sort_by_date_asc' => 'Według daty (najstarsze pierwsze)',
@@ -668,9 +677,16 @@ extension on TranslationsPlPl {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'Otwórz powiadomienie',
-			'notification_channel_name' => 'Przypomnienia',
 			'isar_database' => 'Baza Isar',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'Przypomnienia wysokiego priorytetu',
+			'notification_channel_medium' => 'Przypomnienia średniego priorytetu',
+			'notification_channel_low' => 'Przypomnienia niskiego priorytetu',
+			'notification_channel_none' => 'Przypomnienia bez priorytetu',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

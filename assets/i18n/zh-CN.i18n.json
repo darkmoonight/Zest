@@ -235,6 +235,7 @@
   "skip": "跳过",
   "showArchived": "显示已归档",
   "snooze": "稍后提醒",
+  "snoozeActionLabel": "稍后提醒 {minutes} 分钟",
   "snoozeDuration": "稍后提醒时长",
   "sort": "排序",
   "sortByDateAsc": "按日期（最早优先）",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "打开通知",
-  "notificationChannelName": "提醒",
   "isarDatabase": "Isar 数据库",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "高优先级提醒",
+  "notificationChannelMedium": "中优先级提醒",
+  "notificationChannelLow": "低优先级提醒",
+  "notificationChannelNone": "无优先级提醒",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

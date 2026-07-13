@@ -6,7 +6,7 @@ import 'package:zest/core/navigation/app_routes.dart';
 import 'package:zest/core/navigation/route_transitions.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/features/onboarding/presentation/onboarding_screen.dart';
-import 'package:zest/core/utils/quick_actions_listener.dart';
+import 'package:zest/core/navigation/home_screen_key.dart';
 import 'package:zest/features/shell/presentation/home_screen.dart';
 
 /// Forces [appRouterProvider] to re-evaluate redirects from a [WidgetRef].

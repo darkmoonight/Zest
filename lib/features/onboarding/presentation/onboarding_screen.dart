@@ -8,15 +8,15 @@ import 'package:zest/core/navigation/app_router.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Data model holding onboarding values.
+/// Single onboarding slide with image, title, and description.
 class OnboardingData {
-  /// The image.
+  /// Asset path for the slide illustration.
   final String image;
 
-  /// The title.
+  /// Headline shown on the slide.
   final String title;
 
-  /// The description.
+  /// Supporting copy beneath the title.
   final String description;
 
   /// Creates a [OnboardingData].
@@ -51,7 +51,7 @@ class OnboardingConstants {
   ];
 }
 
-/// Widget that on boarding.
+/// Multi-page onboarding flow with skip and get-started actions.
 class OnBoarding extends ConsumerStatefulWidget {
   /// Creates a [OnBoarding].
   const OnBoarding({super.key});
@@ -224,7 +224,7 @@ class _OnBoardingState extends ConsumerState<OnBoarding> {
   }
 }
 
-/// Widget that dot indicator.
+/// Animated page indicator dot for onboarding carousels.
 class DotIndicator extends StatelessWidget {
   /// Creates a [DotIndicator].
   const DotIndicator({
@@ -233,10 +233,10 @@ class DotIndicator extends StatelessWidget {
     this.isCompleted = false,
   });
 
-  /// The is active.
+  /// Whether this dot represents the current page.
   final bool isActive;
 
-  /// The is completed.
+  /// Whether the corresponding page has been passed.
   final bool isCompleted;
 
   @override
@@ -264,12 +264,12 @@ class DotIndicator extends StatelessWidget {
   }
 }
 
-/// Widget that onboarding content.
+/// Layout for one onboarding slide's image and text.
 class OnboardingContent extends StatelessWidget {
   /// Creates a [OnboardingContent].
   const OnboardingContent({super.key, required this.data});
 
-  /// The data.
+  /// Slide content (image, title, and description).
   final OnboardingData data;
 
   @override

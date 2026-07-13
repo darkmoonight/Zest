@@ -749,6 +749,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Snooze'
 	String get snooze => 'Snooze';
 
+	/// en-US: 'Snooze {minutes} min'
+	String get snooze_action_label => 'Snooze {minutes} min';
+
 	/// en-US: 'Snooze Duration'
 	String get snooze_duration => 'Snooze Duration';
 
@@ -965,14 +968,35 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Open notification'
 	String get open_notification => 'Open notification';
 
-	/// en-US: 'Reminders'
-	String get notification_channel_name => 'Reminders';
-
 	/// en-US: 'Isar Database'
 	String get isar_database => 'Isar Database';
 
 	/// en-US: 'GitHub'
 	String get github => 'GitHub';
+
+	/// en-US: 'High priority reminders'
+	String get notification_channel_high => 'High priority reminders';
+
+	/// en-US: 'Medium priority reminders'
+	String get notification_channel_medium => 'Medium priority reminders';
+
+	/// en-US: 'Low priority reminders'
+	String get notification_channel_low => 'Low priority reminders';
+
+	/// en-US: 'No priority reminders'
+	String get notification_channel_none => 'No priority reminders';
+
+	/// en-US: 'Created: {date}'
+	String get created_at_label => 'Created: {date}';
+
+	/// en-US: '{date}: {count} completed'
+	String get heatmap_tooltip => '{date}: {count} completed';
+
+	/// en-US: 'Moving todos: {count}'
+	String get moving_todos_count => 'Moving todos: {count}';
+
+	/// en-US: 'Back'
+	String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -1219,6 +1243,7 @@ extension on Translations {
 			'skip' => 'Skip',
 			'show_archived' => 'Show archived',
 			'snooze' => 'Snooze',
+			'snooze_action_label' => 'Snooze {minutes} min',
 			'snooze_duration' => 'Snooze Duration',
 			'sort' => 'Sort',
 			'sort_by_date_asc' => 'By Date (Oldest First)',
@@ -1291,9 +1316,16 @@ extension on Translations {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'Open notification',
-			'notification_channel_name' => 'Reminders',
 			'isar_database' => 'Isar Database',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'High priority reminders',
+			'notification_channel_medium' => 'Medium priority reminders',
+			'notification_channel_low' => 'Low priority reminders',
+			'notification_channel_none' => 'No priority reminders',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

@@ -235,6 +235,7 @@
   "skip": "Skip",
   "showArchived": "Show archived",
   "snooze": "Snooze",
+  "snoozeActionLabel": "Snooze {minutes} min",
   "snoozeDuration": "Snooze Duration",
   "sort": "Sort",
   "sortByDateAsc": "By Date (Oldest First)",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "Open notification",
-  "notificationChannelName": "Reminders",
   "isarDatabase": "Isar Database",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "High priority reminders",
+  "notificationChannelMedium": "Medium priority reminders",
+  "notificationChannelLow": "Low priority reminders",
+  "notificationChannelNone": "No priority reminders",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

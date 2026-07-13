@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 
 /// Visual style variants for [MyTextForm].
@@ -103,7 +104,9 @@ class MyTextForm extends StatelessWidget {
       return Card(
         elevation: elevation,
         margin: margin,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
+        ),
         child: _buildTextFormField(context, colorScheme, isMobile),
       );
     }
@@ -231,30 +234,30 @@ class MyTextForm extends StatelessWidget {
           vertical: isMobile ? 12 : 14,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
           borderSide: BorderSide.none,
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
           borderSide: BorderSide(
             color: colorScheme.error.withValues(alpha: 0.5),
             width: 1,
           ),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
           borderSide: BorderSide(color: colorScheme.error, width: 2),
         ),
         disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
           borderSide: BorderSide.none,
         ),
       );
@@ -306,30 +309,30 @@ class MyTextForm extends StatelessWidget {
         vertical: isMobile ? 12 : 14,
       ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
         borderSide: BorderSide(color: colorScheme.outline, width: 1),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
         borderSide: BorderSide(
           color: colorScheme.outline.withValues(alpha: 0.5),
           width: 1,
         ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
         borderSide: BorderSide(color: colorScheme.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
         borderSide: BorderSide(color: colorScheme.error, width: 1),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
         borderSide: BorderSide(color: colorScheme.error, width: 2),
       ),
       disabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
         borderSide: BorderSide(
           color: colorScheme.onSurface.withValues(alpha: 0.12),
           width: 1,

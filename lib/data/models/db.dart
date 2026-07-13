@@ -81,6 +81,9 @@ class Settings {
 
   /// Directory path for auto-backup files.
   String? autoBackupPath;
+
+  /// Whether priority-based notification channels migration has completed.
+  bool notificationChannelsMigrated = false;
 }
 
 /// Todo list sort options stored in settings and task/todo records.

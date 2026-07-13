@@ -14,6 +14,15 @@ String trDynamic(String key) {
 extension Tr on String {
   /// Resolves this string as a dynamic translation key.
   String get tr => trDynamic(this);
+
+  /// Resolves this key and substitutes `{name}` placeholders from [params].
+  String trFormat(Map<String, Object> params) {
+    var result = tr;
+    for (final entry in params.entries) {
+      result = result.replaceAll('{${entry.key}}', '${entry.value}');
+    }
+    return result;
+  }
 }
 
 /// Normalizes legacy keys to snake_case slang map keys, passing through existing snake_case keys.

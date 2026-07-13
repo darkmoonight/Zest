@@ -6,7 +6,7 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_card_shape.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Widget that settings list dialog shell.
+/// Shared card dialog layout for settings pickers with optional header and footer.
 class SettingsListDialogShell extends StatelessWidget {
   /// Creates a [SettingsListDialogShell].
   const SettingsListDialogShell({
@@ -17,16 +17,16 @@ class SettingsListDialogShell extends StatelessWidget {
     this.maxHeightFraction = 0.7,
   });
 
-  /// The header.
+  /// Optional widget shown above the scrollable body.
   final Widget? header;
 
-  /// The body.
+  /// Main scrollable content of the dialog.
   final Widget body;
 
-  /// The footer.
+  /// Optional widget pinned below the body, typically action buttons.
   final Widget? footer;
 
-  /// The max height fraction.
+  /// Maximum dialog height as a fraction of screen height.
   final double maxHeightFraction;
 
   @override
@@ -68,7 +68,7 @@ class SettingsListDialogShell extends StatelessWidget {
   }
 }
 
-/// Widget that settings list dialog header.
+/// Title row with icon for settings list dialogs.
 class SettingsListDialogHeader extends StatelessWidget {
   /// Creates a [SettingsListDialogHeader].
   const SettingsListDialogHeader({
@@ -77,10 +77,10 @@ class SettingsListDialogHeader extends StatelessWidget {
     required this.icon,
   });
 
-  /// The title.
+  /// Dialog title text.
   final String title;
 
-  /// The icon.
+  /// Icon displayed beside the title.
   final IconData icon;
 
   @override
@@ -123,12 +123,12 @@ class SettingsListDialogHeader extends StatelessWidget {
   }
 }
 
-/// Widget that settings list dialog dismiss action.
+/// Footer with a single close button that pops the dialog.
 class SettingsListDialogDismissAction extends StatelessWidget {
   /// Creates a [SettingsListDialogDismissAction].
   const SettingsListDialogDismissAction({super.key, this.labelKey = 'close'});
 
-  /// The label key.
+  /// Translation key for the dismiss button label.
   final String labelKey;
 
   @override
@@ -146,7 +146,7 @@ class SettingsListDialogDismissAction extends StatelessWidget {
   );
 }
 
-/// Widget that settings dialog list tile.
+/// Selectable list row with optional leading widget and checkmark.
 class SettingsDialogListTile extends StatelessWidget {
   /// Creates a [SettingsDialogListTile].
   const SettingsDialogListTile({
@@ -157,16 +157,16 @@ class SettingsDialogListTile extends StatelessWidget {
     this.leading,
   });
 
-  /// The title.
+  /// Row label text.
   final String title;
 
-  /// The is selected.
+  /// Whether this option is currently selected.
   final bool isSelected;
 
-  /// The on tap.
+  /// Called when the row is tapped.
   final VoidCallback onTap;
 
-  /// The leading.
+  /// Optional widget shown before the title.
   final Widget? leading;
 
   @override
@@ -200,12 +200,12 @@ class SettingsDialogListTile extends StatelessWidget {
   }
 }
 
-/// Widget that settings list dialog actions footer.
+/// Padded footer container for dialog action buttons.
 class SettingsListDialogActionsFooter extends StatelessWidget {
   /// Creates a [SettingsListDialogActionsFooter].
   const SettingsListDialogActionsFooter({super.key, required this.child});
 
-  /// The child.
+  /// Action widgets laid out in the footer.
   final Widget child;
 
   @override
@@ -221,7 +221,7 @@ class SettingsListDialogActionsFooter extends StatelessWidget {
   );
 }
 
-/// Widget that settings list dialog tonal button.
+/// Tonal filled button using a translation key for its label.
 class SettingsListDialogTonalButton extends StatelessWidget {
   /// Creates a [SettingsListDialogTonalButton].
   const SettingsListDialogTonalButton({
@@ -232,16 +232,16 @@ class SettingsListDialogTonalButton extends StatelessWidget {
     this.foregroundColor,
   });
 
-  /// The label key.
+  /// Translation key for the button label.
   final String labelKey;
 
-  /// The on pressed.
+  /// Called when the button is pressed.
   final VoidCallback onPressed;
 
-  /// The background color.
+  /// Optional override for the button background.
   final Color? backgroundColor;
 
-  /// The foreground color.
+  /// Optional override for the button text and icon color.
   final Color? foregroundColor;
 
   @override

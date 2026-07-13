@@ -275,6 +275,7 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get skip => 'Geç';
 	@override String get show_archived => 'Arşivlenenleri göster';
 	@override String get snooze => 'Ertele';
+	@override String get snooze_action_label => '{minutes} dk ertele';
 	@override String get snooze_duration => 'Erteleme Süresi';
 	@override String get sort => 'Sırala';
 	@override String get sort_by_date_asc => 'Tarihe göre (en eski önce)';
@@ -347,9 +348,16 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => 'Bildirimi aç';
-	@override String get notification_channel_name => 'Hatırlatıcılar';
 	@override String get isar_database => 'Isar veritabanı';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => 'Yüksek öncelikli hatırlatıcılar';
+	@override String get notification_channel_medium => 'Orta öncelikli hatırlatıcılar';
+	@override String get notification_channel_low => 'Düşük öncelikli hatırlatıcılar';
+	@override String get notification_channel_none => 'Önceliksiz hatırlatıcılar';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <tr-TR>.
@@ -596,6 +604,7 @@ extension on TranslationsTrTr {
 			'skip' => 'Geç',
 			'show_archived' => 'Arşivlenenleri göster',
 			'snooze' => 'Ertele',
+			'snooze_action_label' => '{minutes} dk ertele',
 			'snooze_duration' => 'Erteleme Süresi',
 			'sort' => 'Sırala',
 			'sort_by_date_asc' => 'Tarihe göre (en eski önce)',
@@ -668,9 +677,16 @@ extension on TranslationsTrTr {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => 'Bildirimi aç',
-			'notification_channel_name' => 'Hatırlatıcılar',
 			'isar_database' => 'Isar veritabanı',
 			'github' => 'GitHub',
+			'notification_channel_high' => 'Yüksek öncelikli hatırlatıcılar',
+			'notification_channel_medium' => 'Orta öncelikli hatırlatıcılar',
+			'notification_channel_low' => 'Düşük öncelikli hatırlatıcılar',
+			'notification_channel_none' => 'Önceliksiz hatırlatıcılar',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

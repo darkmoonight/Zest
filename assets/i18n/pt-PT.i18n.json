@@ -235,6 +235,7 @@
   "skip": "Ignorar",
   "showArchived": "Mostrar arquivados",
   "snooze": "Adiar",
+  "snoozeActionLabel": "Adiar {minutes} min",
   "snoozeDuration": "Duração do adiamento",
   "sort": "Ordenar",
   "sortByDateAsc": "Por data (mais antigas primeiro)",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "Abrir notificação",
-  "notificationChannelName": "Lembretes",
   "isarDatabase": "Base de dados Isar",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "Lembretes de alta prioridade",
+  "notificationChannelMedium": "Lembretes de prioridade média",
+  "notificationChannelLow": "Lembretes de baixa prioridade",
+  "notificationChannelNone": "Lembretes sem prioridade",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

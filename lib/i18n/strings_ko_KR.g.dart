@@ -275,6 +275,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get skip => '건너뛰기';
 	@override String get show_archived => '보관함 표시';
 	@override String get snooze => '스누즈';
+	@override String get snooze_action_label => '{minutes}분 스누즈';
 	@override String get snooze_duration => '스누즈 기간';
 	@override String get sort => '정렬';
 	@override String get sort_by_date_asc => '날짜순 (오래된 순)';
@@ -347,9 +348,16 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get time_range12to18 => '12-18';
 	@override String get time_range18to24 => '18-24';
 	@override String get open_notification => '알림 열기';
-	@override String get notification_channel_name => '알림';
 	@override String get isar_database => 'Isar 데이터베이스';
 	@override String get github => 'GitHub';
+	@override String get notification_channel_high => '높은 우선순위 알림';
+	@override String get notification_channel_medium => '중간 우선순위 알림';
+	@override String get notification_channel_low => '낮은 우선순위 알림';
+	@override String get notification_channel_none => '우선순위 없음 알림';
+	@override String get created_at_label => 'Created: {date}';
+	@override String get heatmap_tooltip => '{date}: {count} completed';
+	@override String get moving_todos_count => 'Moving todos: {count}';
+	@override String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -596,6 +604,7 @@ extension on TranslationsKoKr {
 			'skip' => '건너뛰기',
 			'show_archived' => '보관함 표시',
 			'snooze' => '스누즈',
+			'snooze_action_label' => '{minutes}분 스누즈',
 			'snooze_duration' => '스누즈 기간',
 			'sort' => '정렬',
 			'sort_by_date_asc' => '날짜순 (오래된 순)',
@@ -668,9 +677,16 @@ extension on TranslationsKoKr {
 			'time_range12to18' => '12-18',
 			'time_range18to24' => '18-24',
 			'open_notification' => '알림 열기',
-			'notification_channel_name' => '알림',
 			'isar_database' => 'Isar 데이터베이스',
 			'github' => 'GitHub',
+			'notification_channel_high' => '높은 우선순위 알림',
+			'notification_channel_medium' => '중간 우선순위 알림',
+			'notification_channel_low' => '낮은 우선순위 알림',
+			'notification_channel_none' => '우선순위 없음 알림',
+			'created_at_label' => 'Created: {date}',
+			'heatmap_tooltip' => '{date}: {count} completed',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

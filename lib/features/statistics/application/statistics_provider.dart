@@ -10,7 +10,6 @@ final statisticsProvider = FutureProvider<StatisticsData>((ref) async {
   ref.watch(todosNotifierProvider);
   ref.watch(tasksNotifierProvider);
 
-  /// Whether isar.
   final isar = ref.watch(isarProvider);
   return StatisticsService.calculateStatistics(isar);
 });

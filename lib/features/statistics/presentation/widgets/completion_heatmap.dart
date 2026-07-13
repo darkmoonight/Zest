@@ -58,7 +58,12 @@ class CompletionHeatmap extends ConsumerWidget {
                     timeformat: appSettings.timeformat,
                     languageCode: appSettings.locale.languageCode,
                   );
-                  showSnackBar('$formattedDate: $count ${'completed'.tr}');
+                  showSnackBar(
+                    'heatmapTooltip'.trFormat({
+                      'date': formattedDate,
+                      'count': count,
+                    }),
+                  );
                 }
               },
               showColorTip: false,

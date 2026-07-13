@@ -102,7 +102,7 @@ class _ToastOverlayState extends State<_ToastOverlay>
   static const _animationDuration = Duration(milliseconds: 300);
 
   /// How long the toast stays visible before auto-dismiss.
-  static const _displayDuration = Duration(milliseconds: 2500);
+  static const _displayDuration = AppConstants.snackbarDisplayDuration;
 
   /// Starts fade/slide animations and schedules auto-dismiss.
   @override

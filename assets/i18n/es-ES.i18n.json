@@ -235,6 +235,7 @@
   "skip": "Omitir",
   "showArchived": "Mostrar archivados",
   "snooze": "Posponer",
+  "snoozeActionLabel": "Posponer {minutes} min",
   "snoozeDuration": "Duración de posposición",
   "sort": "Ordenar",
   "sortByDateAsc": "Por fecha (más antiguas primero)",
@@ -307,7 +308,14 @@
   "timeRange12to18": "12-18",
   "timeRange18to24": "18-24",
   "openNotification": "Abrir notificación",
-  "notificationChannelName": "Recordatorios",
   "isarDatabase": "Base de datos Isar",
-  "github": "GitHub"
+  "github": "GitHub",
+  "notificationChannelHigh": "Recordatorios de alta prioridad",
+  "notificationChannelMedium": "Recordatorios de prioridad media",
+  "notificationChannelLow": "Recordatorios de baja prioridad",
+  "notificationChannelNone": "Recordatorios sin prioridad",
+  "createdAtLabel": "Created: {date}",
+  "heatmapTooltip": "{date}: {count} completed",
+  "movingTodosCount": "Moving todos: {count}",
+  "navigateBack": "Back"
 }

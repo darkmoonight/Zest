@@ -55,13 +55,10 @@ class TodosState {
 
 /// Loads and mutates todos; subscribes to Isar watch streams for live updates.
 class TodosNotifier extends Notifier<TodosState> {
-  /// The task repo.
   late final TaskRepository _taskRepo;
 
-  /// The todo repo.
   late final TodoRepository _todoRepo;
 
-  /// The todo service.
   TodoService? _todoService;
 
   /// Debounce timer for coalescing database reload requests.
@@ -115,6 +112,7 @@ class TodosNotifier extends Notifier<TodosState> {
     );
   }
 
+  /// [TodoService] bound to current time-format and language settings.
   TodoService get todoService {
     _ensureTodoService(
       ref.read(settingsProvider.select((s) => (s.timeformat, s.language))),
@@ -130,7 +128,6 @@ class TodosNotifier extends Notifier<TodosState> {
     });
   }
 
-  /// Void.
   Future<void> _loadTodos() async {
     final preservedSelectedIds = state.selectedTodoIds.toSet();
 
@@ -165,13 +162,13 @@ class TodosNotifier extends Notifier<TodosState> {
     }
   }
 
-  /// Void.
+  /// Reloads todos from the database while preserving multi-select ids.
   Future<void> reloadTodos() => _loadTodos();
 
   /// Resync selected todo from ids.
   void resyncSelectedTodoFromIds() => _resyncSelectedTodoFromIds();
 
-  /// Todos.
+  /// Creates a todo and returns the persisted record.
   Future<Todos> addTodo({
     required Tasks task,
     required String title,
@@ -196,7 +193,7 @@ class TodosNotifier extends Notifier<TodosState> {
     return todo;
   }
 
-  /// Void.
+  /// Persists edits to an existing todo.
   Future<void> updateTodo({
     required Todos todo,
     required Tasks task,
@@ -219,13 +216,13 @@ class TodosNotifier extends Notifier<TodosState> {
     );
   }
 
-  /// Void.
+  /// Updates todo status and resyncs the current multi-selection.
   Future<void> updateTodoStatus(Todos todo) async {
     await todoService.updateTodoStatus(todo);
     _resyncSelectedTodoFromIds();
   }
 
-  /// Void.
+  /// Sets status on [todo] and its subtasks, then resyncs selection.
   Future<void> updateTodoStatusWithSubtasks(
     Todos todo,
     TodoStatus status,
@@ -234,7 +231,7 @@ class TodosNotifier extends Notifier<TodosState> {
     _resyncSelectedTodoFromIds();
   }
 
-  /// Void.
+  /// Moves [todoList] to [task] and refreshes todos and task lists.
   Future<void> moveTodos(List<Todos> todoList, Tasks task) async {
     if (todoList.isEmpty) return;
 
@@ -243,7 +240,7 @@ class TodosNotifier extends Notifier<TodosState> {
     await ref.read(tasksNotifierProvider.notifier).reloadTasks();
   }
 
-  /// Void.
+  /// Reparents [rootList] under [newParent] and reloads todos.
   Future<void> moveTodosToParent(List<Todos> rootList, Todos? newParent) async {
     if (rootList.isEmpty) return;
 
@@ -255,7 +252,7 @@ class TodosNotifier extends Notifier<TodosState> {
     await ref.read(tasksNotifierProvider.notifier).reloadTasks();
   }
 
-  /// Void.
+  /// Deletes [todoList], updates selection, and reindexes remaining todos.
   Future<void> deleteTodo(List<Todos> todoList) async {
     if (todoList.isEmpty) return;
 
@@ -277,7 +274,6 @@ class TodosNotifier extends Notifier<TodosState> {
     await _reindexTodos();
   }
 
-  /// Void.
   Future<void> _reindexTodos() async {
     final all = state.todos.toList();
 
@@ -325,7 +321,7 @@ class TodosNotifier extends Notifier<TodosState> {
 
   // ==================== Filters ====================
 
-  /// Todos.
+  /// Returns todos matching status, search, date, task, and parent filters.
   List<Todos> getFilteredTodos({
     required TodoStatus? statusFilter,
     String searchQuery = '',

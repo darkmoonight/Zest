@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
+import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
 import 'package:zest/core/bootstrap/notification_handlers.dart';
 import 'package:zest/core/utils/notification.dart';
 import 'package:zest/data/models/db.dart';
@@ -65,6 +66,25 @@ void main() {
         ),
       );
     });
+
+    test('requests todo open for body tap', () async {
+      NotificationHandlerBridge.pendingTodoId = null;
+      int? openedId;
+      NotificationHandlerBridge.onTodoOpenRequested = (id) => openedId = id;
+
+      await handleNotificationResponse(
+        const NotificationResponse(
+          notificationResponseType:
+              NotificationResponseType.selectedNotification,
+          payload: '42',
+        ),
+      );
+
+      expect(openedId, 42);
+      expect(NotificationHandlerBridge.pendingTodoId, 42);
+      NotificationHandlerBridge.onTodoOpenRequested = null;
+      NotificationHandlerBridge.pendingTodoId = null;
+    });
   });
 
   test('markTodoAsDone marks todo done in database', () async {
@@ -103,5 +123,37 @@ void main() {
 
     final reloaded = await isar.todos.get(todo.id);
     expect(reloaded?.status, TodoStatus.done);
+  });
+
+  test('handleNotificationResponse snoozes todo for action', () async {
+    final settings = Settings()..snoozeDuration = 20;
+    await isar.writeTxn(() => isar.settings.put(settings));
+
+    final task = await createTestTask(isar);
+    final due = DateTime.now().subtract(const Duration(minutes: 5));
+    final todo = await createTestTodo(
+      isar,
+      task: task,
+      name: 'Snooze action',
+      completedTime: due,
+    );
+
+    final before = DateTime.now();
+    await handleNotificationResponse(
+      NotificationResponse(
+        notificationResponseType:
+            NotificationResponseType.selectedNotificationAction,
+        payload: '${todo.id}',
+        actionId: NotificationShow.actionIdSnooze,
+      ),
+    );
+
+    final reloaded = await isar.todos.get(todo.id);
+    expect(reloaded?.todoCompletedTime, isNotNull);
+    final expected = before.add(const Duration(minutes: 20));
+    expect(
+      reloaded!.todoCompletedTime!.difference(expected).inSeconds.abs(),
+      lessThan(5),
+    );
   });
 }

@@ -1,21 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/notifications/notification_channels.dart';
+import 'package:zest/core/notifications/notification_i18n.dart';
 import 'package:zest/core/services/notification_plugin.dart';
-import 'package:zest/data/models/db.dart' hide Priority;
+import 'package:zest/data/models/db.dart' as db;
 import 'package:zest/i18n/tr.dart';
 
 /// Schedules, snoozes, and cancels local todo reminder notifications.
 class NotificationShow {
-  /// Android notification channel id.
-  final String _channelId = AppConstants.notificationChannelId;
-
   /// Action id for the mark-done notification button.
   static const String actionIdMarkDone = 'mark_done';
 
   /// Action id for the snooze notification button.
   static const String actionIdSnooze = 'snooze';
+
+  /// iOS/macOS category id for todo reminder actions.
+  static const String todoCategoryId = 'todoCategory';
 
   /// Returns the shared notifications plugin, or null when unsupported.
   FlutterLocalNotificationsPlugin? get _plugin => NotificationPlugin.instance;
@@ -29,7 +30,8 @@ class NotificationShow {
     bool requestPermission = true,
     String? markDoneActionText,
     String? snoozeActionText,
-    Settings? settings,
+    db.Settings? settings,
+    db.Priority priority = db.Priority.none,
   }) async {
     if (_plugin == null) {
       debugPrint('Notifications not supported on this platform');
@@ -45,6 +47,7 @@ class NotificationShow {
     final notificationDetails = _buildNotificationDetails(
       title,
       body,
+      priority: priority,
       markDoneActionText: markDoneActionText,
       snoozeActionText: snoozeActionText,
       settings: settings,
@@ -95,21 +98,22 @@ class NotificationShow {
   NotificationDetails _buildNotificationDetails(
     String title,
     String body, {
+    required db.Priority priority,
     String? markDoneActionText,
     String? snoozeActionText,
-    Settings? settings,
+    db.Settings? settings,
   }) {
     final markText = markDoneActionText ?? 'markAsDone'.tr;
     final snoozeMinutes = settings?.snoozeDuration ?? 10;
-    final snoozeText =
-        snoozeActionText ?? '${'snooze'.tr} $snoozeMinutes ${'min'.tr}';
+    final snoozeText = snoozeActionText ?? snoozeActionLabel(snoozeMinutes);
+    final channel = notificationChannelForPriority(priority);
 
     final androidNotificationDetails = AndroidNotificationDetails(
-      _channelId,
-      AppConstants.notificationChannelNameKey.tr,
+      channel.id,
+      channel.localizedName,
       icon: 'ic_notification',
-      priority: Priority.high,
-      importance: Importance.max,
+      importance: channel.importance,
+      priority: _androidPriority(channel.importance),
       styleInformation: BigTextStyleInformation(
         body,
         contentTitle: title,
@@ -137,8 +141,8 @@ class NotificationShow {
     final darwinNotificationDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
-      presentSound: true,
-      categoryIdentifier: 'todoCategory',
+      presentSound: channel.playSound,
+      categoryIdentifier: NotificationShow.todoCategoryId,
     );
 
     final linuxNotificationDetails = LinuxNotificationDetails(
@@ -154,6 +158,18 @@ class NotificationShow {
       macOS: darwinNotificationDetails,
       linux: linuxNotificationDetails,
     );
+  }
+
+  Priority _androidPriority(Importance importance) {
+    return switch (importance) {
+      Importance.max => Priority.max,
+      Importance.high => Priority.high,
+      Importance.defaultImportance => Priority.defaultPriority,
+      Importance.low => Priority.low,
+      Importance.min => Priority.min,
+      Importance.none => Priority.min,
+      _ => Priority.defaultPriority,
+    };
   }
 
   /// Converts [date] to a timezone-aware scheduled time.
@@ -174,7 +190,8 @@ class NotificationShow {
     String? markDoneActionText,
     String? snoozeActionText,
     int? snoozeMinutes,
-    Settings? settings,
+    db.Settings? settings,
+    db.Priority priority = db.Priority.none,
   }) async {
     if (_plugin == null) return;
 
@@ -192,6 +209,7 @@ class NotificationShow {
         markDoneActionText: markDoneActionText,
         snoozeActionText: snoozeActionText,
         settings: settings,
+        priority: priority,
       );
     } catch (e) {
       debugPrint('Error snoozing notification: $e');

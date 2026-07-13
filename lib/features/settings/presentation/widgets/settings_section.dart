@@ -64,7 +64,9 @@ class SettingsSection extends ConsumerWidget {
                     color: colorScheme.outlineVariant.withValues(alpha: 0.3),
                     width: 1,
                   ),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(
+                    AppConstants.borderRadiusXLarge,
+                  ),
                 )
               : null,
           child: Column(

@@ -21,6 +21,32 @@ void main() {
       expect(fake.shown, isEmpty);
     });
 
+    test('skips when todo is done', () async {
+      final todo = buildTodo(
+        id: 11,
+        task: Tasks(id: 1, title: 'T', taskColor: 1),
+        todoCompletedTime: DateTime.now().add(const Duration(hours: 1)),
+        status: TodoStatus.done,
+      );
+
+      await service.scheduleForTodo(todo);
+
+      expect(fake.shown, isEmpty);
+    });
+
+    test('skips when todo is cancelled', () async {
+      final todo = buildTodo(
+        id: 12,
+        task: Tasks(id: 1, title: 'T', taskColor: 1),
+        todoCompletedTime: DateTime.now().add(const Duration(hours: 1)),
+        status: TodoStatus.cancelled,
+      );
+
+      await service.scheduleForTodo(todo);
+
+      expect(fake.shown, isEmpty);
+    });
+
     test('schedules future due time as-is', () async {
       final due = DateTime.now().add(const Duration(hours: 2));
       final todo = buildTodo(
@@ -29,6 +55,7 @@ void main() {
         name: 'Reminder',
         description: 'Body',
         todoCompletedTime: due,
+        priority: Priority.high,
       );
 
       await service.scheduleForTodo(todo);
@@ -36,6 +63,7 @@ void main() {
       expect(fake.shown, hasLength(1));
       expect(fake.shown.first.id, 42);
       expect(fake.shown.first.date, due);
+      expect(fake.shown.first.priority, Priority.high);
     });
 
     test('bumps past due time to about one second from now', () async {
@@ -54,6 +82,22 @@ void main() {
       final scheduled = fake.shown.first.date!;
       expect(scheduled.isAfter(before), isTrue);
       expect(scheduled.isBefore(after), isTrue);
+    });
+
+    test('passes injected settings to showNotification', () async {
+      final settings = Settings()..snoozeDuration = 30;
+      service = NotificationService(notificationShow: fake, settings: settings);
+      final due = DateTime.now().add(const Duration(hours: 2));
+      final todo = buildTodo(
+        id: 99,
+        task: Tasks(id: 1, title: 'T', taskColor: 1),
+        todoCompletedTime: due,
+      );
+
+      await service.scheduleForTodo(todo);
+
+      expect(fake.shownSettings, hasLength(1));
+      expect(fake.shownSettings.first.snoozeDuration, 30);
     });
   });
 
@@ -100,7 +144,7 @@ void main() {
   });
 
   group('NotificationService.scheduleForTask', () {
-    test('schedules only todos with due times', () async {
+    test('schedules only active todos with due times', () async {
       final due = DateTime.now().add(const Duration(hours: 1));
       final todos = [
         buildTodo(
@@ -113,12 +157,18 @@ void main() {
           id: 3,
           task: Tasks(id: 1, title: 'T', taskColor: 1),
           todoCompletedTime: due,
+          status: TodoStatus.done,
+        ),
+        buildTodo(
+          id: 4,
+          task: Tasks(id: 1, title: 'T', taskColor: 1),
+          todoCompletedTime: due,
         ),
       ];
 
       await service.scheduleForTask(todos);
 
-      expect(fake.shown.map((n) => n.id), [1, 3]);
+      expect(fake.shown.map((n) => n.id), [1, 4]);
     });
 
     test('is a no-op for empty list', () async {
@@ -128,19 +178,24 @@ void main() {
   });
 
   group('NotificationService.snooze', () {
-    test('passes snooze duration from settings', () async {
-      final settings = Settings()..snoozeDuration = 15;
-      final todo = buildTodo(
-        id: 9,
-        task: Tasks(id: 1, title: 'T', taskColor: 1),
-        name: 'Snooze me',
-      );
+    test(
+      'passes snooze duration and priority from settings and todo',
+      () async {
+        final settings = Settings()..snoozeDuration = 15;
+        final todo = buildTodo(
+          id: 9,
+          task: Tasks(id: 1, title: 'T', taskColor: 1),
+          name: 'Snooze me',
+          priority: Priority.low,
+        );
 
-      await service.snooze(todo, settings);
+        await service.snooze(todo, settings);
 
-      expect(fake.snoozed, hasLength(1));
-      expect(fake.snoozed.first.id, 9);
-      expect(fake.snoozed.first.snoozeMinutes, 15);
-    });
+        expect(fake.snoozed, hasLength(1));
+        expect(fake.snoozed.first.id, 9);
+        expect(fake.snoozed.first.snoozeMinutes, 15);
+        expect(fake.snoozed.first.priority, Priority.low);
+      },
+    );
   });
 }

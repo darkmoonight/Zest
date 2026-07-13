@@ -16,7 +16,7 @@ import 'package:zest/features/settings/presentation/widgets/settings_section.dar
 import 'package:zest/features/settings/presentation/widgets/settings_tile.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Widget that app license page.
+/// Settings screen listing open-source dependency licenses.
 class AppLicensePage extends ConsumerWidget {
   /// Creates a [AppLicensePage].
   const AppLicensePage({super.key});

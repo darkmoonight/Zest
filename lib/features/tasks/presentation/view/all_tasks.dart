@@ -5,6 +5,7 @@ import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/providers.dart';
 import 'package:zest/core/utils/progress_calculator.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
+import 'package:zest/core/widgets/multi_select_action_bar.dart';
 import 'package:zest/core/widgets/scroll_fab_listener.dart';
 import 'package:zest/core/widgets/confirmation_dialog.dart';
 import 'package:zest/core/widgets/my_delegate.dart';
@@ -13,7 +14,7 @@ import 'package:zest/features/tasks/presentation/widgets/statistics.dart';
 import 'package:zest/features/tasks/presentation/widgets/task_list.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Widget that all tasks.
+/// Main tasks screen with search, stats, and active/archived tabs.
 class AllTasks extends ConsumerStatefulWidget {
   /// Creates a [AllTasks].
   const AllTasks({super.key});
@@ -247,122 +248,17 @@ class _AllTasksState extends ConsumerState<AllTasks>
       return const SizedBox.shrink();
     }
 
-    return _buildFloatingActionBar(context, tasksState);
-  }
-
-  /// Builds the floating action bar widget.
-  Widget _buildFloatingActionBar(BuildContext context, TasksState tasksState) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isMobile = ResponsiveUtils.isMobile(context);
     final tasksNotifier = ref.read(tasksNotifierProvider.notifier);
-
-    return Positioned(
-      bottom: isMobile ? AppConstants.spacingL : AppConstants.spacingXXL,
-      left: isMobile ? AppConstants.spacingL : AppConstants.spacingXXL,
-      right: isMobile ? AppConstants.spacingL : AppConstants.spacingXXL,
-      child: _AnimatedMultiSelectBar(
-        child: Material(
-          elevation: AppConstants.elevationMedium,
-          shadowColor: colorScheme.shadow.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: isMobile
-                  ? AppConstants.spacingM
-                  : AppConstants.spacingL,
-              vertical: AppConstants.spacingM,
-            ),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(
-                AppConstants.borderRadiusLarge,
-              ),
-              border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                width: AppConstants.borderWidthThin,
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(child: _buildSelectionCounter(context, tasksState)),
-                SizedBox(width: AppConstants.spacingS),
-                _buildActionButtons(context, tasksNotifier),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Builds the selection counter widget.
-  Widget _buildSelectionCounter(BuildContext context, TasksState tasksState) {
-    final colorScheme = Theme.of(context).colorScheme;
     final selectedCount = tasksState.selectedTask.length;
 
-    return InkWell(
-      onTap: _toggleSelectAll,
-      borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall + 2),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: AppConstants.spacingM,
-          vertical: AppConstants.spacingS,
-        ),
-        decoration: BoxDecoration(
-          color: colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(
-            AppConstants.borderRadiusSmall + 2,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildSelectionBadge(context),
-            SizedBox(width: AppConstants.spacingS + 2),
-            Flexible(
-              child: Text(
-                selectedCount == 1
-                    ? '1 ${'item'.tr}'
-                    : '$selectedCount ${'items'.tr}',
-                style: TextStyle(
-                  color: colorScheme.onPrimaryContainer,
-                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.3,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Builds the selection badge widget.
-  Widget _buildSelectionBadge(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Icon(
-      _areAllSelectedInCurrentTab()
-          ? IconsaxPlusBold.tick_square
-          : IconsaxPlusLinear.tick_square,
-      size: AppConstants.iconSizeMedium,
-      color: colorScheme.onPrimaryContainer,
-    );
-  }
-
-  /// Builds the action buttons widget.
-  Widget _buildActionButtons(
-    BuildContext context,
-    TasksNotifier tasksNotifier,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _ActionButton(
+    return MultiSelectActionBar(
+      selectedCount: selectedCount,
+      isAllSelected: _areAllSelectedInCurrentTab(),
+      onSelectAll: _toggleSelectAll,
+      onClose: tasksNotifier.doMultiSelectionTaskClear,
+      actions: [
+        MultiSelectAction(
           icon: _isArchiveTab
               ? IconsaxPlusLinear.refresh_left_square
               : IconsaxPlusLinear.archive_add,
@@ -371,27 +267,12 @@ class _AllTasksState extends ConsumerState<AllTasks>
               _showArchiveConfirmationDialog(context, tasksNotifier),
           tooltip: _isArchiveTab ? 'restore'.tr : 'archive'.tr,
         ),
-        _ActionButton(
+        MultiSelectAction(
           icon: IconsaxPlusLinear.trash,
           color: colorScheme.error,
           onPressed: () =>
               _showDeleteConfirmationDialog(context, tasksNotifier),
           tooltip: 'delete'.tr,
-        ),
-        SizedBox(width: AppConstants.spacingXS),
-        FilledButton.tonal(
-          onPressed: tasksNotifier.doMultiSelectionTaskClear,
-          style: FilledButton.styleFrom(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppConstants.spacingL,
-              vertical: AppConstants.spacingS + 2,
-            ),
-            minimumSize: const Size(0, 40),
-          ),
-          child: Icon(
-            IconsaxPlusLinear.close_circle,
-            size: AppConstants.iconSizeSmall,
-          ),
         ),
       ],
     );
@@ -456,69 +337,6 @@ class _AllTasksState extends ConsumerState<AllTasks>
         }
         tasksNotifier.doMultiSelectionTaskClear();
       },
-    );
-  }
-}
-
-/// Widget that action button.
-class _ActionButton extends StatelessWidget {
-  /// Creates a [_ActionButton].
-  const _ActionButton({
-    required this.icon,
-    required this.onPressed,
-    this.color,
-    this.tooltip,
-  });
-
-  /// The icon.
-  final IconData icon;
-
-  /// The on pressed.
-  final VoidCallback onPressed;
-
-  /// The color.
-  final Color? color;
-
-  /// The tooltip.
-  final String? tooltip;
-
-  @override
-  /// Builds the widget subtree.
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Icon(icon, size: AppConstants.iconSizeMedium + 2, color: color),
-      style: IconButton.styleFrom(
-        minimumSize: const Size(40, 40),
-        padding: EdgeInsets.zero,
-      ),
-      tooltip: tooltip,
-    );
-  }
-}
-
-/// Widget that animated multi select bar.
-class _AnimatedMultiSelectBar extends StatelessWidget {
-  /// Creates a [_AnimatedMultiSelectBar].
-  const _AnimatedMultiSelectBar({required this.child});
-
-  /// The child.
-  final Widget child;
-
-  @override
-  /// Builds the widget subtree.
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: AppConstants.animationDuration,
-      curve: Curves.easeOutCubic,
-      builder: (context, value, child) {
-        return Transform.translate(
-          offset: Offset(0, 20 * (1 - value)),
-          child: Opacity(opacity: value, child: child),
-        );
-      },
-      child: child,
     );
   }
 }

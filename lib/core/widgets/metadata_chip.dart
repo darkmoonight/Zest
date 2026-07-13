@@ -9,8 +9,8 @@ class MetadataChip extends StatelessWidget {
     required this.accentColor,
     required this.child,
     this.backgroundColor,
-    this.backgroundAlpha = 0.12,
-    this.borderAlpha = 0.35,
+    this.backgroundAlpha = AppConstants.chipBackgroundAlpha,
+    this.borderAlpha = AppConstants.chipBorderAlpha,
     this.showBorder = true,
     this.padding,
   });

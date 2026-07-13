@@ -8,6 +8,9 @@ import 'package:zest/core/bootstrap/app_bootstrap.dart';
 import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
 import 'package:zest/core/bootstrap/notification_bootstrap.dart';
 import 'package:zest/core/bootstrap/notification_handlers.dart';
+import 'package:zest/core/notifications/notification_channels.dart';
+import 'package:zest/core/notifications/notification_migration.dart';
+import 'package:zest/core/services/notification_plugin.dart';
 import 'package:zest/core/utils/device_info.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/i18n/locale_utils.dart';
@@ -16,7 +19,8 @@ import 'package:zest/platform/platform_features.dart'
 
 /// One-time startup: platform hooks, DB, locale, and notifications.
 class AppInitializer {
-  /// Runs all bootstrap steps and returns the loaded [AppBootstrap].
+  /// Runs bootstrap in order: device/platform → timezone → Isar/locale →
+  /// notifications plugin → cold-start tap → Android channels → migration.
   static Future<AppBootstrap> initialize() async {
     await DeviceFeature().init();
     await PlatformFeatures.initialize();
@@ -26,6 +30,7 @@ class AppInitializer {
     }
 
     await initializeNotificationTimeZone();
+    final bootstrap = await _initializeIsar();
     await initializeNotificationsPlugin(
       onDidReceiveNotificationResponse: (response) async {
         await handleNotificationResponse(response);
@@ -34,8 +39,20 @@ class AppInitializer {
       onDidReceiveBackgroundNotificationResponse: kIsWeb
           ? null
           : notificationTapBackground,
+      snoozeMinutes: bootstrap.settings.snoozeDuration,
     );
-    final bootstrap = await _initializeIsar();
+
+    final plugin = NotificationPlugin.instance;
+    if (plugin != null) {
+      final launchDetails = await plugin.getNotificationAppLaunchDetails();
+      final launchResponse = launchDetails?.notificationResponse;
+      if (launchDetails?.didNotificationLaunchApp == true &&
+          launchResponse != null) {
+        await handleNotificationResponse(launchResponse);
+      }
+      await registerAndroidNotificationChannels(plugin);
+    }
+    await migrateNotificationChannelsIfNeeded(isar: bootstrap.isar);
 
     await PlatformFeatures.setScreenPrivacy(
       bootstrap.settings.screenPrivacy ?? false,
