@@ -28,6 +28,8 @@ class Settings {
   DateTime? lastAutoBackupTime;
   int maxAutoBackups = 5;
   String? autoBackupPath;
+  bool defaultCategorySeeded = false;
+  int? defaultCategoryId;
 }
 
 enum SortOption {
@@ -53,6 +55,7 @@ class Tasks {
   int taskColor;
   bool archive;
   int? index;
+  bool isSystem;
   @enumerated
   SortOption sortOption = SortOption.none;
 
@@ -66,6 +69,7 @@ class Tasks {
     this.archive = false,
     required this.taskColor,
     this.index,
+    this.isSystem = false,
     this.sortOption = SortOption.none,
   });
 }

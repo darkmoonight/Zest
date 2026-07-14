@@ -55,51 +55,61 @@ const SettingsSchema = CollectionSchema(
       type: IsarType.byte,
       enumMap: _SettingscalendarSortOptionEnumValueMap,
     ),
-    r'defaultScreen': PropertySchema(
+    r'defaultCategoryId': PropertySchema(
       id: 7,
+      name: r'defaultCategoryId',
+      type: IsarType.long,
+    ),
+    r'defaultCategorySeeded': PropertySchema(
+      id: 8,
+      name: r'defaultCategorySeeded',
+      type: IsarType.bool,
+    ),
+    r'defaultScreen': PropertySchema(
+      id: 9,
       name: r'defaultScreen',
       type: IsarType.string,
     ),
     r'firstDay': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'firstDay',
       type: IsarType.string,
     ),
-    r'isImage': PropertySchema(id: 9, name: r'isImage', type: IsarType.bool),
+    r'isImage': PropertySchema(id: 11, name: r'isImage', type: IsarType.bool),
     r'language': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'language',
       type: IsarType.string,
     ),
     r'lastAutoBackupTime': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'lastAutoBackupTime',
       type: IsarType.dateTime,
     ),
     r'materialColor': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'materialColor',
       type: IsarType.bool,
     ),
     r'maxAutoBackups': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'maxAutoBackups',
       type: IsarType.long,
     ),
-    r'onboard': PropertySchema(id: 14, name: r'onboard', type: IsarType.bool),
+    r'onboard': PropertySchema(id: 16, name: r'onboard', type: IsarType.bool),
     r'screenPrivacy': PropertySchema(
-      id: 15,
+      id: 17,
       name: r'screenPrivacy',
       type: IsarType.bool,
     ),
     r'snoozeDuration': PropertySchema(
-      id: 16,
+      id: 18,
       name: r'snoozeDuration',
       type: IsarType.long,
     ),
-    r'theme': PropertySchema(id: 17, name: r'theme', type: IsarType.string),
+    r'theme': PropertySchema(id: 19, name: r'theme', type: IsarType.string),
     r'timeformat': PropertySchema(
-      id: 18,
+      id: 20,
       name: r'timeformat',
       type: IsarType.string,
     ),
@@ -164,18 +174,20 @@ void _settingsSerialize(
   writer.writeString(offsets[4], object.autoBackupPath);
   writer.writeString(offsets[5], object.calendarFormat);
   writer.writeByte(offsets[6], object.calendarSortOption.index);
-  writer.writeString(offsets[7], object.defaultScreen);
-  writer.writeString(offsets[8], object.firstDay);
-  writer.writeBool(offsets[9], object.isImage);
-  writer.writeString(offsets[10], object.language);
-  writer.writeDateTime(offsets[11], object.lastAutoBackupTime);
-  writer.writeBool(offsets[12], object.materialColor);
-  writer.writeLong(offsets[13], object.maxAutoBackups);
-  writer.writeBool(offsets[14], object.onboard);
-  writer.writeBool(offsets[15], object.screenPrivacy);
-  writer.writeLong(offsets[16], object.snoozeDuration);
-  writer.writeString(offsets[17], object.theme);
-  writer.writeString(offsets[18], object.timeformat);
+  writer.writeLong(offsets[7], object.defaultCategoryId);
+  writer.writeBool(offsets[8], object.defaultCategorySeeded);
+  writer.writeString(offsets[9], object.defaultScreen);
+  writer.writeString(offsets[10], object.firstDay);
+  writer.writeBool(offsets[11], object.isImage);
+  writer.writeString(offsets[12], object.language);
+  writer.writeDateTime(offsets[13], object.lastAutoBackupTime);
+  writer.writeBool(offsets[14], object.materialColor);
+  writer.writeLong(offsets[15], object.maxAutoBackups);
+  writer.writeBool(offsets[16], object.onboard);
+  writer.writeBool(offsets[17], object.screenPrivacy);
+  writer.writeLong(offsets[18], object.snoozeDuration);
+  writer.writeString(offsets[19], object.theme);
+  writer.writeString(offsets[20], object.timeformat);
 }
 
 Settings _settingsDeserialize(
@@ -204,19 +216,21 @@ Settings _settingsDeserialize(
         offsets[6],
       )] ??
       SortOption.none;
-  object.defaultScreen = reader.readString(offsets[7]);
-  object.firstDay = reader.readString(offsets[8]);
+  object.defaultCategoryId = reader.readLongOrNull(offsets[7]);
+  object.defaultCategorySeeded = reader.readBool(offsets[8]);
+  object.defaultScreen = reader.readString(offsets[9]);
+  object.firstDay = reader.readString(offsets[10]);
   object.id = id;
-  object.isImage = reader.readBoolOrNull(offsets[9]);
-  object.language = reader.readStringOrNull(offsets[10]);
-  object.lastAutoBackupTime = reader.readDateTimeOrNull(offsets[11]);
-  object.materialColor = reader.readBool(offsets[12]);
-  object.maxAutoBackups = reader.readLong(offsets[13]);
-  object.onboard = reader.readBool(offsets[14]);
-  object.screenPrivacy = reader.readBoolOrNull(offsets[15]);
-  object.snoozeDuration = reader.readLong(offsets[16]);
-  object.theme = reader.readStringOrNull(offsets[17]);
-  object.timeformat = reader.readString(offsets[18]);
+  object.isImage = reader.readBoolOrNull(offsets[11]);
+  object.language = reader.readStringOrNull(offsets[12]);
+  object.lastAutoBackupTime = reader.readDateTimeOrNull(offsets[13]);
+  object.materialColor = reader.readBool(offsets[14]);
+  object.maxAutoBackups = reader.readLong(offsets[15]);
+  object.onboard = reader.readBool(offsets[16]);
+  object.screenPrivacy = reader.readBoolOrNull(offsets[17]);
+  object.snoozeDuration = reader.readLong(offsets[18]);
+  object.theme = reader.readStringOrNull(offsets[19]);
+  object.timeformat = reader.readString(offsets[20]);
   return object;
 }
 
@@ -254,28 +268,32 @@ P _settingsDeserializeProp<P>(
               SortOption.none)
           as P;
     case 7:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
-    case 9:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 10:
-      return (reader.readStringOrNull(offset)) as P;
-    case 11:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 12:
       return (reader.readBool(offset)) as P;
+    case 9:
+      return (reader.readString(offset)) as P;
+    case 10:
+      return (reader.readString(offset)) as P;
+    case 11:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 12:
+      return (reader.readStringOrNull(offset)) as P;
     case 13:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 14:
       return (reader.readBool(offset)) as P;
     case 15:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 16:
       return (reader.readLong(offset)) as P;
+    case 16:
+      return (reader.readBool(offset)) as P;
     case 17:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBoolOrNull(offset)) as P;
     case 18:
+      return (reader.readLong(offset)) as P;
+    case 19:
+      return (reader.readStringOrNull(offset)) as P;
+    case 20:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -924,6 +942,91 @@ extension SettingsQueryFilter
           includeLower: includeLower,
           upper: upper,
           includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  defaultCategoryIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'defaultCategoryId'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  defaultCategoryIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'defaultCategoryId'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  defaultCategoryIdEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'defaultCategoryId', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  defaultCategoryIdGreaterThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'defaultCategoryId',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  defaultCategoryIdLessThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'defaultCategoryId',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  defaultCategoryIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'defaultCategoryId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  defaultCategorySeededEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'defaultCategorySeeded',
+          value: value,
         ),
       );
     });
@@ -2102,6 +2205,31 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByDefaultCategoryId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultCategoryId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByDefaultCategoryIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultCategoryId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByDefaultCategorySeeded() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultCategorySeeded', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByDefaultCategorySeededDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultCategorySeeded', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByDefaultScreen() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'defaultScreen', Sort.asc);
@@ -2337,6 +2465,31 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByDefaultCategoryId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultCategoryId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByDefaultCategoryIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultCategoryId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByDefaultCategorySeeded() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultCategorySeeded', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByDefaultCategorySeededDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultCategorySeeded', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByDefaultScreen() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'defaultScreen', Sort.asc);
@@ -2549,6 +2702,19 @@ extension SettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Settings, Settings, QDistinct> distinctByDefaultCategoryId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'defaultCategoryId');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct>
+  distinctByDefaultCategorySeeded() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'defaultCategorySeeded');
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByDefaultScreen({
     bool caseSensitive = true,
   }) {
@@ -2688,6 +2854,19 @@ extension SettingsQueryProperty
     });
   }
 
+  QueryBuilder<Settings, int?, QQueryOperations> defaultCategoryIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'defaultCategoryId');
+    });
+  }
+
+  QueryBuilder<Settings, bool, QQueryOperations>
+  defaultCategorySeededProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'defaultCategorySeeded');
+    });
+  }
+
   QueryBuilder<Settings, String, QQueryOperations> defaultScreenProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'defaultScreen');
@@ -2780,18 +2959,19 @@ const TasksSchema = CollectionSchema(
       type: IsarType.string,
     ),
     r'index': PropertySchema(id: 2, name: r'index', type: IsarType.long),
+    r'isSystem': PropertySchema(id: 3, name: r'isSystem', type: IsarType.bool),
     r'sortOption': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'sortOption',
       type: IsarType.byte,
       enumMap: _TaskssortOptionEnumValueMap,
     ),
     r'taskColor': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'taskColor',
       type: IsarType.long,
     ),
-    r'title': PropertySchema(id: 5, name: r'title', type: IsarType.string),
+    r'title': PropertySchema(id: 6, name: r'title', type: IsarType.string),
   },
 
   estimateSize: _tasksEstimateSize,
@@ -2837,9 +3017,10 @@ void _tasksSerialize(
   writer.writeBool(offsets[0], object.archive);
   writer.writeString(offsets[1], object.description);
   writer.writeLong(offsets[2], object.index);
-  writer.writeByte(offsets[3], object.sortOption.index);
-  writer.writeLong(offsets[4], object.taskColor);
-  writer.writeString(offsets[5], object.title);
+  writer.writeBool(offsets[3], object.isSystem);
+  writer.writeByte(offsets[4], object.sortOption.index);
+  writer.writeLong(offsets[5], object.taskColor);
+  writer.writeString(offsets[6], object.title);
 }
 
 Tasks _tasksDeserialize(
@@ -2853,11 +3034,12 @@ Tasks _tasksDeserialize(
     description: reader.readStringOrNull(offsets[1]) ?? '',
     id: id,
     index: reader.readLongOrNull(offsets[2]),
+    isSystem: reader.readBoolOrNull(offsets[3]) ?? false,
     sortOption:
-        _TaskssortOptionValueEnumMap[reader.readByteOrNull(offsets[3])] ??
+        _TaskssortOptionValueEnumMap[reader.readByteOrNull(offsets[4])] ??
         SortOption.none,
-    taskColor: reader.readLong(offsets[4]),
-    title: reader.readString(offsets[5]),
+    taskColor: reader.readLong(offsets[5]),
+    title: reader.readString(offsets[6]),
   );
   return object;
 }
@@ -2876,12 +3058,14 @@ P _tasksDeserializeProp<P>(
     case 2:
       return (reader.readLongOrNull(offset)) as P;
     case 3:
+      return (reader.readBoolOrNull(offset) ?? false) as P;
+    case 4:
       return (_TaskssortOptionValueEnumMap[reader.readByteOrNull(offset)] ??
               SortOption.none)
           as P;
-    case 4:
-      return (reader.readLong(offset)) as P;
     case 5:
+      return (reader.readLong(offset)) as P;
+    case 6:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -3289,6 +3473,16 @@ extension TasksQueryFilter on QueryBuilder<Tasks, Tasks, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> isSystemEqualTo(
+    bool value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'isSystem', value: value),
+      );
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QAfterFilterCondition> sortOptionEqualTo(
     SortOption value,
   ) {
@@ -3658,6 +3852,18 @@ extension TasksQuerySortBy on QueryBuilder<Tasks, Tasks, QSortBy> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> sortByIsSystem() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSystem', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> sortByIsSystemDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSystem', Sort.desc);
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QAfterSortBy> sortBySortOption() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sortOption', Sort.asc);
@@ -3744,6 +3950,18 @@ extension TasksQuerySortThenBy on QueryBuilder<Tasks, Tasks, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> thenByIsSystem() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSystem', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> thenByIsSystemDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSystem', Sort.desc);
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QAfterSortBy> thenBySortOption() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sortOption', Sort.asc);
@@ -3802,6 +4020,12 @@ extension TasksQueryWhereDistinct on QueryBuilder<Tasks, Tasks, QDistinct> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QDistinct> distinctByIsSystem() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSystem');
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QDistinct> distinctBySortOption() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'sortOption');
@@ -3845,6 +4069,12 @@ extension TasksQueryProperty on QueryBuilder<Tasks, Tasks, QQueryProperty> {
   QueryBuilder<Tasks, int?, QQueryOperations> indexProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'index');
+    });
+  }
+
+  QueryBuilder<Tasks, bool, QQueryOperations> isSystemProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSystem');
     });
   }
 
