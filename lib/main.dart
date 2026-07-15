@@ -8,6 +8,7 @@ import 'package:zest/app/ui/home.dart';
 import 'package:zest/app/ui/onboarding.dart';
 import 'package:zest/app/ui/tasks/widgets/tasks_action.dart';
 import 'package:zest/app/ui/todos/view/calendar_todos.dart';
+import 'package:zest/app/utils/default_category.dart';
 import 'package:zest/app/utils/snackbar_overlay.dart';
 import 'package:zest/theme/theme.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ bool materialColor = false;
 RxBool isImage = true.obs;
 RxString timeformat = '24'.obs;
 RxString firstDay = 'monday'.obs;
+RxnInt defaultCategoryId = RxnInt();
 Locale locale = const Locale('en', 'US');
 
 const List<Map<String, dynamic>> appLanguages = [
@@ -65,6 +67,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeApp();
   runApp(const MyApp());
+  Future.microtask(() => seedDefaultCategoryOnce());
 }
 
 Future<void> initializeApp() async {
@@ -315,6 +318,7 @@ class _MyAppState extends State<MyApp> {
     timeformat.value = settings.timeformat;
     firstDay.value = settings.firstDay;
     isImage.value = settings.isImage!;
+    defaultCategoryId.value = settings.defaultCategoryId;
     locale = Locale(
       settings.language!.substring(0, 2),
       settings.language!.substring(3),

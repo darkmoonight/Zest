@@ -14,6 +14,7 @@ import 'package:zest/app/constants/app_constants.dart';
 import 'package:zest/app/utils/navigation_helper.dart';
 import 'package:zest/app/utils/responsive_utils.dart';
 import 'package:zest/app/utils/text_utils.dart';
+import 'package:zest/app/utils/default_category.dart';
 import 'package:zest/main.dart';
 
 class TodosAction extends StatefulWidget {
@@ -77,6 +78,19 @@ class _TodosActionState extends State<TodosAction>
     _initializeEditingController();
     _initAnimations();
     _setupListeners();
+    _preSelectDefaultCategory();
+  }
+
+  void _preSelectDefaultCategory() {
+    if (!widget.category || widget.edit) return;
+    getFallbackCategory().then((defaultTask) {
+      if (!mounted || defaultTask == null) return;
+      if (_selectedTask != null || _categoryController.text.isNotEmpty) return;
+      setState(() {
+        _selectedTask = defaultTask;
+        _categoryController.text = defaultTask.title;
+      });
+    });
   }
 
   @override
@@ -291,29 +305,35 @@ class _TodosActionState extends State<TodosAction>
     _todoTags = [];
   }
 
-  void _onSavePressed() {
+  Future<void> _onSavePressed() async {
     if (!_formKey.currentState!.validate()) return;
 
     TextUtils.trimController(_titleController);
     TextUtils.trimController(_descController);
 
-    _saveTodo();
+    final saved = await _saveTodo();
+    if (!saved) return;
     _clearControllers();
     NavigationHelper.back();
   }
 
-  void _saveTodo() {
+  Future<bool> _saveTodo() async {
     if (widget.edit) {
-      _updateTodo();
+      return _updateTodo();
     } else {
-      _createTodo();
+      return _createTodo();
     }
   }
 
-  void _updateTodo() {
+  Future<bool> _updateTodo() async {
+    final task = _selectedTask ?? await getFallbackCategory();
+    if (task == null) {
+      Get.snackbar('selectCategory'.tr, 'createCategoryFirstHint'.tr);
+      return false;
+    }
     _todoController.updateTodo(
       todo: widget.todo!,
-      task: _selectedTask!,
+      task: task,
       title: _titleController.text,
       description: _descController.text,
       time: _timeController.text,
@@ -321,12 +341,18 @@ class _TodosActionState extends State<TodosAction>
       priority: _todoPriority,
       tags: _todoTags,
     );
+    return true;
   }
 
-  void _createTodo() {
+  Future<bool> _createTodo() async {
     if (widget.category) {
+      final task = _selectedTask ?? await getFallbackCategory();
+      if (task == null) {
+        Get.snackbar('selectCategory'.tr, 'createCategoryFirstHint'.tr);
+        return false;
+      }
       _todoController.addTodo(
-        task: _selectedTask!,
+        task: task,
         title: _titleController.text,
         description: _descController.text,
         time: _timeController.text,
@@ -334,9 +360,10 @@ class _TodosActionState extends State<TodosAction>
         priority: _todoPriority,
         tags: _todoTags,
       );
+      return true;
     } else if (widget.todo != null) {
       final parentTask = widget.todo!.task.value;
-      if (parentTask == null) return;
+      if (parentTask == null) return false;
 
       _todoController.addTodo(
         task: parentTask,
@@ -348,6 +375,7 @@ class _TodosActionState extends State<TodosAction>
         tags: _todoTags,
         parent: widget.todo,
       );
+      return true;
     } else if (widget.task != null) {
       _todoController.addTodo(
         task: widget.task!,
@@ -358,7 +386,9 @@ class _TodosActionState extends State<TodosAction>
         priority: _todoPriority,
         tags: _todoTags,
       );
+      return true;
     }
+    return false;
   }
 
   @override
@@ -602,7 +632,7 @@ class _TodosActionState extends State<TodosAction>
       margin: EdgeInsets.zero,
       controller: _categoryController,
       focusNode: _categoryFocusNode,
-      labelText: 'selectCategory'.tr,
+      labelText: 'categoryOptionalHint'.tr,
       type: TextInputType.text,
       icon: Icon(IconsaxPlusLinear.folder_2, color: colorScheme.primary),
       iconButton: Row(
@@ -617,6 +647,8 @@ class _TodosActionState extends State<TodosAction>
               ),
               onPressed: () {
                 _categoryController.clear();
+                _selectedTask = null;
+                _editingController.task.value = null;
                 setState(() {});
               },
             ),
@@ -639,12 +671,6 @@ class _TodosActionState extends State<TodosAction>
           ),
         ],
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'selectCategory'.tr;
-        }
-        return null;
-      },
     );
   }
 
@@ -908,13 +934,9 @@ class _TodosActionState extends State<TodosAction>
   ) {
     final list = options.toList();
     final colorScheme = Theme.of(context).colorScheme;
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
     return Padding(
-      padding: EdgeInsets.only(
-        top: AppConstants.spacingXS,
-        bottom: keyboardHeight > 0 ? keyboardHeight + AppConstants.spacingM : 0,
-      ),
+      padding: const EdgeInsets.only(top: AppConstants.spacingXS),
       child: Align(
         alignment: Alignment.topCenter,
         child: Material(
@@ -1101,7 +1123,8 @@ class _TodosActionState extends State<TodosAction>
 
         TextUtils.trimController(_titleController);
         TextUtils.trimController(_descController);
-        _saveTodo();
+        final saved = await _saveTodo();
+        if (!saved) return;
       }
 
       NavigationHelper.back();
@@ -1145,8 +1168,12 @@ class _TodosActionState extends State<TodosAction>
         taskToUse = widget.task;
       }
 
+      taskToUse ??= await getFallbackCategory();
       if (taskToUse == null) {
-        throw Exception('No task selected');
+        if (mounted) {
+          Get.snackbar('selectCategory'.tr, 'createCategoryFirstHint'.tr);
+        }
+        return;
       }
 
       final newTodo = await _todoController.addTodo(
@@ -1270,10 +1297,26 @@ class _TodosActionState extends State<TodosAction>
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final bool isKeyboardOpen = keyboardHeight > 0;
 
+    // Material 3 menu defaults: each MenuItemButton has a 48px min height and
+    // the menu adds 8px top + 8px bottom vertical padding (16 total).
+    const double priorityMenuItemHeight = 48.0;
+    const double priorityMenuVerticalPadding = 16.0;
+    const double priorityMenuGap = 8.0;
+    final double priorityMenuHeight =
+        Priority.values.length * priorityMenuItemHeight +
+        priorityMenuVerticalPadding;
+
+    // When the keyboard is open, lift the menu by its own height plus a gap so
+    // it sits above the keyboard. Clamp so we never push it past the screen top.
+    final double maxUpwardOffset =
+        -(MediaQuery.of(context).size.height - keyboardHeight);
+    final double rawDy = isKeyboardOpen
+        ? -(priorityMenuHeight + priorityMenuGap)
+        : 0.0;
+    final double clampedDy = rawDy.clamp(maxUpwardOffset, 0.0);
+
     return MenuAnchor(
-      alignmentOffset: isKeyboardOpen
-          ? const Offset(0, -250)
-          : const Offset(0, 0),
+      alignmentOffset: Offset(0, clampedDy),
 
       style: MenuStyle(
         shape: WidgetStateProperty.all(

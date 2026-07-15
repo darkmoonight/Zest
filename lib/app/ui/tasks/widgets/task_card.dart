@@ -5,8 +5,11 @@ import 'package:zest/app/controller/todo_controller.dart';
 import 'package:zest/app/data/db.dart';
 import 'package:zest/app/ui/tasks/widgets/circular_progress_widget.dart';
 import 'package:zest/app/constants/app_constants.dart';
+import 'package:zest/app/utils/default_category.dart';
 import 'package:zest/app/utils/progress_calculator.dart';
 import 'package:zest/app/utils/responsive_utils.dart';
+import 'package:zest/app/utils/show_snack_bar.dart';
+import 'package:zest/main.dart';
 
 class TaskCard extends StatefulWidget {
   const TaskCard({
@@ -227,6 +230,7 @@ class _TaskCardState extends State<TaskCard>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        if (!widget.task.archive) _buildDefaultToggle(context, colorScheme),
         _buildTaskCounter(context, colorScheme),
         if (progress.isComplete) ...[
           SizedBox(height: AppConstants.spacingXS + 1),
@@ -234,6 +238,47 @@ class _TaskCardState extends State<TaskCard>
         ],
       ],
     );
+  }
+
+  Widget _buildDefaultToggle(BuildContext context, ColorScheme colorScheme) {
+    return Obx(() {
+      final isDefault = defaultCategoryId.value == widget.task.id;
+      final inMultiSelection = _todoController.isMultiSelectionTask.isTrue;
+
+      if (inMultiSelection) return const SizedBox(height: 28);
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: AppConstants.spacingXS),
+        child: Tooltip(
+          message: 'setDefaultCategory'.tr,
+          waitDuration: const Duration(milliseconds: 500),
+          child: InkWell(
+            onTap: () async {
+              await setDefaultCategory(isDefault ? null : widget.task);
+              if (!context.mounted) return;
+              showSnackBar(
+                isDefault
+                    ? 'defaultCategoryCleared'.tr
+                    : 'defaultCategorySet'.tr,
+              );
+            },
+            borderRadius: BorderRadius.circular(
+              AppConstants.borderRadiusSmall,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: Icon(
+                isDefault ? IconsaxPlusBold.star : IconsaxPlusLinear.star,
+                size: AppConstants.iconSizeMedium,
+                color: isDefault
+                    ? colorScheme.tertiary
+                    : colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   Widget _buildTaskCounter(BuildContext context, ColorScheme colorScheme) {
