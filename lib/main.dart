@@ -4,6 +4,7 @@ import 'package:zest/app.dart';
 import 'package:zest/core/bootstrap/app_initializer.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/services/auto_backup_service.dart';
+import 'package:zest/core/utils/default_category.dart';
 
 /// Entry point: bootstraps dependencies and runs [ZestApp].
 void main() async {
@@ -17,5 +18,8 @@ void main() async {
       overrides: [bootstrapProvider.overrideWithValue(bootstrap)],
       child: ZestApp(bootstrap: bootstrap),
     ),
+  );
+  Future.microtask(
+    () => seedDefaultCategoryOnce(bootstrap.isar, bootstrap.settings),
   );
 }

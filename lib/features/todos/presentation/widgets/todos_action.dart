@@ -1,26 +1,29 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
-import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:isar_community/isar.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
+import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/providers.dart';
-import 'package:zest/data/models/db.dart';
-import 'package:zest/features/todos/presentation/view/todo_todos.dart';
-import 'package:zest/core/widgets/form_dirty_tracker.dart';
-import 'package:zest/core/widgets/icon_container.dart';
+import 'package:zest/core/utils/date_time_format_helper.dart';
+import 'package:zest/core/utils/default_category.dart';
+import 'package:zest/core/utils/navigation_helper.dart';
+import 'package:zest/core/utils/responsive_utils.dart';
+import 'package:zest/core/utils/show_snack_bar.dart';
+import 'package:zest/core/utils/text_utils.dart';
 import 'package:zest/core/widgets/confirmation_dialog.dart';
+import 'package:zest/core/widgets/form_dirty_tracker.dart';
+import 'package:zest/core/widgets/autocomplete_options_dropdown.dart';
+import 'package:zest/core/widgets/icon_container.dart';
 import 'package:zest/core/widgets/modal_sheet_animation_mixin.dart';
 import 'package:zest/core/widgets/modal_sheet_header.dart';
 import 'package:zest/core/widgets/modal_sheet_save_button.dart';
 import 'package:zest/core/widgets/modal_sheet_scaffold.dart';
 import 'package:zest/core/widgets/text_form.dart';
-import 'package:zest/core/constants/app_constants.dart';
-import 'package:zest/core/utils/navigation_helper.dart';
-import 'package:zest/core/utils/responsive_utils.dart';
-import 'package:zest/core/utils/text_utils.dart';
+import 'package:zest/data/models/db.dart';
+import 'package:zest/features/todos/presentation/view/todo_todos.dart';
+import 'package:zest/i18n/tr.dart';
 
 /// Bottom sheet form for creating or editing a todo.
 class TodosAction extends ConsumerStatefulWidget {
@@ -127,6 +130,23 @@ class _TodosActionState extends ConsumerState<TodosAction>
     initModalSheetAnimations();
     _setupListeners();
     _loadAllTags();
+    _preSelectDefaultCategory();
+  }
+
+  /// Prefills the category field with the resolved default when creating.
+  void _preSelectDefaultCategory() {
+    if (!widget.category || widget.edit) return;
+    getFallbackCategory(
+      ref.read(isarProvider),
+      ref.read(settingsProvider),
+    ).then((defaultTask) {
+      if (!mounted || defaultTask == null) return;
+      if (_selectedTask != null || _categoryController.text.isNotEmpty) return;
+      setState(() {
+        _selectedTask = defaultTask;
+        _categoryController.text = defaultTask.title;
+      });
+    });
   }
 
   @override
@@ -339,33 +359,50 @@ class _TodosActionState extends ConsumerState<TodosAction>
   }
 
   /// On save pressed.
-  void _onSavePressed() {
+  Future<void> _onSavePressed() async {
     if (!_formKey.currentState!.validate()) return;
 
     TextUtils.trimController(_titleController);
     TextUtils.trimController(_descController);
 
-    _saveTodo();
+    final saved = await _saveTodo();
+    if (!saved) return;
     _clearControllers();
+    if (!mounted) return;
     NavigationHelper.back(context);
   }
 
-  /// Save todo.
-  void _saveTodo() {
+  /// Save todo and return whether it succeeded.
+  Future<bool> _saveTodo() async {
     if (widget.edit) {
-      _updateTodo();
-    } else {
-      _createTodo();
+      return _updateTodo();
     }
+    return _createTodo();
+  }
+
+  /// Resolves [selected] or the fallback category; shows a snackbar when none exist.
+  Future<Tasks?> _requireCategory(Tasks? selected) async {
+    final task =
+        selected ??
+        await getFallbackCategory(
+          ref.read(isarProvider),
+          ref.read(settingsProvider),
+        );
+    if (task == null && mounted) {
+      showSnackBar('createCategoryFirstHint'.tr, isError: true);
+    }
+    return task;
   }
 
   /// Update todo.
-  void _updateTodo() {
-    ref
+  Future<bool> _updateTodo() async {
+    final task = await _requireCategory(_selectedTask);
+    if (task == null) return false;
+    await ref
         .read(todosNotifierProvider.notifier)
         .updateTodo(
           todo: widget.todo!,
-          task: _selectedTask!,
+          task: task,
           title: _titleController.text,
           description: _descController.text,
           time: _timeController.text,
@@ -373,15 +410,18 @@ class _TodosActionState extends ConsumerState<TodosAction>
           priority: _todoPriority,
           tags: _todoTags,
         );
+    return true;
   }
 
   /// Create todo.
-  void _createTodo() {
+  Future<bool> _createTodo() async {
     if (widget.category) {
-      ref
+      final task = await _requireCategory(_selectedTask);
+      if (task == null) return false;
+      await ref
           .read(todosNotifierProvider.notifier)
           .addTodo(
-            task: _selectedTask!,
+            task: task,
             title: _titleController.text,
             description: _descController.text,
             time: _timeController.text,
@@ -389,11 +429,12 @@ class _TodosActionState extends ConsumerState<TodosAction>
             priority: _todoPriority,
             tags: _todoTags,
           );
+      return true;
     } else if (widget.todo != null) {
       final parentTask = widget.todo!.task.value;
-      if (parentTask == null) return;
+      if (parentTask == null) return false;
 
-      ref
+      await ref
           .read(todosNotifierProvider.notifier)
           .addTodo(
             task: parentTask,
@@ -405,8 +446,9 @@ class _TodosActionState extends ConsumerState<TodosAction>
             tags: _todoTags,
             parent: widget.todo,
           );
+      return true;
     } else if (widget.task != null) {
-      ref
+      await ref
           .read(todosNotifierProvider.notifier)
           .addTodo(
             task: widget.task!,
@@ -417,7 +459,9 @@ class _TodosActionState extends ConsumerState<TodosAction>
             priority: _todoPriority,
             tags: _todoTags,
           );
+      return true;
     }
+    return false;
   }
 
   @override
@@ -528,7 +572,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
       margin: EdgeInsets.zero,
       controller: _categoryController,
       focusNode: _categoryFocusNode,
-      labelText: 'selectCategory'.tr,
+      labelText: 'categoryOptionalHint'.tr,
       type: TextInputType.text,
       icon: Icon(IconsaxPlusLinear.folder_2, color: colorScheme.primary),
       iconButton: Row(
@@ -543,6 +587,8 @@ class _TodosActionState extends ConsumerState<TodosAction>
               ),
               onPressed: () {
                 _categoryController.clear();
+                _selectedTask = null;
+                _editingController.task.value = null;
                 setState(() {});
               },
             ),
@@ -565,12 +611,6 @@ class _TodosActionState extends ConsumerState<TodosAction>
           ),
         ],
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'selectCategory'.tr;
-        }
-        return null;
-      },
     );
   }
 
@@ -615,65 +655,25 @@ class _TodosActionState extends ConsumerState<TodosAction>
     AutocompleteOnSelected<Tasks> onSelected,
     Iterable<Tasks> options,
   ) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(top: AppConstants.spacingXS),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Material(
-          borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
-          elevation: AppConstants.elevationHigh,
-          shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
-          color: colorScheme.surfaceContainerHigh,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 250),
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppConstants.spacingXS,
+    return AutocompleteOptionsDropdown<Tasks>(
+      options: options,
+      onSelected: onSelected,
+      itemBuilder: (context, task) {
+        return Row(
+          children: [
+            Expanded(
+              child: Text(
+                task.title,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
               ),
-              shrinkWrap: true,
-              itemCount: options.length,
-              itemBuilder: (BuildContext context, int index) {
-                final Tasks task = options.elementAt(index);
-                return InkWell(
-                  onTap: () => onSelected(task),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppConstants.spacingL,
-                      vertical: AppConstants.spacingM,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            task.title,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                        SizedBox(width: AppConstants.spacingM),
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: Color(task.taskColor),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: colorScheme.outline.withValues(alpha: 0.2),
-                              width: AppConstants.borderWidthThin,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
             ),
-          ),
-        ),
-      ),
+            const SizedBox(width: AppConstants.spacingM),
+            AutocompleteColorSwatch(color: Color(task.taskColor)),
+          ],
+        );
+      },
     );
   }
 
@@ -827,7 +827,8 @@ class _TodosActionState extends ConsumerState<TodosAction>
     final availableHeight =
         mediaQuery.size.height - mediaQuery.viewInsets.bottom;
 
-    return (availableHeight * 0.45).clamp(120.0, 400.0);
+    // Cap to ~5 rows so the list does not dominate the bottom of the sheet.
+    return (availableHeight * 0.28).clamp(120.0, 220.0);
   }
 
   /// Builds the inline tag picker shown while the field is focused.
@@ -1027,7 +1028,8 @@ class _TodosActionState extends ConsumerState<TodosAction>
 
         TextUtils.trimController(_titleController);
         TextUtils.trimController(_descController);
-        _saveTodo();
+        final saved = await _saveTodo();
+        if (!saved) return;
       }
 
       if (!context.mounted) return;
@@ -1074,9 +1076,8 @@ class _TodosActionState extends ConsumerState<TodosAction>
         taskToUse = widget.task;
       }
 
-      if (taskToUse == null) {
-        throw Exception('No task selected');
-      }
+      taskToUse ??= await _requireCategory(null);
+      if (taskToUse == null) return;
 
       final newTodo = await ref
           .read(todosNotifierProvider.notifier)
@@ -1184,7 +1185,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
       context: context,
       initialDate: now,
       firstDate: now.subtract(const Duration(hours: 1)),
-      lastDate: now.add(const Duration(days: 1000)),
+      lastDate: now.add(AppConstants.calendarSelectableRange),
       is24HourMode: ref.watch(appSettingsProvider).timeformat != '12',
       borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
     );
@@ -1204,12 +1205,25 @@ class _TodosActionState extends ConsumerState<TodosAction>
     final colorScheme = Theme.of(context).colorScheme;
 
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final bool isKeyboardOpen = keyboardHeight > 0;
+
+    // Material 3 menu defaults: each MenuItemButton has a 48px min height and
+    // the menu adds 8px top + 8px bottom vertical padding (16 total).
+    const double priorityMenuItemHeight = 48.0;
+    const double priorityMenuVerticalPadding = 16.0;
+    const double priorityMenuGap = 8.0;
+    final double priorityMenuHeight =
+        Priority.values.length * priorityMenuItemHeight +
+        priorityMenuVerticalPadding;
+
+    // Always open upward: the attributes row sits near the sheet bottom, so a
+    // downward menu clips off-screen even when the keyboard is closed.
+    final double maxUpwardOffset =
+        -(MediaQuery.of(context).size.height - keyboardHeight);
+    final double rawDy = -(priorityMenuHeight + priorityMenuGap);
+    final double clampedDy = rawDy.clamp(maxUpwardOffset, 0.0);
 
     return MenuAnchor(
-      alignmentOffset: isKeyboardOpen
-          ? const Offset(0, -250)
-          : const Offset(0, 0),
+      alignmentOffset: Offset(0, clampedDy),
 
       style: MenuStyle(
         shape: WidgetStateProperty.all(
@@ -1387,6 +1401,7 @@ class _EditingController {
 
   final FormDirtyTracker _dirtyTracker = FormDirtyTracker();
 
+  /// Whether the todo form has unsaved changes.
   ValueListenable<bool> get canCompose => _dirtyTracker.canCompose;
 
   bool _hasChanges() =>

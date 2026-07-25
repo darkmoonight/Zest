@@ -25,6 +25,7 @@ mixin TodosScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   /// Current sort option applied to todo lists.
   SortOption sortOption = SortOption.none;
 
+  /// Notifier for todo list mutations used by this screen.
   TodosNotifier get todosNotifier => ref.read(todosNotifierProvider.notifier);
 
   /// Initializes tab, search, and scroll controllers.

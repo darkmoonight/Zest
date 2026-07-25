@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
+import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/data/repositories/task_repository.dart';
 import 'package:zest/features/tasks/application/tasks_notifier.dart';
 
@@ -125,5 +126,29 @@ void main() {
     expect(titles, ['B']);
     expect(container.read(tasksNotifierProvider).tasks.first.index, 0);
     expect(await taskRepo.getById(second.id), isNotNull);
+  });
+
+  test('archiveTask clears defaultCategoryId when archived', () async {
+    final task = await createTestTask(isar, title: 'Default Inbox');
+    final settings = container.read(settingsProvider);
+    settings.defaultCategoryId = task.id;
+    await container.read(settingsRepositoryProvider).save(settings);
+
+    final tasksNotifier = await notifier();
+    await tasksNotifier.archiveTask([task]);
+
+    expect(container.read(settingsProvider).defaultCategoryId, isNull);
+  });
+
+  test('deleteTask clears defaultCategoryId when deleted', () async {
+    final task = await createTestTask(isar, title: 'Default Inbox');
+    final settings = container.read(settingsProvider);
+    settings.defaultCategoryId = task.id;
+    await container.read(settingsRepositoryProvider).save(settings);
+
+    final tasksNotifier = await notifier();
+    await tasksNotifier.deleteTask([task]);
+
+    expect(container.read(settingsProvider).defaultCategoryId, isNull);
   });
 }

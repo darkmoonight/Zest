@@ -33,6 +33,10 @@ migrate_working_dir/
 .pub/
 /build/
 .upload-keystore
+/android/key.properties
+/android/app/release.keystore
+/android/app/*.keystore
+/android/app/*.jks
 
 # Web related
 lib/generated_plugin_registrant.dart

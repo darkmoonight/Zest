@@ -40,7 +40,7 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
   DateTime fDay = DateTime.now().add(const Duration(days: -1000));
 
   /// L day.
-  DateTime lDay = DateTime.now().add(const Duration(days: 1000));
+  DateTime lDay = DateTime.now().add(AppConstants.calendarSelectableRange);
 
   @override
   /// Initializes state when the widget is first inserted.

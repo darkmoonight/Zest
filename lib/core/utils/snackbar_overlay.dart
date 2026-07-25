@@ -62,6 +62,7 @@ class SnackBarData {
 
 /// Root overlay widget that listens to [SnackBarOverlay] and renders toasts.
 class SnackBarOverlayWidget extends StatelessWidget {
+  /// Creates the root overlay that listens to [SnackBarOverlay] toasts.
   const SnackBarOverlayWidget({super.key});
 
   /// Builds the overlay that shows or hides the active toast.
@@ -99,7 +100,7 @@ class _ToastOverlayState extends State<_ToastOverlay>
   late Animation<Offset> _slideAnimation;
 
   /// Duration of enter and exit animations.
-  static const _animationDuration = Duration(milliseconds: 300);
+  static const _animationDuration = AppConstants.animationDuration;
 
   /// How long the toast stays visible before auto-dismiss.
   static const _displayDuration = AppConstants.snackbarDisplayDuration;

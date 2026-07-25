@@ -8,6 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/services/backup_constants.dart';
 import 'package:zest/core/services/backup_file_writer.dart';
 import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/i18n/tr.dart';
@@ -24,10 +25,7 @@ class IsarService {
   final BuildContext _context;
 
   /// Platform channel for Android directory and SAF operations.
-  static const _platform = MethodChannel('directory_picker');
-
-  /// Filename prefix for manual database backups.
-  static const String _backupPrefix = 'backup_zest_db_';
+  static const _platform = MethodChannel(kBackupDirectoryPickerChannel);
 
   /// Temporary filename used during restore.
   static const String _tempFileName = 'temp.isar';
@@ -43,6 +41,7 @@ class IsarService {
     try {
       final backupDir = await _pickDirectory();
       if (backupDir == null) {
+        showSnackBar('errorPath'.tr, isInfo: true);
         return;
       }
 
@@ -53,18 +52,19 @@ class IsarService {
       }
       _showLoadingDialog('creatingBackup'.tr);
 
-      final androidUri = Platform.isAndroid ? backupDir : null;
+      final androidUri = isAndroidContentUri(backupDir) ? backupDir : null;
       final result = await BackupFileWriter.write(
         isar: _isar,
         outputDirectory: stagingPath,
-        fileNamePrefix: _backupPrefix,
+        fileNamePrefix: kManualBackupFilePrefix,
         androidContentUri: androidUri,
       );
 
-      _hideLoadingDialog();
       if (result.success) {
+        _hideLoadingDialog();
         showSnackBar('successBackup'.tr);
       } else {
+        _hideLoadingDialog();
         showSnackBar('error'.tr, isError: true);
       }
     } catch (e, stackTrace) {
@@ -79,7 +79,6 @@ class IsarService {
     _showLoadingDialog('restoringBackup'.tr);
 
     try {
-      final dbDirectory = await getApplicationSupportDirectory();
       final backupFile = await openFile(
         acceptedTypeGroups: [
           XTypeGroup(
@@ -107,28 +106,37 @@ class IsarService {
       }
 
       final bytes = await selectedFile.readAsBytes();
-      final decompressedBytes = BackupFileWriter.decompressIfNeeded(bytes);
-
-      if (decompressedBytes.isEmpty) {
-        _hideLoadingDialog();
-        showSnackBar('error'.tr, isError: true);
-        return;
-      }
-
-      await _performRestore(dbDirectory, decompressedBytes);
-
-      _hideLoadingDialog();
-      showSnackBar('successRestoreCategory'.tr);
-
-      await Future.delayed(
-        const Duration(milliseconds: 1500),
-        () => Restart.restartApp(),
-      );
+      await _restoreFromBytes(bytes);
     } catch (e, stackTrace) {
       _hideLoadingDialog();
       debugPrint('Restore error: $e\n$stackTrace');
       showSnackBar('error'.tr, isError: true);
     }
+  }
+
+  /// Decompresses [bytes], validates them, then finishes restore and restart.
+  Future<void> _restoreFromBytes(List<int> bytes) async {
+    final decompressedBytes = BackupFileWriter.decompressIfNeeded(bytes);
+    if (decompressedBytes.isEmpty) {
+      _hideLoadingDialog();
+      showSnackBar('error'.tr, isError: true);
+      return;
+    }
+    await _finishRestore(decompressedBytes);
+  }
+
+  /// Applies [decompressedBytes], shows success, and restarts the app.
+  Future<void> _finishRestore(List<int> decompressedBytes) async {
+    final dbDirectory = await getApplicationSupportDirectory();
+    await _performRestore(dbDirectory, decompressedBytes);
+
+    _hideLoadingDialog();
+    showSnackBar('successRestore'.tr);
+
+    await Future.delayed(
+      AppConstants.restoreRestartDelay,
+      () => Restart.restartApp(),
+    );
   }
 
   /// Swaps the live database with [decompressedBytes], keeping a rollback copy.
@@ -179,16 +187,20 @@ class IsarService {
   Future<String?> _pickDirectory() async {
     if (Platform.isAndroid) {
       return _pickDirectoryAndroid();
-    } else if (Platform.isIOS) {
-      return _getDirectoryPath();
     }
-    return null;
+    if (Platform.isIOS) {
+      return _getIosDocumentsPath();
+    }
+    // Desktop (Linux / Windows / macOS): system directory picker.
+    return getDirectoryPath();
   }
 
   /// Opens the Android SAF directory picker via platform channel.
   Future<String?> _pickDirectoryAndroid() async {
     try {
-      final String? uri = await _platform.invokeMethod('pickDirectory');
+      final String? uri = await _platform.invokeMethod(
+        kBackupPickDirectoryMethod,
+      );
       return uri;
     } on PlatformException catch (e) {
       debugPrint('Error picking directory: $e');
@@ -197,14 +209,14 @@ class IsarService {
   }
 
   /// Returns the iOS application documents directory path.
-  Future<String> _getDirectoryPath() async {
+  Future<String> _getIosDocumentsPath() async {
     final dir = await getApplicationDocumentsDirectory();
     return dir.path;
   }
 
   /// Local staging directory before optional Android SAF copy.
   Future<String?> _stagingDirectory(String? backupDir) async {
-    if (Platform.isAndroid) {
+    if (isAndroidContentUri(backupDir)) {
       return (await getTemporaryDirectory()).path;
     }
     return backupDir;

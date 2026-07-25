@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/progress_calculator.dart';
@@ -67,7 +68,9 @@ class _TasksListState extends ConsumerState<TasksList>
           handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
         ),
         _buildReorderableList(tasks, tasksNotifier, todosNotifier, tasksState),
-        const SliverToBoxAdapter(child: SizedBox(height: 80)),
+        const SliverToBoxAdapter(
+          child: SizedBox(height: AppConstants.listFabClearanceHeight),
+        ),
       ],
     );
   }

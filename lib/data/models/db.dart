@@ -84,6 +84,12 @@ class Settings {
 
   /// Whether priority-based notification channels migration has completed.
   bool notificationChannelsMigrated = false;
+
+  /// Whether the built-in Default category has already been seeded once.
+  bool defaultCategorySeeded = false;
+
+  /// User-selected default category id used when creating todos without a pick.
+  int? defaultCategoryId;
 }
 
 /// Todo list sort options stored in settings and task/todo records.
@@ -156,6 +162,9 @@ class Tasks {
   @enumerated
   SortOption sortOption = SortOption.none;
 
+  /// Whether this is the built-in system Default category.
+  bool isSystem;
+
   /// Todos belonging to this task.
   @Backlink(to: 'task')
   final todos = IsarLinks<Todos>();
@@ -168,6 +177,7 @@ class Tasks {
     this.archive = false,
     required this.taskColor,
     this.index,
+    this.isSystem = false,
     this.sortOption = SortOption.none,
   });
 }

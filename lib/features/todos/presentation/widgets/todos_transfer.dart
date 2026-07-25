@@ -7,6 +7,7 @@ import 'package:isar_community/isar.dart';
 import 'package:zest/core/di/providers.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/core/widgets/form_dirty_tracker.dart';
+import 'package:zest/core/widgets/autocomplete_options_dropdown.dart';
 import 'package:zest/core/widgets/icon_container.dart';
 import 'package:zest/core/widgets/confirmation_dialog.dart';
 import 'package:zest/core/widgets/modal_sheet_animation_mixin.dart';
@@ -555,65 +556,28 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
     AutocompleteOnSelected<Tasks> onSelected,
     Iterable<Tasks> options,
   ) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppConstants.spacingXS),
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Material(
-          borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
-          elevation: AppConstants.elevationHigh,
-          shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
-          color: colorScheme.surfaceContainerHigh,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 200),
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppConstants.spacingXS,
+    return AutocompleteOptionsDropdown<Tasks>(
+      options: options,
+      onSelected: onSelected,
+      alignment: Alignment.bottomCenter,
+      margin: const EdgeInsets.only(bottom: AppConstants.spacingXS),
+      maxHeight: 200,
+      itemBuilder: (context, task) {
+        return Row(
+          children: [
+            Expanded(
+              child: Text(
+                task.title,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
               ),
-              shrinkWrap: true,
-              itemCount: options.length,
-              itemBuilder: (context, index) {
-                final task = options.elementAt(index);
-                return InkWell(
-                  onTap: () => onSelected(task),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppConstants.spacingL,
-                      vertical: AppConstants.spacingM,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            task.title,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                        const SizedBox(width: AppConstants.spacingM),
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: Color(task.taskColor),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: colorScheme.outline.withValues(alpha: 0.2),
-                              width: AppConstants.borderWidthThin,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
             ),
-          ),
-        ),
-      ),
+            const SizedBox(width: AppConstants.spacingM),
+            AutocompleteColorSwatch(color: Color(task.taskColor)),
+          ],
+        );
+      },
     );
   }
 
@@ -623,88 +587,47 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
     AutocompleteOnSelected<Todos> onSelected,
     Iterable<Todos> options,
   ) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppConstants.spacingS),
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Material(
-          borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
-          elevation: AppConstants.elevationHigh,
-          shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
-          color: colorScheme.surfaceContainerHigh,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 200),
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppConstants.spacingXS,
-              ),
-              shrinkWrap: true,
-              itemCount: options.length,
-              itemBuilder: (context, index) {
-                final todo = options.elementAt(index);
-                todo.task.loadSync();
-                return InkWell(
-                  onTap: () => onSelected(todo),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppConstants.spacingL,
-                      vertical: AppConstants.spacingM,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                todo.name,
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.w500),
-                              ),
-                              if (todo.task.value != null) ...[
-                                const SizedBox(
-                                  height: AppConstants.spacingXS / 2,
-                                ),
-                                Text(
-                                  todo.task.value!.title,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                        if (todo.task.value != null) ...[
-                          const SizedBox(width: AppConstants.spacingM),
-                          Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: Color(todo.task.value!.taskColor),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: colorScheme.outline.withValues(
-                                  alpha: 0.2,
-                                ),
-                                width: AppConstants.borderWidthThin,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
+    return AutocompleteOptionsDropdown<Todos>(
+      options: options,
+      onSelected: onSelected,
+      alignment: Alignment.bottomCenter,
+      margin: const EdgeInsets.only(bottom: AppConstants.spacingS),
+      maxHeight: 200,
+      itemBuilder: (context, todo) {
+        todo.task.loadSync();
+        final colorScheme = Theme.of(context).colorScheme;
+        return Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    todo.name,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                );
-              },
+                  if (todo.task.value != null) ...[
+                    const SizedBox(height: AppConstants.spacingXS / 2),
+                    Text(
+                      todo.task.value!.title,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-        ),
-      ),
+            if (todo.task.value != null) ...[
+              const SizedBox(width: AppConstants.spacingM),
+              AutocompleteColorSwatch(color: Color(todo.task.value!.taskColor)),
+            ],
+          ],
+        );
+      },
     );
   }
 }
@@ -720,10 +643,13 @@ class _EditingController {
   final ValueNotifier<Todos?> _todo = ValueNotifier(null);
   final FormDirtyTracker _dirtyTracker = FormDirtyTracker();
 
+  /// Whether the transfer form has a destination selected.
   ValueListenable<bool> get canCompose => _dirtyTracker.canCompose;
 
+  /// Sets the destination category for the transfer.
   void setTask(Tasks? task) => _task.value = task;
 
+  /// Sets the destination parent todo for the transfer.
   void setTodo(Todos? todo) => _todo.value = todo;
 
   bool _hasSelection() => _task.value != null || _todo.value != null;

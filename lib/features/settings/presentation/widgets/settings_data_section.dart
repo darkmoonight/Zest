@@ -27,7 +27,7 @@ class SettingsDataSection extends ConsumerStatefulWidget {
       _SettingsDataSectionState();
 }
 
-/// Widget that settings data section state.
+/// State for [SettingsDataSection] backup tiles.
 class _SettingsDataSectionState
     extends SettingsSectionConsumerState<SettingsDataSection> {
   @override
@@ -77,7 +77,7 @@ class _SettingsDataSectionState
             leading: const Icon(IconsaxPlusLinear.folder),
             title: 'autoBackupPath',
             value: formatAutoBackupPathDisplay(settings),
-            onTap: () => _selectAutoBackupPath(settings),
+            onTap: () => _selectAutoBackupPath(),
           ),
           SettingsTile(
             leading: const Icon(IconsaxPlusLinear.calendar_tick),
@@ -139,8 +139,8 @@ class _SettingsDataSectionState
     );
   }
 
-  /// Void.
-  Future<void> _selectAutoBackupPath(Settings settings) async {
+  /// Opens the directory picker and saves the chosen auto-backup path.
+  Future<void> _selectAutoBackupPath() async {
     try {
       final path = await IsarService(
         ref.read(isarProvider),
@@ -148,8 +148,8 @@ class _SettingsDataSectionState
       ).pickAutoBackupDirectory();
       if (path == null) return;
 
-      settings.autoBackupPath = path;
-      await actions.saveSettings(
+      actions.saveSettingsOptimistic(
+        mutate: (s) => s.autoBackupPath = path,
         afterSave: () async {
           if (!mounted) return;
           showSnackBar('autoBackupPathSet'.tr);
@@ -163,7 +163,7 @@ class _SettingsDataSectionState
     }
   }
 
-  /// Void.
+  /// Creates an on-demand auto-backup and shows a snackbar result.
   Future<void> _createAutoBackupNow() async {
     try {
       showSnackBar('creatingAutoBackup'.tr, isInfo: true);
@@ -183,7 +183,7 @@ class _SettingsDataSectionState
     }
   }
 
-  /// Get frequency text.
+  /// Localized label for [frequency].
   String _getFrequencyText(AutoBackupFrequency frequency) =>
       switch (frequency) {
         AutoBackupFrequency.daily => 'daily'.tr,
@@ -191,7 +191,7 @@ class _SettingsDataSectionState
         AutoBackupFrequency.monthly => 'monthly'.tr,
       };
 
-  /// Show delete all db dialog.
+  /// Confirms and clears all tasks and todos from the database.
   void _showDeleteAllDBDialog() {
     showConfirmationDialog(
       context: context,

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flag_secure/flag_secure.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,26 +10,19 @@ import 'package:zest/core/notifications/notification_channels.dart';
 import 'package:zest/core/services/auto_backup_service.dart';
 import 'package:zest/core/services/notification_plugin.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/platform/platform_features.dart'
+    if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
 
 /// Shared save and side-effect helpers for settings sections.
 class SettingsSaveActions {
+  /// Creates helpers bound to the settings [ref].
   SettingsSaveActions(this.ref);
 
   /// Riverpod ref used to read settings and repositories.
   final WidgetRef ref;
 
+  /// Current [Settings] instance from [settingsProvider].
   Settings get settings => ref.read(settingsProvider);
-
-  /// Persists the current [settings] snapshot to Isar.
-  Future<void> saveSettings({
-    Future<void> Function()? afterSave,
-    bool backgroundAfterSave = false,
-  }) async {
-    await _persistSettings(
-      afterSave: afterSave,
-      backgroundAfterSave: backgroundAfterSave,
-    );
-  }
 
   /// Applies [mutate] immediately and persists in the background.
   void saveSettingsOptimistic({
@@ -70,14 +62,10 @@ class SettingsSaveActions {
     saveSettingsOptimistic(mutate: (s) => s.defaultScreen = defaultScreen);
   }
 
-  /// Enables or disables screen privacy via [FlagSecure] and persists the flag.
+  /// Enables or disables screen privacy via [PlatformFeatures] and persists.
   Future<void> saveScreenPrivacy(bool enabled) async {
     try {
-      if (enabled) {
-        await FlagSecure.set();
-      } else {
-        await FlagSecure.unset();
-      }
+      await PlatformFeatures.setScreenPrivacy(enabled);
       saveSettingsOptimistic(mutate: (s) => s.screenPrivacy = enabled);
     } on PlatformException {
       // Platform may not support FLAG_SECURE.
@@ -105,11 +93,6 @@ class SettingsSaveActions {
     return AutoBackupService.performManualAutoBackup(ref.read(isarProvider));
   }
 
-  /// Run in background.
-  void runInBackground(Future<void> Function()? action) {
-    if (action != null) unawaited(action());
-  }
-
   Future<void> _persistSettings({
     Future<void> Function()? afterSave,
     bool backgroundAfterSave = false,
@@ -134,67 +117,46 @@ class SettingsSaveActions {
 
 /// Captures mutable [Settings] fields for rollback on failed persist.
 class _SettingsRollback {
-  _SettingsRollback({
-    required this.language,
-    required this.defaultScreen,
-    required this.screenPrivacy,
-    required this.timeformat,
-    required this.firstDay,
-    required this.isImage,
-    required this.autoBackupEnabled,
-    required this.autoBackupPath,
-    required this.autoBackupFrequency,
-    required this.maxAutoBackups,
-    required this.snoozeDuration,
-    required this.colorPalette,
-    required this.appFont,
-  });
+  _SettingsRollback._(this._snapshot);
 
-  final String? language;
-  final String defaultScreen;
-  final bool? screenPrivacy;
-  final String timeformat;
-  final String firstDay;
-  final bool? isImage;
-  final bool autoBackupEnabled;
-  final String? autoBackupPath;
-  final AutoBackupFrequency autoBackupFrequency;
-  final int maxAutoBackups;
-  final int snoozeDuration;
-  final String colorPalette;
-  final String appFont;
+  final Settings _snapshot;
 
+  /// Snapshots all mutable fields from [settings].
   static _SettingsRollback capture(Settings settings) {
-    return _SettingsRollback(
-      language: settings.language,
-      defaultScreen: settings.defaultScreen,
-      screenPrivacy: settings.screenPrivacy,
-      timeformat: settings.timeformat,
-      firstDay: settings.firstDay,
-      isImage: settings.isImage,
-      autoBackupEnabled: settings.autoBackupEnabled,
-      autoBackupPath: settings.autoBackupPath,
-      autoBackupFrequency: settings.autoBackupFrequency,
-      maxAutoBackups: settings.maxAutoBackups,
-      snoozeDuration: settings.snoozeDuration,
-      colorPalette: settings.colorPalette,
-      appFont: settings.appFont,
-    );
+    final snapshot = Settings();
+    _copySettings(settings, snapshot);
+    return _SettingsRollback._(snapshot);
   }
 
-  void restore(Settings settings) {
-    settings.language = language;
-    settings.defaultScreen = defaultScreen;
-    settings.screenPrivacy = screenPrivacy;
-    settings.timeformat = timeformat;
-    settings.firstDay = firstDay;
-    settings.isImage = isImage;
-    settings.autoBackupEnabled = autoBackupEnabled;
-    settings.autoBackupPath = autoBackupPath;
-    settings.autoBackupFrequency = autoBackupFrequency;
-    settings.maxAutoBackups = maxAutoBackups;
-    settings.snoozeDuration = snoozeDuration;
-    settings.colorPalette = colorPalette;
-    settings.appFont = appFont;
+  /// Restores the captured snapshot onto [settings].
+  void restore(Settings settings) => _copySettings(_snapshot, settings);
+
+  static void _copySettings(Settings from, Settings to) {
+    to.onboard = from.onboard;
+    to.theme = from.theme;
+    to.timeformat = from.timeformat;
+    to.materialColor = from.materialColor;
+    to.amoledTheme = from.amoledTheme;
+    to.colorPalette = from.colorPalette;
+    to.appFont = from.appFont;
+    to.isImage = from.isImage;
+    to.screenPrivacy = from.screenPrivacy;
+    to.language = from.language;
+    to.firstDay = from.firstDay;
+    to.calendarFormat = from.calendarFormat;
+    to.defaultScreen = from.defaultScreen;
+    to.snoozeDuration = from.snoozeDuration;
+    to.allTodosSortOption = from.allTodosSortOption;
+    to.showArchivedInAllTodos = from.showArchivedInAllTodos;
+    to.showArchivedInCalendar = from.showArchivedInCalendar;
+    to.calendarSortOption = from.calendarSortOption;
+    to.autoBackupEnabled = from.autoBackupEnabled;
+    to.autoBackupFrequency = from.autoBackupFrequency;
+    to.lastAutoBackupTime = from.lastAutoBackupTime;
+    to.maxAutoBackups = from.maxAutoBackups;
+    to.autoBackupPath = from.autoBackupPath;
+    to.notificationChannelsMigrated = from.notificationChannelsMigrated;
+    to.defaultCategorySeeded = from.defaultCategorySeeded;
+    to.defaultCategoryId = from.defaultCategoryId;
   }
 }

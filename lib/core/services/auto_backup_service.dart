@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:zest/core/services/backup_constants.dart';
 import 'package:zest/core/services/backup_file_writer.dart';
 import 'package:zest/data/models/db.dart';
 
@@ -35,9 +36,6 @@ class AutoBackupService {
   /// Private constructor; use static methods only.
   AutoBackupService._();
 
-  /// Filename prefix for automatic backup archives.
-  static const String _autoBackupPrefix = 'auto_backup_zest_db_';
-
   /// Default subdirectory name under app support for backups.
   static const String _backupFolderName = 'auto_backups';
 
@@ -59,7 +57,7 @@ class AutoBackupService {
       await performAutoBackup(isar, currentSettings);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('Auto backup check error: $e\n$stackTrace');
+        debugPrint('Auto backup check error: $e\n$stackTrace');
       }
     }
   }
@@ -75,7 +73,7 @@ class AutoBackupService {
       return performAutoBackup(isar, currentSettings);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('Manual auto backup error: $e\n$stackTrace');
+        debugPrint('Manual auto backup error: $e\n$stackTrace');
       }
       return false;
     }
@@ -88,33 +86,28 @@ class AutoBackupService {
   ) async {
     try {
       final customPath = currentSettings.autoBackupPath;
-      final isAndroidContentUri = _isAndroidContentUri(customPath);
+      final useAndroidContentUri = isAndroidContentUri(customPath);
 
-      Directory? backupDir;
-      String? outputDirectory;
-
-      if (isAndroidContentUri) {
+      final String outputDirectory;
+      if (useAndroidContentUri) {
         outputDirectory = (await getTemporaryDirectory()).path;
       } else {
-        backupDir = await _getAutoBackupDirectory(currentSettings);
+        final backupDir = await _getAutoBackupDirectory(currentSettings);
         if (backupDir == null) {
           if (kDebugMode) {
-            print('Auto backup skipped: no valid backup directory');
+            debugPrint('Auto backup skipped: no valid backup directory');
           }
           return false;
         }
         outputDirectory = backupDir.path;
-      }
-
-      if (!isAndroidContentUri && backupDir != null) {
         await _cleanOldBackups(backupDir, currentSettings);
       }
 
       final result = await BackupFileWriter.write(
         isar: isar,
         outputDirectory: outputDirectory,
-        fileNamePrefix: _autoBackupPrefix,
-        androidContentUri: isAndroidContentUri ? customPath : null,
+        fileNamePrefix: kAutoBackupFilePrefix,
+        androidContentUri: useAndroidContentUri ? customPath : null,
       );
 
       if (!result.success) {
@@ -124,20 +117,16 @@ class AutoBackupService {
       await _updateLastBackupTime(isar, currentSettings);
 
       if (kDebugMode) {
-        print('Auto backup completed: ${result.compressedFileName}');
+        debugPrint('Auto backup completed: ${result.compressedFileName}');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('Auto backup error: $e\n$stackTrace');
+        debugPrint('Auto backup error: $e\n$stackTrace');
       }
       return false;
     }
   }
-
-  /// Returns whether [path] is an Android content (SAF) URI.
-  static bool _isAndroidContentUri(String? path) =>
-      path != null && path.isNotEmpty && path.startsWith('content://');
 
   /// Deletes oldest backups when count exceeds [currentSettings.maxAutoBackups].
   static Future<void> _cleanOldBackups(
@@ -145,32 +134,35 @@ class AutoBackupService {
     Settings currentSettings,
   ) async {
     try {
-      final files = backupDir
-          .listSync()
-          .whereType<File>()
-          .where((f) => p.basename(f.path).startsWith(_autoBackupPrefix))
-          .toList();
-
+      final files = _listAutoBackupFiles(backupDir);
       if (files.isEmpty) return;
-
-      files.sort(
-        (a, b) => b.lastModifiedSync().compareTo(a.lastModifiedSync()),
-      );
 
       if (files.length >= currentSettings.maxAutoBackups) {
         final filesToDelete = files.skip(currentSettings.maxAutoBackups - 1);
         for (final file in filesToDelete) {
           await file.delete();
           if (kDebugMode) {
-            print('Deleted old backup: ${p.basename(file.path)}');
+            debugPrint('Deleted old backup: ${p.basename(file.path)}');
           }
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error cleaning old backups: $e');
+        debugPrint('Error cleaning old backups: $e');
       }
     }
+  }
+
+  /// Lists auto-backup files in [backupDir], newest first.
+  static List<File> _listAutoBackupFiles(Directory backupDir) {
+    final files = backupDir
+        .listSync()
+        .whereType<File>()
+        .where((f) => p.basename(f.path).startsWith(kAutoBackupFilePrefix))
+        .toList();
+
+    files.sort((a, b) => b.lastModifiedSync().compareTo(a.lastModifiedSync()));
+    return files;
   }
 
   /// Resolves the backup directory from settings or app support.
@@ -185,7 +177,7 @@ class AutoBackupService {
           return customDir;
         }
         if (kDebugMode) {
-          print('Custom backup path does not exist: $customPath');
+          debugPrint('Custom backup path does not exist: $customPath');
         }
       }
 
@@ -199,7 +191,7 @@ class AutoBackupService {
       return backupDir;
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting auto backup directory: $e');
+        debugPrint('Error getting auto backup directory: $e');
       }
       return null;
     }
@@ -217,11 +209,12 @@ class AutoBackupService {
   }
 
   /// Lists automatic backup files sorted by newest first.
+  @visibleForTesting
   static Future<List<File>> getAutoBackupFiles(Settings currentSettings) async {
     try {
-      if (_isAndroidContentUri(currentSettings.autoBackupPath)) {
+      if (isAndroidContentUri(currentSettings.autoBackupPath)) {
         if (kDebugMode) {
-          print('Cannot list files from Android content URI');
+          debugPrint('Cannot list files from Android content URI');
         }
         return [];
       }
@@ -229,28 +222,21 @@ class AutoBackupService {
       final backupDir = await _getAutoBackupDirectory(currentSettings);
       if (backupDir == null) return [];
 
-      final files = backupDir
-          .listSync()
-          .whereType<File>()
-          .where((f) => p.basename(f.path).startsWith(_autoBackupPrefix))
-          .toList();
-
-      files.sort(
-        (a, b) => b.lastModifiedSync().compareTo(a.lastModifiedSync()),
-      );
-
-      return files;
+      return _listAutoBackupFiles(backupDir);
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting auto backup files: $e');
+        debugPrint('Error getting auto backup files: $e');
       }
       return [];
     }
   }
 
   /// Formats an auto-backup filename into a human-readable timestamp.
+  @visibleForTesting
   static String formatBackupFileName(String fileName) {
-    final regex = RegExp(r'auto_backup_zest_db_(\d{8})_(\d{6})');
+    final regex = RegExp(
+      '${RegExp.escape(kAutoBackupFilePrefix)}(\\d{8})_(\\d{6})',
+    );
     final match = regex.firstMatch(fileName);
 
     if (match == null) return fileName;

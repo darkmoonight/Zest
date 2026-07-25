@@ -1,14 +1,17 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:display_mode/display_mode.dart';
 import 'package:flag_secure/flag_secure.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:zest/platform/quick_action_item.dart';
+
 export 'package:dynamic_system_colors/dynamic_system_colors.dart'
     show DynamicColorBuilder;
 export 'package:zest/platform/quick_action_item.dart';
 
+/// Maps [QuickActionItem] onto the quick_actions plugin model.
 extension QuickActionItemShortcut on QuickActionItem {
   /// Converts this item to a [ShortcutItem] for the quick_actions plugin.
   ShortcutItem toShortcutItem() {
@@ -35,18 +38,6 @@ class PlatformFeatures {
   /// Whether the runtime is Android.
   static bool get isAndroid => !kIsWeb && Platform.isAndroid;
 
-  /// Whether the runtime is iOS.
-  static bool get isIOS => !kIsWeb && Platform.isIOS;
-
-  /// Whether the runtime is Windows.
-  static bool get isWindows => !kIsWeb && Platform.isWindows;
-
-  /// Whether the runtime is Linux.
-  static bool get isLinux => !kIsWeb && Platform.isLinux;
-
-  /// Whether the runtime is macOS.
-  static bool get isMacOS => !kIsWeb && Platform.isMacOS;
-
   // ==================== FEATURE SUPPORT ====================
 
   /// Whether local notifications are available.
@@ -63,12 +54,6 @@ class PlatformFeatures {
 
   /// Whether display refresh-rate selection is available.
   static bool get supportsDisplayMode => isAndroid;
-
-  /// Whether app lifecycle callbacks are available.
-  static bool get supportsAppLifecycle => !kIsWeb;
-
-  /// Whether haptic feedback is available.
-  static bool get supportsHaptics => isMobile;
 
   // ==================== INITIALIZATION ====================
 
@@ -115,30 +100,6 @@ class PlatformFeatures {
     }
   }
 
-  /// Returns the active display mode, or null when unsupported.
-  static Future<DisplayModeJson?> getCurrentDisplayMode() async {
-    if (!supportsDisplayMode) return null;
-
-    try {
-      return await FlutterDisplayMode.active;
-    } catch (e) {
-      debugPrint('Error getting current display mode: $e');
-      return null;
-    }
-  }
-
-  /// Returns supported display modes, or an empty list when unsupported.
-  static Future<List<DisplayModeJson>> getSupportedDisplayModes() async {
-    if (!supportsDisplayMode) return [];
-
-    try {
-      return await FlutterDisplayMode.supported;
-    } catch (e) {
-      debugPrint('Error getting supported display modes: $e');
-      return [];
-    }
-  }
-
   // ==================== SCREEN PRIVACY ====================
 
   /// Enables or disables screen capture blocking via FLAG_SECURE.
@@ -156,18 +117,6 @@ class PlatformFeatures {
     } on PlatformException catch (e) {
       debugPrint('Error setting screen privacy: $e');
       rethrow;
-    }
-  }
-
-  /// Whether screen privacy is currently enabled.
-  static Future<bool> isScreenPrivacyEnabled() async {
-    if (!supportsScreenPrivacy) return false;
-
-    try {
-      return false;
-    } catch (e) {
-      debugPrint('Error checking screen privacy: $e');
-      return false;
     }
   }
 
@@ -199,18 +148,6 @@ class PlatformFeatures {
     }
   }
 
-  /// Removes all registered launcher shortcuts.
-  static void clearQuickActions() {
-    if (!supportsQuickActions || _quickActions == null) return;
-
-    try {
-      _quickActions!.clearShortcutItems();
-      debugPrint('Quick actions cleared');
-    } catch (e) {
-      debugPrint('Error clearing quick actions: $e');
-    }
-  }
-
   // ==================== SYSTEM UI ====================
 
   /// Sets edge-to-edge or manual system UI mode on mobile.
@@ -231,111 +168,6 @@ class PlatformFeatures {
     }
   }
 
-  /// Applies status and navigation bar overlay colors.
-  static Future<void> setSystemUIOverlayStyle({
-    Color? statusBarColor,
-    Color? navigationBarColor,
-    Brightness? statusBarIconBrightness,
-    Brightness? navigationBarIconBrightness,
-  }) async {
-    if (!isMobile) return;
-
-    try {
-      SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(
-          statusBarColor: statusBarColor,
-          statusBarIconBrightness: statusBarIconBrightness,
-          systemNavigationBarColor: navigationBarColor,
-          systemNavigationBarIconBrightness: navigationBarIconBrightness,
-        ),
-      );
-    } catch (e) {
-      debugPrint('Error setting system UI overlay style: $e');
-    }
-  }
-
-  // ==================== HAPTICS ====================
-
-  /// Triggers a light haptic impact.
-  static Future<void> lightHaptic() async {
-    if (!supportsHaptics) return;
-
-    try {
-      await HapticFeedback.lightImpact();
-    } catch (e) {
-      debugPrint('Error triggering light haptic: $e');
-    }
-  }
-
-  /// Triggers a medium haptic impact.
-  static Future<void> mediumHaptic() async {
-    if (!supportsHaptics) return;
-
-    try {
-      await HapticFeedback.mediumImpact();
-    } catch (e) {
-      debugPrint('Error triggering medium haptic: $e');
-    }
-  }
-
-  /// Triggers a heavy haptic impact.
-  static Future<void> heavyHaptic() async {
-    if (!supportsHaptics) return;
-
-    try {
-      await HapticFeedback.heavyImpact();
-    } catch (e) {
-      debugPrint('Error triggering heavy haptic: $e');
-    }
-  }
-
-  /// Triggers a selection-click haptic.
-  static Future<void> selectionHaptic() async {
-    if (!supportsHaptics) return;
-
-    try {
-      await HapticFeedback.selectionClick();
-    } catch (e) {
-      debugPrint('Error triggering selection haptic: $e');
-    }
-  }
-
-  // ==================== ORIENTATION ====================
-
-  /// Restricts allowed device orientations.
-  static Future<void> setPreferredOrientations(
-    List<DeviceOrientation> orientations,
-  ) async {
-    if (!isMobile) return;
-
-    try {
-      await SystemChrome.setPreferredOrientations(orientations);
-    } catch (e) {
-      debugPrint('Error setting preferred orientations: $e');
-    }
-  }
-
-  /// Allows all device orientations.
-  static Future<void> allowAllOrientations() async {
-    await setPreferredOrientations(DeviceOrientation.values);
-  }
-
-  /// Restricts to portrait orientations only.
-  static Future<void> portraitOnly() async {
-    await setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-  }
-
-  /// Restricts to landscape orientations only.
-  static Future<void> landscapeOnly() async {
-    await setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-  }
-
   // ==================== UTILITIES ====================
 
   /// Returns capability flags for the current platform.
@@ -345,16 +177,11 @@ class PlatformFeatures {
       'isDesktop': isDesktop,
       'isWeb': isWeb,
       'isAndroid': isAndroid,
-      'isIOS': isIOS,
-      'isWindows': isWindows,
-      'isLinux': isLinux,
-      'isMacOS': isMacOS,
       'supportsNotifications': supportsNotifications,
       'supportsQuickActions': supportsQuickActions,
       'supportsDynamicColor': supportsDynamicColor,
       'supportsScreenPrivacy': supportsScreenPrivacy,
       'supportsDisplayMode': supportsDisplayMode,
-      'supportsHaptics': supportsHaptics,
     };
   }
 

@@ -120,9 +120,6 @@ class AppConstants {
   /// Medium opacity overlay.
   static const double opacityMedium = 0.5;
 
-  /// Heavy opacity overlay.
-  static const double opacityHeavy = 0.8;
-
   /// Background alpha for tinted chips and badges.
   static const double chipBackgroundAlpha = 0.15;
 
@@ -136,11 +133,14 @@ class AppConstants {
   /// Thin border width.
   static const double borderWidthThin = 1.0;
 
-  /// Medium border width.
-  static const double borderWidthMedium = 1.5;
-
   /// Thick border width.
   static const double borderWidthThick = 2.0;
+
+  /// Bottom list padding so content clears the floating action button.
+  static const double listFabClearanceHeight = 80.0;
+
+  /// Delay before restarting the app after a successful restore.
+  static const Duration restoreRestartDelay = Duration(milliseconds: 1500);
 
   // Debounce
   /// Default debounce delay for scroll and input handlers.
@@ -215,6 +215,9 @@ class AppConstants {
 
   /// Default max number of retained auto-backup files.
   static const int defaultMaxAutoBackups = 5;
+
+  /// How far ahead calendar / due-date pickers allow selecting dates.
+  static const Duration calendarSelectableRange = Duration(days: 1000);
 
   // Metadata chips (todo/task cards)
   /// Horizontal padding for metadata chips on cards.

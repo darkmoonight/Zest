@@ -18,6 +18,7 @@ class AppColorPalette {
   /// Creates a palette from [id] and tonal [seedColor].
   AppColorPalette._({required this.id, required this.seedColor});
 
+  /// Stable palette identifier stored in settings (e.g. `indigo`).
   final String id;
 
   /// Tonal seed used to derive a full Material 3 [CorePalette].

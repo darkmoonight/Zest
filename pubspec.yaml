@@ -7,7 +7,7 @@ version: 1.6.1+55
 
 environment:
   sdk: ">=3.12.2 <4.0.0"
-  flutter: "^3.44.6"
+  flutter: "^3.44.7"
 
 dependencies:
   # Flutter SDK
@@ -41,12 +41,12 @@ dependencies:
   quick_actions: ^1.1.0
 
   # Notifications
-  flutter_local_notifications: ^22.0.1
+  flutter_local_notifications: ^22.2.0
 
   # UI & theming
   gap: ^3.0.1
   shimmer: ^3.0.0
-  google_fonts: ^8.1.0
+  google_fonts: ^8.2.0
   dynamic_system_colors: ^1.9.0
   material_color_utilities: ^0.13.0
   iconsax_plus: ^1.0.0
@@ -65,7 +65,7 @@ dependencies:
   display_mode: ^0.0.2
   file_selector: ^1.1.0
   flag_secure: ^2.0.2
-  package_info_plus: ^10.2.0
+  package_info_plus: ^10.2.1
   restart_app: ^1.8.3
   url_launcher: ^6.3.2
 

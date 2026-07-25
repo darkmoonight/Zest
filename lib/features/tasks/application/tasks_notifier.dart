@@ -108,8 +108,8 @@ class TasksNotifier extends Notifier<TasksState> {
   // ==================== Tasks CRUD ====================
 
   /// Creates a task category with the given title, description, and color.
-  Future<void> addTask(String title, String description, Color color) async {
-    await _taskService.createTask(
+  Future<Tasks?> addTask(String title, String description, Color color) async {
+    return _taskService.createTask(
       title: title,
       description: description,
       color: color,
@@ -139,6 +139,7 @@ class TasksNotifier extends Notifier<TasksState> {
     _loadDebounce?.cancel();
 
     await _taskService.deleteTasks(taskList);
+    await _clearDefaultCategoryIfNeeded(taskList);
 
     state = state.copyWith(tasks: await _taskRepo.getAll());
     await _reindexTasks();
@@ -150,6 +151,7 @@ class TasksNotifier extends Notifier<TasksState> {
 
     _loadDebounce?.cancel();
     await _taskService.archiveTasks(taskList);
+    await _clearDefaultCategoryIfNeeded(taskList);
     state = state.copyWith(tasks: await _taskRepo.getAll());
     doMultiSelectionTaskClear();
     await ref.read(todosNotifierProvider.notifier).reloadTodos();
@@ -181,6 +183,17 @@ class TasksNotifier extends Notifier<TasksState> {
     );
 
     state = state.copyWith(tasks: await _taskRepo.getAll());
+  }
+
+  /// Clears the user default category when it was archived or deleted.
+  Future<void> _clearDefaultCategoryIfNeeded(List<Tasks> tasks) async {
+    final settings = ref.read(settingsProvider);
+    final defaultId = settings.defaultCategoryId;
+    if (defaultId == null) return;
+    if (!tasks.any((task) => task.id == defaultId)) return;
+
+    settings.defaultCategoryId = null;
+    await ref.read(settingsRepositoryProvider).save(settings);
   }
 
   Future<void> _reindexTasks() async {

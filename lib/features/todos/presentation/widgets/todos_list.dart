@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
@@ -113,7 +114,9 @@ class _TodosListState extends ConsumerState<TodosList>
           handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
         ),
         _buildReorderableList(todos, todosNotifier, todosState),
-        const SliverToBoxAdapter(child: SizedBox(height: 80)),
+        const SliverToBoxAdapter(
+          child: SizedBox(height: AppConstants.listFabClearanceHeight),
+        ),
       ],
     );
   }

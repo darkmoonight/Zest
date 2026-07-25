@@ -89,14 +89,14 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'AMOLED Theme'
 	String get amoled_theme => 'AMOLED Theme';
 
+	/// en-US: 'Appearance'
+	String get appearance => 'Appearance';
+
 	/// en-US: 'Font'
 	String get app_font => 'Font';
 
 	/// en-US: 'App Preferences'
 	String get app_preferences => 'App Preferences';
-
-	/// en-US: 'Appearance'
-	String get appearance => 'Appearance';
 
 	/// en-US: 'Archive'
 	String get archive => 'Archive';
@@ -151,6 +151,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'Category Removed'
 	String get category_delete => 'Category Removed';
+
+	/// en-US: 'Category (defaults to 'Default')'
+	String get category_optional_hint => 'Category (defaults to \'Default\')';
 
 	/// en-US: 'Change'
 	String get change => 'Change';
@@ -329,14 +332,17 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Category Created'
 	String get create_category => 'Category Created';
 
+	/// en-US: 'Create a category first to save a to-do.'
+	String get create_category_first_hint => 'Create a category first to save a to-do.';
+
 	/// en-US: 'Create a new category for todos'
 	String get create_category_hint => 'Create a new category for todos';
 
+	/// en-US: 'Created: {date}'
+	String get created_at_label => 'Created: {date}';
+
 	/// en-US: 'Create a new todo'
 	String get create_todo_hint => 'Create a new todo';
-
-	/// en-US: 'Created'
-	String get created => 'Created';
 
 	/// en-US: 'Creating auto backup...'
 	String get creating_auto_backup => 'Creating auto backup...';
@@ -361,6 +367,39 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'Date & Time'
 	String get date_time => 'Date & Time';
+
+	/// en-US: 'Fri'
+	String get day_fri => 'Fri';
+
+	/// en-US: 'Mon'
+	String get day_mon => 'Mon';
+
+	/// en-US: 'Sat'
+	String get day_sat => 'Sat';
+
+	/// en-US: 'Sun'
+	String get day_sun => 'Sun';
+
+	/// en-US: 'Thu'
+	String get day_thu => 'Thu';
+
+	/// en-US: 'Tue'
+	String get day_tue => 'Tue';
+
+	/// en-US: 'Wed'
+	String get day_wed => 'Wed';
+
+	/// en-US: 'Default category cleared'
+	String get default_category_cleared => 'Default category cleared';
+
+	/// en-US: 'Default category set'
+	String get default_category_set => 'Default category set';
+
+	/// en-US: 'Off'
+	String get default_category_status_off => 'Off';
+
+	/// en-US: 'On'
+	String get default_category_status_on => 'On';
 
 	/// en-US: 'App Folder'
 	String get default_path => 'App Folder';
@@ -419,11 +458,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Edit category information'
 	String get edit_category_hint => 'Edit category information';
 
-	/// en-US: 'Edit todo information'
-	String get edit_todo_hint => 'Edit todo information';
-
 	/// en-US: 'Editing'
 	String get editing => 'Editing';
+
+	/// en-US: 'Edit todo information'
+	String get edit_todo_hint => 'Edit todo information';
 
 	/// en-US: 'Enter category name'
 	String get enter_category_name => 'Enter category name';
@@ -437,6 +476,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Something Went Wrong'
 	String get error => 'Something Went Wrong';
 
+	/// en-US: 'An error occurred'
+	String get error_occurred => 'An error occurred';
+
 	/// en-US: 'Error loading statistics'
 	String get error_loading_statistics => 'Error loading statistics';
 
@@ -445,9 +487,6 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'You have not selected files to restore'
 	String get error_path_re => 'You have not selected files to restore';
-
-	/// en-US: 'An error occurred'
-	String get error_occurred => 'An error occurred';
 
 	/// en-US: 'First Day of the Week'
 	String get first_day_of_week => 'First Day of the Week';
@@ -548,17 +587,26 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Get Started'
 	String get get_start => 'Get Started';
 
+	/// en-US: 'GitHub'
+	String get github => 'GitHub';
+
 	/// en-US: 'Good start!'
 	String get good_start => 'Good start!';
 
 	/// en-US: 'Our Groups'
 	String get groups => 'Our Groups';
 
+	/// en-US: '{date}: {count} completed'
+	String get heatmap_tooltip => '{date}: {count} completed';
+
 	/// en-US: 'High'
 	String get high_priority => 'High';
 
 	/// en-US: 'Hourly Progress'
 	String get hourly_progress => 'Hourly Progress';
+
+	/// en-US: 'Isar Database'
+	String get isar_database => 'Isar Database';
 
 	/// en-US: 'Show Images'
 	String get is_images => 'Show Images';
@@ -650,8 +698,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Move'
 	String get move => 'Move';
 
-	/// en-US: 'Todos being moved'
-	String get moving_todos => 'Todos being moved';
+	/// en-US: 'Moving todos: {count}'
+	String get moving_todos_count => 'Moving todos: {count}';
+
+	/// en-US: 'Back'
+	String get navigate_back => 'Back';
 
 	/// en-US: 'Next'
 	String get next => 'Next';
@@ -673,6 +724,21 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'No Results'
 	String get no_results => 'No Results';
+
+	/// en-US: 'High priority reminders'
+	String get notification_channel_high => 'High priority reminders';
+
+	/// en-US: 'Low priority reminders'
+	String get notification_channel_low => 'Low priority reminders';
+
+	/// en-US: 'Medium priority reminders'
+	String get notification_channel_medium => 'Medium priority reminders';
+
+	/// en-US: 'No priority reminders'
+	String get notification_channel_none => 'No priority reminders';
+
+	/// en-US: 'Open notification'
+	String get open_notification => 'Open notification';
 
 	/// en-US: 'Excellent!'
 	String get perfect_work => 'Excellent!';
@@ -728,23 +794,26 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Select color for category'
 	String get select_color_hint => 'Select color for category';
 
+	/// en-US: 'Selected color'
+	String get selected_color => 'Selected color';
+
 	/// en-US: 'Select a new status for this todo'
 	String get select_new_status => 'Select a new status for this todo';
 
 	/// en-US: 'Choose a Todo'
 	String get select_todo_parent => 'Choose a Todo';
 
-	/// en-US: 'Selected color'
-	String get selected_color => 'Selected color';
+	/// en-US: 'Set as default category'
+	String get set_default_category => 'Set as default category';
 
 	/// en-US: 'Settings'
 	String get settings => 'Settings';
 
-	/// en-US: 'Skip'
-	String get skip => 'Skip';
-
 	/// en-US: 'Show archived'
 	String get show_archived => 'Show archived';
+
+	/// en-US: 'Skip'
+	String get skip => 'Skip';
 
 	/// en-US: 'Snooze'
 	String get snooze => 'Snooze';
@@ -812,8 +881,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Backup Created Successfully'
 	String get success_backup => 'Backup Created Successfully';
 
-	/// en-US: 'Categories Restored Successfully'
-	String get success_restore_category => 'Categories Restored Successfully';
+	/// en-US: 'Data restored successfully'
+	String get success_restore => 'Data restored successfully';
 
 	/// en-US: 'Sunday'
 	String get sunday => 'Sunday';
@@ -835,6 +904,42 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'Time Format'
 	String get timeformat => 'Time Format';
+
+	/// en-US: 'Afternoon'
+	String get time_period_afternoon => 'Afternoon';
+
+	/// en-US: 'Evening'
+	String get time_period_evening => 'Evening';
+
+	/// en-US: 'Morning'
+	String get time_period_morning => 'Morning';
+
+	/// en-US: 'Night'
+	String get time_period_night => 'Night';
+
+	/// en-US: '0-6'
+	String get time_range0to6 => '0-6';
+
+	/// en-US: '12-18'
+	String get time_range12to18 => '12-18';
+
+	/// en-US: '12-6 AM'
+	String get time_range12to6_am => '12-6 AM';
+
+	/// en-US: '12-6 PM'
+	String get time_range12to6_pm => '12-6 PM';
+
+	/// en-US: '18-24'
+	String get time_range18to24 => '18-24';
+
+	/// en-US: '6-12'
+	String get time_range6to12 => '6-12';
+
+	/// en-US: '6-12 AM'
+	String get time_range6to12_am => '6-12 AM';
+
+	/// en-US: '6-12 PM'
+	String get time_range6to12_pm => '6-12 PM';
 
 	/// en-US: 'Organize Your Todos'
 	String get title1 => 'Organize Your Todos';
@@ -907,96 +1012,6 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'Weekly Progress'
 	String get weekly_progress => 'Weekly Progress';
-
-	/// en-US: 'Mon'
-	String get day_mon => 'Mon';
-
-	/// en-US: 'Tue'
-	String get day_tue => 'Tue';
-
-	/// en-US: 'Wed'
-	String get day_wed => 'Wed';
-
-	/// en-US: 'Thu'
-	String get day_thu => 'Thu';
-
-	/// en-US: 'Fri'
-	String get day_fri => 'Fri';
-
-	/// en-US: 'Sat'
-	String get day_sat => 'Sat';
-
-	/// en-US: 'Sun'
-	String get day_sun => 'Sun';
-
-	/// en-US: 'Night'
-	String get time_period_night => 'Night';
-
-	/// en-US: 'Morning'
-	String get time_period_morning => 'Morning';
-
-	/// en-US: 'Afternoon'
-	String get time_period_afternoon => 'Afternoon';
-
-	/// en-US: 'Evening'
-	String get time_period_evening => 'Evening';
-
-	/// en-US: '12-6 AM'
-	String get time_range12to6_am => '12-6 AM';
-
-	/// en-US: '6-12 AM'
-	String get time_range6to12_am => '6-12 AM';
-
-	/// en-US: '12-6 PM'
-	String get time_range12to6_pm => '12-6 PM';
-
-	/// en-US: '6-12 PM'
-	String get time_range6to12_pm => '6-12 PM';
-
-	/// en-US: '0-6'
-	String get time_range0to6 => '0-6';
-
-	/// en-US: '6-12'
-	String get time_range6to12 => '6-12';
-
-	/// en-US: '12-18'
-	String get time_range12to18 => '12-18';
-
-	/// en-US: '18-24'
-	String get time_range18to24 => '18-24';
-
-	/// en-US: 'Open notification'
-	String get open_notification => 'Open notification';
-
-	/// en-US: 'Isar Database'
-	String get isar_database => 'Isar Database';
-
-	/// en-US: 'GitHub'
-	String get github => 'GitHub';
-
-	/// en-US: 'High priority reminders'
-	String get notification_channel_high => 'High priority reminders';
-
-	/// en-US: 'Medium priority reminders'
-	String get notification_channel_medium => 'Medium priority reminders';
-
-	/// en-US: 'Low priority reminders'
-	String get notification_channel_low => 'Low priority reminders';
-
-	/// en-US: 'No priority reminders'
-	String get notification_channel_none => 'No priority reminders';
-
-	/// en-US: 'Created: {date}'
-	String get created_at_label => 'Created: {date}';
-
-	/// en-US: '{date}: {count} completed'
-	String get heatmap_tooltip => '{date}: {count} completed';
-
-	/// en-US: 'Moving todos: {count}'
-	String get moving_todos_count => 'Moving todos: {count}';
-
-	/// en-US: 'Back'
-	String get navigate_back => 'Back';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -1023,9 +1038,9 @@ extension on Translations {
 			'all_todos' => 'All Todos',
 			'almost_done' => 'Almost done!',
 			'amoled_theme' => 'AMOLED Theme',
+			'appearance' => 'Appearance',
 			'app_font' => 'Font',
 			'app_preferences' => 'App Preferences',
-			'appearance' => 'Appearance',
 			'archive' => 'Archive',
 			'archive_category' => 'Archiving Category',
 			'archive_category_query' => 'Are you sure you want to archive the category?',
@@ -1044,6 +1059,7 @@ extension on Translations {
 			'categories' => 'Categories',
 			'category_archive' => 'Category Archived',
 			'category_delete' => 'Category Removed',
+			'category_optional_hint' => 'Category (defaults to \'Default\')',
 			'change' => 'Change',
 			'change_status' => 'Change Status',
 			'clear_text' => 'Clear Text',
@@ -1103,9 +1119,10 @@ extension on Translations {
 			'create' => 'Create',
 			'create_auto_backup_now' => 'Create Backup Now',
 			'create_category' => 'Category Created',
+			'create_category_first_hint' => 'Create a category first to save a to-do.',
 			'create_category_hint' => 'Create a new category for todos',
+			'created_at_label' => 'Created: {date}',
 			'create_todo_hint' => 'Create a new todo',
-			'created' => 'Created',
 			'creating_auto_backup' => 'Creating auto backup...',
 			'creating_backup' => 'Creating Backup',
 			'current_streak' => 'Current',
@@ -1114,6 +1131,17 @@ extension on Translations {
 			'dark' => 'Dark',
 			'data_management' => 'Data Management',
 			'date_time' => 'Date & Time',
+			'day_fri' => 'Fri',
+			'day_mon' => 'Mon',
+			'day_sat' => 'Sat',
+			'day_sun' => 'Sun',
+			'day_thu' => 'Thu',
+			'day_tue' => 'Tue',
+			'day_wed' => 'Wed',
+			'default_category_cleared' => 'Default category cleared',
+			'default_category_set' => 'Default category set',
+			'default_category_status_off' => 'Off',
+			'default_category_status_on' => 'On',
 			'default_path' => 'App Folder',
 			'default_screen' => 'Default Screen',
 			'delete' => 'Delete',
@@ -1133,16 +1161,16 @@ extension on Translations {
 			'edit' => 'Edit',
 			'edit_category' => 'Category Updated',
 			'edit_category_hint' => 'Edit category information',
-			'edit_todo_hint' => 'Edit todo information',
 			'editing' => 'Editing',
+			'edit_todo_hint' => 'Edit todo information',
 			'enter_category_name' => 'Enter category name',
 			'enter_description' => 'Add description',
 			'enter_todo_name' => 'Enter todo name',
 			'error' => 'Something Went Wrong',
+			'error_occurred' => 'An error occurred',
 			'error_loading_statistics' => 'Error loading statistics',
 			'error_path' => 'You have not selected a path to save the backup',
 			'error_path_re' => 'You have not selected files to restore',
-			'error_occurred' => 'An error occurred',
 			'first_day_of_week' => 'First Day of the Week',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -1176,10 +1204,13 @@ extension on Translations {
 			'font_work_sans' => 'Work Sans',
 			'friday' => 'Friday',
 			'get_start' => 'Get Started',
+			'github' => 'GitHub',
 			'good_start' => 'Good start!',
 			'groups' => 'Our Groups',
+			'heatmap_tooltip' => '{date}: {count} completed',
 			'high_priority' => 'High',
 			'hourly_progress' => 'Hourly Progress',
+			'isar_database' => 'Isar Database',
 			'is_images' => 'Show Images',
 			'item' => 'item',
 			'items' => 'items',
@@ -1210,7 +1241,8 @@ extension on Translations {
 			'month' => 'Month',
 			'monthly' => 'Monthly',
 			'move' => 'Move',
-			'moving_todos' => 'Todos being moved',
+			'moving_todos_count' => 'Moving todos: {count}',
+			'navigate_back' => 'Back',
 			'next' => 'Next',
 			'no_archive' => 'Restore',
 			'no_archive_category' => 'Restore Category',
@@ -1218,6 +1250,11 @@ extension on Translations {
 			'no_category_archive' => 'Category Restored',
 			'no_priority' => 'No Priority',
 			'no_results' => 'No Results',
+			'notification_channel_high' => 'High priority reminders',
+			'notification_channel_low' => 'Low priority reminders',
+			'notification_channel_medium' => 'Medium priority reminders',
+			'notification_channel_none' => 'No priority reminders',
+			'open_notification' => 'Open notification',
 			'perfect_work' => 'Excellent!',
 			'privacy_security' => 'Privacy & Security',
 			'project' => 'Project On',
@@ -1236,12 +1273,13 @@ extension on Translations {
 			'select_category' => 'Choose a Category',
 			'select_color' => 'Select color',
 			'select_color_hint' => 'Select color for category',
+			'selected_color' => 'Selected color',
 			'select_new_status' => 'Select a new status for this todo',
 			'select_todo_parent' => 'Choose a Todo',
-			'selected_color' => 'Selected color',
+			'set_default_category' => 'Set as default category',
 			'settings' => 'Settings',
-			'skip' => 'Skip',
 			'show_archived' => 'Show archived',
+			'skip' => 'Skip',
 			'snooze' => 'Snooze',
 			'snooze_action_label' => 'Snooze {minutes} min',
 			'snooze_duration' => 'Snooze Duration',
@@ -1264,7 +1302,7 @@ extension on Translations {
 			'subtitle2' => 'The navigation is designed for the most convenient and quick interaction with the app.',
 			'subtitle3' => 'If you encounter any problems, please contact us via email or in the app reviews.',
 			'success_backup' => 'Backup Created Successfully',
-			'success_restore_category' => 'Categories Restored Successfully',
+			'success_restore' => 'Data restored successfully',
 			'sunday' => 'Sunday',
 			'system' => 'System',
 			'telegram' => 'Telegram',
@@ -1272,6 +1310,18 @@ extension on Translations {
 			'thursday' => 'Thursday',
 			'time_complete' => 'Execution Time',
 			'timeformat' => 'Time Format',
+			'time_period_afternoon' => 'Afternoon',
+			'time_period_evening' => 'Evening',
+			'time_period_morning' => 'Morning',
+			'time_period_night' => 'Night',
+			'time_range0to6' => '0-6',
+			'time_range12to18' => '12-18',
+			'time_range12to6_am' => '12-6 AM',
+			'time_range12to6_pm' => '12-6 PM',
+			'time_range18to24' => '18-24',
+			'time_range6to12' => '6-12',
+			'time_range6to12_am' => '6-12 AM',
+			'time_range6to12_pm' => '6-12 PM',
 			'title1' => 'Organize Your Todos',
 			'title2' => 'User-Friendly Design',
 			'title3' => 'Contact Us',
@@ -1296,36 +1346,6 @@ extension on Translations {
 			'week_completed' => 'This Week',
 			'weekly' => 'Weekly',
 			'weekly_progress' => 'Weekly Progress',
-			'day_mon' => 'Mon',
-			'day_tue' => 'Tue',
-			'day_wed' => 'Wed',
-			'day_thu' => 'Thu',
-			'day_fri' => 'Fri',
-			'day_sat' => 'Sat',
-			'day_sun' => 'Sun',
-			'time_period_night' => 'Night',
-			'time_period_morning' => 'Morning',
-			'time_period_afternoon' => 'Afternoon',
-			'time_period_evening' => 'Evening',
-			'time_range12to6_am' => '12-6 AM',
-			'time_range6to12_am' => '6-12 AM',
-			'time_range12to6_pm' => '12-6 PM',
-			'time_range6to12_pm' => '6-12 PM',
-			'time_range0to6' => '0-6',
-			'time_range6to12' => '6-12',
-			'time_range12to18' => '12-18',
-			'time_range18to24' => '18-24',
-			'open_notification' => 'Open notification',
-			'isar_database' => 'Isar Database',
-			'github' => 'GitHub',
-			'notification_channel_high' => 'High priority reminders',
-			'notification_channel_medium' => 'Medium priority reminders',
-			'notification_channel_low' => 'Low priority reminders',
-			'notification_channel_none' => 'No priority reminders',
-			'created_at_label' => 'Created: {date}',
-			'heatmap_tooltip' => '{date}: {count} completed',
-			'moving_todos_count' => 'Moving todos: {count}',
-			'navigate_back' => 'Back',
 			_ => null,
 		};
 	}

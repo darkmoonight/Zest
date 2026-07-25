@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:isar_community/isar.dart';
 import 'package:path/path.dart' as p;
+import 'package:zest/core/services/backup_constants.dart';
 
 /// Outcome of writing a gzipped Isar database backup.
 class BackupWriteResult {
@@ -28,7 +29,9 @@ class BackupFileWriter {
   BackupFileWriter._();
 
   /// Platform channel for Android SAF file writes.
-  static const MethodChannel _platform = MethodChannel('directory_picker');
+  static const MethodChannel _platform = MethodChannel(
+    kBackupDirectoryPickerChannel,
+  );
 
   /// Uncompressed Isar backup file extension.
   static const String backupExtension = '.isar';
@@ -44,6 +47,8 @@ class BackupFileWriter {
 
   /// Copies [isar] to [outputDirectory], compresses to `.gz`, and optionally
   /// writes through [androidContentUri] on Android (SAF tree URI).
+  ///
+  /// On SAF success the staging gzip is deleted after the content URI write.
   static Future<BackupWriteResult> write({
     required Isar isar,
     required String outputDirectory,
@@ -71,6 +76,7 @@ class BackupFileWriter {
         compressedFile: compressedFile,
         fileName: compressedFileName,
       );
+      await _deleteQuietly(compressedFile);
       return BackupWriteResult(
         success: saved,
         compressedFileName: compressedFileName,
@@ -108,26 +114,30 @@ class BackupFileWriter {
     try {
       final backupData = await compressedFile.readAsBytes();
 
-      final success = await _platform.invokeMethod<bool>('writeFile', {
-        'directoryUri': directoryUri,
-        'fileName': fileName,
-        'fileContent': backupData,
-      });
-
-      await compressedFile.delete();
+      final success = await _platform.invokeMethod<bool>(
+        kBackupWriteFileMethod,
+        {
+          'directoryUri': directoryUri,
+          'fileName': fileName,
+          'fileContent': backupData,
+        },
+      );
 
       if (kDebugMode && success != true) {
         debugPrint('Failed to save backup to Android content URI');
       }
       return success == true;
     } catch (e) {
-      if (await compressedFile.exists()) {
-        await compressedFile.delete();
-      }
       if (kDebugMode) {
-        print('Android backup save error: $e');
+        debugPrint('Android backup save error: $e');
       }
       return false;
     }
+  }
+
+  static Future<void> _deleteQuietly(File file) async {
+    try {
+      if (await file.exists()) await file.delete();
+    } catch (_) {}
   }
 }

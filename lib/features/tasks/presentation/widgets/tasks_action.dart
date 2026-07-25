@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
-import 'package:zest/features/tasks/application/tasks_notifier.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/core/di/providers.dart';
+import 'package:zest/core/utils/default_category.dart';
+import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/core/widgets/form_dirty_tracker.dart';
 import 'package:zest/core/widgets/icon_container.dart';
 import 'package:zest/core/widgets/confirmation_dialog.dart';
@@ -32,16 +34,16 @@ class TasksAction extends ConsumerStatefulWidget {
     this.updateTaskName,
   });
 
-  /// The text.
+  /// Sheet title shown in the modal header.
   final String text;
 
-  /// The edit.
+  /// Whether this sheet edits an existing task (`true`) or creates one.
   final bool edit;
 
-  /// The task.
+  /// Existing task when [edit] is true; null when creating.
   final Tasks? task;
 
-  /// The update task name.
+  /// Optional callback after the task title is saved (e.g. refresh parent UI).
   final VoidCallback? updateTaskName;
 
   @override
@@ -57,6 +59,9 @@ class _TasksActionState extends ConsumerState<TasksAction>
 
   /// The color notifier.
   late final ValueNotifier<Color> _colorNotifier;
+
+  /// Whether this category should be the user default.
+  late final ValueNotifier<bool> _isDefaultNotifier;
 
   /// The title controller.
   late final TextEditingController _titleController;
@@ -85,6 +90,10 @@ class _TasksActionState extends ConsumerState<TasksAction>
           ? Color(widget.task!.taskColor)
           : AppConstants.defaultTaskColor,
     );
+    final settings = ref.read(settingsProvider);
+    _isDefaultNotifier = ValueNotifier(
+      widget.edit && settings.defaultCategoryId == widget.task!.id,
+    );
   }
 
   /// Initialize edit mode.
@@ -98,6 +107,7 @@ class _TasksActionState extends ConsumerState<TasksAction>
       _titleController.text,
       _descController.text,
       _colorNotifier.value,
+      _isDefaultNotifier.value,
     );
   }
 
@@ -107,6 +117,7 @@ class _TasksActionState extends ConsumerState<TasksAction>
     _titleController.dispose();
     _descController.dispose();
     _colorNotifier.dispose();
+    _isDefaultNotifier.dispose();
     _editingController.dispose();
     disposeModalSheetAnimations();
     super.dispose();
@@ -136,24 +147,24 @@ class _TasksActionState extends ConsumerState<TasksAction>
   }
 
   /// On save pressed.
-  void _onSavePressed() {
+  Future<void> _onSavePressed() async {
     if (!_formKey.currentState!.validate()) return;
 
     TextUtils.trimController(_titleController);
     TextUtils.trimController(_descController);
 
     if (widget.edit) {
-      _updateTask();
+      await _updateTask();
     } else {
-      _addTask();
+      await _addTask();
     }
 
-    NavigationHelper.back(context);
+    if (mounted) NavigationHelper.back(context);
   }
 
   /// Update task.
-  void _updateTask() {
-    ref
+  Future<void> _updateTask() async {
+    await ref
         .read(tasksNotifierProvider.notifier)
         .updateTask(
           widget.task!,
@@ -161,20 +172,39 @@ class _TasksActionState extends ConsumerState<TasksAction>
           _descController.text,
           _colorNotifier.value,
         );
+    await _applyDefaultPreference(widget.task!);
     widget.updateTaskName?.call();
   }
 
   /// Add task.
-  void _addTask() {
-    ref
+  Future<void> _addTask() async {
+    final created = await ref
         .read(tasksNotifierProvider.notifier)
         .addTask(
           _titleController.text,
           _descController.text,
           _colorNotifier.value,
         );
+    if (created != null) {
+      await _applyDefaultPreference(created);
+    }
     _titleController.clear();
     _descController.clear();
+  }
+
+  /// Persists or clears the user default category for [task].
+  Future<void> _applyDefaultPreference(Tasks task) async {
+    final wantDefault = _isDefaultNotifier.value;
+    final currentId = ref.read(settingsProvider).defaultCategoryId;
+    final isCurrentlyDefault = currentId == task.id;
+
+    if (wantDefault && !isCurrentlyDefault) {
+      await setDefaultCategory(ref, task: task);
+      if (mounted) showSnackBar('defaultCategorySet'.tr);
+    } else if (!wantDefault && isCurrentlyDefault) {
+      await setDefaultCategory(ref, task: null);
+      if (mounted) showSnackBar('defaultCategoryCleared'.tr);
+    }
   }
 
   @override
@@ -238,6 +268,8 @@ class _TasksActionState extends ConsumerState<TasksAction>
                     _buildDescriptionInput(),
                     SizedBox(height: padding * 1.5),
                     _buildColorPicker(),
+                    SizedBox(height: padding * 1.2),
+                    _buildDefaultToggle(),
                     SizedBox(height: padding * 2),
                   ],
                 ),
@@ -284,6 +316,124 @@ class _TasksActionState extends ConsumerState<TasksAction>
       icon: Icon(IconsaxPlusLinear.note_text, color: colorScheme.primary),
       maxLine: null,
       onChanged: (value) => _editingController.description.value = value,
+    );
+  }
+
+  /// Toggle to mark this category as the user default for new todos.
+  Widget _buildDefaultToggle() {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ValueListenableBuilder<bool>(
+      valueListenable: _isDefaultNotifier,
+      builder: (context, isDefault, _) {
+        return AnimatedContainer(
+          duration: AppConstants.shortAnimation,
+          padding: const EdgeInsets.all(AppConstants.spacingM),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(
+              AppConstants.borderRadiusMedium,
+            ),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              width: AppConstants.borderWidthThin,
+            ),
+          ),
+          child: Row(
+            children: [
+              _buildDefaultPreview(isDefault, colorScheme),
+              const SizedBox(width: AppConstants.spacingM),
+              Expanded(child: _buildDefaultInfo(isDefault, colorScheme)),
+              _buildDefaultActionButton(isDefault, colorScheme),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// 44×44 preview matching the color swatch layout.
+  Widget _buildDefaultPreview(bool isDefault, ColorScheme colorScheme) {
+    final accent = isDefault
+        ? colorScheme.primary
+        : colorScheme.onSurfaceVariant;
+    return AnimatedContainer(
+      duration: AppConstants.shortAnimation,
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: isDefault
+            ? colorScheme.primary.withValues(alpha: 0.18)
+            : colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusCompact),
+        border: Border.all(color: accent.withValues(alpha: 0.35), width: 1.5),
+      ),
+      child: Icon(
+        isDefault ? IconsaxPlusBold.star : IconsaxPlusLinear.star,
+        color: accent,
+        size: AppConstants.iconSizeMedium,
+      ),
+    );
+  }
+
+  /// Label + status, same typography as the color info column.
+  Widget _buildDefaultInfo(bool isDefault, ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'setDefaultCategory'.tr,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+            fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
+          ),
+        ),
+        SizedBox(height: AppConstants.spacingXS / 2),
+        Text(
+          isDefault
+              ? 'defaultCategoryStatusOn'.tr
+              : 'defaultCategoryStatusOff'.tr,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+            fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Tonal action button matching the color "Change" control.
+  Widget _buildDefaultActionButton(bool isDefault, ColorScheme colorScheme) {
+    return FilledButton.tonalIcon(
+      onPressed: () {
+        final next = !isDefault;
+        _isDefaultNotifier.value = next;
+        _editingController.isDefault.value = next;
+      },
+      icon: Icon(
+        isDefault ? IconsaxPlusBold.star : IconsaxPlusLinear.star,
+        size: AppConstants.iconSizeSmall,
+      ),
+      label: Text(
+        'change'.tr,
+        style: TextStyle(
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.spacingM,
+          vertical: AppConstants.spacingS,
+        ),
+        minimumSize: const Size(0, 36),
+        backgroundColor: isDefault
+            ? colorScheme.primary.withValues(alpha: 0.15)
+            : null,
+        foregroundColor: isDefault ? colorScheme.primary : null,
+      ),
     );
   }
 
@@ -663,37 +813,45 @@ class _EditingController {
     this.initialTitle,
     this.initialDescription,
     this.initialColor,
+    this.initialIsDefault,
   ) {
     title.value = initialTitle;
     description.value = initialDescription;
     color.value = initialColor;
+    isDefault.value = initialIsDefault;
 
     _dirtyTracker.watch(title, _hasChanges);
     _dirtyTracker.watch(description, _hasChanges);
     _dirtyTracker.watch(color, _hasChanges);
+    _dirtyTracker.watch(isDefault, _hasChanges);
   }
 
   final String? initialTitle;
   final String? initialDescription;
   final Color? initialColor;
+  final bool initialIsDefault;
 
   final title = ValueNotifier<String?>(null);
   final description = ValueNotifier<String?>(null);
   final color = ValueNotifier<Color?>(null);
+  final isDefault = ValueNotifier<bool>(false);
 
   final FormDirtyTracker _dirtyTracker = FormDirtyTracker();
 
+  /// Whether the task form has unsaved changes.
   ValueListenable<bool> get canCompose => _dirtyTracker.canCompose;
 
   bool _hasChanges() =>
       title.value != initialTitle ||
       description.value != initialDescription ||
-      color.value != initialColor;
+      color.value != initialColor ||
+      isDefault.value != initialIsDefault;
 
   void dispose() {
     _dirtyTracker.dispose();
     title.dispose();
     description.dispose();
     color.dispose();
+    isDefault.dispose();
   }
 }

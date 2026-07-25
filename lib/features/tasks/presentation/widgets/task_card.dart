@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/progress_calculator.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
@@ -9,9 +9,10 @@ import 'package:zest/core/widgets/metadata_chip.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/features/tasks/presentation/widgets/circular_progress_widget.dart';
 import 'package:zest/i18n/tr.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
 
 /// Card widget displaying a task with progress and selection state.
-class TaskCard extends StatefulWidget {
+class TaskCard extends ConsumerStatefulWidget {
   /// Creates a [TaskCard].
   const TaskCard({
     super.key,
@@ -46,12 +47,11 @@ class TaskCard extends StatefulWidget {
   final VoidCallback onTap;
 
   @override
-  /// Creates the state for this widget.
-  State<TaskCard> createState() => _TaskCardState();
+  ConsumerState<TaskCard> createState() => _TaskCardState();
 }
 
 /// Widget that task card state.
-class _TaskCardState extends State<TaskCard>
+class _TaskCardState extends ConsumerState<TaskCard>
     with SingleTickerProviderStateMixin, CardTapScaleMixin {
   @override
   void initState() {
