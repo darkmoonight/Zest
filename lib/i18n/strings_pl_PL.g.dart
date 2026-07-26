@@ -155,6 +155,7 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => 'Cz';
 	@override String get day_tue => 'Wt';
 	@override String get day_wed => 'Śr';
+	@override String get default_category_badge => 'Domyślna';
 	@override String get default_category_cleared => 'Wyczyszczono kategorię domyślną';
 	@override String get default_category_set => 'Ustawiono kategorię domyślną';
 	@override String get default_category_status_off => 'Wyłączone';
@@ -296,6 +297,7 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'Ustaw jako kategorię domyślną';
 	@override String get settings => 'Ustawienia';
 	@override String get show_archived => 'Pokaż zarchiwizowane';
+	@override String get show_archived_in_statistics => 'Uwzględniaj zarchiwizowane w statystykach';
 	@override String get skip => 'Pomiń';
 	@override String get snooze => 'Odłóż';
 	@override String get snooze_action_label => 'Odłóż na {minutes} min';
@@ -489,6 +491,7 @@ extension on TranslationsPlPl {
 			'day_thu' => 'Cz',
 			'day_tue' => 'Wt',
 			'day_wed' => 'Śr',
+			'default_category_badge' => 'Domyślna',
 			'default_category_cleared' => 'Wyczyszczono kategorię domyślną',
 			'default_category_set' => 'Ustawiono kategorię domyślną',
 			'default_category_status_off' => 'Wyłączone',
@@ -630,6 +633,7 @@ extension on TranslationsPlPl {
 			'set_default_category' => 'Ustaw jako kategorię domyślną',
 			'settings' => 'Ustawienia',
 			'show_archived' => 'Pokaż zarchiwizowane',
+			'show_archived_in_statistics' => 'Uwzględniaj zarchiwizowane w statystykach',
 			'skip' => 'Pomiń',
 			'snooze' => 'Odłóż',
 			'snooze_action_label' => 'Odłóż na {minutes} min',

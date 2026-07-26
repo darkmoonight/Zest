@@ -155,6 +155,7 @@ class TranslationsEsEs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => 'Jue';
 	@override String get day_tue => 'Mar';
 	@override String get day_wed => 'Mié';
+	@override String get default_category_badge => 'Predeterminada';
 	@override String get default_category_cleared => 'Categoría predeterminada eliminada';
 	@override String get default_category_set => 'Categoría predeterminada establecida';
 	@override String get default_category_status_off => 'Desactivado';
@@ -296,6 +297,7 @@ class TranslationsEsEs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'Establecer como categoría predeterminada';
 	@override String get settings => 'Ajustes';
 	@override String get show_archived => 'Mostrar archivados';
+	@override String get show_archived_in_statistics => 'Incluir archivadas en estadísticas';
 	@override String get skip => 'Omitir';
 	@override String get snooze => 'Posponer';
 	@override String get snooze_action_label => 'Posponer {minutes} min';
@@ -489,6 +491,7 @@ extension on TranslationsEsEs {
 			'day_thu' => 'Jue',
 			'day_tue' => 'Mar',
 			'day_wed' => 'Mié',
+			'default_category_badge' => 'Predeterminada',
 			'default_category_cleared' => 'Categoría predeterminada eliminada',
 			'default_category_set' => 'Categoría predeterminada establecida',
 			'default_category_status_off' => 'Desactivado',
@@ -630,6 +633,7 @@ extension on TranslationsEsEs {
 			'set_default_category' => 'Establecer como categoría predeterminada',
 			'settings' => 'Ajustes',
 			'show_archived' => 'Mostrar archivados',
+			'show_archived_in_statistics' => 'Incluir archivadas en estadísticas',
 			'skip' => 'Omitir',
 			'snooze' => 'Posponer',
 			'snooze_action_label' => 'Posponer {minutes} min',

@@ -113,24 +113,34 @@ const SettingsSchema = CollectionSchema(
       name: r'screenPrivacy',
       type: IsarType.bool,
     ),
-    r'showArchivedInAllTodos': PropertySchema(
+    r'settingsSchemaVersion': PropertySchema(
       id: 21,
+      name: r'settingsSchemaVersion',
+      type: IsarType.long,
+    ),
+    r'showArchivedInAllTodos': PropertySchema(
+      id: 22,
       name: r'showArchivedInAllTodos',
       type: IsarType.bool,
     ),
     r'showArchivedInCalendar': PropertySchema(
-      id: 22,
+      id: 23,
       name: r'showArchivedInCalendar',
       type: IsarType.bool,
     ),
+    r'showArchivedInStatistics': PropertySchema(
+      id: 24,
+      name: r'showArchivedInStatistics',
+      type: IsarType.bool,
+    ),
     r'snoozeDuration': PropertySchema(
-      id: 23,
+      id: 25,
       name: r'snoozeDuration',
       type: IsarType.long,
     ),
-    r'theme': PropertySchema(id: 24, name: r'theme', type: IsarType.string),
+    r'theme': PropertySchema(id: 26, name: r'theme', type: IsarType.string),
     r'timeformat': PropertySchema(
-      id: 25,
+      id: 27,
       name: r'timeformat',
       type: IsarType.string,
     ),
@@ -211,11 +221,13 @@ void _settingsSerialize(
   writer.writeBool(offsets[18], object.notificationChannelsMigrated);
   writer.writeBool(offsets[19], object.onboard);
   writer.writeBool(offsets[20], object.screenPrivacy);
-  writer.writeBool(offsets[21], object.showArchivedInAllTodos);
-  writer.writeBool(offsets[22], object.showArchivedInCalendar);
-  writer.writeLong(offsets[23], object.snoozeDuration);
-  writer.writeString(offsets[24], object.theme);
-  writer.writeString(offsets[25], object.timeformat);
+  writer.writeLong(offsets[21], object.settingsSchemaVersion);
+  writer.writeBool(offsets[22], object.showArchivedInAllTodos);
+  writer.writeBool(offsets[23], object.showArchivedInCalendar);
+  writer.writeBool(offsets[24], object.showArchivedInStatistics);
+  writer.writeLong(offsets[25], object.snoozeDuration);
+  writer.writeString(offsets[26], object.theme);
+  writer.writeString(offsets[27], object.timeformat);
 }
 
 Settings _settingsDeserialize(
@@ -259,11 +271,13 @@ Settings _settingsDeserialize(
   object.notificationChannelsMigrated = reader.readBool(offsets[18]);
   object.onboard = reader.readBool(offsets[19]);
   object.screenPrivacy = reader.readBoolOrNull(offsets[20]);
-  object.showArchivedInAllTodos = reader.readBool(offsets[21]);
-  object.showArchivedInCalendar = reader.readBool(offsets[22]);
-  object.snoozeDuration = reader.readLong(offsets[23]);
-  object.theme = reader.readStringOrNull(offsets[24]);
-  object.timeformat = reader.readString(offsets[25]);
+  object.settingsSchemaVersion = reader.readLong(offsets[21]);
+  object.showArchivedInAllTodos = reader.readBool(offsets[22]);
+  object.showArchivedInCalendar = reader.readBool(offsets[23]);
+  object.showArchivedInStatistics = reader.readBool(offsets[24]);
+  object.snoozeDuration = reader.readLong(offsets[25]);
+  object.theme = reader.readStringOrNull(offsets[26]);
+  object.timeformat = reader.readString(offsets[27]);
   return object;
 }
 
@@ -329,14 +343,18 @@ P _settingsDeserializeProp<P>(
     case 20:
       return (reader.readBoolOrNull(offset)) as P;
     case 21:
-      return (reader.readBool(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 22:
       return (reader.readBool(offset)) as P;
     case 23:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 24:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 25:
+      return (reader.readLong(offset)) as P;
+    case 26:
+      return (reader.readStringOrNull(offset)) as P;
+    case 27:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -2095,6 +2113,64 @@ extension SettingsQueryFilter
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  settingsSchemaVersionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'settingsSchemaVersion',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  settingsSchemaVersionGreaterThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'settingsSchemaVersion',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  settingsSchemaVersionLessThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'settingsSchemaVersion',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  settingsSchemaVersionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'settingsSchemaVersion',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
   showArchivedInAllTodosEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -2112,6 +2188,18 @@ extension SettingsQueryFilter
       return query.addFilterCondition(
         FilterCondition.equalTo(
           property: r'showArchivedInCalendar',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  showArchivedInStatisticsEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'showArchivedInStatistics',
           value: value,
         ),
       );
@@ -2749,6 +2837,19 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortBySettingsSchemaVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'settingsSchemaVersion', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortBySettingsSchemaVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'settingsSchemaVersion', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy>
   sortByShowArchivedInAllTodos() {
     return QueryBuilder.apply(this, (query) {
@@ -2774,6 +2875,20 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
   sortByShowArchivedInCalendarDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'showArchivedInCalendar', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByShowArchivedInStatistics() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'showArchivedInStatistics', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByShowArchivedInStatisticsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'showArchivedInStatistics', Sort.desc);
     });
   }
 
@@ -3087,6 +3202,19 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenBySettingsSchemaVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'settingsSchemaVersion', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenBySettingsSchemaVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'settingsSchemaVersion', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy>
   thenByShowArchivedInAllTodos() {
     return QueryBuilder.apply(this, (query) {
@@ -3112,6 +3240,20 @@ extension SettingsQuerySortThenBy
   thenByShowArchivedInCalendarDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'showArchivedInCalendar', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByShowArchivedInStatistics() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'showArchivedInStatistics', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByShowArchivedInStatisticsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'showArchivedInStatistics', Sort.desc);
     });
   }
 
@@ -3306,6 +3448,13 @@ extension SettingsQueryWhereDistinct
   }
 
   QueryBuilder<Settings, Settings, QDistinct>
+  distinctBySettingsSchemaVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'settingsSchemaVersion');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct>
   distinctByShowArchivedInAllTodos() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'showArchivedInAllTodos');
@@ -3316,6 +3465,13 @@ extension SettingsQueryWhereDistinct
   distinctByShowArchivedInCalendar() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'showArchivedInCalendar');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct>
+  distinctByShowArchivedInStatistics() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'showArchivedInStatistics');
     });
   }
 
@@ -3482,6 +3638,13 @@ extension SettingsQueryProperty
     });
   }
 
+  QueryBuilder<Settings, int, QQueryOperations>
+  settingsSchemaVersionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'settingsSchemaVersion');
+    });
+  }
+
   QueryBuilder<Settings, bool, QQueryOperations>
   showArchivedInAllTodosProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -3493,6 +3656,13 @@ extension SettingsQueryProperty
   showArchivedInCalendarProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'showArchivedInCalendar');
+    });
+  }
+
+  QueryBuilder<Settings, bool, QQueryOperations>
+  showArchivedInStatisticsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'showArchivedInStatistics');
     });
   }
 

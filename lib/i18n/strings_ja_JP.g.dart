@@ -155,6 +155,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => '木';
 	@override String get day_tue => '火';
 	@override String get day_wed => '水';
+	@override String get default_category_badge => 'デフォルト';
 	@override String get default_category_cleared => 'デフォルトカテゴリを解除しました';
 	@override String get default_category_set => 'デフォルトカテゴリを設定しました';
 	@override String get default_category_status_off => 'オフ';
@@ -296,6 +297,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'デフォルトカテゴリに設定';
 	@override String get settings => '設定';
 	@override String get show_archived => 'アーカイブを表示';
+	@override String get show_archived_in_statistics => '統計にアーカイブを含める';
 	@override String get skip => 'スキップ';
 	@override String get snooze => 'スヌーズ';
 	@override String get snooze_action_label => '{minutes}分スヌーズ';
@@ -489,6 +491,7 @@ extension on TranslationsJaJp {
 			'day_thu' => '木',
 			'day_tue' => '火',
 			'day_wed' => '水',
+			'default_category_badge' => 'デフォルト',
 			'default_category_cleared' => 'デフォルトカテゴリを解除しました',
 			'default_category_set' => 'デフォルトカテゴリを設定しました',
 			'default_category_status_off' => 'オフ',
@@ -630,6 +633,7 @@ extension on TranslationsJaJp {
 			'set_default_category' => 'デフォルトカテゴリに設定',
 			'settings' => '設定',
 			'show_archived' => 'アーカイブを表示',
+			'show_archived_in_statistics' => '統計にアーカイブを含める',
 			'skip' => 'スキップ',
 			'snooze' => 'スヌーズ',
 			'snooze_action_label' => '{minutes}分スヌーズ',

@@ -155,6 +155,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => 'Gio';
 	@override String get day_tue => 'Mar';
 	@override String get day_wed => 'Mer';
+	@override String get default_category_badge => 'Predefinita';
 	@override String get default_category_cleared => 'Categoria predefinita rimossa';
 	@override String get default_category_set => 'Categoria predefinita impostata';
 	@override String get default_category_status_off => 'Disattivo';
@@ -296,6 +297,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'Imposta come categoria predefinita';
 	@override String get settings => 'Impostazioni';
 	@override String get show_archived => 'Mostra archiviati';
+	@override String get show_archived_in_statistics => 'Includi archiviate nelle statistiche';
 	@override String get skip => 'Salta';
 	@override String get snooze => 'Posponi';
 	@override String get snooze_action_label => 'Posponi di {minutes} min';
@@ -489,6 +491,7 @@ extension on TranslationsItIt {
 			'day_thu' => 'Gio',
 			'day_tue' => 'Mar',
 			'day_wed' => 'Mer',
+			'default_category_badge' => 'Predefinita',
 			'default_category_cleared' => 'Categoria predefinita rimossa',
 			'default_category_set' => 'Categoria predefinita impostata',
 			'default_category_status_off' => 'Disattivo',
@@ -630,6 +633,7 @@ extension on TranslationsItIt {
 			'set_default_category' => 'Imposta come categoria predefinita',
 			'settings' => 'Impostazioni',
 			'show_archived' => 'Mostra archiviati',
+			'show_archived_in_statistics' => 'Includi archiviate nelle statistiche',
 			'skip' => 'Salta',
 			'snooze' => 'Posponi',
 			'snooze_action_label' => 'Posponi di {minutes} min',

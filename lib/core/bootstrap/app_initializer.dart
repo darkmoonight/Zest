@@ -1,13 +1,15 @@
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:isar_community/isar.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/bootstrap/isar_bootstrap.dart';
 import 'package:zest/core/bootstrap/app_bootstrap.dart';
 import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
 import 'package:zest/core/bootstrap/notification_bootstrap.dart';
 import 'package:zest/core/bootstrap/notification_handlers.dart';
+import 'package:zest/core/database/settings_json_backup.dart';
+import 'package:zest/core/database/settings_persist.dart';
+import 'package:zest/core/database/settings_schema_migration.dart';
 import 'package:zest/core/notifications/notification_channels.dart';
 import 'package:zest/core/notifications/notification_migration.dart';
 import 'package:zest/core/services/notification_plugin.dart';
@@ -67,11 +69,24 @@ class AppInitializer {
 
   /// Opens Isar, seeds default settings, runs migrations, and applies locale.
   static Future<AppBootstrap> _initializeIsar() async {
-    final isar = await IsarBootstrap.openAppIsar();
-    var settings = await isar.settings.where().findFirst() ?? Settings();
+    final (isar, settings) = await IsarBootstrap.openAppIsarWithSettings();
 
-    _seedDefaultSettings(settings, PlatformDispatcher.instance.locale);
-    await isar.writeTxn(() => isar.settings.put(settings));
+    final seeded = _seedDefaultSettings(
+      settings,
+      PlatformDispatcher.instance.locale,
+    );
+    final migrated = await performSettingsSchemaMigrationIfNeeded(
+      isar,
+      settings,
+    );
+    if (seeded && !migrated) {
+      await persistSettings(isar, settings);
+    } else if (!migrated) {
+      final directory = isar.directory;
+      if (directory != null) {
+        await SettingsJsonBackup.save(directory, settings);
+      }
+    }
 
     final appLocale = appLocaleFromLanguageCode(settings.language);
     await applyAppLocale(appLocale);
@@ -108,12 +123,12 @@ bool _seedDefaultSettings(Settings settings, Locale deviceLocale) {
   }
 
   if (settings.snoozeDuration <= 0) {
-    settings.snoozeDuration = 10;
+    settings.snoozeDuration = AppConstants.defaultSnoozeDuration;
     changed = true;
   }
 
   if (settings.maxAutoBackups <= 0) {
-    settings.maxAutoBackups = 5;
+    settings.maxAutoBackups = AppConstants.defaultMaxAutoBackups;
     changed = true;
   }
 

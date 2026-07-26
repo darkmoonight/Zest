@@ -92,7 +92,7 @@ class _TasksActionState extends ConsumerState<TasksAction>
     );
     final settings = ref.read(settingsProvider);
     _isDefaultNotifier = ValueNotifier(
-      widget.edit && settings.defaultCategoryId == widget.task!.id,
+      widget.edit && isSelectedDefaultCategory(settings, widget.task!),
     );
   }
 

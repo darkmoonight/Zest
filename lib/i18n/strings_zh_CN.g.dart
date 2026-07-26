@@ -155,6 +155,7 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => '周四';
 	@override String get day_tue => '周二';
 	@override String get day_wed => '周三';
+	@override String get default_category_badge => '默认';
 	@override String get default_category_cleared => '已清除默认分类';
 	@override String get default_category_set => '已设置默认分类';
 	@override String get default_category_status_off => '已关闭';
@@ -296,6 +297,7 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => '设为默认分类';
 	@override String get settings => '设置';
 	@override String get show_archived => '显示已归档';
+	@override String get show_archived_in_statistics => '统计包含已归档';
 	@override String get skip => '跳过';
 	@override String get snooze => '稍后提醒';
 	@override String get snooze_action_label => '稍后提醒 {minutes} 分钟';
@@ -489,6 +491,7 @@ extension on TranslationsZhCn {
 			'day_thu' => '周四',
 			'day_tue' => '周二',
 			'day_wed' => '周三',
+			'default_category_badge' => '默认',
 			'default_category_cleared' => '已清除默认分类',
 			'default_category_set' => '已设置默认分类',
 			'default_category_status_off' => '已关闭',
@@ -630,6 +633,7 @@ extension on TranslationsZhCn {
 			'set_default_category' => '设为默认分类',
 			'settings' => '设置',
 			'show_archived' => '显示已归档',
+			'show_archived_in_statistics' => '统计包含已归档',
 			'skip' => '跳过',
 			'snooze' => '稍后提醒',
 			'snooze_action_label' => '稍后提醒 {minutes} 分钟',

@@ -155,6 +155,7 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => '週四';
 	@override String get day_tue => '週二';
 	@override String get day_wed => '週三';
+	@override String get default_category_badge => '預設';
 	@override String get default_category_cleared => '已清除預設類別';
 	@override String get default_category_set => '已設定預設類別';
 	@override String get default_category_status_off => '已關閉';
@@ -296,6 +297,7 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => '設為預設類別';
 	@override String get settings => '设置';
 	@override String get show_archived => '顯示已封存';
+	@override String get show_archived_in_statistics => '統計包含已封存';
 	@override String get skip => '略過';
 	@override String get snooze => '稍後提醒';
 	@override String get snooze_action_label => '稍後提醒 {minutes} 分鐘';
@@ -489,6 +491,7 @@ extension on TranslationsZhTw {
 			'day_thu' => '週四',
 			'day_tue' => '週二',
 			'day_wed' => '週三',
+			'default_category_badge' => '預設',
 			'default_category_cleared' => '已清除預設類別',
 			'default_category_set' => '已設定預設類別',
 			'default_category_status_off' => '已關閉',
@@ -630,6 +633,7 @@ extension on TranslationsZhTw {
 			'set_default_category' => '設為預設類別',
 			'settings' => '设置',
 			'show_archived' => '顯示已封存',
+			'show_archived_in_statistics' => '統計包含已封存',
 			'skip' => '略過',
 			'snooze' => '稍後提醒',
 			'snooze_action_label' => '稍後提醒 {minutes} 分鐘',

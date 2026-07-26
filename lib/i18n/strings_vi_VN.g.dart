@@ -155,6 +155,7 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => 'T5';
 	@override String get day_tue => 'T3';
 	@override String get day_wed => 'T4';
+	@override String get default_category_badge => 'Mặc định';
 	@override String get default_category_cleared => 'Đã bỏ danh mục mặc định';
 	@override String get default_category_set => 'Đã đặt danh mục mặc định';
 	@override String get default_category_status_off => 'Tắt';
@@ -296,6 +297,7 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'Đặt làm danh mục mặc định';
 	@override String get settings => 'Thiết đặt';
 	@override String get show_archived => 'Hiển thị đã lưu trữ';
+	@override String get show_archived_in_statistics => 'Tính cả đã lưu trữ trong thống kê';
 	@override String get skip => 'Bỏ qua';
 	@override String get snooze => 'Báo lại';
 	@override String get snooze_action_label => 'Báo lại sau {minutes} phút';
@@ -489,6 +491,7 @@ extension on TranslationsViVn {
 			'day_thu' => 'T5',
 			'day_tue' => 'T3',
 			'day_wed' => 'T4',
+			'default_category_badge' => 'Mặc định',
 			'default_category_cleared' => 'Đã bỏ danh mục mặc định',
 			'default_category_set' => 'Đã đặt danh mục mặc định',
 			'default_category_status_off' => 'Tắt',
@@ -630,6 +633,7 @@ extension on TranslationsViVn {
 			'set_default_category' => 'Đặt làm danh mục mặc định',
 			'settings' => 'Thiết đặt',
 			'show_archived' => 'Hiển thị đã lưu trữ',
+			'show_archived_in_statistics' => 'Tính cả đã lưu trữ trong thống kê',
 			'skip' => 'Bỏ qua',
 			'snooze' => 'Báo lại',
 			'snooze_action_label' => 'Báo lại sau {minutes} phút',

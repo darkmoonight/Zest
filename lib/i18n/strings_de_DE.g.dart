@@ -155,6 +155,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => 'Do';
 	@override String get day_tue => 'Di';
 	@override String get day_wed => 'Mi';
+	@override String get default_category_badge => 'Standard';
 	@override String get default_category_cleared => 'Standardkategorie entfernt';
 	@override String get default_category_set => 'Standardkategorie festgelegt';
 	@override String get default_category_status_off => 'Aus';
@@ -296,6 +297,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'Als Standardkategorie festlegen';
 	@override String get settings => 'Einstellungen';
 	@override String get show_archived => 'Archivierte anzeigen';
+	@override String get show_archived_in_statistics => 'Archivierte in Statistik einbeziehen';
 	@override String get skip => 'Überspringen';
 	@override String get snooze => 'Schlummern';
 	@override String get snooze_action_label => 'Schlummern {minutes} Min.';
@@ -489,6 +491,7 @@ extension on TranslationsDeDe {
 			'day_thu' => 'Do',
 			'day_tue' => 'Di',
 			'day_wed' => 'Mi',
+			'default_category_badge' => 'Standard',
 			'default_category_cleared' => 'Standardkategorie entfernt',
 			'default_category_set' => 'Standardkategorie festgelegt',
 			'default_category_status_off' => 'Aus',
@@ -630,6 +633,7 @@ extension on TranslationsDeDe {
 			'set_default_category' => 'Als Standardkategorie festlegen',
 			'settings' => 'Einstellungen',
 			'show_archived' => 'Archivierte anzeigen',
+			'show_archived_in_statistics' => 'Archivierte in Statistik einbeziehen',
 			'skip' => 'Überspringen',
 			'snooze' => 'Schlummern',
 			'snooze_action_label' => 'Schlummern {minutes} Min.',

@@ -10,10 +10,11 @@ import 'package:zest/features/settings/presentation/widgets/selection_dialog.dar
 import 'package:zest/features/settings/presentation/widgets/settings_selection.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section_state.dart';
+import 'package:zest/features/settings/presentation/widgets/settings_switch_tile.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_tile.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Default screen and language preferences.
+/// Default screen, language, and statistics preferences.
 class SettingsAppPreferencesSection extends ConsumerStatefulWidget {
   /// Creates a [SettingsAppPreferencesSection].
   const SettingsAppPreferencesSection({super.key});
@@ -34,6 +35,9 @@ class _SettingsAppPreferencesSectionState
       settingsProvider.select((s) => s.defaultScreen),
     );
     final locale = ref.watch(appSettingsProvider.select((s) => s.locale));
+    final showArchivedInStatistics = ref.watch(
+      settingsProvider.select((s) => s.showArchivedInStatistics),
+    );
 
     return SettingsSection(
       title: 'appPreferences',
@@ -57,6 +61,16 @@ class _SettingsAppPreferencesSectionState
                   )['name']
                   as String,
           onTap: () => _showLanguageDialog(context),
+        ),
+        SettingsSwitchTile(
+          leading: const Icon(IconsaxPlusLinear.chart_21),
+          title: 'showArchivedInStatistics',
+          value: showArchivedInStatistics,
+          onChanged: (value) {
+            actions.saveSettingsOptimistic(
+              mutate: (s) => s.showArchivedInStatistics = value,
+            );
+          },
         ),
       ],
     );

@@ -155,6 +155,7 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => 'خم';
 	@override String get day_tue => 'ثل';
 	@override String get day_wed => 'أر';
+	@override String get default_category_badge => 'افتراضي';
 	@override String get default_category_cleared => 'تم مسح الفئة الافتراضية';
 	@override String get default_category_set => 'تم تعيين الفئة الافتراضية';
 	@override String get default_category_status_off => 'معطّل';
@@ -296,6 +297,7 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'تعيين كفئة افتراضية';
 	@override String get settings => 'الإعدادات';
 	@override String get show_archived => 'عرض المؤرشف';
+	@override String get show_archived_in_statistics => 'تضمين المؤرشفة في الإحصاءات';
 	@override String get skip => 'تخطّي';
 	@override String get snooze => 'غفوة';
 	@override String get snooze_action_label => 'غفوة {minutes} دقيقة';
@@ -489,6 +491,7 @@ extension on TranslationsArAr {
 			'day_thu' => 'خم',
 			'day_tue' => 'ثل',
 			'day_wed' => 'أر',
+			'default_category_badge' => 'افتراضي',
 			'default_category_cleared' => 'تم مسح الفئة الافتراضية',
 			'default_category_set' => 'تم تعيين الفئة الافتراضية',
 			'default_category_status_off' => 'معطّل',
@@ -630,6 +633,7 @@ extension on TranslationsArAr {
 			'set_default_category' => 'تعيين كفئة افتراضية',
 			'settings' => 'الإعدادات',
 			'show_archived' => 'عرض المؤرشف',
+			'show_archived_in_statistics' => 'تضمين المؤرشفة في الإحصاءات',
 			'skip' => 'تخطّي',
 			'snooze' => 'غفوة',
 			'snooze_action_label' => 'غفوة {minutes} دقيقة',

@@ -155,6 +155,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => '목';
 	@override String get day_tue => '화';
 	@override String get day_wed => '수';
+	@override String get default_category_badge => '기본';
 	@override String get default_category_cleared => '기본 카테고리가 해제되었습니다';
 	@override String get default_category_set => '기본 카테고리가 설정되었습니다';
 	@override String get default_category_status_off => '꺼짐';
@@ -296,6 +297,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => '기본 카테고리로 설정';
 	@override String get settings => '설정';
 	@override String get show_archived => '보관함 표시';
+	@override String get show_archived_in_statistics => '통계에 보관된 항목 포함';
 	@override String get skip => '건너뛰기';
 	@override String get snooze => '스누즈';
 	@override String get snooze_action_label => '{minutes}분 스누즈';
@@ -489,6 +491,7 @@ extension on TranslationsKoKr {
 			'day_thu' => '목',
 			'day_tue' => '화',
 			'day_wed' => '수',
+			'default_category_badge' => '기본',
 			'default_category_cleared' => '기본 카테고리가 해제되었습니다',
 			'default_category_set' => '기본 카테고리가 설정되었습니다',
 			'default_category_status_off' => '꺼짐',
@@ -630,6 +633,7 @@ extension on TranslationsKoKr {
 			'set_default_category' => '기본 카테고리로 설정',
 			'settings' => '설정',
 			'show_archived' => '보관함 표시',
+			'show_archived_in_statistics' => '통계에 보관된 항목 포함',
 			'skip' => '건너뛰기',
 			'snooze' => '스누즈',
 			'snooze_action_label' => '{minutes}분 스누즈',

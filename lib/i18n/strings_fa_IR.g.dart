@@ -155,6 +155,7 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => 'پن';
 	@override String get day_tue => 'سه';
 	@override String get day_wed => 'چه';
+	@override String get default_category_badge => 'پیش‌فرض';
 	@override String get default_category_cleared => 'دسته‌بندی پیش‌فرض پاک شد';
 	@override String get default_category_set => 'دسته‌بندی پیش‌فرض تنظیم شد';
 	@override String get default_category_status_off => 'غیرفعال';
@@ -296,6 +297,7 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'تنظیم به عنوان دسته‌بندی پیش‌فرض';
 	@override String get settings => 'تنظیمات';
 	@override String get show_archived => 'نمایش بایگانی‌شده';
+	@override String get show_archived_in_statistics => 'شامل آرشیو در آمار';
 	@override String get skip => 'رد شدن';
 	@override String get snooze => 'تعویق';
 	@override String get snooze_action_label => 'تعویق {minutes} دقیقه';
@@ -489,6 +491,7 @@ extension on TranslationsFaIr {
 			'day_thu' => 'پن',
 			'day_tue' => 'سه',
 			'day_wed' => 'چه',
+			'default_category_badge' => 'پیش‌فرض',
 			'default_category_cleared' => 'دسته‌بندی پیش‌فرض پاک شد',
 			'default_category_set' => 'دسته‌بندی پیش‌فرض تنظیم شد',
 			'default_category_status_off' => 'غیرفعال',
@@ -630,6 +633,7 @@ extension on TranslationsFaIr {
 			'set_default_category' => 'تنظیم به عنوان دسته‌بندی پیش‌فرض',
 			'settings' => 'تنظیمات',
 			'show_archived' => 'نمایش بایگانی‌شده',
+			'show_archived_in_statistics' => 'شامل آرشیو در آمار',
 			'skip' => 'رد شدن',
 			'snooze' => 'تعویق',
 			'snooze_action_label' => 'تعویق {minutes} دقیقه',

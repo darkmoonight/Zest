@@ -26,10 +26,10 @@ class Settings {
   bool amoledTheme = false;
 
   /// Accent palette id from [AppColorPalette].
-  String colorPalette = 'indigo';
+  String colorPalette = AppConstants.defaultColorPalette;
 
   /// App font id from [AppFont].
-  String appFont = 'ubuntu';
+  String appFont = AppConstants.defaultAppFont;
 
   /// Whether task cards show a background image.
   bool? isImage = AppConstants.defaultIsImage;
@@ -62,6 +62,9 @@ class Settings {
   /// Whether Calendar includes todos from archived categories.
   bool showArchivedInCalendar = false;
 
+  /// Whether Statistics includes todos from archived categories.
+  bool showArchivedInStatistics = false;
+
   /// Sort order for the calendar todos list.
   @enumerated
   SortOption calendarSortOption = SortOption.none;
@@ -90,6 +93,52 @@ class Settings {
 
   /// User-selected default category id used when creating todos without a pick.
   int? defaultCategoryId;
+
+  /// Bumped when the Settings Isar layout changes; triggers a re-save migration.
+  int settingsSchemaVersion = 0;
+
+  /// Copies preference fields from [other].
+  ///
+  /// When [includeId] is false (default), this instance keeps its own [id]
+  /// (used for in-place UI rollback).
+  void copyValuesFrom(Settings other, {bool includeId = false}) {
+    if (includeId) id = other.id;
+    onboard = other.onboard;
+    theme = other.theme;
+    timeformat = other.timeformat;
+    materialColor = other.materialColor;
+    amoledTheme = other.amoledTheme;
+    colorPalette = other.colorPalette;
+    appFont = other.appFont;
+    isImage = other.isImage;
+    screenPrivacy = other.screenPrivacy;
+    language = other.language;
+    firstDay = other.firstDay;
+    calendarFormat = other.calendarFormat;
+    defaultScreen = other.defaultScreen;
+    snoozeDuration = other.snoozeDuration;
+    allTodosSortOption = other.allTodosSortOption;
+    showArchivedInAllTodos = other.showArchivedInAllTodos;
+    showArchivedInCalendar = other.showArchivedInCalendar;
+    showArchivedInStatistics = other.showArchivedInStatistics;
+    calendarSortOption = other.calendarSortOption;
+    autoBackupEnabled = other.autoBackupEnabled;
+    autoBackupFrequency = other.autoBackupFrequency;
+    lastAutoBackupTime = other.lastAutoBackupTime;
+    maxAutoBackups = other.maxAutoBackups;
+    autoBackupPath = other.autoBackupPath;
+    notificationChannelsMigrated = other.notificationChannelsMigrated;
+    defaultCategorySeeded = other.defaultCategorySeeded;
+    defaultCategoryId = other.defaultCategoryId;
+    settingsSchemaVersion = other.settingsSchemaVersion;
+  }
+
+  /// Returns a new [Settings] with the same preference values.
+  Settings clone({bool includeId = false}) {
+    final copy = Settings();
+    copy.copyValuesFrom(this, includeId: includeId);
+    return copy;
+  }
 }
 
 /// Todo list sort options stored in settings and task/todo records.

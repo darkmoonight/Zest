@@ -122,41 +122,9 @@ class _SettingsRollback {
   final Settings _snapshot;
 
   /// Snapshots all mutable fields from [settings].
-  static _SettingsRollback capture(Settings settings) {
-    final snapshot = Settings();
-    _copySettings(settings, snapshot);
-    return _SettingsRollback._(snapshot);
-  }
+  static _SettingsRollback capture(Settings settings) =>
+      _SettingsRollback._(settings.clone());
 
   /// Restores the captured snapshot onto [settings].
-  void restore(Settings settings) => _copySettings(_snapshot, settings);
-
-  static void _copySettings(Settings from, Settings to) {
-    to.onboard = from.onboard;
-    to.theme = from.theme;
-    to.timeformat = from.timeformat;
-    to.materialColor = from.materialColor;
-    to.amoledTheme = from.amoledTheme;
-    to.colorPalette = from.colorPalette;
-    to.appFont = from.appFont;
-    to.isImage = from.isImage;
-    to.screenPrivacy = from.screenPrivacy;
-    to.language = from.language;
-    to.firstDay = from.firstDay;
-    to.calendarFormat = from.calendarFormat;
-    to.defaultScreen = from.defaultScreen;
-    to.snoozeDuration = from.snoozeDuration;
-    to.allTodosSortOption = from.allTodosSortOption;
-    to.showArchivedInAllTodos = from.showArchivedInAllTodos;
-    to.showArchivedInCalendar = from.showArchivedInCalendar;
-    to.calendarSortOption = from.calendarSortOption;
-    to.autoBackupEnabled = from.autoBackupEnabled;
-    to.autoBackupFrequency = from.autoBackupFrequency;
-    to.lastAutoBackupTime = from.lastAutoBackupTime;
-    to.maxAutoBackups = from.maxAutoBackups;
-    to.autoBackupPath = from.autoBackupPath;
-    to.notificationChannelsMigrated = from.notificationChannelsMigrated;
-    to.defaultCategorySeeded = from.defaultCategorySeeded;
-    to.defaultCategoryId = from.defaultCategoryId;
-  }
+  void restore(Settings settings) => settings.copyValuesFrom(_snapshot);
 }

@@ -155,6 +155,7 @@ class TranslationsPtPt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => 'Qui';
 	@override String get day_tue => 'Ter';
 	@override String get day_wed => 'Qua';
+	@override String get default_category_badge => 'Predefinida';
 	@override String get default_category_cleared => 'Categoria predefinida removida';
 	@override String get default_category_set => 'Categoria predefinida definida';
 	@override String get default_category_status_off => 'Desativado';
@@ -296,6 +297,7 @@ class TranslationsPtPt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'Definir como categoria predefinida';
 	@override String get settings => 'Configurações';
 	@override String get show_archived => 'Mostrar arquivados';
+	@override String get show_archived_in_statistics => 'Incluir arquivadas nas estatísticas';
 	@override String get skip => 'Ignorar';
 	@override String get snooze => 'Adiar';
 	@override String get snooze_action_label => 'Adiar {minutes} min';
@@ -489,6 +491,7 @@ extension on TranslationsPtPt {
 			'day_thu' => 'Qui',
 			'day_tue' => 'Ter',
 			'day_wed' => 'Qua',
+			'default_category_badge' => 'Predefinida',
 			'default_category_cleared' => 'Categoria predefinida removida',
 			'default_category_set' => 'Categoria predefinida definida',
 			'default_category_status_off' => 'Desativado',
@@ -630,6 +633,7 @@ extension on TranslationsPtPt {
 			'set_default_category' => 'Definir como categoria predefinida',
 			'settings' => 'Configurações',
 			'show_archived' => 'Mostrar arquivados',
+			'show_archived_in_statistics' => 'Incluir arquivadas nas estatísticas',
 			'skip' => 'Ignorar',
 			'snooze' => 'Adiar',
 			'snooze_action_label' => 'Adiar {minutes} min',

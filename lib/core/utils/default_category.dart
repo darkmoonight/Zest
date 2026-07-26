@@ -14,31 +14,57 @@ const int kDefaultCategoryColor = 0xFF607D8B;
 /// Gated by [Settings.defaultCategorySeeded], so a renamed, archived, or
 /// deleted Default is never re-created. Adopts any legacy title-based Default
 /// instead of duplicating it.
+///
+/// Also ensures [Settings.defaultCategoryId] points at the system Default when
+/// the user has not picked another category yet (covers upgrades from builds
+/// that seeded without setting the id).
 Future<void> seedDefaultCategoryOnce(Isar isar, Settings settings) async {
-  if (settings.defaultCategorySeeded) return;
+  if (!settings.defaultCategorySeeded) {
+    final legacy = await isar.tasks
+        .filter()
+        .titleEqualTo(kDefaultCategoryTitle)
+        .findFirst();
 
-  final legacy = await isar.tasks
-      .filter()
-      .titleEqualTo(kDefaultCategoryTitle)
-      .findFirst();
-
-  await isar.writeTxn(() async {
-    if (legacy != null) {
-      legacy.isSystem = true;
-      await isar.tasks.put(legacy);
-    } else {
-      await isar.tasks.put(
-        Tasks(
+    await isar.writeTxn(() async {
+      final Tasks defaultTask;
+      if (legacy != null) {
+        legacy.isSystem = true;
+        await isar.tasks.put(legacy);
+        defaultTask = legacy;
+      } else {
+        defaultTask = Tasks(
           title: kDefaultCategoryTitle,
           taskColor: kDefaultCategoryColor,
           index: 0,
           isSystem: true,
-        ),
-      );
-    }
-    settings.defaultCategorySeeded = true;
+        );
+        await isar.tasks.put(defaultTask);
+      }
+      settings.defaultCategorySeeded = true;
+      settings.defaultCategoryId ??= defaultTask.id;
+      await isar.settings.put(settings);
+    });
+    return;
+  }
+
+  if (settings.defaultCategoryId != null) return;
+
+  final system = await getDefaultCategory(isar);
+  if (system == null) return;
+
+  await isar.writeTxn(() async {
+    settings.defaultCategoryId = system.id;
     await isar.settings.put(settings);
   });
+}
+
+/// Whether [task] is the user's selected default category.
+///
+/// When no preference is stored yet, the system Default is treated as default
+/// so the edit UI matches [getFallbackCategory] behavior.
+bool isSelectedDefaultCategory(Settings settings, Tasks task) {
+  if (settings.defaultCategoryId == task.id) return true;
+  return settings.defaultCategoryId == null && task.isSystem;
 }
 
 /// Persists the user-selected default category via [settingsRepositoryProvider].

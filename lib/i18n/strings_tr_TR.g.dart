@@ -155,6 +155,7 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => 'Per';
 	@override String get day_tue => 'Sal';
 	@override String get day_wed => 'Çar';
+	@override String get default_category_badge => 'Varsayılan';
 	@override String get default_category_cleared => 'Varsayılan kategori kaldırıldı';
 	@override String get default_category_set => 'Varsayılan kategori ayarlandı';
 	@override String get default_category_status_off => 'Kapalı';
@@ -296,6 +297,7 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'Varsayılan kategori olarak ayarla';
 	@override String get settings => 'Ayarlar';
 	@override String get show_archived => 'Arşivlenenleri göster';
+	@override String get show_archived_in_statistics => 'İstatistiklerde arşivlenenleri dahil et';
 	@override String get skip => 'Geç';
 	@override String get snooze => 'Ertele';
 	@override String get snooze_action_label => '{minutes} dk ertele';
@@ -489,6 +491,7 @@ extension on TranslationsTrTr {
 			'day_thu' => 'Per',
 			'day_tue' => 'Sal',
 			'day_wed' => 'Çar',
+			'default_category_badge' => 'Varsayılan',
 			'default_category_cleared' => 'Varsayılan kategori kaldırıldı',
 			'default_category_set' => 'Varsayılan kategori ayarlandı',
 			'default_category_status_off' => 'Kapalı',
@@ -630,6 +633,7 @@ extension on TranslationsTrTr {
 			'set_default_category' => 'Varsayılan kategori olarak ayarla',
 			'settings' => 'Ayarlar',
 			'show_archived' => 'Arşivlenenleri göster',
+			'show_archived_in_statistics' => 'İstatistiklerde arşivlenenleri dahil et',
 			'skip' => 'Geç',
 			'snooze' => 'Ertele',
 			'snooze_action_label' => '{minutes} dk ertele',

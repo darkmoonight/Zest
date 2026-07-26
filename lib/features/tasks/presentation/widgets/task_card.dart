@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/di/provider_refs.dart';
+import 'package:zest/core/utils/default_category.dart';
 import 'package:zest/core/utils/progress_calculator.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/card_tap_scale_mixin.dart';
@@ -179,6 +181,35 @@ class _TaskCardState extends ConsumerState<TaskCard>
     );
   }
 
+  /// Compact default-category chip matching other card metadata.
+  Widget _buildDefaultBadge(BuildContext context, Color taskColor) {
+    return MetadataChip(
+      accentColor: taskColor,
+      backgroundAlpha: 0.12,
+      borderAlpha: 0.3,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            IconsaxPlusBold.star,
+            size: AppConstants.iconSizeInline,
+            color: taskColor,
+          ),
+          const SizedBox(width: 3),
+          Text(
+            'defaultCategoryBadge'.tr,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 10),
+              fontWeight: FontWeight.w600,
+              color: taskColor,
+              letterSpacing: -0.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Builds the trailing info widget.
   Widget _buildTrailingInfo(
     BuildContext context,
@@ -186,10 +217,19 @@ class _TaskCardState extends ConsumerState<TaskCard>
     ProgressCalculator progress,
     Color taskColor,
   ) {
+    final isDefault = isSelectedDefaultCategory(
+      ref.watch(settingsProvider),
+      widget.task,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        if (isDefault) ...[
+          _buildDefaultBadge(context, taskColor),
+          SizedBox(height: AppConstants.spacingXS + 1),
+        ],
         _buildTaskCounter(context, colorScheme, taskColor),
         if (progress.isComplete) ...[
           SizedBox(height: AppConstants.spacingXS + 1),

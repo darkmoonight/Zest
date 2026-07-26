@@ -155,6 +155,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => 'Jeu';
 	@override String get day_tue => 'Mar';
 	@override String get day_wed => 'Mer';
+	@override String get default_category_badge => 'Par défaut';
 	@override String get default_category_cleared => 'Catégorie par défaut effacée';
 	@override String get default_category_set => 'Catégorie par défaut définie';
 	@override String get default_category_status_off => 'Désactivé';
@@ -296,6 +297,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'Définir comme catégorie par défaut';
 	@override String get settings => 'Paramètres';
 	@override String get show_archived => 'Afficher les archives';
+	@override String get show_archived_in_statistics => 'Inclure les archivées dans les statistiques';
 	@override String get skip => 'Ignorer';
 	@override String get snooze => 'Reporter';
 	@override String get snooze_action_label => 'Reporter de {minutes} min';
@@ -489,6 +491,7 @@ extension on TranslationsFrFr {
 			'day_thu' => 'Jeu',
 			'day_tue' => 'Mar',
 			'day_wed' => 'Mer',
+			'default_category_badge' => 'Par défaut',
 			'default_category_cleared' => 'Catégorie par défaut effacée',
 			'default_category_set' => 'Catégorie par défaut définie',
 			'default_category_status_off' => 'Désactivé',
@@ -630,6 +633,7 @@ extension on TranslationsFrFr {
 			'set_default_category' => 'Définir comme catégorie par défaut',
 			'settings' => 'Paramètres',
 			'show_archived' => 'Afficher les archives',
+			'show_archived_in_statistics' => 'Inclure les archivées dans les statistiques',
 			'skip' => 'Ignorer',
 			'snooze' => 'Reporter',
 			'snooze_action_label' => 'Reporter de {minutes} min',

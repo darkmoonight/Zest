@@ -128,4 +128,39 @@ void main() {
     expect(stats.longestStreak, 1);
     expect(stats.currentStreak, lessThanOrEqualTo(1));
   });
+
+  test('excludes todos from archived categories by default', () async {
+    final active = await createTestTask(isar, title: 'Active');
+    final archived = await createTestTask(
+      isar,
+      title: 'Archived',
+      archive: true,
+    );
+
+    await createTestTodo(isar, task: active, name: 'Keep');
+    await createTestTodo(isar, task: archived, name: 'Skip');
+
+    final stats = await StatisticsService.calculateStatistics(isar);
+
+    expect(stats.totalTodos, 1);
+  });
+
+  test('includes archived categories when requested', () async {
+    final active = await createTestTask(isar, title: 'Active');
+    final archived = await createTestTask(
+      isar,
+      title: 'Archived',
+      archive: true,
+    );
+
+    await createTestTodo(isar, task: active, name: 'Keep');
+    await createTestTodo(isar, task: archived, name: 'Include');
+
+    final stats = await StatisticsService.calculateStatistics(
+      isar,
+      includeArchivedCategories: true,
+    );
+
+    expect(stats.totalTodos, 2);
+  });
 }

@@ -389,6 +389,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Wed'
 	String get day_wed => 'Wed';
 
+	/// en-US: 'Default'
+	String get default_category_badge => 'Default';
+
 	/// en-US: 'Default category cleared'
 	String get default_category_cleared => 'Default category cleared';
 
@@ -812,6 +815,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Show archived'
 	String get show_archived => 'Show archived';
 
+	/// en-US: 'Include archived in statistics'
+	String get show_archived_in_statistics => 'Include archived in statistics';
+
 	/// en-US: 'Skip'
 	String get skip => 'Skip';
 
@@ -1138,6 +1144,7 @@ extension on Translations {
 			'day_thu' => 'Thu',
 			'day_tue' => 'Tue',
 			'day_wed' => 'Wed',
+			'default_category_badge' => 'Default',
 			'default_category_cleared' => 'Default category cleared',
 			'default_category_set' => 'Default category set',
 			'default_category_status_off' => 'Off',
@@ -1279,6 +1286,7 @@ extension on Translations {
 			'set_default_category' => 'Set as default category',
 			'settings' => 'Settings',
 			'show_archived' => 'Show archived',
+			'show_archived_in_statistics' => 'Include archived in statistics',
 			'skip' => 'Skip',
 			'snooze' => 'Snooze',
 			'snooze_action_label' => 'Snooze {minutes} min',

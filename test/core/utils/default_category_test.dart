@@ -44,6 +44,7 @@ void main() {
     expect(task!.title, kDefaultCategoryTitle);
     expect(task.isSystem, isTrue);
     expect(settings.defaultCategorySeeded, isTrue);
+    expect(settings.defaultCategoryId, task.id);
 
     final countBefore = await isar.tasks.count();
     await seedDefaultCategoryOnce(isar, settings);
@@ -63,6 +64,34 @@ void main() {
     final all = await isar.tasks.where().findAll();
     expect(all, hasLength(1));
     expect(all.first.isSystem, isTrue);
+    expect(settings.defaultCategoryId, all.first.id);
+  });
+
+  test(
+    'seedDefaultCategoryOnce backfills defaultCategoryId after upgrade',
+    () async {
+      await seedDefaultCategoryOnce(isar, settings);
+      final system = await getDefaultCategory(isar);
+      settings.defaultCategoryId = null;
+      await isar.writeTxn(() => isar.settings.put(settings));
+
+      await seedDefaultCategoryOnce(isar, settings);
+
+      expect(settings.defaultCategoryId, system?.id);
+    },
+  );
+
+  test('isSelectedDefaultCategory treats system Default when id unset', () {
+    final system = Tasks(
+      title: kDefaultCategoryTitle,
+      taskColor: kDefaultCategoryColor,
+      index: 0,
+      isSystem: true,
+    );
+    expect(isSelectedDefaultCategory(settings, system), isTrue);
+
+    settings.defaultCategoryId = 42;
+    expect(isSelectedDefaultCategory(settings, system), isFalse);
   });
 
   test('getFallbackCategory prefers user default over system', () async {

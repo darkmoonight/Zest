@@ -155,6 +155,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get day_thu => 'Чт';
 	@override String get day_tue => 'Вт';
 	@override String get day_wed => 'Ср';
+	@override String get default_category_badge => 'По умолчанию';
 	@override String get default_category_cleared => 'Категория по умолчанию снята';
 	@override String get default_category_set => 'Категория по умолчанию установлена';
 	@override String get default_category_status_off => 'Выключено';
@@ -296,6 +297,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get set_default_category => 'Сделать категорией по умолчанию';
 	@override String get settings => 'Настройки';
 	@override String get show_archived => 'Показывать архивные';
+	@override String get show_archived_in_statistics => 'Учитывать архив в статистике';
 	@override String get skip => 'Пропустить';
 	@override String get snooze => 'Отложить';
 	@override String get snooze_action_label => 'Отложить на {minutes} мин';
@@ -489,6 +491,7 @@ extension on TranslationsRuRu {
 			'day_thu' => 'Чт',
 			'day_tue' => 'Вт',
 			'day_wed' => 'Ср',
+			'default_category_badge' => 'По умолчанию',
 			'default_category_cleared' => 'Категория по умолчанию снята',
 			'default_category_set' => 'Категория по умолчанию установлена',
 			'default_category_status_off' => 'Выключено',
@@ -630,6 +633,7 @@ extension on TranslationsRuRu {
 			'set_default_category' => 'Сделать категорией по умолчанию',
 			'settings' => 'Настройки',
 			'show_archived' => 'Показывать архивные',
+			'show_archived_in_statistics' => 'Учитывать архив в статистике',
 			'skip' => 'Пропустить',
 			'snooze' => 'Отложить',
 			'snooze_action_label' => 'Отложить на {minutes} мин',

@@ -216,6 +216,15 @@ class AppConstants {
   /// Default max number of retained auto-backup files.
   static const int defaultMaxAutoBackups = 5;
 
+  /// Default accent palette id ([AppColorPalette.defaultId]).
+  static const String defaultColorPalette = 'indigo';
+
+  /// Default app font id ([AppFont.defaultId]).
+  static const String defaultAppFont = 'ubuntu';
+
+  /// Current [Settings] Isar layout version (Rain-style rewrite migration).
+  static const int settingsSchemaVersion = 1;
+
   /// How far ahead calendar / due-date pickers allow selecting dates.
   static const Duration calendarSelectableRange = Duration(days: 1000);
 

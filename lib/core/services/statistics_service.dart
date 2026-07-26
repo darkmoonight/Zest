@@ -4,9 +4,18 @@ import 'package:zest/features/statistics/presentation/models/statistics_data.dar
 
 /// Aggregates completion metrics, streaks, and chart data from Isar todos.
 class StatisticsService {
-  /// Loads all todos and computes dashboard statistics.
-  static Future<StatisticsData> calculateStatistics(Isar isar) async {
-    final todos = await isar.todos.where().findAll();
+  /// Loads todos and computes dashboard statistics.
+  ///
+  /// When [includeArchivedCategories] is false, todos whose category is
+  /// archived (or has no linked category) are excluded.
+  static Future<StatisticsData> calculateStatistics(
+    Isar isar, {
+    bool includeArchivedCategories = false,
+  }) async {
+    var todos = await isar.todos.where().findAll();
+    if (!includeArchivedCategories) {
+      todos = todos.where((todo) => todo.task.value?.archive == false).toList();
+    }
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final weekAgo = today.subtract(const Duration(days: 7));
