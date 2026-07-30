@@ -33,9 +33,10 @@ class _SettingsAppearanceSectionState
   @override
   /// Builds the widget subtree.
   Widget build(BuildContext context) {
-    final catalogSettings = ref.watch(
-      settingsProvider.select((s) => (s.colorPalette, s.appFont)),
+    final colorPalette = ref.watch(
+      appSettingsProvider.select((s) => s.colorPalette),
     );
+    final appFont = ref.watch(appSettingsProvider.select((s) => s.appFont));
     final themeMode = ref.watch(themeModeProvider);
     final themeKey = switch (themeMode) {
       ThemeMode.system => 'system',
@@ -89,15 +90,10 @@ class _SettingsAppearanceSectionState
             );
           },
         ),
-        _buildColorPaletteTile(
-          context,
-          settings,
-          materialColor,
-          catalogSettings.$1,
-        ),
+        _buildColorPaletteTile(context, settings, materialColor, colorPalette),
         for (final def in settingAppearanceCatalogPickers)
           if (def.titleKey != 'colorPalette')
-            _buildCatalogTile(context, settings, def),
+            _buildCatalogTile(context, settings, def, appFont),
       ],
     );
   }
@@ -138,11 +134,15 @@ class _SettingsAppearanceSectionState
     BuildContext context,
     Settings settings,
     SettingAppearancePickerDefinition def,
+    String appFont,
   ) {
+    final displayValue = def.titleKey == 'appFont'
+        ? appFont
+        : def.read(settings);
     return SettingsTile(
       leading: Icon(def.icon),
       title: def.titleKey,
-      value: def.itemBuilder(def.read(settings)),
+      value: def.itemBuilder(displayValue),
       onTap: () => _showCatalogDialog(context, def, settings),
     );
   }
@@ -180,7 +180,16 @@ class _SettingsAppearanceSectionState
       leadingBuilder: def.leadingBuilder,
       enableSearch: def.enableSearch,
       onSelected: (value) {
-        actions.saveSettingsOptimistic(mutate: (s) => def.write(s, value));
+        actions.saveSettingsOptimistic(
+          mutate: (s) => def.write(s, value),
+          onOptimistic: () {
+            if (def.titleKey == 'colorPalette') {
+              ZestApp.updateAppState(ref, newColorPalette: value);
+            } else if (def.titleKey == 'appFont') {
+              ZestApp.updateAppState(ref, newAppFont: value);
+            }
+          },
+        );
       },
     );
   }

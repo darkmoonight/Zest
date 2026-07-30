@@ -313,7 +313,7 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
 
   /// Void.
   Future<void> _updateCalendarFormat(CalendarFormat format) async {
-    final settings = ref.read(settingsProvider);
+    final settings = ref.read(liveSettingsProvider);
     settings.calendarFormat = CalendarFormatHelper.calendarFormatToString(
       format,
     );
@@ -322,7 +322,7 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
 
   /// Persists the archived-categories visibility toggle for Calendar.
   Future<void> _handleShowArchivedChanged(bool value) async {
-    final settings = ref.read(settingsProvider);
+    final settings = ref.read(liveSettingsProvider);
     settings.showArchivedInCalendar = value;
     await ref.read(settingsRepositoryProvider).save(settings);
     if (mounted) setState(() {});
@@ -331,7 +331,7 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
   /// Void.
   Future<void> _handleSortChanged(SortOption option) async {
     updateSortOption(option);
-    final settings = ref.read(settingsProvider);
+    final settings = ref.read(liveSettingsProvider);
     settings.calendarSortOption = option;
     await ref.read(settingsRepositoryProvider).save(settings);
   }

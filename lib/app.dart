@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/bootstrap/app_bootstrap.dart';
-import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/navigation/app_router.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/theme/app_themes_provider.dart';
@@ -28,6 +27,8 @@ class ZestApp extends ConsumerWidget {
     bool? newAmoledTheme,
     bool? newMaterialColor,
     bool? newIsImage,
+    String? newColorPalette,
+    String? newAppFont,
     String? newTimeformat,
     String? newFirstDay,
     Locale? newLocale,
@@ -38,6 +39,8 @@ class ZestApp extends ConsumerWidget {
           amoledTheme: newAmoledTheme,
           materialColor: newMaterialColor,
           isImage: newIsImage,
+          colorPalette: newColorPalette,
+          appFont: newAppFont,
           timeformat: newTimeformat,
           firstDay: newFirstDay,
           locale: newLocale,
@@ -54,9 +57,9 @@ class ZestApp extends ConsumerWidget {
       appSettingsProvider.select((s) => s.amoledTheme),
     );
     final locale = ref.watch(appSettingsProvider.select((s) => s.locale));
-    final appFont = ref.watch(settingsProvider.select((s) => s.appFont));
+    final appFont = ref.watch(appSettingsProvider.select((s) => s.appFont));
     final colorPalette = ref.watch(
-      settingsProvider.select((s) => s.colorPalette),
+      appSettingsProvider.select((s) => s.colorPalette),
     );
     final themeMode = ref.watch(themeModeProvider);
     final router = ref.watch(appRouterProvider);

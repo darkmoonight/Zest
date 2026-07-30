@@ -71,7 +71,7 @@ bool isSelectedDefaultCategory(Settings settings, Tasks task) {
 ///
 /// Pass `null` [task] to clear the preference.
 Future<void> setDefaultCategory(WidgetRef ref, {Tasks? task}) async {
-  final settings = ref.read(settingsProvider);
+  final settings = ref.read(liveSettingsProvider);
   settings.defaultCategoryId = task?.id;
   await ref.read(settingsRepositoryProvider).save(settings);
 }

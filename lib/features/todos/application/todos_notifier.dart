@@ -55,9 +55,9 @@ class TodosState {
 
 /// Loads and mutates todos; subscribes to Isar watch streams for live updates.
 class TodosNotifier extends Notifier<TodosState> {
-  late final TaskRepository _taskRepo;
+  TaskRepository? _taskRepo;
 
-  late final TodoRepository _todoRepo;
+  TodoRepository? _todoRepo;
 
   TodoService? _todoService;
 
@@ -67,24 +67,46 @@ class TodosNotifier extends Notifier<TodosState> {
   /// Cached locale prefs used to rebuild [TodoService].
   (String, String?)? _todoServicePrefs;
 
+  TaskRepository get taskRepo {
+    final cached = _taskRepo;
+    if (cached != null) return cached;
+    final created = ref.read(taskRepositoryProvider);
+    _taskRepo = created;
+    return created;
+  }
+
+  TodoRepository get todoRepo {
+    final cached = _todoRepo;
+    if (cached != null) return cached;
+    final created = ref.read(todoRepositoryProvider);
+    _todoRepo = created;
+    return created;
+  }
+
   @override
   /// Initializes repositories, watchers, and returns initial [TodosState].
   TodosState build() {
-    _taskRepo = ref.read(taskRepositoryProvider);
-    _todoRepo = ref.read(todoRepositoryProvider);
-    final formatPrefs = ref.watch(
-      settingsProvider.select((s) => (s.timeformat, s.language)),
+    final formatPrefs = (
+      ref.read(liveSettingsProvider).timeformat,
+      ref.read(liveSettingsProvider).language,
     );
     _ensureTodoService(formatPrefs);
+
+    // Rebuild TodoService when clock/locale prefs change without re-entering
+    // [build] (avoids re-assigning one-time subscriptions / late fields).
+    ref.listen(
+      settingsProvider.select((s) => (s.timeformat, s.language)),
+      (_, next) => _ensureTodoService(next),
+    );
 
     StreamSubscription<void>? taskWatcherSubscription;
     StreamSubscription<void>? todoWatcherSubscription;
 
-    taskWatcherSubscription = _taskRepo.watchLazy().listen((_) {
+    taskWatcherSubscription = taskRepo.watchLazy().listen((_) {
       _debounceLoad();
     });
 
-    todoWatcherSubscription = _todoRepo.watchLazy().listen((_) {
+    todoWatcherSubscription = todoRepo.watchLazy().listen((_) {
       _debounceLoad();
     });
 
@@ -105,7 +127,7 @@ class TodosNotifier extends Notifier<TodosState> {
 
     _todoServicePrefs = formatPrefs;
     _todoService = TodoService(
-      todoRepo: _todoRepo,
+      todoRepo: todoRepo,
       notificationService: ref.read(notificationServiceProvider),
       timeformat: formatPrefs.$1,
       languageCode: formatPrefs.$2 ?? AppConstants.defaultLanguageCode,
@@ -114,9 +136,10 @@ class TodosNotifier extends Notifier<TodosState> {
 
   /// [TodoService] bound to current time-format and language settings.
   TodoService get todoService {
-    _ensureTodoService(
-      ref.read(settingsProvider.select((s) => (s.timeformat, s.language))),
-    );
+    _ensureTodoService((
+      ref.read(liveSettingsProvider).timeformat,
+      ref.read(liveSettingsProvider).language,
+    ));
     return _todoService!;
   }
 
@@ -131,7 +154,7 @@ class TodosNotifier extends Notifier<TodosState> {
   Future<void> _loadTodos() async {
     final preservedSelectedIds = state.selectedTodoIds.toSet();
 
-    final newTodos = await _todoRepo.getAll();
+    final newTodos = await todoRepo.getAll();
     state = state.copyWith(todos: newTodos);
 
     _restoreSelectedTodos(preservedSelectedIds);
@@ -267,7 +290,7 @@ class TodosNotifier extends Notifier<TodosState> {
       ..removeWhere((id) => idsToRemove.contains(id));
 
     state = state.copyWith(
-      todos: await _todoRepo.getAll(),
+      todos: await todoRepo.getAll(),
       selectedTodoIds: updatedIds,
     );
     _resyncSelectedTodoFromIds();
@@ -281,7 +304,7 @@ class TodosNotifier extends Notifier<TodosState> {
       all[i].index = i;
     }
 
-    await _todoRepo.updateIndexes(all);
+    await todoRepo.updateIndexes(all);
     state = state.copyWith(todos: all);
   }
 

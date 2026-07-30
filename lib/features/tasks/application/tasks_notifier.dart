@@ -50,33 +50,53 @@ class TasksState {
 
 /// Loads and mutates task categories; watches Isar for live list updates.
 class TasksNotifier extends Notifier<TasksState> {
-  late final TaskRepository _taskRepo;
+  TaskRepository? _taskRepo;
 
-  late final TodoRepository _todoRepo;
+  TodoRepository? _todoRepo;
 
-  late final TaskService _taskService;
+  TaskService? _taskService;
 
   Timer? _loadDebounce;
+
+  TaskRepository get taskRepo {
+    final cached = _taskRepo;
+    if (cached != null) return cached;
+    final created = ref.read(taskRepositoryProvider);
+    _taskRepo = created;
+    return created;
+  }
+
+  TodoRepository get todoRepo {
+    final cached = _todoRepo;
+    if (cached != null) return cached;
+    final created = ref.read(todoRepositoryProvider);
+    _todoRepo = created;
+    return created;
+  }
+
+  TaskService get taskService {
+    final cached = _taskService;
+    if (cached != null) return cached;
+    final created = TaskService(
+      taskRepo: taskRepo,
+      todoRepo: todoRepo,
+      notificationService: ref.read(notificationServiceProvider),
+    );
+    _taskService = created;
+    return created;
+  }
 
   @override
   /// Initializes repositories, watchers, and returns initial [TasksState].
   TasksState build() {
-    _taskRepo = ref.read(taskRepositoryProvider);
-    _todoRepo = ref.read(todoRepositoryProvider);
-    _taskService = TaskService(
-      taskRepo: _taskRepo,
-      todoRepo: _todoRepo,
-      notificationService: ref.read(notificationServiceProvider),
-    );
-
     StreamSubscription<void>? taskWatcherSubscription;
     StreamSubscription<void>? todoWatcherSubscription;
 
-    taskWatcherSubscription = _taskRepo.watchLazy().listen((_) {
+    taskWatcherSubscription = taskRepo.watchLazy().listen((_) {
       _debounceLoad();
     });
 
-    todoWatcherSubscription = _todoRepo.watchLazy().listen((_) {
+    todoWatcherSubscription = todoRepo.watchLazy().listen((_) {
       _debounceLoad();
     });
 
@@ -101,7 +121,7 @@ class TasksNotifier extends Notifier<TasksState> {
 
   /// Reloads task categories from the database into state.
   Future<void> reloadTasks() async {
-    final newTasks = await _taskRepo.getAll();
+    final newTasks = await taskRepo.getAll();
     state = state.copyWith(tasks: newTasks);
   }
 
@@ -109,7 +129,7 @@ class TasksNotifier extends Notifier<TasksState> {
 
   /// Creates a task category with the given title, description, and color.
   Future<Tasks?> addTask(String title, String description, Color color) async {
-    return _taskService.createTask(
+    return taskService.createTask(
       title: title,
       description: description,
       color: color,
@@ -124,7 +144,7 @@ class TasksNotifier extends Notifier<TasksState> {
     String description,
     Color color,
   ) async {
-    await _taskService.updateTask(
+    await taskService.updateTask(
       task: task,
       title: title,
       description: description,
@@ -138,10 +158,10 @@ class TasksNotifier extends Notifier<TasksState> {
 
     _loadDebounce?.cancel();
 
-    await _taskService.deleteTasks(taskList);
+    await taskService.deleteTasks(taskList);
     await _clearDefaultCategoryIfNeeded(taskList);
 
-    state = state.copyWith(tasks: await _taskRepo.getAll());
+    state = state.copyWith(tasks: await taskRepo.getAll());
     await _reindexTasks();
   }
 
@@ -150,9 +170,9 @@ class TasksNotifier extends Notifier<TasksState> {
     if (taskList.isEmpty) return;
 
     _loadDebounce?.cancel();
-    await _taskService.archiveTasks(taskList);
+    await taskService.archiveTasks(taskList);
     await _clearDefaultCategoryIfNeeded(taskList);
-    state = state.copyWith(tasks: await _taskRepo.getAll());
+    state = state.copyWith(tasks: await taskRepo.getAll());
     doMultiSelectionTaskClear();
     await ref.read(todosNotifierProvider.notifier).reloadTodos();
     ref.read(todosNotifierProvider.notifier).resyncSelectedTodoFromIds();
@@ -163,8 +183,8 @@ class TasksNotifier extends Notifier<TasksState> {
     if (taskList.isEmpty) return;
 
     _loadDebounce?.cancel();
-    await _taskService.unarchiveTasks(taskList);
-    state = state.copyWith(tasks: await _taskRepo.getAll());
+    await taskService.unarchiveTasks(taskList);
+    state = state.copyWith(tasks: await taskRepo.getAll());
     doMultiSelectionTaskClear();
     await ref.read(todosNotifierProvider.notifier).reloadTodos();
     ref.read(todosNotifierProvider.notifier).resyncSelectedTodoFromIds();
@@ -177,17 +197,17 @@ class TasksNotifier extends Notifier<TasksState> {
   }) async {
     if (filteredTasks.isEmpty) return;
 
-    await _taskService.reorderTasks(
+    await taskService.reorderTasks(
       allTasks: state.tasks.toList(),
       filteredTasks: filteredTasks,
     );
 
-    state = state.copyWith(tasks: await _taskRepo.getAll());
+    state = state.copyWith(tasks: await taskRepo.getAll());
   }
 
   /// Clears the user default category when it was archived or deleted.
   Future<void> _clearDefaultCategoryIfNeeded(List<Tasks> tasks) async {
-    final settings = ref.read(settingsProvider);
+    final settings = ref.read(liveSettingsProvider);
     final defaultId = settings.defaultCategoryId;
     if (defaultId == null) return;
     if (!tasks.any((task) => task.id == defaultId)) return;
@@ -203,7 +223,7 @@ class TasksNotifier extends Notifier<TasksState> {
       all[i].index = i;
     }
 
-    await _taskRepo.updateIndexes(all);
+    await taskRepo.updateIndexes(all);
     state = state.copyWith(tasks: all);
   }
 
@@ -214,7 +234,7 @@ class TasksNotifier extends Notifier<TasksState> {
     required bool archived,
     String searchQuery = '',
   }) {
-    return _taskService.filterTasks(
+    return taskService.filterTasks(
       tasks: state.tasks,
       archived: archived,
       searchQuery: searchQuery,

@@ -91,7 +91,7 @@ class _OnBoardingState extends ConsumerState<OnBoarding> {
 
   /// Void.
   Future<void> _completeOnboarding() async {
-    final settings = ref.read(settingsProvider);
+    final settings = ref.read(liveSettingsProvider);
     settings.onboard = true;
     await ref.read(settingsRepositoryProvider).save(settings);
     refreshAppRouter(ref);

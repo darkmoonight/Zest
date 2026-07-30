@@ -103,7 +103,7 @@ class _AllTodosState extends ConsumerState<AllTodos>
   }
 
   Future<void> _handleShowArchivedChanged(bool value) async {
-    final settings = ref.read(settingsProvider);
+    final settings = ref.read(liveSettingsProvider);
     settings.showArchivedInAllTodos = value;
     await ref.read(settingsRepositoryProvider).save(settings);
     if (mounted) setState(() {});
@@ -111,7 +111,7 @@ class _AllTodosState extends ConsumerState<AllTodos>
 
   Future<void> _handleSortChanged(SortOption option) async {
     updateSortOption(option);
-    final settings = ref.read(settingsProvider);
+    final settings = ref.read(liveSettingsProvider);
     settings.allTodosSortOption = option;
     await ref.read(settingsRepositoryProvider).save(settings);
   }

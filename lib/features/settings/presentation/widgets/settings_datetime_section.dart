@@ -28,12 +28,14 @@ class _SettingsDateTimeSectionState
   @override
   /// Builds the widget subtree.
   Widget build(BuildContext context) {
-    final timeformat = ref.watch(settingsProvider.select((s) => s.timeformat));
+    final timeformat = ref.watch(
+      appSettingsProvider.select((s) => s.timeformat),
+    );
     final snoozeDuration = ref.watch(
       settingsProvider.select((s) => s.snoozeDuration),
     );
     final firstDay = ref.watch(appSettingsProvider.select((s) => s.firstDay));
-    final settings = ref.read(settingsProvider);
+    final settings = ref.read(liveSettingsProvider);
 
     return SettingsSection(
       title: 'dateTime',

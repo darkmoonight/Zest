@@ -33,7 +33,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 
   /// Persists the selected theme mode string and refreshes state.
   Future<void> setTheme(String themeMode) async {
-    final settings = ref.read(settingsProvider);
+    final settings = ref.read(liveSettingsProvider);
     settings.theme = themeMode;
     state = _fromSettings(settings);
     await ref.read(settingsRepositoryProvider).save(settings);
@@ -41,7 +41,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 
   /// Persists the AMOLED (pure black) theme toggle.
   Future<void> saveOledTheme(bool isOled) async {
-    final settings = ref.read(settingsProvider);
+    final settings = ref.read(liveSettingsProvider);
     settings.amoledTheme = isOled;
     ref.read(appSettingsProvider.notifier).update(amoledTheme: isOled);
     await ref.read(settingsRepositoryProvider).save(settings);
@@ -49,7 +49,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 
   /// Persists the Material You dynamic color toggle.
   Future<void> saveMaterialTheme(bool isMaterial) async {
-    final settings = ref.read(settingsProvider);
+    final settings = ref.read(liveSettingsProvider);
     settings.materialColor = isMaterial;
     ref.read(appSettingsProvider.notifier).update(materialColor: isMaterial);
     await ref.read(settingsRepositoryProvider).save(settings);

@@ -21,8 +21,8 @@ class SettingsSaveActions {
   /// Riverpod ref used to read settings and repositories.
   final WidgetRef ref;
 
-  /// Current [Settings] instance from [settingsProvider].
-  Settings get settings => ref.read(settingsProvider);
+  /// Live mutable [Settings] from [liveSettingsProvider] (writes go here).
+  Settings get settings => ref.read(liveSettingsProvider);
 
   /// Applies [mutate] immediately and persists in the background.
   void saveSettingsOptimistic({
@@ -33,6 +33,7 @@ class SettingsSaveActions {
   }) {
     final rollback = _SettingsRollback.capture(settings);
     mutate(settings);
+    ref.read(settingsRevisionProvider.notifier).bump();
     onOptimistic?.call();
     unawaited(
       _persistSettings(
@@ -47,6 +48,7 @@ class SettingsSaveActions {
   /// Android notification channel names for the new language.
   Future<void> updateLanguage(Locale locale) async {
     settings.language = '$locale';
+    ref.read(settingsRevisionProvider.notifier).bump();
     ZestApp.updateAppState(ref, newLocale: locale);
 
     final plugin = NotificationPlugin.instance;

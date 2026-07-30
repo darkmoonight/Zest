@@ -20,10 +20,20 @@ final bootstrapProvider = Provider<AppBootstrap>((ref) {
 /// Provides the shared [Isar] database from [bootstrapProvider].
 final isarProvider = Provider<Isar>((ref) => ref.watch(bootstrapProvider).isar);
 
-/// Provides persisted [Settings], refreshing when [settingsRevisionProvider] changes.
+/// Live mutable [Settings] singleton from bootstrap.
+///
+/// Use [ref.read] for writes. Do not watch this for UI — identity never changes.
+final liveSettingsProvider = Provider<Settings>(
+  (ref) => ref.watch(bootstrapProvider).settings,
+);
+
+/// Reactive [Settings] snapshot for UI.
+///
+/// Returns a [Settings.clone] when [settingsRevisionProvider] bumps so Riverpod
+/// notifies listeners (the live bootstrap instance alone would not).
 final settingsProvider = Provider<Settings>((ref) {
   ref.watch(settingsRevisionProvider);
-  return ref.watch(bootstrapProvider).settings;
+  return ref.read(liveSettingsProvider).clone(includeId: true);
 });
 
 /// Provides the installed app version from platform package info.
