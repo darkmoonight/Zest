@@ -324,5 +324,12 @@
   "week": "هفته",
   "weekCompleted": "تکمیل شده این هفته",
   "weekly": "هفتگی",
-  "weeklyProgress": "پیشرفت هفتگی"
+  "weeklyProgress": "پیشرفت هفتگی",
+  "notificationChannels": "کانال‌های اعلان",
+  "manageAppNotifications": "مدیریت اعلان‌های برنامه",
+  "notificationChannelHintHigh": "هشدارهای فوری با صدا و لرزش",
+  "notificationChannelHintMedium": "هشدارهای پیش‌فرض با صدا و لرزش",
+  "notificationChannelHintLow": "هشدارهای آرام با لرزش ملایم",
+  "notificationChannelHintNone": "هشدارهای بی‌صدا و حداقلی",
+  "failedToOpenSettings": "باز کردن تنظیمات ممکن نشد: {error}"
 }

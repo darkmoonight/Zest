@@ -365,6 +365,13 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Bu hafta tamamlanan';
 	@override String get weekly => 'Haftalık';
 	@override String get weekly_progress => 'Haftalık İlerleme';
+	@override String get notification_channels => 'Bildirim kanalları';
+	@override String get manage_app_notifications => 'Uygulama bildirimlerini yönet';
+	@override String get notification_channel_hint_high => 'Ses ve titreşimli acil uyarılar';
+	@override String get notification_channel_hint_medium => 'Ses ve titreşimli varsayılan uyarılar';
+	@override String get notification_channel_hint_low => 'Hafif titreşimli sessiz uyarılar';
+	@override String get notification_channel_hint_none => 'Sessiz, minimal uyarılar';
+	@override String get failed_to_open_settings => 'Ayarlar açılamadı: {error}';
 }
 
 /// The flat map containing all translations for locale <tr-TR>.
@@ -701,6 +708,13 @@ extension on TranslationsTrTr {
 			'week_completed' => 'Bu hafta tamamlanan',
 			'weekly' => 'Haftalık',
 			'weekly_progress' => 'Haftalık İlerleme',
+			'notification_channels' => 'Bildirim kanalları',
+			'manage_app_notifications' => 'Uygulama bildirimlerini yönet',
+			'notification_channel_hint_high' => 'Ses ve titreşimli acil uyarılar',
+			'notification_channel_hint_medium' => 'Ses ve titreşimli varsayılan uyarılar',
+			'notification_channel_hint_low' => 'Hafif titreşimli sessiz uyarılar',
+			'notification_channel_hint_none' => 'Sessiz, minimal uyarılar',
+			'failed_to_open_settings' => 'Ayarlar açılamadı: {error}',
 			_ => null,
 		};
 	}

@@ -4,14 +4,18 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/config/setting_enum_pickers.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
+import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/features/settings/presentation/view/notification_channels_page.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_selection.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section_state.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_tile.dart';
 import 'package:zest/i18n/tr.dart';
+import 'package:zest/platform/platform_features.dart'
+    if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
 
-/// Time format, calendar week-start, and notification snooze settings.
+/// Time format, week-start, snooze duration, and (Android) notification channels.
 class SettingsDateTimeSection extends ConsumerStatefulWidget {
   /// Creates a [SettingsDateTimeSection].
   const SettingsDateTimeSection({super.key});
@@ -59,6 +63,17 @@ class _SettingsDateTimeSectionState
           value: '$snoozeDuration ${'min'.tr}',
           onTap: () => _showSnoozeDurationDialog(context, settings),
         ),
+        if (PlatformFeatures.isAndroid)
+          SettingsTile(
+            leading: const Icon(IconsaxPlusLinear.notification),
+            title: 'notificationChannels',
+            onTap: () {
+              NavigationHelper.toDownToUp(
+                context,
+                () => const NotificationChannelsPage(),
+              );
+            },
+          ),
       ],
     );
   }
@@ -102,9 +117,7 @@ class _SettingsDateTimeSectionState
       items: picker.items,
       currentValue: picker.read(settings),
       itemBuilder: (duration) => '$duration ${'min'.tr}',
-      onSelected: (value) async {
-        actions.saveSettingsOptimistic(mutate: (s) => picker.write(s, value));
-      },
+      onSelected: actions.saveSnoozeDuration,
     );
   }
 }

@@ -365,6 +365,13 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Hoàn thành tuần này';
 	@override String get weekly => 'Hàng tuần';
 	@override String get weekly_progress => 'Tiến độ tuần';
+	@override String get notification_channels => 'Kênh thông báo';
+	@override String get manage_app_notifications => 'Quản lý thông báo ứng dụng';
+	@override String get notification_channel_hint_high => 'Cảnh báo khẩn với âm thanh và rung';
+	@override String get notification_channel_hint_medium => 'Cảnh báo mặc định với âm thanh và rung';
+	@override String get notification_channel_hint_low => 'Cảnh báo nhẹ với rung nhẹ';
+	@override String get notification_channel_hint_none => 'Cảnh báo tối thiểu, im lặng';
+	@override String get failed_to_open_settings => 'Không thể mở cài đặt: {error}';
 }
 
 /// The flat map containing all translations for locale <vi-VN>.
@@ -701,6 +708,13 @@ extension on TranslationsViVn {
 			'week_completed' => 'Hoàn thành tuần này',
 			'weekly' => 'Hàng tuần',
 			'weekly_progress' => 'Tiến độ tuần',
+			'notification_channels' => 'Kênh thông báo',
+			'manage_app_notifications' => 'Quản lý thông báo ứng dụng',
+			'notification_channel_hint_high' => 'Cảnh báo khẩn với âm thanh và rung',
+			'notification_channel_hint_medium' => 'Cảnh báo mặc định với âm thanh và rung',
+			'notification_channel_hint_low' => 'Cảnh báo nhẹ với rung nhẹ',
+			'notification_channel_hint_none' => 'Cảnh báo tối thiểu, im lặng',
+			'failed_to_open_settings' => 'Không thể mở cài đặt: {error}',
 			_ => null,
 		};
 	}

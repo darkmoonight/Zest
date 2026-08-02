@@ -9,8 +9,10 @@ void main() {
     test('maps high priority to max importance channel', () {
       final config = notificationChannelForPriority(Priority.high);
 
-      expect(config.id, 'zest_priority_high');
+      expect(config.id, NotificationChannelIds.high);
       expect(config.nameKey, 'notificationChannelHigh');
+      expect(config.hintKey, 'notificationChannelHintHigh');
+      expect(config.priority, Priority.high);
       expect(config.importance, Importance.max);
       expect(config.playSound, isTrue);
       expect(config.enableVibration, isTrue);
@@ -19,30 +21,31 @@ void main() {
     test('maps medium priority to default importance channel', () {
       final config = notificationChannelForPriority(Priority.medium);
 
-      expect(config.id, 'zest_priority_medium');
+      expect(config.id, NotificationChannelIds.medium);
       expect(config.importance, Importance.defaultImportance);
     });
 
     test('maps low priority to low importance channel', () {
       final config = notificationChannelForPriority(Priority.low);
 
-      expect(config.id, 'zest_priority_low');
+      expect(config.id, NotificationChannelIds.low);
       expect(config.importance, Importance.low);
     });
 
     test('maps none priority to silent min importance channel', () {
       final config = notificationChannelForPriority(Priority.none);
 
-      expect(config.id, 'zest_priority_none');
+      expect(config.id, NotificationChannelIds.none);
       expect(config.importance, Importance.min);
       expect(config.playSound, isFalse);
       expect(config.enableVibration, isFalse);
     });
   });
 
-  test('allNotificationChannelConfigs contains four unique ids', () {
-    final ids = allNotificationChannelConfigs.map((c) => c.id).toList();
-    expect(ids, hasLength(4));
-    expect(ids.toSet(), hasLength(4));
+  test('allNotificationChannelConfigs matches Priority.values order', () {
+    final configs = allNotificationChannelConfigs;
+    expect(configs, hasLength(Priority.values.length));
+    expect(configs.map((c) => c.priority).toList(), Priority.values);
+    expect(configs.map((c) => c.id).toSet(), hasLength(Priority.values.length));
   });
 }

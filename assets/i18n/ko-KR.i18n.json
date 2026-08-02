@@ -324,5 +324,12 @@
   "week": "주간",
   "weekCompleted": "이번 주 완료",
   "weekly": "매주",
-  "weeklyProgress": "주간 진행"
+  "weeklyProgress": "주간 진행",
+  "notificationChannels": "알림 채널",
+  "manageAppNotifications": "앱 알림 관리",
+  "notificationChannelHintHigh": "소리와 진동이 있는 긴급 알림",
+  "notificationChannelHintMedium": "소리와 진동이 있는 기본 알림",
+  "notificationChannelHintLow": "가벼운 진동의 조용한 알림",
+  "notificationChannelHintNone": "무음의 최소 알림",
+  "failedToOpenSettings": "설정을 열 수 없습니다: {error}"
 }

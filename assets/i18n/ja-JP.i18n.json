@@ -324,5 +324,12 @@
   "week": "週",
   "weekCompleted": "今週",
   "weekly": "毎週",
-  "weeklyProgress": "週間進捗"
+  "weeklyProgress": "週間進捗",
+  "notificationChannels": "通知チャネル",
+  "manageAppNotifications": "アプリの通知を管理",
+  "notificationChannelHintHigh": "音とバイブ付きの緊急通知",
+  "notificationChannelHintMedium": "音とバイブ付きの標準通知",
+  "notificationChannelHintLow": "軽いバイブの静かな通知",
+  "notificationChannelHintNone": "無音の最小通知",
+  "failedToOpenSettings": "設定を開けませんでした: {error}"
 }

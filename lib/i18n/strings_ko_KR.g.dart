@@ -365,6 +365,13 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => '이번 주 완료';
 	@override String get weekly => '매주';
 	@override String get weekly_progress => '주간 진행';
+	@override String get notification_channels => '알림 채널';
+	@override String get manage_app_notifications => '앱 알림 관리';
+	@override String get notification_channel_hint_high => '소리와 진동이 있는 긴급 알림';
+	@override String get notification_channel_hint_medium => '소리와 진동이 있는 기본 알림';
+	@override String get notification_channel_hint_low => '가벼운 진동의 조용한 알림';
+	@override String get notification_channel_hint_none => '무음의 최소 알림';
+	@override String get failed_to_open_settings => '설정을 열 수 없습니다: {error}';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -701,6 +708,13 @@ extension on TranslationsKoKr {
 			'week_completed' => '이번 주 완료',
 			'weekly' => '매주',
 			'weekly_progress' => '주간 진행',
+			'notification_channels' => '알림 채널',
+			'manage_app_notifications' => '앱 알림 관리',
+			'notification_channel_hint_high' => '소리와 진동이 있는 긴급 알림',
+			'notification_channel_hint_medium' => '소리와 진동이 있는 기본 알림',
+			'notification_channel_hint_low' => '가벼운 진동의 조용한 알림',
+			'notification_channel_hint_none' => '무음의 최소 알림',
+			'failed_to_open_settings' => '설정을 열 수 없습니다: {error}',
 			_ => null,
 		};
 	}

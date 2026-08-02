@@ -1018,6 +1018,27 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'Weekly Progress'
 	String get weekly_progress => 'Weekly Progress';
+
+	/// en-US: 'Notification channels'
+	String get notification_channels => 'Notification channels';
+
+	/// en-US: 'Manage app notifications'
+	String get manage_app_notifications => 'Manage app notifications';
+
+	/// en-US: 'Urgent alerts with sound and vibration'
+	String get notification_channel_hint_high => 'Urgent alerts with sound and vibration';
+
+	/// en-US: 'Default alerts with sound and vibration'
+	String get notification_channel_hint_medium => 'Default alerts with sound and vibration';
+
+	/// en-US: 'Quiet alerts with light vibration'
+	String get notification_channel_hint_low => 'Quiet alerts with light vibration';
+
+	/// en-US: 'Silent, minimal alerts'
+	String get notification_channel_hint_none => 'Silent, minimal alerts';
+
+	/// en-US: 'Failed to open settings: {error}'
+	String get failed_to_open_settings => 'Failed to open settings: {error}';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -1354,6 +1375,13 @@ extension on Translations {
 			'week_completed' => 'This Week',
 			'weekly' => 'Weekly',
 			'weekly_progress' => 'Weekly Progress',
+			'notification_channels' => 'Notification channels',
+			'manage_app_notifications' => 'Manage app notifications',
+			'notification_channel_hint_high' => 'Urgent alerts with sound and vibration',
+			'notification_channel_hint_medium' => 'Default alerts with sound and vibration',
+			'notification_channel_hint_low' => 'Quiet alerts with light vibration',
+			'notification_channel_hint_none' => 'Silent, minimal alerts',
+			'failed_to_open_settings' => 'Failed to open settings: {error}',
 			_ => null,
 		};
 	}

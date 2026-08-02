@@ -99,9 +99,22 @@ class NotificationService {
   }
 
   /// Replaces the existing reminder with an updated schedule.
-  Future<void> reschedule(Todos todo) async {
+  Future<void> reschedule(Todos todo, {Settings? settings}) async {
     await cancel(todo.id);
-    await scheduleForTodo(todo);
+    await scheduleForTodo(todo, settings: settings);
+  }
+
+  /// Re-schedules active reminders so action labels pick up current [settings].
+  Future<void> rescheduleActiveReminders(
+    Iterable<Todos> todos, {
+    Settings? settings,
+  }) async {
+    for (final todo in todos) {
+      if (todo.todoCompletedTime == null || todo.status != TodoStatus.active) {
+        continue;
+      }
+      await reschedule(todo, settings: settings);
+    }
   }
 
   /// Delays [todo]'s reminder by [settings.snoozeDuration] minutes.

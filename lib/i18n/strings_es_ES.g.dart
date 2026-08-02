@@ -365,6 +365,13 @@ class TranslationsEsEs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Esta Semana';
 	@override String get weekly => 'Semanal';
 	@override String get weekly_progress => 'Progreso Semanal';
+	@override String get notification_channels => 'Canales de notificación';
+	@override String get manage_app_notifications => 'Administrar notificaciones de la app';
+	@override String get notification_channel_hint_high => 'Alertas urgentes con sonido y vibración';
+	@override String get notification_channel_hint_medium => 'Alertas normales con sonido y vibración';
+	@override String get notification_channel_hint_low => 'Alertas silenciosas con vibración ligera';
+	@override String get notification_channel_hint_none => 'Alertas mínimas sin sonido';
+	@override String get failed_to_open_settings => 'No se pudieron abrir los ajustes: {error}';
 }
 
 /// The flat map containing all translations for locale <es-ES>.
@@ -701,6 +708,13 @@ extension on TranslationsEsEs {
 			'week_completed' => 'Esta Semana',
 			'weekly' => 'Semanal',
 			'weekly_progress' => 'Progreso Semanal',
+			'notification_channels' => 'Canales de notificación',
+			'manage_app_notifications' => 'Administrar notificaciones de la app',
+			'notification_channel_hint_high' => 'Alertas urgentes con sonido y vibración',
+			'notification_channel_hint_medium' => 'Alertas normales con sonido y vibración',
+			'notification_channel_hint_low' => 'Alertas silenciosas con vibración ligera',
+			'notification_channel_hint_none' => 'Alertas mínimas sin sonido',
+			'failed_to_open_settings' => 'No se pudieron abrir los ajustes: {error}',
 			_ => null,
 		};
 	}

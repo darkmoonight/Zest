@@ -1,9 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/app.dart';
+import 'package:zest/core/bootstrap/notification_bootstrap.dart';
+import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
+import 'package:zest/core/bootstrap/notification_handlers.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/di/settings_revision.dart';
 import 'package:zest/core/notifications/notification_channels.dart';
@@ -90,9 +94,38 @@ class SettingsSaveActions {
     );
   }
 
+  /// Saves snooze duration and refreshes pending notification action labels.
+  Future<void> saveSnoozeDuration(int minutes) async {
+    saveSettingsOptimistic(
+      mutate: (s) => s.snoozeDuration = minutes,
+      afterSave: _refreshNotificationActionLabels,
+      backgroundAfterSave: true,
+    );
+  }
+
   /// Triggers an immediate auto-backup and returns whether it succeeded.
   Future<bool> createAutoBackupNow() async {
     return AutoBackupService.performManualAutoBackup(ref.read(isarProvider));
+  }
+
+  /// Re-inits categories and reschedules reminders with current snooze labels.
+  Future<void> _refreshNotificationActionLabels() async {
+    final settings = this.settings;
+    await initializeNotificationsPlugin(
+      onDidReceiveNotificationResponse: (response) async {
+        await handleNotificationResponse(response);
+        await NotificationHandlerBridge.notifyForegroundActionCompleted();
+      },
+      onDidReceiveBackgroundNotificationResponse: kIsWeb
+          ? null
+          : notificationTapBackground,
+      snoozeMinutes: settings.snoozeDuration,
+    );
+
+    final todos = await ref.read(todoRepositoryProvider).getAll();
+    await ref
+        .read(notificationServiceProvider)
+        .rescheduleActiveReminders(todos, settings: settings);
   }
 
   Future<void> _persistSettings({

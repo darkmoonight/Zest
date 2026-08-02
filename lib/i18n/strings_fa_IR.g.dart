@@ -365,6 +365,13 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'تکمیل شده این هفته';
 	@override String get weekly => 'هفتگی';
 	@override String get weekly_progress => 'پیشرفت هفتگی';
+	@override String get notification_channels => 'کانال‌های اعلان';
+	@override String get manage_app_notifications => 'مدیریت اعلان‌های برنامه';
+	@override String get notification_channel_hint_high => 'هشدارهای فوری با صدا و لرزش';
+	@override String get notification_channel_hint_medium => 'هشدارهای پیش‌فرض با صدا و لرزش';
+	@override String get notification_channel_hint_low => 'هشدارهای آرام با لرزش ملایم';
+	@override String get notification_channel_hint_none => 'هشدارهای بی‌صدا و حداقلی';
+	@override String get failed_to_open_settings => 'باز کردن تنظیمات ممکن نشد: {error}';
 }
 
 /// The flat map containing all translations for locale <fa-IR>.
@@ -701,6 +708,13 @@ extension on TranslationsFaIr {
 			'week_completed' => 'تکمیل شده این هفته',
 			'weekly' => 'هفتگی',
 			'weekly_progress' => 'پیشرفت هفتگی',
+			'notification_channels' => 'کانال‌های اعلان',
+			'manage_app_notifications' => 'مدیریت اعلان‌های برنامه',
+			'notification_channel_hint_high' => 'هشدارهای فوری با صدا و لرزش',
+			'notification_channel_hint_medium' => 'هشدارهای پیش‌فرض با صدا و لرزش',
+			'notification_channel_hint_low' => 'هشدارهای آرام با لرزش ملایم',
+			'notification_channel_hint_none' => 'هشدارهای بی‌صدا و حداقلی',
+			'failed_to_open_settings' => 'باز کردن تنظیمات ممکن نشد: {error}',
 			_ => null,
 		};
 	}

@@ -324,5 +324,12 @@
   "week": "Week",
   "weekCompleted": "This Week",
   "weekly": "Weekly",
-  "weeklyProgress": "Weekly Progress"
+  "weeklyProgress": "Weekly Progress",
+  "notificationChannels": "Notification channels",
+  "manageAppNotifications": "Manage app notifications",
+  "notificationChannelHintHigh": "Urgent alerts with sound and vibration",
+  "notificationChannelHintMedium": "Default alerts with sound and vibration",
+  "notificationChannelHintLow": "Quiet alerts with light vibration",
+  "notificationChannelHintNone": "Silent, minimal alerts",
+  "failedToOpenSettings": "Failed to open settings: {error}"
 }

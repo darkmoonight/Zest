@@ -365,6 +365,13 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => '今週';
 	@override String get weekly => '毎週';
 	@override String get weekly_progress => '週間進捗';
+	@override String get notification_channels => '通知チャネル';
+	@override String get manage_app_notifications => 'アプリの通知を管理';
+	@override String get notification_channel_hint_high => '音とバイブ付きの緊急通知';
+	@override String get notification_channel_hint_medium => '音とバイブ付きの標準通知';
+	@override String get notification_channel_hint_low => '軽いバイブの静かな通知';
+	@override String get notification_channel_hint_none => '無音の最小通知';
+	@override String get failed_to_open_settings => '設定を開けませんでした: {error}';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -701,6 +708,13 @@ extension on TranslationsJaJp {
 			'week_completed' => '今週',
 			'weekly' => '毎週',
 			'weekly_progress' => '週間進捗',
+			'notification_channels' => '通知チャネル',
+			'manage_app_notifications' => 'アプリの通知を管理',
+			'notification_channel_hint_high' => '音とバイブ付きの緊急通知',
+			'notification_channel_hint_medium' => '音とバイブ付きの標準通知',
+			'notification_channel_hint_low' => '軽いバイブの静かな通知',
+			'notification_channel_hint_none' => '無音の最小通知',
+			'failed_to_open_settings' => '設定を開けませんでした: {error}',
 			_ => null,
 		};
 	}

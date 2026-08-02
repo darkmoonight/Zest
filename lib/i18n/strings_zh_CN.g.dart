@@ -365,6 +365,13 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => '本周完成';
 	@override String get weekly => '每周';
 	@override String get weekly_progress => '每周进度';
+	@override String get notification_channels => '通知渠道';
+	@override String get manage_app_notifications => '管理应用通知';
+	@override String get notification_channel_hint_high => '带声音和振动的紧急提醒';
+	@override String get notification_channel_hint_medium => '带声音和振动的默认提醒';
+	@override String get notification_channel_hint_low => '轻微振动的安静提醒';
+	@override String get notification_channel_hint_none => '静音的最低提醒';
+	@override String get failed_to_open_settings => '无法打开设置：{error}';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -701,6 +708,13 @@ extension on TranslationsZhCn {
 			'week_completed' => '本周完成',
 			'weekly' => '每周',
 			'weekly_progress' => '每周进度',
+			'notification_channels' => '通知渠道',
+			'manage_app_notifications' => '管理应用通知',
+			'notification_channel_hint_high' => '带声音和振动的紧急提醒',
+			'notification_channel_hint_medium' => '带声音和振动的默认提醒',
+			'notification_channel_hint_low' => '轻微振动的安静提醒',
+			'notification_channel_hint_none' => '静音的最低提醒',
+			'failed_to_open_settings' => '无法打开设置：{error}',
 			_ => null,
 		};
 	}

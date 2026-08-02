@@ -365,6 +365,13 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'مكتمل هذا الأسبوع';
 	@override String get weekly => 'أسبوعي';
 	@override String get weekly_progress => 'التقدم الأسبوعي';
+	@override String get notification_channels => 'قنوات الإشعارات';
+	@override String get manage_app_notifications => 'إدارة إشعارات التطبيق';
+	@override String get notification_channel_hint_high => 'تنبيهات عاجلة مع صوت واهتزاز';
+	@override String get notification_channel_hint_medium => 'تنبيهات افتراضية مع صوت واهتزاز';
+	@override String get notification_channel_hint_low => 'تنبيهات هادئة مع اهتزاز خفيف';
+	@override String get notification_channel_hint_none => 'تنبيهات صامتة وبسيطة';
+	@override String get failed_to_open_settings => 'تعذر فتح الإعدادات: {error}';
 }
 
 /// The flat map containing all translations for locale <ar-AR>.
@@ -701,6 +708,13 @@ extension on TranslationsArAr {
 			'week_completed' => 'مكتمل هذا الأسبوع',
 			'weekly' => 'أسبوعي',
 			'weekly_progress' => 'التقدم الأسبوعي',
+			'notification_channels' => 'قنوات الإشعارات',
+			'manage_app_notifications' => 'إدارة إشعارات التطبيق',
+			'notification_channel_hint_high' => 'تنبيهات عاجلة مع صوت واهتزاز',
+			'notification_channel_hint_medium' => 'تنبيهات افتراضية مع صوت واهتزاز',
+			'notification_channel_hint_low' => 'تنبيهات هادئة مع اهتزاز خفيف',
+			'notification_channel_hint_none' => 'تنبيهات صامتة وبسيطة',
+			'failed_to_open_settings' => 'تعذر فتح الإعدادات: {error}',
 			_ => null,
 		};
 	}

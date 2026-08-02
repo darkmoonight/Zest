@@ -324,5 +324,12 @@
   "week": "أسبوع",
   "weekCompleted": "مكتمل هذا الأسبوع",
   "weekly": "أسبوعي",
-  "weeklyProgress": "التقدم الأسبوعي"
+  "weeklyProgress": "التقدم الأسبوعي",
+  "notificationChannels": "قنوات الإشعارات",
+  "manageAppNotifications": "إدارة إشعارات التطبيق",
+  "notificationChannelHintHigh": "تنبيهات عاجلة مع صوت واهتزاز",
+  "notificationChannelHintMedium": "تنبيهات افتراضية مع صوت واهتزاز",
+  "notificationChannelHintLow": "تنبيهات هادئة مع اهتزاز خفيف",
+  "notificationChannelHintNone": "تنبيهات صامتة وبسيطة",
+  "failedToOpenSettings": "تعذر فتح الإعدادات: {error}"
 }

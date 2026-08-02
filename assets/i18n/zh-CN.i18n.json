@@ -324,5 +324,12 @@
   "week": "周",
   "weekCompleted": "本周完成",
   "weekly": "每周",
-  "weeklyProgress": "每周进度"
+  "weeklyProgress": "每周进度",
+  "notificationChannels": "通知渠道",
+  "manageAppNotifications": "管理应用通知",
+  "notificationChannelHintHigh": "带声音和振动的紧急提醒",
+  "notificationChannelHintMedium": "带声音和振动的默认提醒",
+  "notificationChannelHintLow": "轻微振动的安静提醒",
+  "notificationChannelHintNone": "静音的最低提醒",
+  "failedToOpenSettings": "无法打开设置：{error}"
 }

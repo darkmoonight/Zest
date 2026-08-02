@@ -141,6 +141,35 @@ void main() {
       await service.cancelAll();
       expect(fake.cancelAllCalled, isTrue);
     });
+
+    test(
+      'rescheduleActiveReminders only touches active todos with due times',
+      () async {
+        final due = DateTime.now().add(const Duration(hours: 1));
+        final settings = Settings()..snoozeDuration = 5;
+        final todos = [
+          buildTodo(
+            id: 1,
+            task: Tasks(id: 1, title: 'T', taskColor: 1),
+            todoCompletedTime: due,
+          ),
+          buildTodo(id: 2, task: Tasks(id: 1, title: 'T', taskColor: 1)),
+          buildTodo(
+            id: 3,
+            task: Tasks(id: 1, title: 'T', taskColor: 1),
+            todoCompletedTime: due,
+            status: TodoStatus.done,
+          ),
+        ];
+
+        await service.rescheduleActiveReminders(todos, settings: settings);
+
+        expect(fake.cancelled, [1]);
+        expect(fake.shown, hasLength(1));
+        expect(fake.shown.first.id, 1);
+        expect(fake.shownSettings.single.snoozeDuration, 5);
+      },
+    );
   });
 
   group('NotificationService.scheduleForTask', () {

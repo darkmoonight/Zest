@@ -365,6 +365,13 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Diese Woche';
 	@override String get weekly => 'Wöchentlich';
 	@override String get weekly_progress => 'Wochenfortschritt';
+	@override String get notification_channels => 'Benachrichtigungskanäle';
+	@override String get manage_app_notifications => 'App-Benachrichtigungen verwalten';
+	@override String get notification_channel_hint_high => 'Dringende Alarme mit Ton und Vibration';
+	@override String get notification_channel_hint_medium => 'Standardalarme mit Ton und Vibration';
+	@override String get notification_channel_hint_low => 'Leise Alarme mit leichter Vibration';
+	@override String get notification_channel_hint_none => 'Stille, minimale Alarme';
+	@override String get failed_to_open_settings => 'Einstellungen konnten nicht geöffnet werden: {error}';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -701,6 +708,13 @@ extension on TranslationsDeDe {
 			'week_completed' => 'Diese Woche',
 			'weekly' => 'Wöchentlich',
 			'weekly_progress' => 'Wochenfortschritt',
+			'notification_channels' => 'Benachrichtigungskanäle',
+			'manage_app_notifications' => 'App-Benachrichtigungen verwalten',
+			'notification_channel_hint_high' => 'Dringende Alarme mit Ton und Vibration',
+			'notification_channel_hint_medium' => 'Standardalarme mit Ton und Vibration',
+			'notification_channel_hint_low' => 'Leise Alarme mit leichter Vibration',
+			'notification_channel_hint_none' => 'Stille, minimale Alarme',
+			'failed_to_open_settings' => 'Einstellungen konnten nicht geöffnet werden: {error}',
 			_ => null,
 		};
 	}

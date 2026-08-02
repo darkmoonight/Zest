@@ -3,26 +3,21 @@ package com.yoshi.todark
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
-import android.provider.DocumentsContract
 import androidx.annotation.NonNull
 import androidx.documentfile.provider.DocumentFile
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import java.io.FileOutputStream
-import java.io.OutputStream
 
 class MainActivity: FlutterActivity() {
-    private val CHANNEL = "directory_picker"
+    private val DIRECTORY_CHANNEL = "directory_picker"
     private val REQUEST_CODE = 1001
     private var result: MethodChannel.Result? = null
     private var pickedDirectoryUri: Uri? = null
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, DIRECTORY_CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "pickDirectory" -> {
                     this.result = result

@@ -201,6 +201,9 @@ class AppConstants {
   /// Snooze duration picker values in minutes.
   static const List<int> snoozeDurationChoices = [5, 10, 15, 20, 30, 45, 60];
 
+  /// Android application id (`applicationId` / package name).
+  static const String androidPackageName = 'com.yoshi.todark';
+
   /// Max auto-backup count picker values.
   static const List<int> maxAutoBackupChoices = [3, 5, 7, 10, 15, 20, 30];
 

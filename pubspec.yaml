@@ -46,7 +46,7 @@ dependencies:
   # UI & theming
   gap: ^3.0.1
   shimmer: ^3.0.0
-  google_fonts: ^8.2.0
+  google_fonts: ^8.2.1
   dynamic_system_colors: ^1.9.0
   material_color_utilities: ^0.13.0
   iconsax_plus: ^1.0.0
@@ -68,6 +68,7 @@ dependencies:
   package_info_plus: ^10.2.1
   restart_app: ^1.8.3
   url_launcher: ^6.3.2
+  android_intent_plus: ^6.1.0
 
 dev_dependencies:
   # Testing

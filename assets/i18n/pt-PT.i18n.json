@@ -324,5 +324,12 @@
   "week": "Semana",
   "weekCompleted": "Concluídas esta semana",
   "weekly": "Semanal",
-  "weeklyProgress": "Progresso Semanal"
+  "weeklyProgress": "Progresso Semanal",
+  "notificationChannels": "Canais de notificação",
+  "manageAppNotifications": "Gerir notificações da app",
+  "notificationChannelHintHigh": "Alertas urgentes com som e vibração",
+  "notificationChannelHintMedium": "Alertas padrão com som e vibração",
+  "notificationChannelHintLow": "Alertas silenciosos com vibração ligeira",
+  "notificationChannelHintNone": "Alertas mínimos sem som",
+  "failedToOpenSettings": "Não foi possível abrir as definições: {error}"
 }

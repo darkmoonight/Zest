@@ -365,6 +365,13 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => '本週完成';
 	@override String get weekly => '每週';
 	@override String get weekly_progress => '每週進度';
+	@override String get notification_channels => '通知頻道';
+	@override String get manage_app_notifications => '管理應用程式通知';
+	@override String get notification_channel_hint_high => '含聲音與震動的緊急提醒';
+	@override String get notification_channel_hint_medium => '含聲音與震動的預設提醒';
+	@override String get notification_channel_hint_low => '輕微震動的安靜提醒';
+	@override String get notification_channel_hint_none => '靜音的最低提醒';
+	@override String get failed_to_open_settings => '無法開啟設定：{error}';
 }
 
 /// The flat map containing all translations for locale <zh-TW>.
@@ -701,6 +708,13 @@ extension on TranslationsZhTw {
 			'week_completed' => '本週完成',
 			'weekly' => '每週',
 			'weekly_progress' => '每週進度',
+			'notification_channels' => '通知頻道',
+			'manage_app_notifications' => '管理應用程式通知',
+			'notification_channel_hint_high' => '含聲音與震動的緊急提醒',
+			'notification_channel_hint_medium' => '含聲音與震動的預設提醒',
+			'notification_channel_hint_low' => '輕微震動的安靜提醒',
+			'notification_channel_hint_none' => '靜音的最低提醒',
+			'failed_to_open_settings' => '無法開啟設定：{error}',
 			_ => null,
 		};
 	}

@@ -14,6 +14,9 @@ abstract class PlatformFeatures {
   /// Whether the runtime is web.
   static bool get isWeb => false;
 
+  /// Whether the runtime is Android.
+  static bool get isAndroid => false;
+
   /// Whether local notifications are available.
   static bool get supportsNotifications => false;
 
@@ -53,6 +56,7 @@ abstract class PlatformFeatures {
       'isMobile': isMobile,
       'isDesktop': isDesktop,
       'isWeb': isWeb,
+      'isAndroid': isAndroid,
       'supportsNotifications': supportsNotifications,
       'supportsQuickActions': supportsQuickActions,
       'supportsDynamicColor': supportsDynamicColor,

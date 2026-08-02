@@ -324,5 +324,12 @@
   "week": "Tuần",
   "weekCompleted": "Hoàn thành tuần này",
   "weekly": "Hàng tuần",
-  "weeklyProgress": "Tiến độ tuần"
+  "weeklyProgress": "Tiến độ tuần",
+  "notificationChannels": "Kênh thông báo",
+  "manageAppNotifications": "Quản lý thông báo ứng dụng",
+  "notificationChannelHintHigh": "Cảnh báo khẩn với âm thanh và rung",
+  "notificationChannelHintMedium": "Cảnh báo mặc định với âm thanh và rung",
+  "notificationChannelHintLow": "Cảnh báo nhẹ với rung nhẹ",
+  "notificationChannelHintNone": "Cảnh báo tối thiểu, im lặng",
+  "failedToOpenSettings": "Không thể mở cài đặt: {error}"
 }

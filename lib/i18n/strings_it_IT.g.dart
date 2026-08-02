@@ -365,6 +365,13 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Completati questa settimana';
 	@override String get weekly => 'Settimanale';
 	@override String get weekly_progress => 'Progresso Settimanale';
+	@override String get notification_channels => 'Canali di notifica';
+	@override String get manage_app_notifications => 'Gestisci le notifiche dell\'app';
+	@override String get notification_channel_hint_high => 'Avvisi urgenti con suono e vibrazione';
+	@override String get notification_channel_hint_medium => 'Avvisi standard con suono e vibrazione';
+	@override String get notification_channel_hint_low => 'Avvisi discreti con vibrazione leggera';
+	@override String get notification_channel_hint_none => 'Avvisi minimi silenziosi';
+	@override String get failed_to_open_settings => 'Impossibile aprire le impostazioni: {error}';
 }
 
 /// The flat map containing all translations for locale <it-IT>.
@@ -701,6 +708,13 @@ extension on TranslationsItIt {
 			'week_completed' => 'Completati questa settimana',
 			'weekly' => 'Settimanale',
 			'weekly_progress' => 'Progresso Settimanale',
+			'notification_channels' => 'Canali di notifica',
+			'manage_app_notifications' => 'Gestisci le notifiche dell\'app',
+			'notification_channel_hint_high' => 'Avvisi urgenti con suono e vibrazione',
+			'notification_channel_hint_medium' => 'Avvisi standard con suono e vibrazione',
+			'notification_channel_hint_low' => 'Avvisi discreti con vibrazione leggera',
+			'notification_channel_hint_none' => 'Avvisi minimi silenziosi',
+			'failed_to_open_settings' => 'Impossibile aprire le impostazioni: {error}',
 			_ => null,
 		};
 	}

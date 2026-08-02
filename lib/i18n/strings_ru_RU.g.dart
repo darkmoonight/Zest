@@ -365,6 +365,13 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'За неделю';
 	@override String get weekly => 'Еженедельно';
 	@override String get weekly_progress => 'Прогресс за неделю';
+	@override String get notification_channels => 'Каналы уведомлений';
+	@override String get manage_app_notifications => 'Управление уведомлениями приложения';
+	@override String get notification_channel_hint_high => 'Срочные оповещения со звуком и вибрацией';
+	@override String get notification_channel_hint_medium => 'Обычные оповещения со звуком и вибрацией';
+	@override String get notification_channel_hint_low => 'Тихие оповещения с лёгкой вибрацией';
+	@override String get notification_channel_hint_none => 'Беззвучные минимальные оповещения';
+	@override String get failed_to_open_settings => 'Не удалось открыть настройки: {error}';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -701,6 +708,13 @@ extension on TranslationsRuRu {
 			'week_completed' => 'За неделю',
 			'weekly' => 'Еженедельно',
 			'weekly_progress' => 'Прогресс за неделю',
+			'notification_channels' => 'Каналы уведомлений',
+			'manage_app_notifications' => 'Управление уведомлениями приложения',
+			'notification_channel_hint_high' => 'Срочные оповещения со звуком и вибрацией',
+			'notification_channel_hint_medium' => 'Обычные оповещения со звуком и вибрацией',
+			'notification_channel_hint_low' => 'Тихие оповещения с лёгкой вибрацией',
+			'notification_channel_hint_none' => 'Беззвучные минимальные оповещения',
+			'failed_to_open_settings' => 'Не удалось открыть настройки: {error}',
 			_ => null,
 		};
 	}

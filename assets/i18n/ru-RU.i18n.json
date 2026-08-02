@@ -324,5 +324,12 @@
   "week": "Неделя",
   "weekCompleted": "За неделю",
   "weekly": "Еженедельно",
-  "weeklyProgress": "Прогресс за неделю"
+  "weeklyProgress": "Прогресс за неделю",
+  "notificationChannels": "Каналы уведомлений",
+  "manageAppNotifications": "Управление уведомлениями приложения",
+  "notificationChannelHintHigh": "Срочные оповещения со звуком и вибрацией",
+  "notificationChannelHintMedium": "Обычные оповещения со звуком и вибрацией",
+  "notificationChannelHintLow": "Тихие оповещения с лёгкой вибрацией",
+  "notificationChannelHintNone": "Беззвучные минимальные оповещения",
+  "failedToOpenSettings": "Не удалось открыть настройки: {error}"
 }

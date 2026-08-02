@@ -365,6 +365,13 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Ukończone w tym tygodniu';
 	@override String get weekly => 'Co tydzień';
 	@override String get weekly_progress => 'Postęp Tygodniowy';
+	@override String get notification_channels => 'Kanały powiadomień';
+	@override String get manage_app_notifications => 'Zarządzaj powiadomieniami aplikacji';
+	@override String get notification_channel_hint_high => 'Pilne alerty z dźwiękiem i wibracją';
+	@override String get notification_channel_hint_medium => 'Standardowe alerty z dźwiękiem i wibracją';
+	@override String get notification_channel_hint_low => 'Ciche alerty z lekką wibracją';
+	@override String get notification_channel_hint_none => 'Ciche, minimalne alerty';
+	@override String get failed_to_open_settings => 'Nie udało się otworzyć ustawień: {error}';
 }
 
 /// The flat map containing all translations for locale <pl-PL>.
@@ -701,6 +708,13 @@ extension on TranslationsPlPl {
 			'week_completed' => 'Ukończone w tym tygodniu',
 			'weekly' => 'Co tydzień',
 			'weekly_progress' => 'Postęp Tygodniowy',
+			'notification_channels' => 'Kanały powiadomień',
+			'manage_app_notifications' => 'Zarządzaj powiadomieniami aplikacji',
+			'notification_channel_hint_high' => 'Pilne alerty z dźwiękiem i wibracją',
+			'notification_channel_hint_medium' => 'Standardowe alerty z dźwiękiem i wibracją',
+			'notification_channel_hint_low' => 'Ciche alerty z lekką wibracją',
+			'notification_channel_hint_none' => 'Ciche, minimalne alerty',
+			'failed_to_open_settings' => 'Nie udało się otworzyć ustawień: {error}',
 			_ => null,
 		};
 	}

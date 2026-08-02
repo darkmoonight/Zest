@@ -324,5 +324,12 @@
   "week": "Hafta",
   "weekCompleted": "Bu hafta tamamlanan",
   "weekly": "Haftalık",
-  "weeklyProgress": "Haftalık İlerleme"
+  "weeklyProgress": "Haftalık İlerleme",
+  "notificationChannels": "Bildirim kanalları",
+  "manageAppNotifications": "Uygulama bildirimlerini yönet",
+  "notificationChannelHintHigh": "Ses ve titreşimli acil uyarılar",
+  "notificationChannelHintMedium": "Ses ve titreşimli varsayılan uyarılar",
+  "notificationChannelHintLow": "Hafif titreşimli sessiz uyarılar",
+  "notificationChannelHintNone": "Sessiz, minimal uyarılar",
+  "failedToOpenSettings": "Ayarlar açılamadı: {error}"
 }
