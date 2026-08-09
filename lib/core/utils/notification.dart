@@ -22,6 +22,10 @@ class NotificationShow {
   FlutterLocalNotificationsPlugin? get _plugin => NotificationPlugin.instance;
 
   /// Schedules a notification at [date] with optional action labels.
+  ///
+  /// On Android, prefers [AndroidScheduleMode.exactAllowWhileIdle] and falls
+  /// back to [AndroidScheduleMode.inexactAllowWhileIdle] when exact alarms
+  /// are denied.
   Future<void> showNotification(
     int id,
     String title,
@@ -55,18 +59,48 @@ class NotificationShow {
     final scheduledTime = _getScheduledTime(date);
 
     try {
-      await _plugin!.zonedSchedule(
+      await _zonedSchedule(
         id: id,
         title: title,
         body: body,
-        scheduledDate: scheduledTime,
+        scheduledTime: scheduledTime,
         notificationDetails: notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        payload: '$id',
       );
     } catch (e) {
-      debugPrint('Error scheduling notification: $e');
+      debugPrint('Exact alarm schedule failed, falling back to inexact: $e');
+      try {
+        await _zonedSchedule(
+          id: id,
+          title: title,
+          body: body,
+          scheduledTime: scheduledTime,
+          notificationDetails: notificationDetails,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        );
+      } catch (fallbackError) {
+        debugPrint('Error scheduling notification: $fallbackError');
+      }
     }
+  }
+
+  Future<void> _zonedSchedule({
+    required int id,
+    required String title,
+    required String body,
+    required tz.TZDateTime scheduledTime,
+    required NotificationDetails notificationDetails,
+    required AndroidScheduleMode androidScheduleMode,
+  }) {
+    return _plugin!.zonedSchedule(
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: scheduledTime,
+      notificationDetails: notificationDetails,
+      androidScheduleMode: androidScheduleMode,
+      payload: '$id',
+    );
   }
 
   /// Requests notification permissions on the current platform.

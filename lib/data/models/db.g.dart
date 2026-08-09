@@ -45,112 +45,128 @@ const SettingsSchema = CollectionSchema(
       name: r'autoBackupPath',
       type: IsarType.string,
     ),
-    r'calendarFormat': PropertySchema(
+    r'autoEraseCompletedEnabled': PropertySchema(
       id: 6,
+      name: r'autoEraseCompletedEnabled',
+      type: IsarType.bool,
+    ),
+    r'autoEraseCompletedFrequency': PropertySchema(
+      id: 7,
+      name: r'autoEraseCompletedFrequency',
+      type: IsarType.byte,
+      enumMap: _SettingsautoEraseCompletedFrequencyEnumValueMap,
+    ),
+    r'calendarFormat': PropertySchema(
+      id: 8,
       name: r'calendarFormat',
       type: IsarType.string,
     ),
     r'calendarSortOption': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'calendarSortOption',
       type: IsarType.byte,
       enumMap: _SettingscalendarSortOptionEnumValueMap,
     ),
     r'colorPalette': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'colorPalette',
       type: IsarType.string,
     ),
     r'defaultCategoryId': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'defaultCategoryId',
       type: IsarType.long,
     ),
     r'defaultCategorySeeded': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'defaultCategorySeeded',
       type: IsarType.bool,
     ),
     r'defaultScreen': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'defaultScreen',
       type: IsarType.string,
     ),
     r'deviceCalendarId': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'deviceCalendarId',
       type: IsarType.string,
     ),
     r'deviceCalendarSyncEnabled': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'deviceCalendarSyncEnabled',
       type: IsarType.bool,
     ),
     r'firstDay': PropertySchema(
-      id: 14,
+      id: 16,
       name: r'firstDay',
       type: IsarType.string,
     ),
-    r'isImage': PropertySchema(id: 15, name: r'isImage', type: IsarType.bool),
+    r'isImage': PropertySchema(id: 17, name: r'isImage', type: IsarType.bool),
     r'language': PropertySchema(
-      id: 16,
+      id: 18,
       name: r'language',
       type: IsarType.string,
     ),
     r'lastAutoBackupTime': PropertySchema(
-      id: 17,
+      id: 19,
       name: r'lastAutoBackupTime',
       type: IsarType.dateTime,
     ),
+    r'lastAutoEraseCompletedTime': PropertySchema(
+      id: 20,
+      name: r'lastAutoEraseCompletedTime',
+      type: IsarType.dateTime,
+    ),
     r'materialColor': PropertySchema(
-      id: 18,
+      id: 21,
       name: r'materialColor',
       type: IsarType.bool,
     ),
     r'maxAutoBackups': PropertySchema(
-      id: 19,
+      id: 22,
       name: r'maxAutoBackups',
       type: IsarType.long,
     ),
     r'notificationChannelsMigrated': PropertySchema(
-      id: 20,
+      id: 23,
       name: r'notificationChannelsMigrated',
       type: IsarType.bool,
     ),
-    r'onboard': PropertySchema(id: 21, name: r'onboard', type: IsarType.bool),
+    r'onboard': PropertySchema(id: 24, name: r'onboard', type: IsarType.bool),
     r'screenPrivacy': PropertySchema(
-      id: 22,
+      id: 25,
       name: r'screenPrivacy',
       type: IsarType.bool,
     ),
     r'settingsSchemaVersion': PropertySchema(
-      id: 23,
+      id: 26,
       name: r'settingsSchemaVersion',
       type: IsarType.long,
     ),
     r'showArchivedInAllTodos': PropertySchema(
-      id: 24,
+      id: 27,
       name: r'showArchivedInAllTodos',
       type: IsarType.bool,
     ),
     r'showArchivedInCalendar': PropertySchema(
-      id: 25,
+      id: 28,
       name: r'showArchivedInCalendar',
       type: IsarType.bool,
     ),
     r'showArchivedInStatistics': PropertySchema(
-      id: 26,
+      id: 29,
       name: r'showArchivedInStatistics',
       type: IsarType.bool,
     ),
     r'snoozeDuration': PropertySchema(
-      id: 27,
+      id: 30,
       name: r'snoozeDuration',
       type: IsarType.long,
     ),
-    r'theme': PropertySchema(id: 28, name: r'theme', type: IsarType.string),
+    r'theme': PropertySchema(id: 31, name: r'theme', type: IsarType.string),
     r'timeformat': PropertySchema(
-      id: 29,
+      id: 32,
       name: r'timeformat',
       type: IsarType.string,
     ),
@@ -222,30 +238,33 @@ void _settingsSerialize(
   writer.writeBool(offsets[3], object.autoBackupEnabled);
   writer.writeByte(offsets[4], object.autoBackupFrequency.index);
   writer.writeString(offsets[5], object.autoBackupPath);
-  writer.writeString(offsets[6], object.calendarFormat);
-  writer.writeByte(offsets[7], object.calendarSortOption.index);
-  writer.writeString(offsets[8], object.colorPalette);
-  writer.writeLong(offsets[9], object.defaultCategoryId);
-  writer.writeBool(offsets[10], object.defaultCategorySeeded);
-  writer.writeString(offsets[11], object.defaultScreen);
-  writer.writeString(offsets[12], object.deviceCalendarId);
-  writer.writeBool(offsets[13], object.deviceCalendarSyncEnabled);
-  writer.writeString(offsets[14], object.firstDay);
-  writer.writeBool(offsets[15], object.isImage);
-  writer.writeString(offsets[16], object.language);
-  writer.writeDateTime(offsets[17], object.lastAutoBackupTime);
-  writer.writeBool(offsets[18], object.materialColor);
-  writer.writeLong(offsets[19], object.maxAutoBackups);
-  writer.writeBool(offsets[20], object.notificationChannelsMigrated);
-  writer.writeBool(offsets[21], object.onboard);
-  writer.writeBool(offsets[22], object.screenPrivacy);
-  writer.writeLong(offsets[23], object.settingsSchemaVersion);
-  writer.writeBool(offsets[24], object.showArchivedInAllTodos);
-  writer.writeBool(offsets[25], object.showArchivedInCalendar);
-  writer.writeBool(offsets[26], object.showArchivedInStatistics);
-  writer.writeLong(offsets[27], object.snoozeDuration);
-  writer.writeString(offsets[28], object.theme);
-  writer.writeString(offsets[29], object.timeformat);
+  writer.writeBool(offsets[6], object.autoEraseCompletedEnabled);
+  writer.writeByte(offsets[7], object.autoEraseCompletedFrequency.index);
+  writer.writeString(offsets[8], object.calendarFormat);
+  writer.writeByte(offsets[9], object.calendarSortOption.index);
+  writer.writeString(offsets[10], object.colorPalette);
+  writer.writeLong(offsets[11], object.defaultCategoryId);
+  writer.writeBool(offsets[12], object.defaultCategorySeeded);
+  writer.writeString(offsets[13], object.defaultScreen);
+  writer.writeString(offsets[14], object.deviceCalendarId);
+  writer.writeBool(offsets[15], object.deviceCalendarSyncEnabled);
+  writer.writeString(offsets[16], object.firstDay);
+  writer.writeBool(offsets[17], object.isImage);
+  writer.writeString(offsets[18], object.language);
+  writer.writeDateTime(offsets[19], object.lastAutoBackupTime);
+  writer.writeDateTime(offsets[20], object.lastAutoEraseCompletedTime);
+  writer.writeBool(offsets[21], object.materialColor);
+  writer.writeLong(offsets[22], object.maxAutoBackups);
+  writer.writeBool(offsets[23], object.notificationChannelsMigrated);
+  writer.writeBool(offsets[24], object.onboard);
+  writer.writeBool(offsets[25], object.screenPrivacy);
+  writer.writeLong(offsets[26], object.settingsSchemaVersion);
+  writer.writeBool(offsets[27], object.showArchivedInAllTodos);
+  writer.writeBool(offsets[28], object.showArchivedInCalendar);
+  writer.writeBool(offsets[29], object.showArchivedInStatistics);
+  writer.writeLong(offsets[30], object.snoozeDuration);
+  writer.writeString(offsets[31], object.theme);
+  writer.writeString(offsets[32], object.timeformat);
 }
 
 Settings _settingsDeserialize(
@@ -269,35 +288,42 @@ Settings _settingsDeserialize(
       )] ??
       AutoBackupFrequency.daily;
   object.autoBackupPath = reader.readStringOrNull(offsets[5]);
-  object.calendarFormat = reader.readString(offsets[6]);
-  object.calendarSortOption =
-      _SettingscalendarSortOptionValueEnumMap[reader.readByteOrNull(
+  object.autoEraseCompletedEnabled = reader.readBool(offsets[6]);
+  object.autoEraseCompletedFrequency =
+      _SettingsautoEraseCompletedFrequencyValueEnumMap[reader.readByteOrNull(
         offsets[7],
       )] ??
+      AutoEraseCompletedFrequency.weekly;
+  object.calendarFormat = reader.readString(offsets[8]);
+  object.calendarSortOption =
+      _SettingscalendarSortOptionValueEnumMap[reader.readByteOrNull(
+        offsets[9],
+      )] ??
       SortOption.none;
-  object.colorPalette = reader.readString(offsets[8]);
-  object.defaultCategoryId = reader.readLongOrNull(offsets[9]);
-  object.defaultCategorySeeded = reader.readBool(offsets[10]);
-  object.defaultScreen = reader.readString(offsets[11]);
-  object.deviceCalendarId = reader.readStringOrNull(offsets[12]);
-  object.deviceCalendarSyncEnabled = reader.readBool(offsets[13]);
-  object.firstDay = reader.readString(offsets[14]);
+  object.colorPalette = reader.readString(offsets[10]);
+  object.defaultCategoryId = reader.readLongOrNull(offsets[11]);
+  object.defaultCategorySeeded = reader.readBool(offsets[12]);
+  object.defaultScreen = reader.readString(offsets[13]);
+  object.deviceCalendarId = reader.readStringOrNull(offsets[14]);
+  object.deviceCalendarSyncEnabled = reader.readBool(offsets[15]);
+  object.firstDay = reader.readString(offsets[16]);
   object.id = id;
-  object.isImage = reader.readBoolOrNull(offsets[15]);
-  object.language = reader.readStringOrNull(offsets[16]);
-  object.lastAutoBackupTime = reader.readDateTimeOrNull(offsets[17]);
-  object.materialColor = reader.readBool(offsets[18]);
-  object.maxAutoBackups = reader.readLong(offsets[19]);
-  object.notificationChannelsMigrated = reader.readBool(offsets[20]);
-  object.onboard = reader.readBool(offsets[21]);
-  object.screenPrivacy = reader.readBoolOrNull(offsets[22]);
-  object.settingsSchemaVersion = reader.readLong(offsets[23]);
-  object.showArchivedInAllTodos = reader.readBool(offsets[24]);
-  object.showArchivedInCalendar = reader.readBool(offsets[25]);
-  object.showArchivedInStatistics = reader.readBool(offsets[26]);
-  object.snoozeDuration = reader.readLong(offsets[27]);
-  object.theme = reader.readStringOrNull(offsets[28]);
-  object.timeformat = reader.readString(offsets[29]);
+  object.isImage = reader.readBoolOrNull(offsets[17]);
+  object.language = reader.readStringOrNull(offsets[18]);
+  object.lastAutoBackupTime = reader.readDateTimeOrNull(offsets[19]);
+  object.lastAutoEraseCompletedTime = reader.readDateTimeOrNull(offsets[20]);
+  object.materialColor = reader.readBool(offsets[21]);
+  object.maxAutoBackups = reader.readLong(offsets[22]);
+  object.notificationChannelsMigrated = reader.readBool(offsets[23]);
+  object.onboard = reader.readBool(offsets[24]);
+  object.screenPrivacy = reader.readBoolOrNull(offsets[25]);
+  object.settingsSchemaVersion = reader.readLong(offsets[26]);
+  object.showArchivedInAllTodos = reader.readBool(offsets[27]);
+  object.showArchivedInCalendar = reader.readBool(offsets[28]);
+  object.showArchivedInStatistics = reader.readBool(offsets[29]);
+  object.snoozeDuration = reader.readLong(offsets[30]);
+  object.theme = reader.readStringOrNull(offsets[31]);
+  object.timeformat = reader.readString(offsets[32]);
   return object;
 }
 
@@ -329,56 +355,65 @@ P _settingsDeserializeProp<P>(
     case 5:
       return (reader.readStringOrNull(offset)) as P;
     case 6:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 7:
+      return (_SettingsautoEraseCompletedFrequencyValueEnumMap[reader
+                  .readByteOrNull(offset)] ??
+              AutoEraseCompletedFrequency.weekly)
+          as P;
+    case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
       return (_SettingscalendarSortOptionValueEnumMap[reader.readByteOrNull(
                 offset,
               )] ??
               SortOption.none)
           as P;
-    case 8:
-      return (reader.readString(offset)) as P;
-    case 9:
-      return (reader.readLongOrNull(offset)) as P;
     case 10:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 11:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 12:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 13:
-      return (reader.readBool(offset)) as P;
-    case 14:
       return (reader.readString(offset)) as P;
-    case 15:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 16:
+    case 14:
       return (reader.readStringOrNull(offset)) as P;
+    case 15:
+      return (reader.readBool(offset)) as P;
+    case 16:
+      return (reader.readString(offset)) as P;
     case 17:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readBoolOrNull(offset)) as P;
     case 18:
-      return (reader.readBool(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 19:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 20:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 21:
       return (reader.readBool(offset)) as P;
     case 22:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 23:
       return (reader.readLong(offset)) as P;
+    case 23:
+      return (reader.readBool(offset)) as P;
     case 24:
       return (reader.readBool(offset)) as P;
     case 25:
-      return (reader.readBool(offset)) as P;
+      return (reader.readBoolOrNull(offset)) as P;
     case 26:
-      return (reader.readBool(offset)) as P;
-    case 27:
       return (reader.readLong(offset)) as P;
+    case 27:
+      return (reader.readBool(offset)) as P;
     case 28:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 29:
+      return (reader.readBool(offset)) as P;
+    case 30:
+      return (reader.readLong(offset)) as P;
+    case 31:
+      return (reader.readStringOrNull(offset)) as P;
+    case 32:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -418,6 +453,14 @@ const _SettingsautoBackupFrequencyValueEnumMap = {
   0: AutoBackupFrequency.daily,
   1: AutoBackupFrequency.weekly,
   2: AutoBackupFrequency.monthly,
+};
+const _SettingsautoEraseCompletedFrequencyEnumValueMap = {
+  'weekly': 0,
+  'monthly': 1,
+};
+const _SettingsautoEraseCompletedFrequencyValueEnumMap = {
+  0: AutoEraseCompletedFrequency.weekly,
+  1: AutoEraseCompletedFrequency.monthly,
 };
 const _SettingscalendarSortOptionEnumValueMap = {
   'none': 0,
@@ -975,6 +1018,82 @@ extension SettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(property: r'autoBackupPath', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoEraseCompletedEnabledEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'autoEraseCompletedEnabled',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoEraseCompletedFrequencyEqualTo(AutoEraseCompletedFrequency value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'autoEraseCompletedFrequency',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoEraseCompletedFrequencyGreaterThan(
+    AutoEraseCompletedFrequency value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'autoEraseCompletedFrequency',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoEraseCompletedFrequencyLessThan(
+    AutoEraseCompletedFrequency value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'autoEraseCompletedFrequency',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  autoEraseCompletedFrequencyBetween(
+    AutoEraseCompletedFrequency lower,
+    AutoEraseCompletedFrequency upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'autoEraseCompletedFrequency',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
       );
     });
   }
@@ -2192,6 +2311,87 @@ extension SettingsQueryFilter
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoEraseCompletedTimeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'lastAutoEraseCompletedTime'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoEraseCompletedTimeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(
+          property: r'lastAutoEraseCompletedTime',
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoEraseCompletedTimeEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'lastAutoEraseCompletedTime',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoEraseCompletedTimeGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'lastAutoEraseCompletedTime',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoEraseCompletedTimeLessThan(DateTime? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'lastAutoEraseCompletedTime',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastAutoEraseCompletedTimeBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'lastAutoEraseCompletedTime',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterFilterCondition> materialColorEqualTo(
     bool value,
   ) {
@@ -2847,6 +3047,34 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByAutoEraseCompletedEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoEraseCompletedEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByAutoEraseCompletedEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoEraseCompletedEnabled', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByAutoEraseCompletedFrequency() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoEraseCompletedFrequency', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByAutoEraseCompletedFrequencyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoEraseCompletedFrequency', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByCalendarFormat() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'calendarFormat', Sort.asc);
@@ -2993,6 +3221,20 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
   sortByLastAutoBackupTimeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastAutoBackupTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByLastAutoEraseCompletedTime() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastAutoEraseCompletedTime', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByLastAutoEraseCompletedTimeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastAutoEraseCompletedTime', Sort.desc);
     });
   }
 
@@ -3226,6 +3468,34 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByAutoEraseCompletedEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoEraseCompletedEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByAutoEraseCompletedEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoEraseCompletedEnabled', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByAutoEraseCompletedFrequency() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoEraseCompletedFrequency', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByAutoEraseCompletedFrequencyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'autoEraseCompletedFrequency', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByCalendarFormat() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'calendarFormat', Sort.asc);
@@ -3384,6 +3654,20 @@ extension SettingsQuerySortThenBy
   thenByLastAutoBackupTimeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastAutoBackupTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByLastAutoEraseCompletedTime() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastAutoEraseCompletedTime', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByLastAutoEraseCompletedTimeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastAutoEraseCompletedTime', Sort.desc);
     });
   }
 
@@ -3586,6 +3870,20 @@ extension SettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Settings, Settings, QDistinct>
+  distinctByAutoEraseCompletedEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'autoEraseCompletedEnabled');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct>
+  distinctByAutoEraseCompletedFrequency() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'autoEraseCompletedFrequency');
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByCalendarFormat({
     bool caseSensitive = true,
   }) {
@@ -3678,6 +3976,13 @@ extension SettingsQueryWhereDistinct
   QueryBuilder<Settings, Settings, QDistinct> distinctByLastAutoBackupTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lastAutoBackupTime');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct>
+  distinctByLastAutoEraseCompletedTime() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastAutoEraseCompletedTime');
     });
   }
 
@@ -3809,6 +4114,20 @@ extension SettingsQueryProperty
     });
   }
 
+  QueryBuilder<Settings, bool, QQueryOperations>
+  autoEraseCompletedEnabledProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'autoEraseCompletedEnabled');
+    });
+  }
+
+  QueryBuilder<Settings, AutoEraseCompletedFrequency, QQueryOperations>
+  autoEraseCompletedFrequencyProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'autoEraseCompletedFrequency');
+    });
+  }
+
   QueryBuilder<Settings, String, QQueryOperations> calendarFormatProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'calendarFormat');
@@ -3882,6 +4201,13 @@ extension SettingsQueryProperty
   lastAutoBackupTimeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastAutoBackupTime');
+    });
+  }
+
+  QueryBuilder<Settings, DateTime?, QQueryOperations>
+  lastAutoEraseCompletedTimeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastAutoEraseCompletedTime');
     });
   }
 
@@ -3982,18 +4308,40 @@ const TasksSchema = CollectionSchema(
     ),
     r'index': PropertySchema(id: 2, name: r'index', type: IsarType.long),
     r'isSystem': PropertySchema(id: 3, name: r'isSystem', type: IsarType.bool),
-    r'sortOption': PropertySchema(
+    r'recurrence': PropertySchema(
       id: 4,
+      name: r'recurrence',
+      type: IsarType.byte,
+      enumMap: _TasksrecurrenceEnumValueMap,
+    ),
+    r'recurrenceMinuteOfDay': PropertySchema(
+      id: 5,
+      name: r'recurrenceMinuteOfDay',
+      type: IsarType.long,
+    ),
+    r'recurrenceMode': PropertySchema(
+      id: 6,
+      name: r'recurrenceMode',
+      type: IsarType.byte,
+      enumMap: _TasksrecurrenceModeEnumValueMap,
+    ),
+    r'recurrenceWeekdays': PropertySchema(
+      id: 7,
+      name: r'recurrenceWeekdays',
+      type: IsarType.longList,
+    ),
+    r'sortOption': PropertySchema(
+      id: 8,
       name: r'sortOption',
       type: IsarType.byte,
       enumMap: _TaskssortOptionEnumValueMap,
     ),
     r'taskColor': PropertySchema(
-      id: 5,
+      id: 9,
       name: r'taskColor',
       type: IsarType.long,
     ),
-    r'title': PropertySchema(id: 6, name: r'title', type: IsarType.string),
+    r'title': PropertySchema(id: 10, name: r'title', type: IsarType.string),
   },
 
   estimateSize: _tasksEstimateSize,
@@ -4026,6 +4374,7 @@ int _tasksEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.description.length * 3;
+  bytesCount += 3 + object.recurrenceWeekdays.length * 8;
   bytesCount += 3 + object.title.length * 3;
   return bytesCount;
 }
@@ -4040,9 +4389,13 @@ void _tasksSerialize(
   writer.writeString(offsets[1], object.description);
   writer.writeLong(offsets[2], object.index);
   writer.writeBool(offsets[3], object.isSystem);
-  writer.writeByte(offsets[4], object.sortOption.index);
-  writer.writeLong(offsets[5], object.taskColor);
-  writer.writeString(offsets[6], object.title);
+  writer.writeByte(offsets[4], object.recurrence.index);
+  writer.writeLong(offsets[5], object.recurrenceMinuteOfDay);
+  writer.writeByte(offsets[6], object.recurrenceMode.index);
+  writer.writeLongList(offsets[7], object.recurrenceWeekdays);
+  writer.writeByte(offsets[8], object.sortOption.index);
+  writer.writeLong(offsets[9], object.taskColor);
+  writer.writeString(offsets[10], object.title);
 }
 
 Tasks _tasksDeserialize(
@@ -4057,11 +4410,19 @@ Tasks _tasksDeserialize(
     id: id,
     index: reader.readLongOrNull(offsets[2]),
     isSystem: reader.readBoolOrNull(offsets[3]) ?? false,
+    recurrence:
+        _TasksrecurrenceValueEnumMap[reader.readByteOrNull(offsets[4])] ??
+        RecurrenceFrequency.none,
+    recurrenceMinuteOfDay: reader.readLongOrNull(offsets[5]),
+    recurrenceMode:
+        _TasksrecurrenceModeValueEnumMap[reader.readByteOrNull(offsets[6])] ??
+        RecurrenceMode.reopen,
+    recurrenceWeekdays: reader.readLongList(offsets[7]) ?? const [],
     sortOption:
-        _TaskssortOptionValueEnumMap[reader.readByteOrNull(offsets[4])] ??
+        _TaskssortOptionValueEnumMap[reader.readByteOrNull(offsets[8])] ??
         SortOption.none,
-    taskColor: reader.readLong(offsets[5]),
-    title: reader.readString(offsets[6]),
+    taskColor: reader.readLong(offsets[9]),
+    title: reader.readString(offsets[10]),
   );
   return object;
 }
@@ -4082,18 +4443,47 @@ P _tasksDeserializeProp<P>(
     case 3:
       return (reader.readBoolOrNull(offset) ?? false) as P;
     case 4:
+      return (_TasksrecurrenceValueEnumMap[reader.readByteOrNull(offset)] ??
+              RecurrenceFrequency.none)
+          as P;
+    case 5:
+      return (reader.readLongOrNull(offset)) as P;
+    case 6:
+      return (_TasksrecurrenceModeValueEnumMap[reader.readByteOrNull(offset)] ??
+              RecurrenceMode.reopen)
+          as P;
+    case 7:
+      return (reader.readLongList(offset) ?? const []) as P;
+    case 8:
       return (_TaskssortOptionValueEnumMap[reader.readByteOrNull(offset)] ??
               SortOption.none)
           as P;
-    case 5:
+    case 9:
       return (reader.readLong(offset)) as P;
-    case 6:
+    case 10:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
+const _TasksrecurrenceEnumValueMap = {
+  'none': 0,
+  'daily': 1,
+  'weekly': 2,
+  'monthly': 3,
+};
+const _TasksrecurrenceValueEnumMap = {
+  0: RecurrenceFrequency.none,
+  1: RecurrenceFrequency.daily,
+  2: RecurrenceFrequency.weekly,
+  3: RecurrenceFrequency.monthly,
+};
+const _TasksrecurrenceModeEnumValueMap = {'clone': 0, 'reopen': 1};
+const _TasksrecurrenceModeValueEnumMap = {
+  0: RecurrenceMode.clone,
+  1: RecurrenceMode.reopen,
+};
 const _TaskssortOptionEnumValueMap = {
   'none': 0,
   'alphaAsc': 1,
@@ -4505,6 +4895,320 @@ extension TasksQueryFilter on QueryBuilder<Tasks, Tasks, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> recurrenceEqualTo(
+    RecurrenceFrequency value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'recurrence', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> recurrenceGreaterThan(
+    RecurrenceFrequency value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'recurrence',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> recurrenceLessThan(
+    RecurrenceFrequency value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'recurrence',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> recurrenceBetween(
+    RecurrenceFrequency lower,
+    RecurrenceFrequency upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'recurrence',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceMinuteOfDayIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'recurrenceMinuteOfDay'),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceMinuteOfDayIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'recurrenceMinuteOfDay'),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceMinuteOfDayEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'recurrenceMinuteOfDay',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceMinuteOfDayGreaterThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'recurrenceMinuteOfDay',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceMinuteOfDayLessThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'recurrenceMinuteOfDay',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceMinuteOfDayBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'recurrenceMinuteOfDay',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> recurrenceModeEqualTo(
+    RecurrenceMode value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'recurrenceMode', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> recurrenceModeGreaterThan(
+    RecurrenceMode value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'recurrenceMode',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> recurrenceModeLessThan(
+    RecurrenceMode value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'recurrenceMode',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition> recurrenceModeBetween(
+    RecurrenceMode lower,
+    RecurrenceMode upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'recurrenceMode',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceWeekdaysElementEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'recurrenceWeekdays', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceWeekdaysElementGreaterThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'recurrenceWeekdays',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceWeekdaysElementLessThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'recurrenceWeekdays',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceWeekdaysElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'recurrenceWeekdays',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceWeekdaysLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'recurrenceWeekdays',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceWeekdaysIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'recurrenceWeekdays', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceWeekdaysIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'recurrenceWeekdays', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceWeekdaysLengthLessThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'recurrenceWeekdays', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceWeekdaysLengthGreaterThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'recurrenceWeekdays',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterFilterCondition>
+  recurrenceWeekdaysLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'recurrenceWeekdays',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QAfterFilterCondition> sortOptionEqualTo(
     SortOption value,
   ) {
@@ -4886,6 +5590,42 @@ extension TasksQuerySortBy on QueryBuilder<Tasks, Tasks, QSortBy> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> sortByRecurrence() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrence', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> sortByRecurrenceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrence', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> sortByRecurrenceMinuteOfDay() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMinuteOfDay', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> sortByRecurrenceMinuteOfDayDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMinuteOfDay', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> sortByRecurrenceMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> sortByRecurrenceModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMode', Sort.desc);
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QAfterSortBy> sortBySortOption() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sortOption', Sort.asc);
@@ -4984,6 +5724,42 @@ extension TasksQuerySortThenBy on QueryBuilder<Tasks, Tasks, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> thenByRecurrence() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrence', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> thenByRecurrenceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrence', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> thenByRecurrenceMinuteOfDay() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMinuteOfDay', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> thenByRecurrenceMinuteOfDayDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMinuteOfDay', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> thenByRecurrenceMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QAfterSortBy> thenByRecurrenceModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMode', Sort.desc);
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QAfterSortBy> thenBySortOption() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sortOption', Sort.asc);
@@ -5048,6 +5824,30 @@ extension TasksQueryWhereDistinct on QueryBuilder<Tasks, Tasks, QDistinct> {
     });
   }
 
+  QueryBuilder<Tasks, Tasks, QDistinct> distinctByRecurrence() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'recurrence');
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QDistinct> distinctByRecurrenceMinuteOfDay() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'recurrenceMinuteOfDay');
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QDistinct> distinctByRecurrenceMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'recurrenceMode');
+    });
+  }
+
+  QueryBuilder<Tasks, Tasks, QDistinct> distinctByRecurrenceWeekdays() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'recurrenceWeekdays');
+    });
+  }
+
   QueryBuilder<Tasks, Tasks, QDistinct> distinctBySortOption() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'sortOption');
@@ -5097,6 +5897,33 @@ extension TasksQueryProperty on QueryBuilder<Tasks, Tasks, QQueryProperty> {
   QueryBuilder<Tasks, bool, QQueryOperations> isSystemProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSystem');
+    });
+  }
+
+  QueryBuilder<Tasks, RecurrenceFrequency, QQueryOperations>
+  recurrenceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'recurrence');
+    });
+  }
+
+  QueryBuilder<Tasks, int?, QQueryOperations> recurrenceMinuteOfDayProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'recurrenceMinuteOfDay');
+    });
+  }
+
+  QueryBuilder<Tasks, RecurrenceMode, QQueryOperations>
+  recurrenceModeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'recurrenceMode');
+    });
+  }
+
+  QueryBuilder<Tasks, List<int>, QQueryOperations>
+  recurrenceWeekdaysProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'recurrenceWeekdays');
     });
   }
 
@@ -5161,20 +5988,42 @@ const TodosSchema = CollectionSchema(
       type: IsarType.byte,
       enumMap: _TodospriorityEnumValueMap,
     ),
-    r'status': PropertySchema(
+    r'recurrence': PropertySchema(
       id: 9,
+      name: r'recurrence',
+      type: IsarType.byte,
+      enumMap: _TodosrecurrenceEnumValueMap,
+    ),
+    r'recurrenceMinuteOfDay': PropertySchema(
+      id: 10,
+      name: r'recurrenceMinuteOfDay',
+      type: IsarType.long,
+    ),
+    r'recurrenceMode': PropertySchema(
+      id: 11,
+      name: r'recurrenceMode',
+      type: IsarType.byte,
+      enumMap: _TodosrecurrenceModeEnumValueMap,
+    ),
+    r'recurrenceWeekdays': PropertySchema(
+      id: 12,
+      name: r'recurrenceWeekdays',
+      type: IsarType.longList,
+    ),
+    r'status': PropertySchema(
+      id: 13,
       name: r'status',
       type: IsarType.byte,
       enumMap: _TodosstatusEnumValueMap,
     ),
-    r'tags': PropertySchema(id: 10, name: r'tags', type: IsarType.stringList),
+    r'tags': PropertySchema(id: 14, name: r'tags', type: IsarType.stringList),
     r'todoCompletedTime': PropertySchema(
-      id: 11,
+      id: 15,
       name: r'todoCompletedTime',
       type: IsarType.dateTime,
     ),
     r'todoCompletionTime': PropertySchema(
-      id: 12,
+      id: 16,
       name: r'todoCompletionTime',
       type: IsarType.dateTime,
     ),
@@ -5229,6 +6078,7 @@ int _todosEstimateSize(
     }
   }
   bytesCount += 3 + object.name.length * 3;
+  bytesCount += 3 + object.recurrenceWeekdays.length * 8;
   bytesCount += 3 + object.tags.length * 3;
   {
     for (var i = 0; i < object.tags.length; i++) {
@@ -5254,10 +6104,14 @@ void _todosSerialize(
   writer.writeLong(offsets[6], object.index);
   writer.writeString(offsets[7], object.name);
   writer.writeByte(offsets[8], object.priority.index);
-  writer.writeByte(offsets[9], object.status.index);
-  writer.writeStringList(offsets[10], object.tags);
-  writer.writeDateTime(offsets[11], object.todoCompletedTime);
-  writer.writeDateTime(offsets[12], object.todoCompletionTime);
+  writer.writeByte(offsets[9], object.recurrence.index);
+  writer.writeLong(offsets[10], object.recurrenceMinuteOfDay);
+  writer.writeByte(offsets[11], object.recurrenceMode.index);
+  writer.writeLongList(offsets[12], object.recurrenceWeekdays);
+  writer.writeByte(offsets[13], object.status.index);
+  writer.writeStringList(offsets[14], object.tags);
+  writer.writeDateTime(offsets[15], object.todoCompletedTime);
+  writer.writeDateTime(offsets[16], object.todoCompletionTime);
 }
 
 Todos _todosDeserialize(
@@ -5277,12 +6131,20 @@ Todos _todosDeserialize(
     priority:
         _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[8])] ??
         Priority.none,
+    recurrence:
+        _TodosrecurrenceValueEnumMap[reader.readByteOrNull(offsets[9])] ??
+        RecurrenceFrequency.none,
+    recurrenceMinuteOfDay: reader.readLongOrNull(offsets[10]),
+    recurrenceMode:
+        _TodosrecurrenceModeValueEnumMap[reader.readByteOrNull(offsets[11])] ??
+        RecurrenceMode.clone,
+    recurrenceWeekdays: reader.readLongList(offsets[12]) ?? const [],
     status:
-        _TodosstatusValueEnumMap[reader.readByteOrNull(offsets[9])] ??
+        _TodosstatusValueEnumMap[reader.readByteOrNull(offsets[13])] ??
         TodoStatus.active,
-    tags: reader.readStringList(offsets[10]) ?? const [],
-    todoCompletedTime: reader.readDateTimeOrNull(offsets[11]),
-    todoCompletionTime: reader.readDateTimeOrNull(offsets[12]),
+    tags: reader.readStringList(offsets[14]) ?? const [],
+    todoCompletedTime: reader.readDateTimeOrNull(offsets[15]),
+    todoCompletionTime: reader.readDateTimeOrNull(offsets[16]),
   );
   object.childrenSortOption =
       _TodoschildrenSortOptionValueEnumMap[reader.readByteOrNull(offsets[0])] ??
@@ -5323,14 +6185,26 @@ P _todosDeserializeProp<P>(
               Priority.none)
           as P;
     case 9:
+      return (_TodosrecurrenceValueEnumMap[reader.readByteOrNull(offset)] ??
+              RecurrenceFrequency.none)
+          as P;
+    case 10:
+      return (reader.readLongOrNull(offset)) as P;
+    case 11:
+      return (_TodosrecurrenceModeValueEnumMap[reader.readByteOrNull(offset)] ??
+              RecurrenceMode.clone)
+          as P;
+    case 12:
+      return (reader.readLongList(offset) ?? const []) as P;
+    case 13:
       return (_TodosstatusValueEnumMap[reader.readByteOrNull(offset)] ??
               TodoStatus.active)
           as P;
-    case 10:
+    case 14:
       return (reader.readStringList(offset) ?? const []) as P;
-    case 11:
+    case 15:
       return (reader.readDateTimeOrNull(offset)) as P;
-    case 12:
+    case 16:
       return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -5372,6 +6246,23 @@ const _TodospriorityValueEnumMap = {
   1: Priority.medium,
   2: Priority.low,
   3: Priority.none,
+};
+const _TodosrecurrenceEnumValueMap = {
+  'none': 0,
+  'daily': 1,
+  'weekly': 2,
+  'monthly': 3,
+};
+const _TodosrecurrenceValueEnumMap = {
+  0: RecurrenceFrequency.none,
+  1: RecurrenceFrequency.daily,
+  2: RecurrenceFrequency.weekly,
+  3: RecurrenceFrequency.monthly,
+};
+const _TodosrecurrenceModeEnumValueMap = {'clone': 0, 'reopen': 1};
+const _TodosrecurrenceModeValueEnumMap = {
+  0: RecurrenceMode.clone,
+  1: RecurrenceMode.reopen,
 };
 const _TodosstatusEnumValueMap = {'active': 0, 'done': 1, 'cancelled': 2};
 const _TodosstatusValueEnumMap = {
@@ -6249,6 +7140,320 @@ extension TodosQueryFilter on QueryBuilder<Todos, Todos, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> recurrenceEqualTo(
+    RecurrenceFrequency value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'recurrence', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> recurrenceGreaterThan(
+    RecurrenceFrequency value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'recurrence',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> recurrenceLessThan(
+    RecurrenceFrequency value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'recurrence',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> recurrenceBetween(
+    RecurrenceFrequency lower,
+    RecurrenceFrequency upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'recurrence',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceMinuteOfDayIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'recurrenceMinuteOfDay'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceMinuteOfDayIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'recurrenceMinuteOfDay'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceMinuteOfDayEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'recurrenceMinuteOfDay',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceMinuteOfDayGreaterThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'recurrenceMinuteOfDay',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceMinuteOfDayLessThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'recurrenceMinuteOfDay',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceMinuteOfDayBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'recurrenceMinuteOfDay',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> recurrenceModeEqualTo(
+    RecurrenceMode value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'recurrenceMode', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> recurrenceModeGreaterThan(
+    RecurrenceMode value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'recurrenceMode',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> recurrenceModeLessThan(
+    RecurrenceMode value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'recurrenceMode',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> recurrenceModeBetween(
+    RecurrenceMode lower,
+    RecurrenceMode upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'recurrenceMode',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceWeekdaysElementEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'recurrenceWeekdays', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceWeekdaysElementGreaterThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'recurrenceWeekdays',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceWeekdaysElementLessThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'recurrenceWeekdays',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceWeekdaysElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'recurrenceWeekdays',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceWeekdaysLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'recurrenceWeekdays',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceWeekdaysIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'recurrenceWeekdays', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceWeekdaysIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'recurrenceWeekdays', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceWeekdaysLengthLessThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'recurrenceWeekdays', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceWeekdaysLengthGreaterThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'recurrenceWeekdays',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  recurrenceWeekdaysLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'recurrenceWeekdays',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterFilterCondition> statusEqualTo(
     TodoStatus value,
   ) {
@@ -6860,6 +8065,42 @@ extension TodosQuerySortBy on QueryBuilder<Todos, Todos, QSortBy> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByRecurrence() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrence', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByRecurrenceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrence', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByRecurrenceMinuteOfDay() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMinuteOfDay', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByRecurrenceMinuteOfDayDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMinuteOfDay', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByRecurrenceMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByRecurrenceModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMode', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> sortByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.asc);
@@ -7018,6 +8259,42 @@ extension TodosQuerySortThenBy on QueryBuilder<Todos, Todos, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByRecurrence() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrence', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByRecurrenceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrence', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByRecurrenceMinuteOfDay() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMinuteOfDay', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByRecurrenceMinuteOfDayDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMinuteOfDay', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByRecurrenceMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByRecurrenceModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'recurrenceMode', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> thenByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.asc);
@@ -7119,6 +8396,30 @@ extension TodosQueryWhereDistinct on QueryBuilder<Todos, Todos, QDistinct> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QDistinct> distinctByRecurrence() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'recurrence');
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QDistinct> distinctByRecurrenceMinuteOfDay() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'recurrenceMinuteOfDay');
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QDistinct> distinctByRecurrenceMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'recurrenceMode');
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QDistinct> distinctByRecurrenceWeekdays() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'recurrenceWeekdays');
+    });
+  }
+
   QueryBuilder<Todos, Todos, QDistinct> distinctByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'status');
@@ -7204,6 +8505,33 @@ extension TodosQueryProperty on QueryBuilder<Todos, Todos, QQueryProperty> {
   QueryBuilder<Todos, Priority, QQueryOperations> priorityProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'priority');
+    });
+  }
+
+  QueryBuilder<Todos, RecurrenceFrequency, QQueryOperations>
+  recurrenceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'recurrence');
+    });
+  }
+
+  QueryBuilder<Todos, int?, QQueryOperations> recurrenceMinuteOfDayProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'recurrenceMinuteOfDay');
+    });
+  }
+
+  QueryBuilder<Todos, RecurrenceMode, QQueryOperations>
+  recurrenceModeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'recurrenceMode');
+    });
+  }
+
+  QueryBuilder<Todos, List<int>, QQueryOperations>
+  recurrenceWeekdaysProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'recurrenceWeekdays');
     });
   }
 

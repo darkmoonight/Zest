@@ -22,6 +22,10 @@ class TodoRepository {
     required int index,
     required Tasks task,
     Todos? parent,
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.clone,
+    int? recurrenceMinuteOfDay,
   }) async {
     final todo = Todos(
       name: name,
@@ -32,6 +36,10 @@ class TodoRepository {
       priority: priority,
       tags: tags,
       index: index,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     )..task.value = task;
 
     if (parent != null) {
@@ -138,6 +146,10 @@ class TodoRepository {
     required Priority priority,
     required List<String> tags,
     required Tasks task,
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.clone,
+    int? recurrenceMinuteOfDay,
   }) async {
     await _isar.writeTxn(() async {
       todo.name = name;
@@ -146,6 +158,10 @@ class TodoRepository {
       todo.fix = fix;
       todo.priority = priority;
       todo.tags = tags;
+      todo.recurrence = recurrence;
+      todo.recurrenceWeekdays = recurrenceWeekdays;
+      todo.recurrenceMode = recurrenceMode;
+      todo.recurrenceMinuteOfDay = recurrenceMinuteOfDay;
       todo.task.value = task;
       await _isar.todos.put(todo);
       await todo.task.save();

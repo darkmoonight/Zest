@@ -13,6 +13,7 @@ import 'package:zest/core/database/settings_schema_migration.dart';
 import 'package:zest/core/notifications/notification_channels.dart';
 import 'package:zest/core/notifications/notification_migration.dart';
 import 'package:zest/core/services/notification_plugin.dart';
+import 'package:zest/core/services/recurrence_background_scheduler.dart';
 import 'package:zest/core/utils/device_info.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/i18n/locale_utils.dart';
@@ -63,6 +64,8 @@ class AppInitializer {
     if (PlatformFeatures.isMobile) {
       await PlatformFeatures.setSystemUIMode(edgeToEdge: true);
     }
+
+    await RecurrenceBackgroundScheduler.initializeAndRegister();
 
     return bootstrap;
   }

@@ -18,6 +18,13 @@ class FormDirtyTracker {
     listener();
   }
 
+  /// Registers [hasChanges] against every item in [sources].
+  void watchAll(Iterable<Listenable> sources, bool Function() hasChanges) {
+    for (final source in sources) {
+      watch(source, hasChanges);
+    }
+  }
+
   /// Releases listeners and notifiers.
   void dispose() {
     for (final (source, listener) in _bindings) {

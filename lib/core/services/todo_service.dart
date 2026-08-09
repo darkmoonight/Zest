@@ -5,6 +5,7 @@ import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
+import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Todo CRUD, status changes, moves, and notification scheduling.
@@ -46,8 +47,18 @@ class TodoService {
     required List<String> tags,
     required int currentTodoCount,
     Todos? parent,
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.clone,
+    int? recurrenceMinuteOfDay,
   }) async {
-    final date = _parseDate(timeString);
+    final date = _resolveDueDate(
+      timeString: timeString,
+      task: task,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
+    );
 
     final todo = await _todoRepo.create(
       name: title,
@@ -59,6 +70,10 @@ class TodoService {
       index: currentTodoCount,
       task: task,
       parent: parent,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
 
     if (date != null) {
@@ -82,8 +97,18 @@ class TodoService {
     required bool pinned,
     required Priority priority,
     required List<String> tags,
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.clone,
+    int? recurrenceMinuteOfDay,
   }) async {
-    final date = _parseDate(timeString);
+    final date = _resolveDueDate(
+      timeString: timeString,
+      task: task,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
+    );
 
     await _todoRepo.updateFields(
       todo: todo,
@@ -94,6 +119,10 @@ class TodoService {
       priority: priority,
       tags: tags,
       task: task,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
 
     if (date != null) {
@@ -107,6 +136,9 @@ class TodoService {
   }
 
   /// Persists [todo] status and syncs its notification schedule.
+  ///
+  /// Recurring clones / reopens happen at local midnight via
+  /// [RecurrenceCoordinator.runMidnightRollover], not on mark-done.
   Future<void> updateTodoStatus(Todos todo) async {
     await _todoRepo.update(todo);
 
@@ -248,6 +280,29 @@ class TodoService {
   }
 
   // ==================== HELPERS ====================
+
+  /// Resolves due from [timeString], todo recurrence, or category habit reminder.
+  ///
+  /// Past recurring reminder times advance to the next valid occurrence
+  /// instead of firing immediately.
+  DateTime? _resolveDueDate({
+    required String timeString,
+    required Tasks task,
+    required RecurrenceFrequency recurrence,
+    required List<int> recurrenceWeekdays,
+    required int? recurrenceMinuteOfDay,
+  }) {
+    final parsed = _parseDate(timeString);
+    return RecurrenceService.resolveDueForTodoInTask(
+      now: DateTime.now(),
+      task: task,
+      todoRecurrence: recurrence,
+      todoWeekdays: recurrenceWeekdays,
+      todoMinuteOfDay: recurrenceMinuteOfDay,
+      baseDay: parsed,
+      fallbackTime: parsed,
+    );
+  }
 
   /// Parses [timeString] using the configured format and language.
   DateTime? _parseDate(String timeString) => DateTimeFormatHelper.parseDateTime(

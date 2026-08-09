@@ -19,12 +19,20 @@ class TaskRepository {
     required String description,
     required Color color,
     required int index,
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.reopen,
+    int? recurrenceMinuteOfDay,
   }) async {
     final task = Tasks(
       title: title,
       description: description,
       taskColor: color.value32bit,
       index: index,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
 
     await _isar.writeTxn(() => _isar.tasks.put(task));
@@ -62,11 +70,19 @@ class TaskRepository {
     required String title,
     required String description,
     required Color color,
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.reopen,
+    int? recurrenceMinuteOfDay,
   }) async {
     await _isar.writeTxn(() async {
       task.title = title;
       task.description = description;
       task.taskColor = color.value32bit;
+      task.recurrence = recurrence;
+      task.recurrenceWeekdays = recurrenceWeekdays;
+      task.recurrenceMode = recurrenceMode;
+      task.recurrenceMinuteOfDay = recurrenceMinuteOfDay;
       await _isar.tasks.put(task);
     });
   }

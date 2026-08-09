@@ -226,7 +226,7 @@ class AppConstants {
   static const String defaultAppFont = 'ubuntu';
 
   /// Current [Settings] Isar layout version (Rain-style rewrite migration).
-  static const int settingsSchemaVersion = 2;
+  static const int settingsSchemaVersion = 3;
 
   /// How far ahead calendar / due-date pickers allow selecting dates.
   static const Duration calendarSelectableRange = Duration(days: 1000);

@@ -776,6 +776,12 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Notification channels'
 	String get notification_channels => 'Notification channels';
 
+	/// en-US: 'Exact alarms'
+	String get exact_alarms => 'Exact alarms';
+
+	/// en-US: 'Exact alarms are off; reminders may be delayed. Enable them in system settings.'
+	String get exact_alarm_denied_hint => 'Exact alarms are off; reminders may be delayed. Enable them in system settings.';
+
 	/// en-US: 'Open notification'
 	String get open_notification => 'Open notification';
 
@@ -796,6 +802,48 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'Restore User Data'
 	String get restore => 'Restore User Data';
+
+	/// en-US: 'Repeat'
+	String get recurrence => 'Repeat';
+
+	/// en-US: 'Does not repeat'
+	String get recurrence_none => 'Does not repeat';
+
+	/// en-US: 'Repeat on'
+	String get recurrence_weekdays => 'Repeat on';
+
+	/// en-US: 'Repeat behavior'
+	String get recurrence_mode => 'Repeat behavior';
+
+	/// en-US: 'Create a copy'
+	String get recurrence_mode_clone => 'Create a copy';
+
+	/// en-US: 'Reopen the same task'
+	String get recurrence_mode_reopen => 'Reopen the same task';
+
+	/// en-US: 'Reminder time'
+	String get recurrence_time => 'Reminder time';
+
+	/// en-US: 'No fixed time'
+	String get recurrence_time_none => 'No fixed time';
+
+	/// en-US: 'Choose time'
+	String get recurrence_time_pick => 'Choose time';
+
+	/// en-US: 'Notification fires at this time.'
+	String get recurrence_time_hint => 'Notification fires at this time.';
+
+	/// en-US: 'Category habit reset'
+	String get category_recurrence => 'Category habit reset';
+
+	/// en-US: 'Reminder notifies todos in this category that have no repeat of their own.'
+	String get category_recurrence_hint => 'Reminder notifies todos in this category that have no repeat of their own.';
+
+	/// en-US: 'Auto-erase completed todos'
+	String get auto_erase_completed => 'Auto-erase completed todos';
+
+	/// en-US: 'Erase frequency'
+	String get auto_erase_completed_frequency => 'Erase frequency';
 
 	/// en-US: 'Restoring Backup'
 	String get restoring_backup => 'Restoring Backup';
@@ -943,6 +991,12 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'Execution Time'
 	String get time_complete => 'Execution Time';
+
+	/// en-US: 'Choose date & time'
+	String get due_date_time_pick => 'Choose date & time';
+
+	/// en-US: 'No deadline'
+	String get due_date_none => 'No deadline';
 
 	/// en-US: 'Time Format'
 	String get timeformat => 'Time Format';
@@ -1309,6 +1363,8 @@ extension on Translations {
 			'notification_channel_medium' => 'Medium priority reminders',
 			'notification_channel_none' => 'No priority reminders',
 			'notification_channels' => 'Notification channels',
+			'exact_alarms' => 'Exact alarms',
+			'exact_alarm_denied_hint' => 'Exact alarms are off; reminders may be delayed. Enable them in system settings.',
 			'open_notification' => 'Open notification',
 			'perfect_work' => 'Excellent!',
 			'privacy_security' => 'Privacy & Security',
@@ -1316,6 +1372,20 @@ extension on Translations {
 			'ready' => 'Done',
 			'remaining' => 'Remaining',
 			'restore' => 'Restore User Data',
+			'recurrence' => 'Repeat',
+			'recurrence_none' => 'Does not repeat',
+			'recurrence_weekdays' => 'Repeat on',
+			'recurrence_mode' => 'Repeat behavior',
+			'recurrence_mode_clone' => 'Create a copy',
+			'recurrence_mode_reopen' => 'Reopen the same task',
+			'recurrence_time' => 'Reminder time',
+			'recurrence_time_none' => 'No fixed time',
+			'recurrence_time_pick' => 'Choose time',
+			'recurrence_time_hint' => 'Notification fires at this time.',
+			'category_recurrence' => 'Category habit reset',
+			'category_recurrence_hint' => 'Reminder notifies todos in this category that have no repeat of their own.',
+			'auto_erase_completed' => 'Auto-erase completed todos',
+			'auto_erase_completed_frequency' => 'Erase frequency',
 			'restoring_backup' => 'Restoring Backup',
 			'saturday' => 'Saturday',
 			'save' => 'Save',
@@ -1365,6 +1435,8 @@ extension on Translations {
 			'theme' => 'Theme',
 			'thursday' => 'Thursday',
 			'time_complete' => 'Execution Time',
+			'due_date_time_pick' => 'Choose date & time',
+			'due_date_none' => 'No deadline',
 			'timeformat' => 'Time Format',
 			'time_period_afternoon' => 'Afternoon',
 			'time_period_evening' => 'Evening',

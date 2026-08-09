@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:zest/core/notifications/notification_i18n.dart';
+import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/core/utils/notification.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/i18n/tr.dart';
@@ -17,6 +18,11 @@ class NotificationService {
   final Settings? _settings;
 
   /// Schedules a reminder at [todo.todoCompletedTime] for active todos only.
+  ///
+  /// For recurring todos, a past due is moved to the next reminder instant
+  /// via [RecurrenceService.nextReminderAfter] instead of firing immediately
+  /// (`now + 1s`). Non-recurring past dues still use the short delay so the
+  /// user sees the notification.
   Future<void> scheduleForTodo(Todos todo, {Settings? settings}) async {
     final completedTime = todo.todoCompletedTime;
 
@@ -27,11 +33,23 @@ class NotificationService {
     final now = DateTime.now();
 
     try {
-      final effectiveTime =
-          completedTime.isBefore(now) ||
-              completedTime.difference(now).inSeconds <= 0
-          ? now.add(const Duration(seconds: 1))
-          : completedTime;
+      DateTime effectiveTime;
+      if (completedTime.isAfter(now)) {
+        effectiveTime = completedTime;
+      } else if (RecurrenceService.isRecurring(todo.recurrence)) {
+        final next = RecurrenceService.nextReminderAfter(
+          now: now,
+          frequency: todo.recurrence,
+          weekdays: todo.recurrenceWeekdays,
+          minuteOfDay: todo.recurrenceMinuteOfDay,
+          fallbackTime: completedTime,
+        );
+        if (next == null) return;
+        effectiveTime = next;
+      } else {
+        // Non-recurring past due: fire shortly so the user still sees it.
+        effectiveTime = now.add(const Duration(seconds: 1));
+      }
 
       await _notificationShow.showNotification(
         todo.id,

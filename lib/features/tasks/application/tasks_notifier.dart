@@ -129,12 +129,24 @@ class TasksNotifier extends Notifier<TasksState> {
   // ==================== Tasks CRUD ====================
 
   /// Creates a task category with the given title, description, and color.
-  Future<Tasks?> addTask(String title, String description, Color color) async {
+  Future<Tasks?> addTask(
+    String title,
+    String description,
+    Color color, {
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.reopen,
+    int? recurrenceMinuteOfDay,
+  }) async {
     return taskService.createTask(
       title: title,
       description: description,
       color: color,
       currentTaskCount: state.tasks.length,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
   }
 
@@ -143,13 +155,21 @@ class TasksNotifier extends Notifier<TasksState> {
     Tasks task,
     String title,
     String description,
-    Color color,
-  ) async {
+    Color color, {
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.reopen,
+    int? recurrenceMinuteOfDay,
+  }) async {
     await taskService.updateTask(
       task: task,
       title: title,
       description: description,
       color: color,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
   }
 

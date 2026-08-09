@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/config/setting_enum_pickers.dart';
 import 'package:zest/core/di/provider_refs.dart';
+import 'package:zest/core/services/notification_plugin.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
+import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/features/settings/presentation/view/notification_channels_page.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_selection.dart';
@@ -74,8 +77,34 @@ class _SettingsDateTimeSectionState
               );
             },
           ),
+        if (PlatformFeatures.isAndroid)
+          SettingsTile(
+            leading: const Icon(IconsaxPlusLinear.alarm),
+            title: 'exactAlarms',
+            subtitle: 'exactAlarmDeniedHint',
+            onTap: _requestExactAlarmsPermission,
+          ),
       ],
     );
+  }
+
+  Future<void> _requestExactAlarmsPermission() async {
+    final plugin = NotificationPlugin.instance
+        ?.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (plugin == null) return;
+    try {
+      final allowed = await plugin.canScheduleExactNotifications();
+      if (allowed == true) return;
+      await plugin.requestExactAlarmsPermission();
+      final after = await plugin.canScheduleExactNotifications();
+      if (after != true) {
+        showSnackBar('exactAlarmDeniedHint'.tr, isError: true);
+      }
+    } catch (_) {
+      showSnackBar('exactAlarmDeniedHint'.tr, isError: true);
+    }
   }
 
   /// Show time format dialog.

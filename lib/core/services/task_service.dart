@@ -5,6 +5,7 @@ import 'package:zest/data/repositories/task_repository.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
+import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Category (task list) CRUD, archive, and notification cleanup.
@@ -37,6 +38,10 @@ class TaskService {
     required String description,
     required Color color,
     required int currentTaskCount,
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.reopen,
+    int? recurrenceMinuteOfDay,
   }) async {
     if (await _taskRepo.existsByTitle(title)) {
       showSnackBar('duplicateCategory'.tr, isError: true);
@@ -48,6 +53,10 @@ class TaskService {
       description: description,
       color: color,
       index: currentTaskCount,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
 
     showSnackBar('createCategory'.tr);
@@ -56,21 +65,70 @@ class TaskService {
 
   // ==================== UPDATE ====================
 
-  /// Updates task title, description, and color.
+  /// Updates task fields and syncs category-habit dues on eligible children.
+  ///
+  /// Active todos without their own recurrence get [Tasks.recurrenceMinuteOfDay]
+  /// written to [Todos.todoCompletedTime] and are rescheduled (or cancelled).
   Future<void> updateTask({
     required Tasks task,
     required String title,
     required String description,
     required Color color,
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.reopen,
+    int? recurrenceMinuteOfDay,
   }) async {
     await _taskRepo.updateFields(
       task: task,
       title: title,
       description: description,
       color: color,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
 
+    // Refresh in-memory fields used by due resolution below.
+    task.recurrence = recurrence;
+    task.recurrenceWeekdays = recurrenceWeekdays;
+    task.recurrenceMode = recurrenceMode;
+    task.recurrenceMinuteOfDay = recurrenceMinuteOfDay;
+
+    await _syncCategoryHabitDues(task);
+
     showSnackBar('editCategory'.tr);
+  }
+
+  /// Stamps due + notifications for active children without their own recurrence.
+  Future<void> _syncCategoryHabitDues(Tasks task) async {
+    if (!RecurrenceService.isRecurring(task.recurrence)) return;
+
+    final todos = await _todoRepo.getByTaskId(task.id);
+    final now = DateTime.now();
+
+    for (final todo in todos) {
+      if (!RecurrenceService.isCategoryHabitChild(todo: todo, task: task)) {
+        continue;
+      }
+
+      final due = RecurrenceService.resolveDueForTodo(
+        todo: todo,
+        task: task,
+        now: now,
+      );
+
+      todo.todoCompletedTime = due;
+      await _todoRepo.update(todo);
+
+      if (due != null) {
+        await _notificationService.reschedule(todo);
+      } else {
+        await _notificationService.cancel(todo.id);
+      }
+      await _calendarSync?.ensureSynced(todo);
+    }
   }
 
   /// Archives [tasks], cancels their todo reminders, and persists archive state.
@@ -78,12 +136,7 @@ class TaskService {
     if (tasks.isEmpty) return;
 
     final tasksCopy = List<Tasks>.from(tasks);
-
-    final allTodos = <Todos>[];
-    for (final task in tasksCopy) {
-      final todos = await _todoRepo.getByTaskId(task.id);
-      allTodos.addAll(todos);
-    }
+    final allTodos = await _collectTodosForTasks(tasksCopy);
 
     await _notificationService.cancelForTask(allTodos);
     await _taskRepo.updateArchiveStatusBatch(tasksCopy, true);
@@ -96,16 +149,20 @@ class TaskService {
     if (tasks.isEmpty) return;
 
     final tasksCopy = List<Tasks>.from(tasks);
+    final allTodos = await _collectTodosForTasks(tasksCopy);
 
-    final allTodos = <Todos>[];
-    for (final task in tasksCopy) {
-      final todos = await _todoRepo.getByTaskId(task.id);
-      allTodos.addAll(todos);
-    }
     await _notificationService.scheduleForTask(allTodos);
     await _taskRepo.updateArchiveStatusBatch(tasksCopy, false);
 
     showSnackBar('noCategoryArchive'.tr);
+  }
+
+  Future<List<Todos>> _collectTodosForTasks(List<Tasks> tasks) async {
+    final allTodos = <Todos>[];
+    for (final task in tasks) {
+      allTodos.addAll(await _todoRepo.getByTaskId(task.id));
+    }
+    return allTodos;
   }
 
   // ==================== DELETE ====================

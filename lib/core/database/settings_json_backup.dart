@@ -71,6 +71,10 @@ class SettingsJsonBackup {
     'defaultCategoryId': s.defaultCategoryId,
     'deviceCalendarSyncEnabled': s.deviceCalendarSyncEnabled,
     'deviceCalendarId': s.deviceCalendarId,
+    'autoEraseCompletedEnabled': s.autoEraseCompletedEnabled,
+    'autoEraseCompletedFrequency': s.autoEraseCompletedFrequency.index,
+    'lastAutoEraseCompletedTime': s.lastAutoEraseCompletedTime
+        ?.toIso8601String(),
     'settingsSchemaVersion': s.settingsSchemaVersion,
   };
 
@@ -126,6 +130,15 @@ class SettingsJsonBackup {
     settings.deviceCalendarSyncEnabled =
         json['deviceCalendarSyncEnabled'] as bool? ?? false;
     settings.deviceCalendarId = json['deviceCalendarId'] as String?;
+    settings.autoEraseCompletedEnabled =
+        json['autoEraseCompletedEnabled'] as bool? ?? false;
+    settings.autoEraseCompletedFrequency = _eraseFrequency(
+      json['autoEraseCompletedFrequency'],
+    );
+    final lastErase = json['lastAutoEraseCompletedTime'] as String?;
+    settings.lastAutoEraseCompletedTime = lastErase == null
+        ? null
+        : DateTime.tryParse(lastErase);
     settings.settingsSchemaVersion = json['settingsSchemaVersion'] as int? ?? 0;
     return settings;
   }
@@ -144,5 +157,15 @@ class SettingsJsonBackup {
       return AutoBackupFrequency.values[value];
     }
     return AutoBackupFrequency.daily;
+  }
+
+  /// Parses [value] as an [AutoEraseCompletedFrequency] index, else weekly.
+  static AutoEraseCompletedFrequency _eraseFrequency(Object? value) {
+    if (value is int &&
+        value >= 0 &&
+        value < AutoEraseCompletedFrequency.values.length) {
+      return AutoEraseCompletedFrequency.values[value];
+    }
+    return AutoEraseCompletedFrequency.weekly;
   }
 }

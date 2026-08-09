@@ -16,12 +16,16 @@ import 'package:zest/core/widgets/modal_sheet_animation_mixin.dart';
 import 'package:zest/core/widgets/modal_sheet_header.dart';
 import 'package:zest/core/widgets/modal_sheet_save_button.dart';
 import 'package:zest/core/widgets/modal_sheet_scaffold.dart';
+import 'package:zest/core/widgets/recurrence_form_fields.dart';
 import 'package:zest/core/widgets/text_form.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/color_extensions.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/utils/text_utils.dart';
+import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/features/tasks/presentation/widgets/task_sheet_option_card.dart';
+import 'package:zest/features/todos/presentation/widgets/recurrence_picker.dart';
 
 /// Bottom sheet form for creating or editing a task.
 class TasksAction extends ConsumerStatefulWidget {
@@ -72,6 +76,18 @@ class _TasksActionState extends ConsumerState<TasksAction>
   /// The editing controller.
   late final _EditingController _editingController;
 
+  /// Habit recurrence for this category.
+  RecurrenceFrequency _taskRecurrence = RecurrenceFrequency.none;
+
+  /// Weekdays for weekly habit recurrence.
+  List<int> _taskRecurrenceWeekdays = [];
+
+  /// Clone vs reopen default for this category.
+  RecurrenceMode _taskRecurrenceMode = RecurrenceMode.reopen;
+
+  /// Fixed reminder minutes from midnight for category recurrence.
+  int? _taskRecurrenceMinuteOfDay;
+
   @override
   /// Initializes state when the widget is first inserted.
   void initState() {
@@ -101,6 +117,10 @@ class _TasksActionState extends ConsumerState<TasksAction>
     if (widget.edit) {
       _titleController.text = widget.task!.title;
       _descController.text = widget.task!.description;
+      _taskRecurrence = widget.task!.recurrence;
+      _taskRecurrenceWeekdays = List<int>.from(widget.task!.recurrenceWeekdays);
+      _taskRecurrenceMode = widget.task!.recurrenceMode;
+      _taskRecurrenceMinuteOfDay = widget.task!.recurrenceMinuteOfDay;
     }
 
     _editingController = _EditingController(
@@ -108,6 +128,10 @@ class _TasksActionState extends ConsumerState<TasksAction>
       _descController.text,
       _colorNotifier.value,
       _isDefaultNotifier.value,
+      _taskRecurrence,
+      List<int>.from(_taskRecurrenceWeekdays),
+      _taskRecurrenceMode,
+      _taskRecurrenceMinuteOfDay,
     );
   }
 
@@ -171,6 +195,10 @@ class _TasksActionState extends ConsumerState<TasksAction>
           _titleController.text,
           _descController.text,
           _colorNotifier.value,
+          recurrence: _taskRecurrence,
+          recurrenceWeekdays: _taskRecurrenceWeekdays,
+          recurrenceMode: _taskRecurrenceMode,
+          recurrenceMinuteOfDay: _taskRecurrenceMinuteOfDay,
         );
     await _applyDefaultPreference(widget.task!);
     widget.updateTaskName?.call();
@@ -184,6 +212,10 @@ class _TasksActionState extends ConsumerState<TasksAction>
           _titleController.text,
           _descController.text,
           _colorNotifier.value,
+          recurrence: _taskRecurrence,
+          recurrenceWeekdays: _taskRecurrenceWeekdays,
+          recurrenceMode: _taskRecurrenceMode,
+          recurrenceMinuteOfDay: _taskRecurrenceMinuteOfDay,
         );
     if (created != null) {
       await _applyDefaultPreference(created);
@@ -270,6 +302,8 @@ class _TasksActionState extends ConsumerState<TasksAction>
                     _buildColorPicker(),
                     SizedBox(height: padding * 1.2),
                     _buildDefaultToggle(),
+                    SizedBox(height: padding * 1.2),
+                    _buildRecurrenceRow(context),
                     SizedBox(height: padding * 2),
                   ],
                 ),
@@ -319,163 +353,106 @@ class _TasksActionState extends ConsumerState<TasksAction>
     );
   }
 
+  /// Habit-reset control styled like the default-category / color cards.
+  Widget _buildRecurrenceRow(BuildContext context) {
+    final active = RecurrenceService.isRecurring(_taskRecurrence);
+    final use24h = ref.watch(appSettingsProvider).timeformat != '12';
+
+    return TaskSheetOptionCard(
+      leading: TaskSheetOptionIconPreview(
+        active: active,
+        icon: IconsaxPlusLinear.repeat,
+        activeIcon: IconsaxPlusBold.repeat,
+      ),
+      titleKey: 'categoryRecurrence',
+      subtitle: [
+        recurrenceSummaryLabel(
+          frequency: _taskRecurrence,
+          mode: _taskRecurrenceMode,
+          minuteOfDay: _taskRecurrenceMinuteOfDay,
+          use24h: use24h,
+        ),
+        if (active) 'categoryRecurrenceHint'.tr,
+      ].join('\n'),
+      action: TaskSheetOptionChangeButton(
+        active: active,
+        icon: IconsaxPlusLinear.repeat,
+        onPressed: () async {
+          final selection = await showRecurrencePicker(
+            context: context,
+            current: _taskRecurrence,
+            currentWeekdays: _taskRecurrenceWeekdays,
+            currentMode: _taskRecurrenceMode,
+            currentMinuteOfDay: _taskRecurrenceMinuteOfDay,
+            use24h: use24h,
+          );
+          if (selection == null || !mounted) return;
+          setState(() {
+            _taskRecurrence = selection.frequency;
+            _taskRecurrenceWeekdays = selection.weekdays;
+            _taskRecurrenceMode = selection.mode;
+            _taskRecurrenceMinuteOfDay = selection.minuteOfDay;
+            _editingController.recurrence.apply(selection);
+          });
+        },
+      ),
+    );
+  }
+
   /// Toggle to mark this category as the user default for new todos.
   Widget _buildDefaultToggle() {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return ValueListenableBuilder<bool>(
       valueListenable: _isDefaultNotifier,
       builder: (context, isDefault, _) {
-        return AnimatedContainer(
-          duration: AppConstants.shortAnimation,
-          padding: const EdgeInsets.all(AppConstants.spacingM),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(
-              AppConstants.borderRadiusMedium,
-            ),
-            border: Border.all(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-              width: AppConstants.borderWidthThin,
-            ),
+        return TaskSheetOptionCard(
+          leading: TaskSheetOptionIconPreview(
+            active: isDefault,
+            icon: IconsaxPlusLinear.star,
+            activeIcon: IconsaxPlusBold.star,
           ),
-          child: Row(
-            children: [
-              _buildDefaultPreview(isDefault, colorScheme),
-              const SizedBox(width: AppConstants.spacingM),
-              Expanded(child: _buildDefaultInfo(isDefault, colorScheme)),
-              _buildDefaultActionButton(isDefault, colorScheme),
-            ],
+          titleKey: 'setDefaultCategory',
+          subtitle: isDefault
+              ? 'defaultCategoryStatusOn'.tr
+              : 'defaultCategoryStatusOff'.tr,
+          action: TaskSheetOptionChangeButton(
+            active: isDefault,
+            icon: isDefault ? IconsaxPlusBold.star : IconsaxPlusLinear.star,
+            onPressed: () {
+              final next = !isDefault;
+              _isDefaultNotifier.value = next;
+              _editingController.isDefault.value = next;
+            },
           ),
         );
       },
-    );
-  }
-
-  /// 44×44 preview matching the color swatch layout.
-  Widget _buildDefaultPreview(bool isDefault, ColorScheme colorScheme) {
-    final accent = isDefault
-        ? colorScheme.primary
-        : colorScheme.onSurfaceVariant;
-    return AnimatedContainer(
-      duration: AppConstants.shortAnimation,
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        color: isDefault
-            ? colorScheme.primary.withValues(alpha: 0.18)
-            : colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadiusCompact),
-        border: Border.all(color: accent.withValues(alpha: 0.35), width: 1.5),
-      ),
-      child: Icon(
-        isDefault ? IconsaxPlusBold.star : IconsaxPlusLinear.star,
-        color: accent,
-        size: AppConstants.iconSizeMedium,
-      ),
-    );
-  }
-
-  /// Label + status, same typography as the color info column.
-  Widget _buildDefaultInfo(bool isDefault, ColorScheme colorScheme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          'setDefaultCategory'.tr,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-            fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
-          ),
-        ),
-        SizedBox(height: AppConstants.spacingXS / 2),
-        Text(
-          isDefault
-              ? 'defaultCategoryStatusOn'.tr
-              : 'defaultCategoryStatusOff'.tr,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
-            fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Tonal action button matching the color "Change" control.
-  Widget _buildDefaultActionButton(bool isDefault, ColorScheme colorScheme) {
-    return FilledButton.tonalIcon(
-      onPressed: () {
-        final next = !isDefault;
-        _isDefaultNotifier.value = next;
-        _editingController.isDefault.value = next;
-      },
-      icon: Icon(
-        isDefault ? IconsaxPlusBold.star : IconsaxPlusLinear.star,
-        size: AppConstants.iconSizeSmall,
-      ),
-      label: Text(
-        'change'.tr,
-        style: TextStyle(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      style: FilledButton.styleFrom(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppConstants.spacingM,
-          vertical: AppConstants.spacingS,
-        ),
-        minimumSize: const Size(0, 36),
-        backgroundColor: isDefault
-            ? colorScheme.primary.withValues(alpha: 0.15)
-            : null,
-        foregroundColor: isDefault ? colorScheme.primary : null,
-      ),
     );
   }
 
   /// Builds the color picker widget.
   Widget _buildColorPicker() {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return ValueListenableBuilder<Color>(
       valueListenable: _colorNotifier,
       builder: (context, color, child) {
-        return AnimatedContainer(
-          duration: AppConstants.shortAnimation,
-          padding: const EdgeInsets.all(AppConstants.spacingM),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(
-              AppConstants.borderRadiusMedium,
-            ),
-            border: Border.all(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-              width: AppConstants.borderWidthThin,
-            ),
-          ),
-          child: Row(
-            children: [
-              _buildColorPreview(color, colorScheme),
-              SizedBox(width: AppConstants.spacingM),
-              Expanded(child: _buildColorInfo(color, colorScheme)),
-              _buildChangeColorButton(),
-            ],
+        final colorScheme = Theme.of(context).colorScheme;
+        return TaskSheetOptionCard(
+          leading: _buildColorPreview(color, colorScheme),
+          titleKey: 'selectedColor',
+          subtitle: color.toHexString(),
+          action: TaskSheetOptionChangeButton(
+            icon: IconsaxPlusLinear.colorfilter,
+            onPressed: _showColorPickerDialog,
           ),
         );
       },
     );
   }
 
-  /// Builds the color preview widget.
+  /// Builds the color preview swatch.
   Widget _buildColorPreview(Color color, ColorScheme colorScheme) {
     return AnimatedContainer(
       duration: AppConstants.shortAnimation,
-      width: 44,
-      height: 44,
+      width: AppConstants.iconBoxSize,
+      height: AppConstants.iconBoxSize,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(AppConstants.borderRadiusCompact),
@@ -490,57 +467,6 @@ class _TasksActionState extends ConsumerState<TasksAction>
             spreadRadius: 0,
           ),
         ],
-      ),
-    );
-  }
-
-  /// Builds the color info widget.
-  Widget _buildColorInfo(Color color, ColorScheme colorScheme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          'selectedColor'.tr,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-            fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
-          ),
-        ),
-        SizedBox(height: AppConstants.spacingXS / 2),
-        Text(
-          color.toHexString(),
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
-            fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Builds the change color button widget.
-  Widget _buildChangeColorButton() {
-    return FilledButton.tonalIcon(
-      onPressed: _showColorPickerDialog,
-      icon: const Icon(
-        IconsaxPlusLinear.colorfilter,
-        size: AppConstants.iconSizeSmall,
-      ),
-      label: Text(
-        'change'.tr,
-        style: TextStyle(
-          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 13),
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      style: FilledButton.styleFrom(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppConstants.spacingM,
-          vertical: AppConstants.spacingS,
-        ),
-        minimumSize: const Size(0, 36),
       ),
     );
   }
@@ -814,16 +740,28 @@ class _EditingController {
     this.initialDescription,
     this.initialColor,
     this.initialIsDefault,
-  ) {
+    RecurrenceFrequency initialRecurrence,
+    List<int> initialRecurrenceWeekdays,
+    RecurrenceMode initialRecurrenceMode,
+    int? initialRecurrenceMinuteOfDay,
+  ) : recurrence = RecurrenceFormFields(
+        frequency: initialRecurrence,
+        weekdays: initialRecurrenceWeekdays,
+        mode: initialRecurrenceMode,
+        minuteOfDay: initialRecurrenceMinuteOfDay,
+      ) {
     title.value = initialTitle;
     description.value = initialDescription;
     color.value = initialColor;
     isDefault.value = initialIsDefault;
 
-    _dirtyTracker.watch(title, _hasChanges);
-    _dirtyTracker.watch(description, _hasChanges);
-    _dirtyTracker.watch(color, _hasChanges);
-    _dirtyTracker.watch(isDefault, _hasChanges);
+    _dirtyTracker.watchAll([
+      title,
+      description,
+      color,
+      isDefault,
+      ...recurrence.listenables,
+    ], _hasChanges);
   }
 
   final String? initialTitle;
@@ -836,6 +774,9 @@ class _EditingController {
   final color = ValueNotifier<Color?>(null);
   final isDefault = ValueNotifier<bool>(false);
 
+  /// Recurrence dirty fields shared with the category habit picker.
+  final RecurrenceFormFields recurrence;
+
   final FormDirtyTracker _dirtyTracker = FormDirtyTracker();
 
   /// Whether the task form has unsaved changes.
@@ -845,7 +786,8 @@ class _EditingController {
       title.value != initialTitle ||
       description.value != initialDescription ||
       color.value != initialColor ||
-      isDefault.value != initialIsDefault;
+      isDefault.value != initialIsDefault ||
+      recurrence.hasChanges;
 
   void dispose() {
     _dirtyTracker.dispose();
@@ -853,5 +795,6 @@ class _EditingController {
     description.dispose();
     color.dispose();
     isDefault.dispose();
+    recurrence.dispose();
   }
 }

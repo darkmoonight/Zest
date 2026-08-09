@@ -102,6 +102,17 @@ class Settings {
   /// When null, auto-resolves: Google → local Zest → create local Zest.
   String? deviceCalendarId;
 
+  /// Whether completed todos are automatically deleted on a schedule.
+  bool autoEraseCompletedEnabled = false;
+
+  /// How often completed todos are erased when [autoEraseCompletedEnabled].
+  @enumerated
+  AutoEraseCompletedFrequency autoEraseCompletedFrequency =
+      AutoEraseCompletedFrequency.weekly;
+
+  /// Timestamp of the last successful auto-erase of completed todos.
+  DateTime? lastAutoEraseCompletedTime;
+
   /// Bumped when the Settings Isar layout changes; triggers a re-save migration.
   int settingsSchemaVersion = 0;
 
@@ -140,6 +151,9 @@ class Settings {
     defaultCategoryId = other.defaultCategoryId;
     deviceCalendarSyncEnabled = other.deviceCalendarSyncEnabled;
     deviceCalendarId = other.deviceCalendarId;
+    autoEraseCompletedEnabled = other.autoEraseCompletedEnabled;
+    autoEraseCompletedFrequency = other.autoEraseCompletedFrequency;
+    lastAutoEraseCompletedTime = other.lastAutoEraseCompletedTime;
     settingsSchemaVersion = other.settingsSchemaVersion;
   }
 
@@ -196,6 +210,39 @@ enum AutoBackupFrequency {
   monthly,
 }
 
+/// How often completed todos are auto-erased.
+enum AutoEraseCompletedFrequency {
+  /// Erase completed todos older than about one week.
+  weekly,
+
+  /// Erase completed todos older than about one month.
+  monthly,
+}
+
+/// How often a todo or category habit repeats.
+enum RecurrenceFrequency {
+  /// No recurrence.
+  none,
+
+  /// Every day.
+  daily,
+
+  /// On selected weekdays (or same weekday as due date).
+  weekly,
+
+  /// Same day of month (clamped).
+  monthly,
+}
+
+/// What happens when a recurring item is completed.
+enum RecurrenceMode {
+  /// Keep the completed item and create a new active copy.
+  clone,
+
+  /// Keep the same item and reopen it on the next occurrence.
+  reopen,
+}
+
 /// Task category grouping todos.
 @collection
 class Tasks {
@@ -221,6 +268,20 @@ class Tasks {
   @enumerated
   SortOption sortOption = SortOption.none;
 
+  /// Habit reset / default recurrence for todos in this category.
+  @enumerated
+  RecurrenceFrequency recurrence = RecurrenceFrequency.none;
+
+  /// Weekdays (1–7, [DateTime.monday]…[DateTime.sunday]) for weekly recurrence.
+  List<int> recurrenceWeekdays = [];
+
+  /// Default clone vs reopen for this category (habit lists use reopen).
+  @enumerated
+  RecurrenceMode recurrenceMode = RecurrenceMode.reopen;
+
+  /// Fixed reminder time as minutes from midnight; null = no forced time.
+  int? recurrenceMinuteOfDay;
+
   /// Whether this is the built-in system Default category.
   bool isSystem;
 
@@ -238,6 +299,10 @@ class Tasks {
     this.index,
     this.isSystem = false,
     this.sortOption = SortOption.none,
+    this.recurrence = RecurrenceFrequency.none,
+    this.recurrenceWeekdays = const [],
+    this.recurrenceMode = RecurrenceMode.reopen,
+    this.recurrenceMinuteOfDay,
   });
 }
 
@@ -290,6 +355,20 @@ class Todos {
   /// Linked device-calendar event id when Android calendar export is enabled.
   String? deviceCalendarEventId;
 
+  /// How this todo repeats after completion.
+  @enumerated
+  RecurrenceFrequency recurrence = RecurrenceFrequency.none;
+
+  /// Weekdays (1–7) for weekly [recurrence]; empty uses due-date weekday.
+  List<int> recurrenceWeekdays = [];
+
+  /// Clone-on-complete vs reopen-on-schedule for this todo.
+  @enumerated
+  RecurrenceMode recurrenceMode = RecurrenceMode.clone;
+
+  /// Fixed reminder time as minutes from midnight; null = no forced time.
+  int? recurrenceMinuteOfDay;
+
   /// Parent todo when this is a subtask.
   final parent = IsarLink<Todos>();
 
@@ -314,6 +393,10 @@ class Todos {
     this.status = TodoStatus.active,
     this.tags = const [],
     this.index,
+    this.recurrence = RecurrenceFrequency.none,
+    this.recurrenceWeekdays = const [],
+    this.recurrenceMode = RecurrenceMode.clone,
+    this.recurrenceMinuteOfDay,
   });
 }
 

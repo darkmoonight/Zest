@@ -26,13 +26,14 @@
 ## ✨ Features
 
 - **Tasks** — categories, subtasks, priorities, tags, pin, sort, multi-select, transfer between categories
+- **Recurring** — daily / weekly / monthly; reminder time = notification; clone or reopen; category habit for todos without their own repeat; auto-erase in Settings
 - **Calendar** — month / week / two-week views, todos grouped by deadline
 - **Device calendar (Android)** — one-way export of todos with deadlines to the system calendar
 - **Statistics** — 365-day heatmap, streaks, weekly and hourly charts
-- **Notifications** — timezone-aware reminders, Mark as Done and Snooze actions, configurable snooze duration
-- **Backup** — manual and automatic (daily / weekly / monthly), GZip compression, custom storage path
-- **Design** — Material You, AMOLED theme, light/dark/system, custom palette and fonts
-- **Localization** — 16 languages, 12h/24h time, configurable first day of week
+- **Notifications** — timezone-aware reminders, Mark as Done / Snooze, exact-alarm fallback
+- **Backup** — manual and automatic (daily / weekly / monthly), GZip, custom path
+- **Design** — Material You, AMOLED, light/dark/system, custom palette and fonts
+- **Localization** — 16 languages, 12h/24h, configurable first day of week
 
 ---
 

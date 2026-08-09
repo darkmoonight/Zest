@@ -43,6 +43,11 @@ class _SettingsDataSectionState
         ),
       ),
     );
+    final eraseSettings = ref.watch(
+      settingsProvider.select(
+        (s) => (s.autoEraseCompletedEnabled, s.autoEraseCompletedFrequency),
+      ),
+    );
     final settings = ref.read(settingsProvider);
     final isar = ref.read(isarProvider);
     final isarService = IsarService(isar, context);
@@ -97,6 +102,23 @@ class _SettingsDataSectionState
             onTap: _createAutoBackupNow,
           ),
         ],
+        SettingsSwitchTile(
+          leading: const Icon(IconsaxPlusLinear.trash),
+          title: 'autoEraseCompleted',
+          value: eraseSettings.$1,
+          onChanged: (value) {
+            actions.saveSettingsOptimistic(
+              mutate: (s) => s.autoEraseCompletedEnabled = value,
+            );
+          },
+        ),
+        if (eraseSettings.$1)
+          SettingsTile(
+            leading: const Icon(IconsaxPlusLinear.calendar_1),
+            title: 'autoEraseCompletedFrequency',
+            value: _getEraseFrequencyText(eraseSettings.$2),
+            onTap: () => _showAutoEraseFrequencyDialog(settings),
+          ),
         SettingsTile(
           leading: const Icon(IconsaxPlusLinear.cloud_minus),
           title: 'deleteAllBD',
@@ -118,6 +140,23 @@ class _SettingsDataSectionState
       onSelected: (value) async {
         actions.saveSettingsOptimistic(
           mutate: (s) => s.autoBackupFrequency = value,
+        );
+      },
+    );
+  }
+
+  /// Show auto-erase frequency dialog.
+  void _showAutoEraseFrequencyDialog(Settings settings) {
+    showSettingsSelection<AutoEraseCompletedFrequency>(
+      context: context,
+      title: 'autoEraseCompletedFrequency',
+      icon: IconsaxPlusBold.calendar_1,
+      items: AutoEraseCompletedFrequency.values,
+      currentValue: settings.autoEraseCompletedFrequency,
+      itemBuilder: _getEraseFrequencyText,
+      onSelected: (value) async {
+        actions.saveSettingsOptimistic(
+          mutate: (s) => s.autoEraseCompletedFrequency = value,
         );
       },
     );
@@ -184,12 +223,11 @@ class _SettingsDataSectionState
   }
 
   /// Localized label for [frequency].
-  String _getFrequencyText(AutoBackupFrequency frequency) =>
-      switch (frequency) {
-        AutoBackupFrequency.daily => 'daily'.tr,
-        AutoBackupFrequency.weekly => 'weekly'.tr,
-        AutoBackupFrequency.monthly => 'monthly'.tr,
-      };
+  String _getFrequencyText(AutoBackupFrequency frequency) => frequency.name.tr;
+
+  /// Localized label for completed-todo erase [frequency].
+  String _getEraseFrequencyText(AutoEraseCompletedFrequency frequency) =>
+      frequency.name.tr;
 
   /// Confirms and clears all tasks and todos from the database.
   void _showDeleteAllDBDialog() {

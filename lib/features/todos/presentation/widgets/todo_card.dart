@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
@@ -327,23 +328,40 @@ class _TodoCardState extends ConsumerState<TodoCard>
     final isCancelled = widget.todo.status == TodoStatus.cancelled;
     final isDone = widget.todo.status == TodoStatus.done;
     final isArchivedCategory = _isFromArchivedCategory;
+    final isRecurring = RecurrenceService.isRecurring(widget.todo.recurrence);
 
-    return Text(
-      widget.todo.name,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 15),
-        fontWeight: FontWeight.w600,
-        color: isCancelled
-            ? colorScheme.error.withValues(alpha: 0.6)
-            : (isDone || isArchivedCategory
-                  ? colorScheme.onSurfaceVariant
-                  : colorScheme.onSurface),
-        decoration: (isDone || isCancelled) ? TextDecoration.lineThrough : null,
-        decorationColor: isCancelled
-            ? colorScheme.error.withValues(alpha: 0.6)
-            : colorScheme.onSurfaceVariant,
-      ),
-      overflow: TextOverflow.visible,
+    return Row(
+      children: [
+        if (isRecurring) ...[
+          Icon(
+            IconsaxPlusLinear.repeat,
+            size: 14,
+            color: colorScheme.primary.withValues(alpha: 0.85),
+          ),
+          const SizedBox(width: 4),
+        ],
+        Expanded(
+          child: Text(
+            widget.todo.name,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 15),
+              fontWeight: FontWeight.w600,
+              color: isCancelled
+                  ? colorScheme.error.withValues(alpha: 0.6)
+                  : (isDone || isArchivedCategory
+                        ? colorScheme.onSurfaceVariant
+                        : colorScheme.onSurface),
+              decoration: (isDone || isCancelled)
+                  ? TextDecoration.lineThrough
+                  : null,
+              decorationColor: isCancelled
+                  ? colorScheme.error.withValues(alpha: 0.6)
+                  : colorScheme.onSurfaceVariant,
+            ),
+            overflow: TextOverflow.visible,
+          ),
+        ),
+      ],
     );
   }
 

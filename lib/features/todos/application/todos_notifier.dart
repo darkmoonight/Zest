@@ -202,6 +202,10 @@ class TodosNotifier extends Notifier<TodosState> {
     required Priority priority,
     required List<String> tags,
     Todos? parent,
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.clone,
+    int? recurrenceMinuteOfDay,
   }) async {
     final todo = await todoService.createTodo(
       task: task,
@@ -213,6 +217,10 @@ class TodosNotifier extends Notifier<TodosState> {
       tags: tags,
       currentTodoCount: state.todos.length,
       parent: parent,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
     return todo;
   }
@@ -227,6 +235,10 @@ class TodosNotifier extends Notifier<TodosState> {
     required bool pinned,
     required Priority priority,
     required List<String> tags,
+    RecurrenceFrequency recurrence = RecurrenceFrequency.none,
+    List<int> recurrenceWeekdays = const [],
+    RecurrenceMode recurrenceMode = RecurrenceMode.clone,
+    int? recurrenceMinuteOfDay,
   }) async {
     await todoService.updateTodo(
       todo: todo,
@@ -237,12 +249,17 @@ class TodosNotifier extends Notifier<TodosState> {
       pinned: pinned,
       priority: priority,
       tags: tags,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
   }
 
   /// Updates todo status and resyncs the current multi-selection.
   Future<void> updateTodoStatus(Todos todo) async {
     await todoService.updateTodoStatus(todo);
+    await _loadTodos();
     _resyncSelectedTodoFromIds();
   }
 
@@ -252,6 +269,7 @@ class TodosNotifier extends Notifier<TodosState> {
     TodoStatus status,
   ) async {
     await todoService.updateStatusWithSubtasks(todo, status);
+    await _loadTodos();
     _resyncSelectedTodoFromIds();
   }
 

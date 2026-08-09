@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:isar_community/isar.dart';
-import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/providers.dart';
+import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/core/utils/default_category.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
@@ -20,9 +20,12 @@ import 'package:zest/core/widgets/modal_sheet_animation_mixin.dart';
 import 'package:zest/core/widgets/modal_sheet_header.dart';
 import 'package:zest/core/widgets/modal_sheet_save_button.dart';
 import 'package:zest/core/widgets/modal_sheet_scaffold.dart';
+import 'package:zest/core/widgets/recurrence_form_fields.dart';
 import 'package:zest/core/widgets/text_form.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/features/todos/presentation/view/todo_todos.dart';
+import 'package:zest/features/todos/presentation/widgets/due_datetime_picker.dart';
+import 'package:zest/features/todos/presentation/widgets/recurrence_picker.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Bottom sheet form for creating or editing a todo.
@@ -101,6 +104,18 @@ class _TodosActionState extends ConsumerState<TodosAction>
   /// Todo priority.
   Priority _todoPriority = Priority.none;
 
+  /// Todo recurrence.
+  RecurrenceFrequency _todoRecurrence = RecurrenceFrequency.none;
+
+  /// Weekdays for weekly recurrence.
+  List<int> _todoRecurrenceWeekdays = [];
+
+  /// Clone vs reopen for this todo.
+  RecurrenceMode _todoRecurrenceMode = RecurrenceMode.clone;
+
+  /// Fixed reminder minutes from midnight for recurrence.
+  int? _todoRecurrenceMinuteOfDay;
+
   /// String.
   List<String> _todoTags = [];
 
@@ -145,8 +160,36 @@ class _TodosActionState extends ConsumerState<TodosAction>
       setState(() {
         _selectedTask = defaultTask;
         _categoryController.text = defaultTask.title;
+        _applyCategoryHabitDue(defaultTask);
       });
     });
+  }
+
+  /// Prefills due from a category habit reminder without copying recurrence onto the todo.
+  ///
+  /// Category recurrence stays on [task]; todos keep `recurrence: none` so midnight
+  /// reopen and notifications use the category rule.
+  void _applyCategoryHabitDue(Tasks task) {
+    if (widget.edit) return;
+    if (RecurrenceService.isRecurring(_todoRecurrence)) return;
+    _setFormDue(
+      RecurrenceService.resolveDueForTodoInTask(
+        now: DateTime.now(),
+        task: task,
+        todoRecurrence: RecurrenceFrequency.none,
+        todoWeekdays: const [],
+        todoMinuteOfDay: null,
+      ),
+    );
+  }
+
+  /// Writes [due] into the due field (and dirty tracker when editing).
+  void _setFormDue(DateTime? due) {
+    if (due == null) return;
+    _timeController.text = _formatDateTime(due);
+    if (widget.edit) {
+      _editingController.time.value = _timeController.text;
+    }
   }
 
   @override
@@ -190,6 +233,14 @@ class _TodosActionState extends ConsumerState<TodosAction>
       _todoPinned = widget.todo!.fix;
       _todoPriority = widget.todo!.priority;
       _todoTags = widget.todo!.tags;
+      _todoRecurrence = widget.todo!.recurrence;
+      _todoRecurrenceWeekdays = List<int>.from(widget.todo!.recurrenceWeekdays);
+      _todoRecurrenceMode = widget.todo!.recurrenceMode;
+      _todoRecurrenceMinuteOfDay = widget.todo!.recurrenceMinuteOfDay;
+    } else if (!widget.edit && widget.task != null) {
+      // Keep todo recurrence as none; category habit owns the rule.
+      _selectedTask = widget.task;
+      _applyCategoryHabitDue(widget.task!);
     }
   }
 
@@ -203,6 +254,10 @@ class _TodosActionState extends ConsumerState<TodosAction>
       _selectedTask,
       _todoPriority,
       _todoTags,
+      _todoRecurrence,
+      List<int>.from(_todoRecurrenceWeekdays),
+      _todoRecurrenceMode,
+      _todoRecurrenceMinuteOfDay,
     );
   }
 
@@ -409,6 +464,10 @@ class _TodosActionState extends ConsumerState<TodosAction>
           pinned: _todoPinned,
           priority: _todoPriority,
           tags: _todoTags,
+          recurrence: _todoRecurrence,
+          recurrenceWeekdays: _todoRecurrenceWeekdays,
+          recurrenceMode: _todoRecurrenceMode,
+          recurrenceMinuteOfDay: _todoRecurrenceMinuteOfDay,
         );
     return true;
   }
@@ -428,6 +487,10 @@ class _TodosActionState extends ConsumerState<TodosAction>
             pinned: _todoPinned,
             priority: _todoPriority,
             tags: _todoTags,
+            recurrence: _todoRecurrence,
+            recurrenceWeekdays: _todoRecurrenceWeekdays,
+            recurrenceMode: _todoRecurrenceMode,
+            recurrenceMinuteOfDay: _todoRecurrenceMinuteOfDay,
           );
       return true;
     } else if (widget.todo != null) {
@@ -445,6 +508,10 @@ class _TodosActionState extends ConsumerState<TodosAction>
             priority: _todoPriority,
             tags: _todoTags,
             parent: widget.todo,
+            recurrence: _todoRecurrence,
+            recurrenceWeekdays: _todoRecurrenceWeekdays,
+            recurrenceMode: _todoRecurrenceMode,
+            recurrenceMinuteOfDay: _todoRecurrenceMinuteOfDay,
           );
       return true;
     } else if (widget.task != null) {
@@ -458,6 +525,10 @@ class _TodosActionState extends ConsumerState<TodosAction>
             pinned: _todoPinned,
             priority: _todoPriority,
             tags: _todoTags,
+            recurrence: _todoRecurrence,
+            recurrenceWeekdays: _todoRecurrenceWeekdays,
+            recurrenceMode: _todoRecurrenceMode,
+            recurrenceMinuteOfDay: _todoRecurrenceMinuteOfDay,
           );
       return true;
     }
@@ -644,7 +715,11 @@ class _TodosActionState extends ConsumerState<TodosAction>
     _categoryController.text = selection.title;
     _selectedTask = selection;
     setState(() {
-      if (widget.edit) _editingController.task.value = _selectedTask;
+      if (widget.edit) {
+        _editingController.task.value = _selectedTask;
+      } else {
+        _applyCategoryHabitDue(selection);
+      }
     });
     _categoryFocusNode.unfocus();
   }
@@ -939,6 +1014,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
               _buildSubTaskButton(context),
               _buildDateTimeButton(context),
               _buildPriorityButton(context),
+              _buildRecurrenceButton(context),
               _buildPinButton(context),
             ],
           ),
@@ -1090,6 +1166,10 @@ class _TodosActionState extends ConsumerState<TodosAction>
             priority: _todoPriority,
             tags: _todoTags,
             parent: widget.category ? null : widget.todo,
+            recurrence: _todoRecurrence,
+            recurrenceWeekdays: _todoRecurrenceWeekdays,
+            recurrenceMode: _todoRecurrenceMode,
+            recurrenceMinuteOfDay: _todoRecurrenceMinuteOfDay,
           );
 
       if (!context.mounted) return;
@@ -1178,26 +1258,34 @@ class _TodosActionState extends ConsumerState<TodosAction>
     );
   }
 
-  /// Void.
+  /// Opens the classical due date/time picker (Material date + time).
   Future<void> _showDateTimePicker() async {
-    final now = DateTime.now();
-    final DateTime? dateTime = await showOmniDateTimePicker(
-      context: context,
-      initialDate: now,
-      firstDate: now.subtract(const Duration(hours: 1)),
-      lastDate: now.add(AppConstants.calendarSelectableRange),
-      is24HourMode: ref.watch(appSettingsProvider).timeformat != '12',
-      borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
+    final appSettings = ref.read(appSettingsProvider);
+    final use24h = appSettings.timeformat != '12';
+    final current = DateTimeFormatHelper.parseDateTime(
+      _timeController.text,
+      timeformat: appSettings.timeformat,
+      languageCode: appSettings.locale.languageCode,
     );
 
-    if (dateTime != null) {
-      setState(() {
-        _timeController.text = _formatDateTime(dateTime);
-        if (widget.edit) {
-          _editingController.time.value = _timeController.text;
-        }
-      });
-    }
+    final result = await showDueDateTimePicker(
+      context: context,
+      current: current,
+      use24h: use24h,
+    );
+    if (result == null || !mounted) return;
+
+    setState(() {
+      switch (result) {
+        case DueDateTimePicked(:final dateTime):
+          _timeController.text = _formatDateTime(dateTime);
+        case DueDateTimeCleared():
+          _timeController.clear();
+      }
+      if (widget.edit) {
+        _editingController.time.value = _timeController.text;
+      }
+    });
   }
 
   /// Builds the priority button widget.
@@ -1300,6 +1388,64 @@ class _TodosActionState extends ConsumerState<TodosAction>
     );
   }
 
+  /// Builds the recurrence button widget.
+  Widget _buildRecurrenceButton(BuildContext context) {
+    final use24h = ref.watch(appSettingsProvider).timeformat != '12';
+    return RecurrenceChipButton(
+      frequency: _todoRecurrence,
+      minuteOfDay: _todoRecurrenceMinuteOfDay,
+      use24h: use24h,
+      onPressed: () async {
+        final selection = await showRecurrencePicker(
+          context: context,
+          current: _todoRecurrence,
+          currentWeekdays: _todoRecurrenceWeekdays,
+          currentMode: _todoRecurrenceMode,
+          currentMinuteOfDay: _todoRecurrenceMinuteOfDay,
+          use24h: use24h,
+        );
+        if (selection == null || !mounted) return;
+        setState(() {
+          _todoRecurrence = selection.frequency;
+          _todoRecurrenceWeekdays = selection.weekdays;
+          _todoRecurrenceMode = selection.mode;
+          _todoRecurrenceMinuteOfDay = selection.minuteOfDay;
+          _editingController.recurrence.apply(selection);
+          _syncDueFromReminderTime(
+            frequency: selection.frequency,
+            weekdays: selection.weekdays,
+            minuteOfDay: selection.minuteOfDay,
+          );
+        });
+      },
+    );
+  }
+
+  /// Writes due field from reminder time so save + notification stay in sync.
+  void _syncDueFromReminderTime({
+    required RecurrenceFrequency frequency,
+    required List<int> weekdays,
+    required int? minuteOfDay,
+  }) {
+    final task = _selectedTask ?? widget.task;
+    final now = DateTime.now();
+    final due = task != null
+        ? RecurrenceService.resolveDueForTodoInTask(
+            now: now,
+            task: task,
+            todoRecurrence: frequency,
+            todoWeekdays: weekdays,
+            todoMinuteOfDay: minuteOfDay,
+          )
+        : RecurrenceService.resolveActiveReminderDue(
+            now: now,
+            frequency: frequency,
+            weekdays: weekdays,
+            minuteOfDay: minuteOfDay,
+          );
+    _setFormDue(due);
+  }
+
   /// Builds the pin button widget.
   Widget _buildPinButton(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -1359,7 +1505,16 @@ class _EditingController {
     this._initialTask,
     this._initialPriority,
     this._initialTags,
-  ) {
+    RecurrenceFrequency initialRecurrence,
+    List<int> initialRecurrenceWeekdays,
+    RecurrenceMode initialRecurrenceMode,
+    int? initialRecurrenceMinuteOfDay,
+  ) : recurrence = RecurrenceFormFields(
+        frequency: initialRecurrence,
+        weekdays: initialRecurrenceWeekdays,
+        mode: initialRecurrenceMode,
+        minuteOfDay: initialRecurrenceMinuteOfDay,
+      ) {
     title.value = _initialTitle;
     description.value = _initialDesc;
     time.value = _initialTime;
@@ -1368,7 +1523,7 @@ class _EditingController {
     priority.value = _initialPriority;
     tags.value = List.from(_initialTags);
 
-    for (final listenable in [
+    _dirtyTracker.watchAll([
       title,
       description,
       time,
@@ -1376,9 +1531,8 @@ class _EditingController {
       task,
       priority,
       tags,
-    ]) {
-      _dirtyTracker.watch(listenable, _hasChanges);
-    }
+      ...recurrence.listenables,
+    ], _hasChanges);
   }
 
   final String _initialTitle;
@@ -1399,6 +1553,9 @@ class _EditingController {
   );
   final ValueNotifier<List<String>> tags = ValueNotifier<List<String>>([]);
 
+  /// Recurrence dirty fields shared with the todo repeat picker.
+  final RecurrenceFormFields recurrence;
+
   final FormDirtyTracker _dirtyTracker = FormDirtyTracker();
 
   /// Whether the todo form has unsaved changes.
@@ -1411,7 +1568,8 @@ class _EditingController {
       pinned.value != _initialPinned ||
       task.value?.id != _initialTask?.id ||
       priority.value != _initialPriority ||
-      !listEquals(tags.value, _initialTags);
+      !listEquals(tags.value, _initialTags) ||
+      recurrence.hasChanges;
 
   void dispose() {
     _dirtyTracker.dispose();
@@ -1422,5 +1580,6 @@ class _EditingController {
     task.dispose();
     priority.dispose();
     tags.dispose();
+    recurrence.dispose();
   }
 }
