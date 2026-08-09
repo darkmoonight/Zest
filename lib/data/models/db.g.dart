@@ -76,71 +76,81 @@ const SettingsSchema = CollectionSchema(
       name: r'defaultScreen',
       type: IsarType.string,
     ),
-    r'firstDay': PropertySchema(
+    r'deviceCalendarId': PropertySchema(
       id: 12,
+      name: r'deviceCalendarId',
+      type: IsarType.string,
+    ),
+    r'deviceCalendarSyncEnabled': PropertySchema(
+      id: 13,
+      name: r'deviceCalendarSyncEnabled',
+      type: IsarType.bool,
+    ),
+    r'firstDay': PropertySchema(
+      id: 14,
       name: r'firstDay',
       type: IsarType.string,
     ),
-    r'isImage': PropertySchema(id: 13, name: r'isImage', type: IsarType.bool),
+    r'isImage': PropertySchema(id: 15, name: r'isImage', type: IsarType.bool),
     r'language': PropertySchema(
-      id: 14,
+      id: 16,
       name: r'language',
       type: IsarType.string,
     ),
     r'lastAutoBackupTime': PropertySchema(
-      id: 15,
+      id: 17,
       name: r'lastAutoBackupTime',
       type: IsarType.dateTime,
     ),
     r'materialColor': PropertySchema(
-      id: 16,
+      id: 18,
       name: r'materialColor',
       type: IsarType.bool,
     ),
     r'maxAutoBackups': PropertySchema(
-      id: 17,
+      id: 19,
       name: r'maxAutoBackups',
       type: IsarType.long,
     ),
     r'notificationChannelsMigrated': PropertySchema(
-      id: 18,
+      id: 20,
       name: r'notificationChannelsMigrated',
       type: IsarType.bool,
     ),
-    r'onboard': PropertySchema(id: 19, name: r'onboard', type: IsarType.bool),
+    r'onboard': PropertySchema(id: 21, name: r'onboard', type: IsarType.bool),
     r'screenPrivacy': PropertySchema(
-      id: 20,
+      id: 22,
       name: r'screenPrivacy',
       type: IsarType.bool,
     ),
     r'settingsSchemaVersion': PropertySchema(
-      id: 21,
+      id: 23,
       name: r'settingsSchemaVersion',
       type: IsarType.long,
     ),
     r'showArchivedInAllTodos': PropertySchema(
-      id: 22,
+      id: 24,
       name: r'showArchivedInAllTodos',
       type: IsarType.bool,
     ),
     r'showArchivedInCalendar': PropertySchema(
-      id: 23,
+      id: 25,
       name: r'showArchivedInCalendar',
       type: IsarType.bool,
     ),
     r'showArchivedInStatistics': PropertySchema(
-      id: 24,
+      id: 26,
       name: r'showArchivedInStatistics',
       type: IsarType.bool,
     ),
     r'snoozeDuration': PropertySchema(
-      id: 25,
+      id: 27,
       name: r'snoozeDuration',
       type: IsarType.long,
     ),
-    r'theme': PropertySchema(id: 26, name: r'theme', type: IsarType.string),
+    r'theme': PropertySchema(id: 28, name: r'theme', type: IsarType.string),
     r'timeformat': PropertySchema(
-      id: 27,
+      id: 29,
       name: r'timeformat',
       type: IsarType.string,
     ),
@@ -177,6 +187,12 @@ int _settingsEstimateSize(
   bytesCount += 3 + object.calendarFormat.length * 3;
   bytesCount += 3 + object.colorPalette.length * 3;
   bytesCount += 3 + object.defaultScreen.length * 3;
+  {
+    final value = object.deviceCalendarId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.firstDay.length * 3;
   {
     final value = object.language;
@@ -212,22 +228,24 @@ void _settingsSerialize(
   writer.writeLong(offsets[9], object.defaultCategoryId);
   writer.writeBool(offsets[10], object.defaultCategorySeeded);
   writer.writeString(offsets[11], object.defaultScreen);
-  writer.writeString(offsets[12], object.firstDay);
-  writer.writeBool(offsets[13], object.isImage);
-  writer.writeString(offsets[14], object.language);
-  writer.writeDateTime(offsets[15], object.lastAutoBackupTime);
-  writer.writeBool(offsets[16], object.materialColor);
-  writer.writeLong(offsets[17], object.maxAutoBackups);
-  writer.writeBool(offsets[18], object.notificationChannelsMigrated);
-  writer.writeBool(offsets[19], object.onboard);
-  writer.writeBool(offsets[20], object.screenPrivacy);
-  writer.writeLong(offsets[21], object.settingsSchemaVersion);
-  writer.writeBool(offsets[22], object.showArchivedInAllTodos);
-  writer.writeBool(offsets[23], object.showArchivedInCalendar);
-  writer.writeBool(offsets[24], object.showArchivedInStatistics);
-  writer.writeLong(offsets[25], object.snoozeDuration);
-  writer.writeString(offsets[26], object.theme);
-  writer.writeString(offsets[27], object.timeformat);
+  writer.writeString(offsets[12], object.deviceCalendarId);
+  writer.writeBool(offsets[13], object.deviceCalendarSyncEnabled);
+  writer.writeString(offsets[14], object.firstDay);
+  writer.writeBool(offsets[15], object.isImage);
+  writer.writeString(offsets[16], object.language);
+  writer.writeDateTime(offsets[17], object.lastAutoBackupTime);
+  writer.writeBool(offsets[18], object.materialColor);
+  writer.writeLong(offsets[19], object.maxAutoBackups);
+  writer.writeBool(offsets[20], object.notificationChannelsMigrated);
+  writer.writeBool(offsets[21], object.onboard);
+  writer.writeBool(offsets[22], object.screenPrivacy);
+  writer.writeLong(offsets[23], object.settingsSchemaVersion);
+  writer.writeBool(offsets[24], object.showArchivedInAllTodos);
+  writer.writeBool(offsets[25], object.showArchivedInCalendar);
+  writer.writeBool(offsets[26], object.showArchivedInStatistics);
+  writer.writeLong(offsets[27], object.snoozeDuration);
+  writer.writeString(offsets[28], object.theme);
+  writer.writeString(offsets[29], object.timeformat);
 }
 
 Settings _settingsDeserialize(
@@ -261,23 +279,25 @@ Settings _settingsDeserialize(
   object.defaultCategoryId = reader.readLongOrNull(offsets[9]);
   object.defaultCategorySeeded = reader.readBool(offsets[10]);
   object.defaultScreen = reader.readString(offsets[11]);
-  object.firstDay = reader.readString(offsets[12]);
+  object.deviceCalendarId = reader.readStringOrNull(offsets[12]);
+  object.deviceCalendarSyncEnabled = reader.readBool(offsets[13]);
+  object.firstDay = reader.readString(offsets[14]);
   object.id = id;
-  object.isImage = reader.readBoolOrNull(offsets[13]);
-  object.language = reader.readStringOrNull(offsets[14]);
-  object.lastAutoBackupTime = reader.readDateTimeOrNull(offsets[15]);
-  object.materialColor = reader.readBool(offsets[16]);
-  object.maxAutoBackups = reader.readLong(offsets[17]);
-  object.notificationChannelsMigrated = reader.readBool(offsets[18]);
-  object.onboard = reader.readBool(offsets[19]);
-  object.screenPrivacy = reader.readBoolOrNull(offsets[20]);
-  object.settingsSchemaVersion = reader.readLong(offsets[21]);
-  object.showArchivedInAllTodos = reader.readBool(offsets[22]);
-  object.showArchivedInCalendar = reader.readBool(offsets[23]);
-  object.showArchivedInStatistics = reader.readBool(offsets[24]);
-  object.snoozeDuration = reader.readLong(offsets[25]);
-  object.theme = reader.readStringOrNull(offsets[26]);
-  object.timeformat = reader.readString(offsets[27]);
+  object.isImage = reader.readBoolOrNull(offsets[15]);
+  object.language = reader.readStringOrNull(offsets[16]);
+  object.lastAutoBackupTime = reader.readDateTimeOrNull(offsets[17]);
+  object.materialColor = reader.readBool(offsets[18]);
+  object.maxAutoBackups = reader.readLong(offsets[19]);
+  object.notificationChannelsMigrated = reader.readBool(offsets[20]);
+  object.onboard = reader.readBool(offsets[21]);
+  object.screenPrivacy = reader.readBoolOrNull(offsets[22]);
+  object.settingsSchemaVersion = reader.readLong(offsets[23]);
+  object.showArchivedInAllTodos = reader.readBool(offsets[24]);
+  object.showArchivedInCalendar = reader.readBool(offsets[25]);
+  object.showArchivedInStatistics = reader.readBool(offsets[26]);
+  object.snoozeDuration = reader.readLong(offsets[27]);
+  object.theme = reader.readStringOrNull(offsets[28]);
+  object.timeformat = reader.readString(offsets[29]);
   return object;
 }
 
@@ -325,36 +345,40 @@ P _settingsDeserializeProp<P>(
     case 11:
       return (reader.readString(offset)) as P;
     case 12:
-      return (reader.readString(offset)) as P;
-    case 13:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 14:
       return (reader.readStringOrNull(offset)) as P;
-    case 15:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 16:
+    case 13:
       return (reader.readBool(offset)) as P;
+    case 14:
+      return (reader.readString(offset)) as P;
+    case 15:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 16:
+      return (reader.readStringOrNull(offset)) as P;
     case 17:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 18:
       return (reader.readBool(offset)) as P;
     case 19:
-      return (reader.readBool(offset)) as P;
-    case 20:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 21:
       return (reader.readLong(offset)) as P;
+    case 20:
+      return (reader.readBool(offset)) as P;
+    case 21:
+      return (reader.readBool(offset)) as P;
     case 22:
-      return (reader.readBool(offset)) as P;
+      return (reader.readBoolOrNull(offset)) as P;
     case 23:
-      return (reader.readBool(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 24:
       return (reader.readBool(offset)) as P;
     case 25:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 26:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 27:
+      return (reader.readLong(offset)) as P;
+    case 28:
+      return (reader.readStringOrNull(offset)) as P;
+    case 29:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1529,6 +1553,177 @@ extension SettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(property: r'defaultScreen', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'deviceCalendarId'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'deviceCalendarId'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'deviceCalendarId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'deviceCalendarId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'deviceCalendarId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'deviceCalendarId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'deviceCalendarId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'deviceCalendarId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'deviceCalendarId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'deviceCalendarId',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'deviceCalendarId', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'deviceCalendarId', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  deviceCalendarSyncEnabledEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'deviceCalendarSyncEnabled',
+          value: value,
+        ),
       );
     });
   }
@@ -2726,6 +2921,32 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByDeviceCalendarId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByDeviceCalendarIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByDeviceCalendarSyncEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarSyncEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByDeviceCalendarSyncEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarSyncEnabled', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByFirstDay() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'firstDay', Sort.asc);
@@ -3079,6 +3300,32 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByDeviceCalendarId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByDeviceCalendarIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByDeviceCalendarSyncEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarSyncEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByDeviceCalendarSyncEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarSyncEnabled', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByFirstDay() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'firstDay', Sort.asc);
@@ -3388,6 +3635,24 @@ extension SettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Settings, Settings, QDistinct> distinctByDeviceCalendarId({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'deviceCalendarId',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct>
+  distinctByDeviceCalendarSyncEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceCalendarSyncEnabled');
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByFirstDay({
     bool caseSensitive = true,
   }) {
@@ -3579,6 +3844,19 @@ extension SettingsQueryProperty
   QueryBuilder<Settings, String, QQueryOperations> defaultScreenProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'defaultScreen');
+    });
+  }
+
+  QueryBuilder<Settings, String?, QQueryOperations> deviceCalendarIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceCalendarId');
+    });
+  }
+
+  QueryBuilder<Settings, bool, QQueryOperations>
+  deviceCalendarSyncEnabledProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceCalendarSyncEnabled');
     });
   }
 
@@ -4868,30 +5146,35 @@ const TodosSchema = CollectionSchema(
       name: r'description',
       type: IsarType.string,
     ),
-    r'done': PropertySchema(id: 3, name: r'done', type: IsarType.bool),
-    r'fix': PropertySchema(id: 4, name: r'fix', type: IsarType.bool),
-    r'index': PropertySchema(id: 5, name: r'index', type: IsarType.long),
-    r'name': PropertySchema(id: 6, name: r'name', type: IsarType.string),
+    r'deviceCalendarEventId': PropertySchema(
+      id: 3,
+      name: r'deviceCalendarEventId',
+      type: IsarType.string,
+    ),
+    r'done': PropertySchema(id: 4, name: r'done', type: IsarType.bool),
+    r'fix': PropertySchema(id: 5, name: r'fix', type: IsarType.bool),
+    r'index': PropertySchema(id: 6, name: r'index', type: IsarType.long),
+    r'name': PropertySchema(id: 7, name: r'name', type: IsarType.string),
     r'priority': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'priority',
       type: IsarType.byte,
       enumMap: _TodospriorityEnumValueMap,
     ),
     r'status': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'status',
       type: IsarType.byte,
       enumMap: _TodosstatusEnumValueMap,
     ),
-    r'tags': PropertySchema(id: 9, name: r'tags', type: IsarType.stringList),
+    r'tags': PropertySchema(id: 10, name: r'tags', type: IsarType.stringList),
     r'todoCompletedTime': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'todoCompletedTime',
       type: IsarType.dateTime,
     ),
     r'todoCompletionTime': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'todoCompletionTime',
       type: IsarType.dateTime,
     ),
@@ -4939,6 +5222,12 @@ int _todosEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.description.length * 3;
+  {
+    final value = object.deviceCalendarEventId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.name.length * 3;
   bytesCount += 3 + object.tags.length * 3;
   {
@@ -4959,15 +5248,16 @@ void _todosSerialize(
   writer.writeByte(offsets[0], object.childrenSortOption.index);
   writer.writeDateTime(offsets[1], object.createdTime);
   writer.writeString(offsets[2], object.description);
-  writer.writeBool(offsets[3], object.done);
-  writer.writeBool(offsets[4], object.fix);
-  writer.writeLong(offsets[5], object.index);
-  writer.writeString(offsets[6], object.name);
-  writer.writeByte(offsets[7], object.priority.index);
-  writer.writeByte(offsets[8], object.status.index);
-  writer.writeStringList(offsets[9], object.tags);
-  writer.writeDateTime(offsets[10], object.todoCompletedTime);
-  writer.writeDateTime(offsets[11], object.todoCompletionTime);
+  writer.writeString(offsets[3], object.deviceCalendarEventId);
+  writer.writeBool(offsets[4], object.done);
+  writer.writeBool(offsets[5], object.fix);
+  writer.writeLong(offsets[6], object.index);
+  writer.writeString(offsets[7], object.name);
+  writer.writeByte(offsets[8], object.priority.index);
+  writer.writeByte(offsets[9], object.status.index);
+  writer.writeStringList(offsets[10], object.tags);
+  writer.writeDateTime(offsets[11], object.todoCompletedTime);
+  writer.writeDateTime(offsets[12], object.todoCompletionTime);
 }
 
 Todos _todosDeserialize(
@@ -4979,24 +5269,25 @@ Todos _todosDeserialize(
   final object = Todos(
     createdTime: reader.readDateTime(offsets[1]),
     description: reader.readStringOrNull(offsets[2]) ?? '',
-    done: reader.readBoolOrNull(offsets[3]) ?? false,
-    fix: reader.readBoolOrNull(offsets[4]) ?? false,
+    done: reader.readBoolOrNull(offsets[4]) ?? false,
+    fix: reader.readBoolOrNull(offsets[5]) ?? false,
     id: id,
-    index: reader.readLongOrNull(offsets[5]),
-    name: reader.readString(offsets[6]),
+    index: reader.readLongOrNull(offsets[6]),
+    name: reader.readString(offsets[7]),
     priority:
-        _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[7])] ??
+        _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[8])] ??
         Priority.none,
     status:
-        _TodosstatusValueEnumMap[reader.readByteOrNull(offsets[8])] ??
+        _TodosstatusValueEnumMap[reader.readByteOrNull(offsets[9])] ??
         TodoStatus.active,
-    tags: reader.readStringList(offsets[9]) ?? const [],
-    todoCompletedTime: reader.readDateTimeOrNull(offsets[10]),
-    todoCompletionTime: reader.readDateTimeOrNull(offsets[11]),
+    tags: reader.readStringList(offsets[10]) ?? const [],
+    todoCompletedTime: reader.readDateTimeOrNull(offsets[11]),
+    todoCompletionTime: reader.readDateTimeOrNull(offsets[12]),
   );
   object.childrenSortOption =
       _TodoschildrenSortOptionValueEnumMap[reader.readByteOrNull(offsets[0])] ??
       SortOption.none;
+  object.deviceCalendarEventId = reader.readStringOrNull(offsets[3]);
   return object;
 }
 
@@ -5018,26 +5309,28 @@ P _todosDeserializeProp<P>(
     case 2:
       return (reader.readStringOrNull(offset) ?? '') as P;
     case 3:
-      return (reader.readBoolOrNull(offset) ?? false) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 4:
       return (reader.readBoolOrNull(offset) ?? false) as P;
     case 5:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 6:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 7:
+      return (reader.readString(offset)) as P;
+    case 8:
       return (_TodospriorityValueEnumMap[reader.readByteOrNull(offset)] ??
               Priority.none)
           as P;
-    case 8:
+    case 9:
       return (_TodosstatusValueEnumMap[reader.readByteOrNull(offset)] ??
               TodoStatus.active)
           as P;
-    case 9:
-      return (reader.readStringList(offset) ?? const []) as P;
     case 10:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringList(offset) ?? const []) as P;
     case 11:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 12:
       return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -5439,6 +5732,168 @@ extension TodosQueryFilter on QueryBuilder<Todos, Todos, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(property: r'description', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'deviceCalendarEventId'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'deviceCalendarEventId'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'deviceCalendarEventId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'deviceCalendarEventId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'deviceCalendarEventId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'deviceCalendarEventId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'deviceCalendarEventId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'deviceCalendarEventId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'deviceCalendarEventId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'deviceCalendarEventId',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'deviceCalendarEventId', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition>
+  deviceCalendarEventIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          property: r'deviceCalendarEventId',
+          value: '',
+        ),
       );
     });
   }
@@ -6333,6 +6788,18 @@ extension TodosQuerySortBy on QueryBuilder<Todos, Todos, QSortBy> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByDeviceCalendarEventId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarEventId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByDeviceCalendarEventIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarEventId', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> sortByDone() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'done', Sort.asc);
@@ -6467,6 +6934,18 @@ extension TodosQuerySortThenBy on QueryBuilder<Todos, Todos, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByDeviceCalendarEventId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarEventId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByDeviceCalendarEventIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceCalendarEventId', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> thenByDone() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'done', Sort.asc);
@@ -6597,6 +7076,17 @@ extension TodosQueryWhereDistinct on QueryBuilder<Todos, Todos, QDistinct> {
     });
   }
 
+  QueryBuilder<Todos, Todos, QDistinct> distinctByDeviceCalendarEventId({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'deviceCalendarEventId',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
+
   QueryBuilder<Todos, Todos, QDistinct> distinctByDone() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'done');
@@ -6677,6 +7167,13 @@ extension TodosQueryProperty on QueryBuilder<Todos, Todos, QQueryProperty> {
   QueryBuilder<Todos, String, QQueryOperations> descriptionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'description');
+    });
+  }
+
+  QueryBuilder<Todos, String?, QQueryOperations>
+  deviceCalendarEventIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceCalendarEventId');
     });
   }
 

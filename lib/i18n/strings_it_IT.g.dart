@@ -172,6 +172,11 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => 'Eliminazione di un compito';
 	@override String get deleted_todo_query => 'Sei sicuro di voler eliminare il compito?';
 	@override String get details => 'Dettagli';
+	@override String get device_calendar => 'Calendario del dispositivo';
+	@override String get device_calendar_default => 'Predefinito';
+	@override String get device_calendar_local => 'locale';
+	@override String get device_calendar_permission_denied => 'È richiesta l\'autorizzazione al calendario';
+	@override String get device_calendar_sync => 'Esporta nel calendario del dispositivo';
 	@override String get discord => 'Discord';
 	@override String get doing => 'In corso';
 	@override String get done => 'Fatto';
@@ -189,6 +194,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => 'Errore nel caricamento delle statistiche';
 	@override String get error_path => 'Non hai scelto il percorso per salvare il backup';
 	@override String get error_path_re => 'Non hai selezionato i file da ripristinare';
+	@override String get failed_to_open_settings => 'Impossibile aprire le impostazioni: {error}';
 	@override String get first_day_of_week => 'Primo giorno della settimana';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => 'Chiaro';
 	@override String get longest_streak => 'Più Lunga';
 	@override String get low_priority => 'Bassa';
+	@override String get manage_app_notifications => 'Gestisci le notifiche dell\'app';
 	@override String get mark_as_active => 'Contrassegna come attivo';
 	@override String get mark_as_active_hint => 'Ripristina questo compito allo stato attivo';
 	@override String get mark_as_cancelled => 'Contrassegna come annullato';
@@ -269,9 +276,14 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => 'Nessuna priorità';
 	@override String get no_results => 'Nessun risultato';
 	@override String get notification_channel_high => 'Promemoria alta priorità';
+	@override String get notification_channel_hint_high => 'Avvisi urgenti con suono e vibrazione';
+	@override String get notification_channel_hint_low => 'Avvisi discreti con vibrazione leggera';
+	@override String get notification_channel_hint_medium => 'Avvisi standard con suono e vibrazione';
+	@override String get notification_channel_hint_none => 'Avvisi minimi silenziosi';
 	@override String get notification_channel_low => 'Promemoria bassa priorità';
 	@override String get notification_channel_medium => 'Promemoria priorità media';
 	@override String get notification_channel_none => 'Promemoria senza priorità';
+	@override String get notification_channels => 'Canali di notifica';
 	@override String get open_notification => 'Apri notifica';
 	@override String get perfect_work => 'Eccellente!';
 	@override String get privacy_security => 'Privacy e sicurezza';
@@ -365,13 +377,6 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Completati questa settimana';
 	@override String get weekly => 'Settimanale';
 	@override String get weekly_progress => 'Progresso Settimanale';
-	@override String get notification_channels => 'Canali di notifica';
-	@override String get manage_app_notifications => 'Gestisci le notifiche dell\'app';
-	@override String get notification_channel_hint_high => 'Avvisi urgenti con suono e vibrazione';
-	@override String get notification_channel_hint_medium => 'Avvisi standard con suono e vibrazione';
-	@override String get notification_channel_hint_low => 'Avvisi discreti con vibrazione leggera';
-	@override String get notification_channel_hint_none => 'Avvisi minimi silenziosi';
-	@override String get failed_to_open_settings => 'Impossibile aprire le impostazioni: {error}';
 }
 
 /// The flat map containing all translations for locale <it-IT>.
@@ -515,6 +520,11 @@ extension on TranslationsItIt {
 			'deleted_todo' => 'Eliminazione di un compito',
 			'deleted_todo_query' => 'Sei sicuro di voler eliminare il compito?',
 			'details' => 'Dettagli',
+			'device_calendar' => 'Calendario del dispositivo',
+			'device_calendar_default' => 'Predefinito',
+			'device_calendar_local' => 'locale',
+			'device_calendar_permission_denied' => 'È richiesta l\'autorizzazione al calendario',
+			'device_calendar_sync' => 'Esporta nel calendario del dispositivo',
 			'discord' => 'Discord',
 			'doing' => 'In corso',
 			'done' => 'Fatto',
@@ -532,6 +542,7 @@ extension on TranslationsItIt {
 			'error_loading_statistics' => 'Errore nel caricamento delle statistiche',
 			'error_path' => 'Non hai scelto il percorso per salvare il backup',
 			'error_path_re' => 'Non hai selezionato i file da ripristinare',
+			'failed_to_open_settings' => 'Impossibile aprire le impostazioni: {error}',
 			'first_day_of_week' => 'Primo giorno della settimana',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsItIt {
 			'light' => 'Chiaro',
 			'longest_streak' => 'Più Lunga',
 			'low_priority' => 'Bassa',
+			'manage_app_notifications' => 'Gestisci le notifiche dell\'app',
 			'mark_as_active' => 'Contrassegna come attivo',
 			'mark_as_active_hint' => 'Ripristina questo compito allo stato attivo',
 			'mark_as_cancelled' => 'Contrassegna come annullato',
@@ -612,9 +624,14 @@ extension on TranslationsItIt {
 			'no_priority' => 'Nessuna priorità',
 			'no_results' => 'Nessun risultato',
 			'notification_channel_high' => 'Promemoria alta priorità',
+			'notification_channel_hint_high' => 'Avvisi urgenti con suono e vibrazione',
+			'notification_channel_hint_low' => 'Avvisi discreti con vibrazione leggera',
+			'notification_channel_hint_medium' => 'Avvisi standard con suono e vibrazione',
+			'notification_channel_hint_none' => 'Avvisi minimi silenziosi',
 			'notification_channel_low' => 'Promemoria bassa priorità',
 			'notification_channel_medium' => 'Promemoria priorità media',
 			'notification_channel_none' => 'Promemoria senza priorità',
+			'notification_channels' => 'Canali di notifica',
 			'open_notification' => 'Apri notifica',
 			'perfect_work' => 'Eccellente!',
 			'privacy_security' => 'Privacy e sicurezza',
@@ -708,13 +725,6 @@ extension on TranslationsItIt {
 			'week_completed' => 'Completati questa settimana',
 			'weekly' => 'Settimanale',
 			'weekly_progress' => 'Progresso Settimanale',
-			'notification_channels' => 'Canali di notifica',
-			'manage_app_notifications' => 'Gestisci le notifiche dell\'app',
-			'notification_channel_hint_high' => 'Avvisi urgenti con suono e vibrazione',
-			'notification_channel_hint_medium' => 'Avvisi standard con suono e vibrazione',
-			'notification_channel_hint_low' => 'Avvisi discreti con vibrazione leggera',
-			'notification_channel_hint_none' => 'Avvisi minimi silenziosi',
-			'failed_to_open_settings' => 'Impossibile aprire le impostazioni: {error}',
 			_ => null,
 		};
 	}

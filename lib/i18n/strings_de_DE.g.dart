@@ -172,6 +172,11 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => 'Aufgabe entfernen';
 	@override String get deleted_todo_query => 'Willst du wirklich die Aufgabe entfernen?';
 	@override String get details => 'Einzelheiten';
+	@override String get device_calendar => 'Gerätekalender';
+	@override String get device_calendar_default => 'Standard';
+	@override String get device_calendar_local => 'lokal';
+	@override String get device_calendar_permission_denied => 'Kalenderberechtigung ist erforderlich';
+	@override String get device_calendar_sync => 'In Gerätekalender exportieren';
 	@override String get discord => 'Discord';
 	@override String get doing => 'zu erledigen';
 	@override String get done => 'erledigt';
@@ -189,6 +194,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => 'Fehler beim Laden der Statistiken';
 	@override String get error_path => 'Du hast keinen Pfad zum Sichern ausgewählt';
 	@override String get error_path_re => 'Du hast keine Datein zum wiederherstellen ausgewählt';
+	@override String get failed_to_open_settings => 'Einstellungen konnten nicht geöffnet werden: {error}';
 	@override String get first_day_of_week => 'Erster Tag der Woche';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => 'Hell';
 	@override String get longest_streak => 'Längste';
 	@override String get low_priority => 'Niedrig';
+	@override String get manage_app_notifications => 'App-Benachrichtigungen verwalten';
 	@override String get mark_as_active => 'Als aktiv markieren';
 	@override String get mark_as_active_hint => 'Diese Aufgabe auf aktiven Status zurücksetzen';
 	@override String get mark_as_cancelled => 'Als abgebrochen markieren';
@@ -269,9 +276,14 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => 'Keine Priorität';
 	@override String get no_results => 'Keine Ergebnisse';
 	@override String get notification_channel_high => 'Erinnerungen hoher Priorität';
+	@override String get notification_channel_hint_high => 'Dringende Alarme mit Ton und Vibration';
+	@override String get notification_channel_hint_low => 'Leise Alarme mit leichter Vibration';
+	@override String get notification_channel_hint_medium => 'Standardalarme mit Ton und Vibration';
+	@override String get notification_channel_hint_none => 'Stille, minimale Alarme';
 	@override String get notification_channel_low => 'Erinnerungen niedriger Priorität';
 	@override String get notification_channel_medium => 'Erinnerungen mittlerer Priorität';
 	@override String get notification_channel_none => 'Erinnerungen ohne Priorität';
+	@override String get notification_channels => 'Benachrichtigungskanäle';
 	@override String get open_notification => 'Benachrichtigung öffnen';
 	@override String get perfect_work => 'Ausgezeichnet!';
 	@override String get privacy_security => 'Datenschutz und Sicherheit';
@@ -365,13 +377,6 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Diese Woche';
 	@override String get weekly => 'Wöchentlich';
 	@override String get weekly_progress => 'Wochenfortschritt';
-	@override String get notification_channels => 'Benachrichtigungskanäle';
-	@override String get manage_app_notifications => 'App-Benachrichtigungen verwalten';
-	@override String get notification_channel_hint_high => 'Dringende Alarme mit Ton und Vibration';
-	@override String get notification_channel_hint_medium => 'Standardalarme mit Ton und Vibration';
-	@override String get notification_channel_hint_low => 'Leise Alarme mit leichter Vibration';
-	@override String get notification_channel_hint_none => 'Stille, minimale Alarme';
-	@override String get failed_to_open_settings => 'Einstellungen konnten nicht geöffnet werden: {error}';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -515,6 +520,11 @@ extension on TranslationsDeDe {
 			'deleted_todo' => 'Aufgabe entfernen',
 			'deleted_todo_query' => 'Willst du wirklich die Aufgabe entfernen?',
 			'details' => 'Einzelheiten',
+			'device_calendar' => 'Gerätekalender',
+			'device_calendar_default' => 'Standard',
+			'device_calendar_local' => 'lokal',
+			'device_calendar_permission_denied' => 'Kalenderberechtigung ist erforderlich',
+			'device_calendar_sync' => 'In Gerätekalender exportieren',
 			'discord' => 'Discord',
 			'doing' => 'zu erledigen',
 			'done' => 'erledigt',
@@ -532,6 +542,7 @@ extension on TranslationsDeDe {
 			'error_loading_statistics' => 'Fehler beim Laden der Statistiken',
 			'error_path' => 'Du hast keinen Pfad zum Sichern ausgewählt',
 			'error_path_re' => 'Du hast keine Datein zum wiederherstellen ausgewählt',
+			'failed_to_open_settings' => 'Einstellungen konnten nicht geöffnet werden: {error}',
 			'first_day_of_week' => 'Erster Tag der Woche',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsDeDe {
 			'light' => 'Hell',
 			'longest_streak' => 'Längste',
 			'low_priority' => 'Niedrig',
+			'manage_app_notifications' => 'App-Benachrichtigungen verwalten',
 			'mark_as_active' => 'Als aktiv markieren',
 			'mark_as_active_hint' => 'Diese Aufgabe auf aktiven Status zurücksetzen',
 			'mark_as_cancelled' => 'Als abgebrochen markieren',
@@ -612,9 +624,14 @@ extension on TranslationsDeDe {
 			'no_priority' => 'Keine Priorität',
 			'no_results' => 'Keine Ergebnisse',
 			'notification_channel_high' => 'Erinnerungen hoher Priorität',
+			'notification_channel_hint_high' => 'Dringende Alarme mit Ton und Vibration',
+			'notification_channel_hint_low' => 'Leise Alarme mit leichter Vibration',
+			'notification_channel_hint_medium' => 'Standardalarme mit Ton und Vibration',
+			'notification_channel_hint_none' => 'Stille, minimale Alarme',
 			'notification_channel_low' => 'Erinnerungen niedriger Priorität',
 			'notification_channel_medium' => 'Erinnerungen mittlerer Priorität',
 			'notification_channel_none' => 'Erinnerungen ohne Priorität',
+			'notification_channels' => 'Benachrichtigungskanäle',
 			'open_notification' => 'Benachrichtigung öffnen',
 			'perfect_work' => 'Ausgezeichnet!',
 			'privacy_security' => 'Datenschutz und Sicherheit',
@@ -708,13 +725,6 @@ extension on TranslationsDeDe {
 			'week_completed' => 'Diese Woche',
 			'weekly' => 'Wöchentlich',
 			'weekly_progress' => 'Wochenfortschritt',
-			'notification_channels' => 'Benachrichtigungskanäle',
-			'manage_app_notifications' => 'App-Benachrichtigungen verwalten',
-			'notification_channel_hint_high' => 'Dringende Alarme mit Ton und Vibration',
-			'notification_channel_hint_medium' => 'Standardalarme mit Ton und Vibration',
-			'notification_channel_hint_low' => 'Leise Alarme mit leichter Vibration',
-			'notification_channel_hint_none' => 'Stille, minimale Alarme',
-			'failed_to_open_settings' => 'Einstellungen konnten nicht geöffnet werden: {error}',
 			_ => null,
 		};
 	}

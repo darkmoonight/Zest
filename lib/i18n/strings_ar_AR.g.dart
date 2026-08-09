@@ -172,6 +172,11 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => 'احذف المهمة';
 	@override String get deleted_todo_query => 'هل أنت متأكد من رغبتك في حذف المهمة؟';
 	@override String get details => 'التفاصيل';
+	@override String get device_calendar => 'تقويم الجهاز';
+	@override String get device_calendar_default => 'افتراضي';
+	@override String get device_calendar_local => 'محلي';
+	@override String get device_calendar_permission_denied => 'يلزم إذن الوصول إلى التقويم';
+	@override String get device_calendar_sync => 'تصدير إلى تقويم الجهاز';
 	@override String get discord => 'ديسكورد';
 	@override String get doing => 'القيام';
 	@override String get done => 'منجز';
@@ -189,6 +194,7 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => 'خطأ في تحميل الإحصائيات';
 	@override String get error_path => 'لم تختر مسار لحفض النسخة الإحتياطية';
 	@override String get error_path_re => 'لم تختر ملف لنسخة إحتياطية لإستعادة بينات المستخدم';
+	@override String get failed_to_open_settings => 'تعذر فتح الإعدادات: {error}';
 	@override String get first_day_of_week => 'أول يوم في الأسبوع';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => 'فاتحة';
 	@override String get longest_streak => 'الأطول';
 	@override String get low_priority => 'منخفض';
+	@override String get manage_app_notifications => 'إدارة إشعارات التطبيق';
 	@override String get mark_as_active => 'وضع علامة كنشط';
 	@override String get mark_as_active_hint => 'استعادة هذه المهمة إلى الحالة النشطة';
 	@override String get mark_as_cancelled => 'وضع علامة كملغى';
@@ -269,9 +276,14 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => 'بدون أولوية';
 	@override String get no_results => 'لا نتائج';
 	@override String get notification_channel_high => 'تذكيرات الأولوية العالية';
+	@override String get notification_channel_hint_high => 'تنبيهات عاجلة مع صوت واهتزاز';
+	@override String get notification_channel_hint_low => 'تنبيهات هادئة مع اهتزاز خفيف';
+	@override String get notification_channel_hint_medium => 'تنبيهات افتراضية مع صوت واهتزاز';
+	@override String get notification_channel_hint_none => 'تنبيهات صامتة وبسيطة';
 	@override String get notification_channel_low => 'تذكيرات الأولوية المنخفضة';
 	@override String get notification_channel_medium => 'تذكيرات الأولوية المتوسطة';
 	@override String get notification_channel_none => 'تذكيرات بدون أولوية';
+	@override String get notification_channels => 'قنوات الإشعارات';
 	@override String get open_notification => 'فتح الإشعار';
 	@override String get perfect_work => 'ممتاز!';
 	@override String get privacy_security => 'الخصوصية والأمان';
@@ -365,13 +377,6 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'مكتمل هذا الأسبوع';
 	@override String get weekly => 'أسبوعي';
 	@override String get weekly_progress => 'التقدم الأسبوعي';
-	@override String get notification_channels => 'قنوات الإشعارات';
-	@override String get manage_app_notifications => 'إدارة إشعارات التطبيق';
-	@override String get notification_channel_hint_high => 'تنبيهات عاجلة مع صوت واهتزاز';
-	@override String get notification_channel_hint_medium => 'تنبيهات افتراضية مع صوت واهتزاز';
-	@override String get notification_channel_hint_low => 'تنبيهات هادئة مع اهتزاز خفيف';
-	@override String get notification_channel_hint_none => 'تنبيهات صامتة وبسيطة';
-	@override String get failed_to_open_settings => 'تعذر فتح الإعدادات: {error}';
 }
 
 /// The flat map containing all translations for locale <ar-AR>.
@@ -515,6 +520,11 @@ extension on TranslationsArAr {
 			'deleted_todo' => 'احذف المهمة',
 			'deleted_todo_query' => 'هل أنت متأكد من رغبتك في حذف المهمة؟',
 			'details' => 'التفاصيل',
+			'device_calendar' => 'تقويم الجهاز',
+			'device_calendar_default' => 'افتراضي',
+			'device_calendar_local' => 'محلي',
+			'device_calendar_permission_denied' => 'يلزم إذن الوصول إلى التقويم',
+			'device_calendar_sync' => 'تصدير إلى تقويم الجهاز',
 			'discord' => 'ديسكورد',
 			'doing' => 'القيام',
 			'done' => 'منجز',
@@ -532,6 +542,7 @@ extension on TranslationsArAr {
 			'error_loading_statistics' => 'خطأ في تحميل الإحصائيات',
 			'error_path' => 'لم تختر مسار لحفض النسخة الإحتياطية',
 			'error_path_re' => 'لم تختر ملف لنسخة إحتياطية لإستعادة بينات المستخدم',
+			'failed_to_open_settings' => 'تعذر فتح الإعدادات: {error}',
 			'first_day_of_week' => 'أول يوم في الأسبوع',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsArAr {
 			'light' => 'فاتحة',
 			'longest_streak' => 'الأطول',
 			'low_priority' => 'منخفض',
+			'manage_app_notifications' => 'إدارة إشعارات التطبيق',
 			'mark_as_active' => 'وضع علامة كنشط',
 			'mark_as_active_hint' => 'استعادة هذه المهمة إلى الحالة النشطة',
 			'mark_as_cancelled' => 'وضع علامة كملغى',
@@ -612,9 +624,14 @@ extension on TranslationsArAr {
 			'no_priority' => 'بدون أولوية',
 			'no_results' => 'لا نتائج',
 			'notification_channel_high' => 'تذكيرات الأولوية العالية',
+			'notification_channel_hint_high' => 'تنبيهات عاجلة مع صوت واهتزاز',
+			'notification_channel_hint_low' => 'تنبيهات هادئة مع اهتزاز خفيف',
+			'notification_channel_hint_medium' => 'تنبيهات افتراضية مع صوت واهتزاز',
+			'notification_channel_hint_none' => 'تنبيهات صامتة وبسيطة',
 			'notification_channel_low' => 'تذكيرات الأولوية المنخفضة',
 			'notification_channel_medium' => 'تذكيرات الأولوية المتوسطة',
 			'notification_channel_none' => 'تذكيرات بدون أولوية',
+			'notification_channels' => 'قنوات الإشعارات',
 			'open_notification' => 'فتح الإشعار',
 			'perfect_work' => 'ممتاز!',
 			'privacy_security' => 'الخصوصية والأمان',
@@ -708,13 +725,6 @@ extension on TranslationsArAr {
 			'week_completed' => 'مكتمل هذا الأسبوع',
 			'weekly' => 'أسبوعي',
 			'weekly_progress' => 'التقدم الأسبوعي',
-			'notification_channels' => 'قنوات الإشعارات',
-			'manage_app_notifications' => 'إدارة إشعارات التطبيق',
-			'notification_channel_hint_high' => 'تنبيهات عاجلة مع صوت واهتزاز',
-			'notification_channel_hint_medium' => 'تنبيهات افتراضية مع صوت واهتزاز',
-			'notification_channel_hint_low' => 'تنبيهات هادئة مع اهتزاز خفيف',
-			'notification_channel_hint_none' => 'تنبيهات صامتة وبسيطة',
-			'failed_to_open_settings' => 'تعذر فتح الإعدادات: {error}',
 			_ => null,
 		};
 	}

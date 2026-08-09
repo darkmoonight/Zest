@@ -6,6 +6,7 @@ import 'package:isar_community/isar.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:zest/core/bootstrap/app_bootstrap.dart';
 import 'package:zest/core/di/settings_revision.dart';
+import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/settings_repository.dart';
@@ -63,4 +64,15 @@ final settingsRepositoryProvider = Provider<SettingsRepository>(
 /// Provides the local notification scheduling service.
 final notificationServiceProvider = Provider<NotificationService>(
   (ref) => NotificationService(settings: ref.watch(settingsProvider)),
+);
+
+/// One-way export of todo deadlines to the Android device calendar.
+final deviceCalendarSyncServiceProvider = Provider<DeviceCalendarSyncService>(
+  (ref) => DeviceCalendarSyncService(
+    getSettings: () => ref.read(liveSettingsProvider),
+    todoRepo: ref.watch(todoRepositoryProvider),
+    saveSettings: (settings) async {
+      await ref.read(settingsRepositoryProvider).save(settings);
+    },
+  ),
 );

@@ -172,6 +172,11 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => '할 일 삭제하기';
 	@override String get deleted_todo_query => '정말로 이 할 일을 삭제하시겠나요?';
 	@override String get details => '세부정보';
+	@override String get device_calendar => '기기 캘린더';
+	@override String get device_calendar_default => '기본';
+	@override String get device_calendar_local => '로컬';
+	@override String get device_calendar_permission_denied => '캘린더 권한이 필요합니다';
+	@override String get device_calendar_sync => '기기 캘린더로 내보내기';
 	@override String get discord => '디스코드';
 	@override String get doing => '수행 중';
 	@override String get done => '완료됨';
@@ -189,6 +194,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => '통계 로드 오류';
 	@override String get error_path => '백업을 저장할 디렉토리가 선택되지 않았습니다';
 	@override String get error_path_re => '데이터를 가져올 파일이 선택되지 않았습니다';
+	@override String get failed_to_open_settings => '설정을 열 수 없습니다: {error}';
 	@override String get first_day_of_week => '한 주의 시작';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => '밝은';
 	@override String get longest_streak => '최장';
 	@override String get low_priority => '낮음';
+	@override String get manage_app_notifications => '앱 알림 관리';
 	@override String get mark_as_active => '활성으로 표시';
 	@override String get mark_as_active_hint => '이 할 일을 활성 상태로 복원';
 	@override String get mark_as_cancelled => '취소됨으로 표시';
@@ -269,9 +276,14 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => '우선순위 없음';
 	@override String get no_results => '결과 없음';
 	@override String get notification_channel_high => '높은 우선순위 알림';
+	@override String get notification_channel_hint_high => '소리와 진동이 있는 긴급 알림';
+	@override String get notification_channel_hint_low => '가벼운 진동의 조용한 알림';
+	@override String get notification_channel_hint_medium => '소리와 진동이 있는 기본 알림';
+	@override String get notification_channel_hint_none => '무음의 최소 알림';
 	@override String get notification_channel_low => '낮은 우선순위 알림';
 	@override String get notification_channel_medium => '중간 우선순위 알림';
 	@override String get notification_channel_none => '우선순위 없음 알림';
+	@override String get notification_channels => '알림 채널';
 	@override String get open_notification => '알림 열기';
 	@override String get perfect_work => '완벽해요!';
 	@override String get privacy_security => '개인정보 보호 및 보안';
@@ -365,13 +377,6 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => '이번 주 완료';
 	@override String get weekly => '매주';
 	@override String get weekly_progress => '주간 진행';
-	@override String get notification_channels => '알림 채널';
-	@override String get manage_app_notifications => '앱 알림 관리';
-	@override String get notification_channel_hint_high => '소리와 진동이 있는 긴급 알림';
-	@override String get notification_channel_hint_medium => '소리와 진동이 있는 기본 알림';
-	@override String get notification_channel_hint_low => '가벼운 진동의 조용한 알림';
-	@override String get notification_channel_hint_none => '무음의 최소 알림';
-	@override String get failed_to_open_settings => '설정을 열 수 없습니다: {error}';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -515,6 +520,11 @@ extension on TranslationsKoKr {
 			'deleted_todo' => '할 일 삭제하기',
 			'deleted_todo_query' => '정말로 이 할 일을 삭제하시겠나요?',
 			'details' => '세부정보',
+			'device_calendar' => '기기 캘린더',
+			'device_calendar_default' => '기본',
+			'device_calendar_local' => '로컬',
+			'device_calendar_permission_denied' => '캘린더 권한이 필요합니다',
+			'device_calendar_sync' => '기기 캘린더로 내보내기',
 			'discord' => '디스코드',
 			'doing' => '수행 중',
 			'done' => '완료됨',
@@ -532,6 +542,7 @@ extension on TranslationsKoKr {
 			'error_loading_statistics' => '통계 로드 오류',
 			'error_path' => '백업을 저장할 디렉토리가 선택되지 않았습니다',
 			'error_path_re' => '데이터를 가져올 파일이 선택되지 않았습니다',
+			'failed_to_open_settings' => '설정을 열 수 없습니다: {error}',
 			'first_day_of_week' => '한 주의 시작',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsKoKr {
 			'light' => '밝은',
 			'longest_streak' => '최장',
 			'low_priority' => '낮음',
+			'manage_app_notifications' => '앱 알림 관리',
 			'mark_as_active' => '활성으로 표시',
 			'mark_as_active_hint' => '이 할 일을 활성 상태로 복원',
 			'mark_as_cancelled' => '취소됨으로 표시',
@@ -612,9 +624,14 @@ extension on TranslationsKoKr {
 			'no_priority' => '우선순위 없음',
 			'no_results' => '결과 없음',
 			'notification_channel_high' => '높은 우선순위 알림',
+			'notification_channel_hint_high' => '소리와 진동이 있는 긴급 알림',
+			'notification_channel_hint_low' => '가벼운 진동의 조용한 알림',
+			'notification_channel_hint_medium' => '소리와 진동이 있는 기본 알림',
+			'notification_channel_hint_none' => '무음의 최소 알림',
 			'notification_channel_low' => '낮은 우선순위 알림',
 			'notification_channel_medium' => '중간 우선순위 알림',
 			'notification_channel_none' => '우선순위 없음 알림',
+			'notification_channels' => '알림 채널',
 			'open_notification' => '알림 열기',
 			'perfect_work' => '완벽해요!',
 			'privacy_security' => '개인정보 보호 및 보안',
@@ -708,13 +725,6 @@ extension on TranslationsKoKr {
 			'week_completed' => '이번 주 완료',
 			'weekly' => '매주',
 			'weekly_progress' => '주간 진행',
-			'notification_channels' => '알림 채널',
-			'manage_app_notifications' => '앱 알림 관리',
-			'notification_channel_hint_high' => '소리와 진동이 있는 긴급 알림',
-			'notification_channel_hint_medium' => '소리와 진동이 있는 기본 알림',
-			'notification_channel_hint_low' => '가벼운 진동의 조용한 알림',
-			'notification_channel_hint_none' => '무음의 최소 알림',
-			'failed_to_open_settings' => '설정을 열 수 없습니다: {error}',
 			_ => null,
 		};
 	}

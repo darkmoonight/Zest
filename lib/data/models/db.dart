@@ -94,6 +94,14 @@ class Settings {
   /// User-selected default category id used when creating todos without a pick.
   int? defaultCategoryId;
 
+  /// Whether todos with deadlines are exported to the device calendar.
+  bool deviceCalendarSyncEnabled = false;
+
+  /// Target device calendar id for Android export.
+  ///
+  /// When null, auto-resolves: Google → local Zest → create local Zest.
+  String? deviceCalendarId;
+
   /// Bumped when the Settings Isar layout changes; triggers a re-save migration.
   int settingsSchemaVersion = 0;
 
@@ -130,6 +138,8 @@ class Settings {
     notificationChannelsMigrated = other.notificationChannelsMigrated;
     defaultCategorySeeded = other.defaultCategorySeeded;
     defaultCategoryId = other.defaultCategoryId;
+    deviceCalendarSyncEnabled = other.deviceCalendarSyncEnabled;
+    deviceCalendarId = other.deviceCalendarId;
     settingsSchemaVersion = other.settingsSchemaVersion;
   }
 
@@ -276,6 +286,9 @@ class Todos {
   /// Default sort for child todos.
   @enumerated
   SortOption childrenSortOption = SortOption.none;
+
+  /// Linked device-calendar event id when Android calendar export is enabled.
+  String? deviceCalendarEventId;
 
   /// Parent todo when this is a subtask.
   final parent = IsarLink<Todos>();

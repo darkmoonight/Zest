@@ -27,6 +27,7 @@
 
 - **Tasks** — categories, subtasks, priorities, tags, pin, sort, multi-select, transfer between categories
 - **Calendar** — month / week / two-week views, todos grouped by deadline
+- **Device calendar (Android)** — one-way export of todos with deadlines to the system calendar
 - **Statistics** — 365-day heatmap, streaks, weekly and hourly charts
 - **Notifications** — timezone-aware reminders, Mark as Done and Snooze actions, configurable snooze duration
 - **Backup** — manual and automatic (daily / weekly / monthly), GZip compression, custom storage path

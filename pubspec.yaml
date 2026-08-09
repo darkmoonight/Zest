@@ -7,7 +7,7 @@ version: 1.6.1+55
 
 environment:
   sdk: ">=3.12.2 <4.0.0"
-  flutter: "^3.44.8"
+  flutter: "^3.44.9"
 
 dependencies:
   # Flutter SDK
@@ -18,7 +18,7 @@ dependencies:
 
   # State management & navigation
   flutter_riverpod: ^3.4.2
-  go_router: ^17.3.0
+  go_router: ^17.4.0
 
   # Local storage
   isar_community: ^3.3.2
@@ -28,8 +28,8 @@ dependencies:
 
   # Localization & formatting
   intl: ^0.20.2
-  slang: ^4.18.0
-  slang_flutter: ^4.18.0
+  slang: ^4.19.0
+  slang_flutter: ^4.19.0
 
   # Timezone
   timezone: ^0.11.1
@@ -41,7 +41,7 @@ dependencies:
   quick_actions: ^1.1.0
 
   # Notifications
-  flutter_local_notifications: ^22.2.0
+  flutter_local_notifications: ^22.3.0
 
   # UI & theming
   gap: ^3.0.1
@@ -66,9 +66,10 @@ dependencies:
   file_selector: ^1.1.0
   flag_secure: ^2.0.2
   package_info_plus: ^10.2.1
-  restart_app: ^1.8.3
+  restart_app: ^1.9.0
   url_launcher: ^6.3.2
   android_intent_plus: ^6.1.0
+  device_calendar_plus: ^0.8.0
 
 dev_dependencies:
   # Testing
@@ -78,7 +79,7 @@ dev_dependencies:
   # Code generation
   build_runner: ^2.15.1
   isar_community_generator: ^3.3.2
-  slang_build_runner: ^4.18.0
+  slang_build_runner: ^4.19.0
 
   # Linting
   flutter_lints: ^6.0.0

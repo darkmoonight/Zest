@@ -3,6 +3,7 @@ import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/i18n/tr.dart';
 
@@ -12,6 +13,7 @@ class TodoService {
   TodoService({
     required this._todoRepo,
     required this._notificationService,
+    this._calendarSync,
     this._timeformat = AppConstants.defaultTimeformat,
     this._languageCode = AppConstants.defaultLanguageCode,
   });
@@ -21,6 +23,9 @@ class TodoService {
 
   /// Schedules and cancels todo reminder notifications.
   final NotificationService _notificationService;
+
+  /// Optional one-way export of deadlines to the device calendar.
+  final DeviceCalendarSyncService? _calendarSync;
 
   /// User time format for parsing due-date strings.
   final String _timeformat;
@@ -59,6 +64,7 @@ class TodoService {
     if (date != null) {
       await _notificationService.scheduleForTodo(todo);
     }
+    await _calendarSync?.ensureSynced(todo);
 
     showSnackBar('todoCreate'.tr);
     return todo;
@@ -95,6 +101,7 @@ class TodoService {
     } else {
       await _notificationService.cancel(todo.id);
     }
+    await _calendarSync?.ensureSynced(todo);
 
     showSnackBar('updateTodo'.tr);
   }
@@ -112,6 +119,7 @@ class TodoService {
     } else {
       await _notificationService.cancel(todo.id);
     }
+    await _calendarSync?.ensureSynced(todo);
   }
 
   /// Marks [todo] done and cancels its reminder (notification action / handler).
@@ -131,6 +139,7 @@ class TodoService {
     todo.todoCompletedTime = newTime;
     await _todoRepo.update(todo);
     await _notificationService.snooze(todo, settings);
+    await _calendarSync?.ensureSynced(todo);
   }
 
   /// Sets [todo] and all subtasks to [status] and updates notifications.
@@ -141,11 +150,20 @@ class TodoService {
 
     if (status.isCompleted) {
       await _notificationService.cancelBatch(allIds.toList());
+      for (final id in allIds) {
+        final todoItem = await _todoRepo.getById(id);
+        if (todoItem != null) {
+          await _calendarSync?.ensureSynced(todoItem);
+        }
+      }
     } else {
       for (final id in allIds) {
         final todoItem = await _todoRepo.getById(id);
         if (todoItem != null && todoItem.todoCompletedTime != null) {
           await _notificationService.scheduleForTodo(todoItem);
+        }
+        if (todoItem != null) {
+          await _calendarSync?.ensureSynced(todoItem);
         }
       }
     }
@@ -218,6 +236,12 @@ class TodoService {
     if (allIds.isEmpty) return;
 
     await _notificationService.cancelBatch(allIds.toList());
+    for (final id in allIds) {
+      final todoItem = await _todoRepo.getById(id);
+      if (todoItem != null) {
+        await _calendarSync?.removeSynced(todoItem);
+      }
+    }
     await _todoRepo.deleteBatch(allIds);
 
     showSnackBar('todoDelete'.tr);

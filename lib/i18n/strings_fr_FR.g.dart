@@ -172,6 +172,11 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => 'Supprimer une tâche';
 	@override String get deleted_todo_query => 'Êtes-vous sûr de vouloir supprimer la tâche ?';
 	@override String get details => 'Détails';
+	@override String get device_calendar => 'Calendrier de l\'appareil';
+	@override String get device_calendar_default => 'Par défaut';
+	@override String get device_calendar_local => 'local';
+	@override String get device_calendar_permission_denied => 'L\'autorisation d\'accès au calendrier est requise';
+	@override String get device_calendar_sync => 'Exporter vers le calendrier de l\'appareil';
 	@override String get discord => 'Discord';
 	@override String get doing => 'Faire';
 	@override String get done => 'Fait';
@@ -189,6 +194,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => 'Erreur de chargement des statistiques';
 	@override String get error_path => 'Vous n\'avez pas choisi le chemin pour enregistrer la sauvegarde';
 	@override String get error_path_re => 'Vous n\'avez pas sélectionné les fichiers à restaurer';
+	@override String get failed_to_open_settings => 'Impossible d\'ouvrir les paramètres : {error}';
 	@override String get first_day_of_week => 'Premier jour de la semaine';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => 'Clair';
 	@override String get longest_streak => 'Plus Longue';
 	@override String get low_priority => 'Basse';
+	@override String get manage_app_notifications => 'Gérer les notifications de l\'app';
 	@override String get mark_as_active => 'Marquer comme actif';
 	@override String get mark_as_active_hint => 'Restaurer cette tâche au statut actif';
 	@override String get mark_as_cancelled => 'Marquer comme annulé';
@@ -269,9 +276,14 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => 'Aucune priorité';
 	@override String get no_results => 'Aucun résultat';
 	@override String get notification_channel_high => 'Rappels haute priorité';
+	@override String get notification_channel_hint_high => 'Alertes urgentes avec son et vibration';
+	@override String get notification_channel_hint_low => 'Alertes discrètes avec légère vibration';
+	@override String get notification_channel_hint_medium => 'Alertes standard avec son et vibration';
+	@override String get notification_channel_hint_none => 'Alertes minimales silencieuses';
 	@override String get notification_channel_low => 'Rappels basse priorité';
 	@override String get notification_channel_medium => 'Rappels priorité moyenne';
 	@override String get notification_channel_none => 'Rappels sans priorité';
+	@override String get notification_channels => 'Canaux de notification';
 	@override String get open_notification => 'Ouvrir la notification';
 	@override String get perfect_work => 'Excellent !';
 	@override String get privacy_security => 'Confidentialité et sécurité';
@@ -365,13 +377,6 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Cette Semaine';
 	@override String get weekly => 'Hebdomadaire';
 	@override String get weekly_progress => 'Progrès Hebdomadaire';
-	@override String get notification_channels => 'Canaux de notification';
-	@override String get manage_app_notifications => 'Gérer les notifications de l\'app';
-	@override String get notification_channel_hint_high => 'Alertes urgentes avec son et vibration';
-	@override String get notification_channel_hint_medium => 'Alertes standard avec son et vibration';
-	@override String get notification_channel_hint_low => 'Alertes discrètes avec légère vibration';
-	@override String get notification_channel_hint_none => 'Alertes minimales silencieuses';
-	@override String get failed_to_open_settings => 'Impossible d\'ouvrir les paramètres : {error}';
 }
 
 /// The flat map containing all translations for locale <fr-FR>.
@@ -515,6 +520,11 @@ extension on TranslationsFrFr {
 			'deleted_todo' => 'Supprimer une tâche',
 			'deleted_todo_query' => 'Êtes-vous sûr de vouloir supprimer la tâche ?',
 			'details' => 'Détails',
+			'device_calendar' => 'Calendrier de l\'appareil',
+			'device_calendar_default' => 'Par défaut',
+			'device_calendar_local' => 'local',
+			'device_calendar_permission_denied' => 'L\'autorisation d\'accès au calendrier est requise',
+			'device_calendar_sync' => 'Exporter vers le calendrier de l\'appareil',
 			'discord' => 'Discord',
 			'doing' => 'Faire',
 			'done' => 'Fait',
@@ -532,6 +542,7 @@ extension on TranslationsFrFr {
 			'error_loading_statistics' => 'Erreur de chargement des statistiques',
 			'error_path' => 'Vous n\'avez pas choisi le chemin pour enregistrer la sauvegarde',
 			'error_path_re' => 'Vous n\'avez pas sélectionné les fichiers à restaurer',
+			'failed_to_open_settings' => 'Impossible d\'ouvrir les paramètres : {error}',
 			'first_day_of_week' => 'Premier jour de la semaine',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsFrFr {
 			'light' => 'Clair',
 			'longest_streak' => 'Plus Longue',
 			'low_priority' => 'Basse',
+			'manage_app_notifications' => 'Gérer les notifications de l\'app',
 			'mark_as_active' => 'Marquer comme actif',
 			'mark_as_active_hint' => 'Restaurer cette tâche au statut actif',
 			'mark_as_cancelled' => 'Marquer comme annulé',
@@ -612,9 +624,14 @@ extension on TranslationsFrFr {
 			'no_priority' => 'Aucune priorité',
 			'no_results' => 'Aucun résultat',
 			'notification_channel_high' => 'Rappels haute priorité',
+			'notification_channel_hint_high' => 'Alertes urgentes avec son et vibration',
+			'notification_channel_hint_low' => 'Alertes discrètes avec légère vibration',
+			'notification_channel_hint_medium' => 'Alertes standard avec son et vibration',
+			'notification_channel_hint_none' => 'Alertes minimales silencieuses',
 			'notification_channel_low' => 'Rappels basse priorité',
 			'notification_channel_medium' => 'Rappels priorité moyenne',
 			'notification_channel_none' => 'Rappels sans priorité',
+			'notification_channels' => 'Canaux de notification',
 			'open_notification' => 'Ouvrir la notification',
 			'perfect_work' => 'Excellent !',
 			'privacy_security' => 'Confidentialité et sécurité',
@@ -708,13 +725,6 @@ extension on TranslationsFrFr {
 			'week_completed' => 'Cette Semaine',
 			'weekly' => 'Hebdomadaire',
 			'weekly_progress' => 'Progrès Hebdomadaire',
-			'notification_channels' => 'Canaux de notification',
-			'manage_app_notifications' => 'Gérer les notifications de l\'app',
-			'notification_channel_hint_high' => 'Alertes urgentes avec son et vibration',
-			'notification_channel_hint_medium' => 'Alertes standard avec son et vibration',
-			'notification_channel_hint_low' => 'Alertes discrètes avec légère vibration',
-			'notification_channel_hint_none' => 'Alertes minimales silencieuses',
-			'failed_to_open_settings' => 'Impossible d\'ouvrir les paramètres : {error}',
 			_ => null,
 		};
 	}

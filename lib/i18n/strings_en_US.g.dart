@@ -440,6 +440,21 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Details'
 	String get details => 'Details';
 
+	/// en-US: 'Device calendar'
+	String get device_calendar => 'Device calendar';
+
+	/// en-US: 'Default'
+	String get device_calendar_default => 'Default';
+
+	/// en-US: 'local'
+	String get device_calendar_local => 'local';
+
+	/// en-US: 'Calendar permission is required'
+	String get device_calendar_permission_denied => 'Calendar permission is required';
+
+	/// en-US: 'Export to device calendar'
+	String get device_calendar_sync => 'Export to device calendar';
+
 	/// en-US: 'Discord'
 	String get discord => 'Discord';
 
@@ -490,6 +505,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'You have not selected files to restore'
 	String get error_path_re => 'You have not selected files to restore';
+
+	/// en-US: 'Failed to open settings: {error}'
+	String get failed_to_open_settings => 'Failed to open settings: {error}';
 
 	/// en-US: 'First Day of the Week'
 	String get first_day_of_week => 'First Day of the Week';
@@ -650,6 +668,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Low'
 	String get low_priority => 'Low';
 
+	/// en-US: 'Manage app notifications'
+	String get manage_app_notifications => 'Manage app notifications';
+
 	/// en-US: 'Mark as Active'
 	String get mark_as_active => 'Mark as Active';
 
@@ -731,6 +752,18 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'High priority reminders'
 	String get notification_channel_high => 'High priority reminders';
 
+	/// en-US: 'Urgent alerts with sound and vibration'
+	String get notification_channel_hint_high => 'Urgent alerts with sound and vibration';
+
+	/// en-US: 'Quiet alerts with light vibration'
+	String get notification_channel_hint_low => 'Quiet alerts with light vibration';
+
+	/// en-US: 'Default alerts with sound and vibration'
+	String get notification_channel_hint_medium => 'Default alerts with sound and vibration';
+
+	/// en-US: 'Silent, minimal alerts'
+	String get notification_channel_hint_none => 'Silent, minimal alerts';
+
 	/// en-US: 'Low priority reminders'
 	String get notification_channel_low => 'Low priority reminders';
 
@@ -739,6 +772,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'No priority reminders'
 	String get notification_channel_none => 'No priority reminders';
+
+	/// en-US: 'Notification channels'
+	String get notification_channels => 'Notification channels';
 
 	/// en-US: 'Open notification'
 	String get open_notification => 'Open notification';
@@ -1018,27 +1054,6 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'Weekly Progress'
 	String get weekly_progress => 'Weekly Progress';
-
-	/// en-US: 'Notification channels'
-	String get notification_channels => 'Notification channels';
-
-	/// en-US: 'Manage app notifications'
-	String get manage_app_notifications => 'Manage app notifications';
-
-	/// en-US: 'Urgent alerts with sound and vibration'
-	String get notification_channel_hint_high => 'Urgent alerts with sound and vibration';
-
-	/// en-US: 'Default alerts with sound and vibration'
-	String get notification_channel_hint_medium => 'Default alerts with sound and vibration';
-
-	/// en-US: 'Quiet alerts with light vibration'
-	String get notification_channel_hint_low => 'Quiet alerts with light vibration';
-
-	/// en-US: 'Silent, minimal alerts'
-	String get notification_channel_hint_none => 'Silent, minimal alerts';
-
-	/// en-US: 'Failed to open settings: {error}'
-	String get failed_to_open_settings => 'Failed to open settings: {error}';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -1182,6 +1197,11 @@ extension on Translations {
 			'deleted_todo' => 'Deleting Todo',
 			'deleted_todo_query' => 'Are you sure you want to delete the todo?',
 			'details' => 'Details',
+			'device_calendar' => 'Device calendar',
+			'device_calendar_default' => 'Default',
+			'device_calendar_local' => 'local',
+			'device_calendar_permission_denied' => 'Calendar permission is required',
+			'device_calendar_sync' => 'Export to device calendar',
 			'discord' => 'Discord',
 			'doing' => 'Doing',
 			'done' => 'Done',
@@ -1199,6 +1219,7 @@ extension on Translations {
 			'error_loading_statistics' => 'Error loading statistics',
 			'error_path' => 'You have not selected a path to save the backup',
 			'error_path_re' => 'You have not selected files to restore',
+			'failed_to_open_settings' => 'Failed to open settings: {error}',
 			'first_day_of_week' => 'First Day of the Week',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -1252,6 +1273,7 @@ extension on Translations {
 			'light' => 'Light',
 			'longest_streak' => 'Longest',
 			'low_priority' => 'Low',
+			'manage_app_notifications' => 'Manage app notifications',
 			'mark_as_active' => 'Mark as Active',
 			'mark_as_active_hint' => 'Restore this todo to active status',
 			'mark_as_cancelled' => 'Mark as Cancelled',
@@ -1279,9 +1301,14 @@ extension on Translations {
 			'no_priority' => 'No Priority',
 			'no_results' => 'No Results',
 			'notification_channel_high' => 'High priority reminders',
+			'notification_channel_hint_high' => 'Urgent alerts with sound and vibration',
+			'notification_channel_hint_low' => 'Quiet alerts with light vibration',
+			'notification_channel_hint_medium' => 'Default alerts with sound and vibration',
+			'notification_channel_hint_none' => 'Silent, minimal alerts',
 			'notification_channel_low' => 'Low priority reminders',
 			'notification_channel_medium' => 'Medium priority reminders',
 			'notification_channel_none' => 'No priority reminders',
+			'notification_channels' => 'Notification channels',
 			'open_notification' => 'Open notification',
 			'perfect_work' => 'Excellent!',
 			'privacy_security' => 'Privacy & Security',
@@ -1375,13 +1402,6 @@ extension on Translations {
 			'week_completed' => 'This Week',
 			'weekly' => 'Weekly',
 			'weekly_progress' => 'Weekly Progress',
-			'notification_channels' => 'Notification channels',
-			'manage_app_notifications' => 'Manage app notifications',
-			'notification_channel_hint_high' => 'Urgent alerts with sound and vibration',
-			'notification_channel_hint_medium' => 'Default alerts with sound and vibration',
-			'notification_channel_hint_low' => 'Quiet alerts with light vibration',
-			'notification_channel_hint_none' => 'Silent, minimal alerts',
-			'failed_to_open_settings' => 'Failed to open settings: {error}',
 			_ => null,
 		};
 	}

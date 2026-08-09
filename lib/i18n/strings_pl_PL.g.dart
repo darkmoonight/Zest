@@ -172,6 +172,11 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => 'Usuwanie zadania';
 	@override String get deleted_todo_query => 'Masz pewność, że chcesz usunąć zadanie?';
 	@override String get details => 'Szczegóły';
+	@override String get device_calendar => 'Kalendarz urządzenia';
+	@override String get device_calendar_default => 'Domyślny';
+	@override String get device_calendar_local => 'lokalny';
+	@override String get device_calendar_permission_denied => 'Wymagane jest uprawnienie do kalendarza';
+	@override String get device_calendar_sync => 'Eksportuj do kalendarza urządzenia';
 	@override String get discord => 'Discord';
 	@override String get doing => 'W trakcie';
 	@override String get done => 'Ukończone';
@@ -189,6 +194,7 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => 'Błąd ładowania statystyk';
 	@override String get error_path => 'Nie wybrano ścieżki do zapisu kopii zapasowej';
 	@override String get error_path_re => 'Nie wybrano plików do przywrócenia';
+	@override String get failed_to_open_settings => 'Nie udało się otworzyć ustawień: {error}';
 	@override String get first_day_of_week => 'Pierwszy dzień tygodnia';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => 'Jasny';
 	@override String get longest_streak => 'Najdłuższa';
 	@override String get low_priority => 'Niski';
+	@override String get manage_app_notifications => 'Zarządzaj powiadomieniami aplikacji';
 	@override String get mark_as_active => 'Oznacz jako aktywne';
 	@override String get mark_as_active_hint => 'Przywróć to zadanie do statusu aktywnego';
 	@override String get mark_as_cancelled => 'Oznacz jako anulowane';
@@ -269,9 +276,14 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => 'Bez priorytetu';
 	@override String get no_results => 'Brak wyników';
 	@override String get notification_channel_high => 'Przypomnienia wysokiego priorytetu';
+	@override String get notification_channel_hint_high => 'Pilne alerty z dźwiękiem i wibracją';
+	@override String get notification_channel_hint_low => 'Ciche alerty z lekką wibracją';
+	@override String get notification_channel_hint_medium => 'Standardowe alerty z dźwiękiem i wibracją';
+	@override String get notification_channel_hint_none => 'Ciche, minimalne alerty';
 	@override String get notification_channel_low => 'Przypomnienia niskiego priorytetu';
 	@override String get notification_channel_medium => 'Przypomnienia średniego priorytetu';
 	@override String get notification_channel_none => 'Przypomnienia bez priorytetu';
+	@override String get notification_channels => 'Kanały powiadomień';
 	@override String get open_notification => 'Otwórz powiadomienie';
 	@override String get perfect_work => 'Perfekcyjnie!';
 	@override String get privacy_security => 'Prywatność i bezpieczeństwo';
@@ -365,13 +377,6 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Ukończone w tym tygodniu';
 	@override String get weekly => 'Co tydzień';
 	@override String get weekly_progress => 'Postęp Tygodniowy';
-	@override String get notification_channels => 'Kanały powiadomień';
-	@override String get manage_app_notifications => 'Zarządzaj powiadomieniami aplikacji';
-	@override String get notification_channel_hint_high => 'Pilne alerty z dźwiękiem i wibracją';
-	@override String get notification_channel_hint_medium => 'Standardowe alerty z dźwiękiem i wibracją';
-	@override String get notification_channel_hint_low => 'Ciche alerty z lekką wibracją';
-	@override String get notification_channel_hint_none => 'Ciche, minimalne alerty';
-	@override String get failed_to_open_settings => 'Nie udało się otworzyć ustawień: {error}';
 }
 
 /// The flat map containing all translations for locale <pl-PL>.
@@ -515,6 +520,11 @@ extension on TranslationsPlPl {
 			'deleted_todo' => 'Usuwanie zadania',
 			'deleted_todo_query' => 'Masz pewność, że chcesz usunąć zadanie?',
 			'details' => 'Szczegóły',
+			'device_calendar' => 'Kalendarz urządzenia',
+			'device_calendar_default' => 'Domyślny',
+			'device_calendar_local' => 'lokalny',
+			'device_calendar_permission_denied' => 'Wymagane jest uprawnienie do kalendarza',
+			'device_calendar_sync' => 'Eksportuj do kalendarza urządzenia',
 			'discord' => 'Discord',
 			'doing' => 'W trakcie',
 			'done' => 'Ukończone',
@@ -532,6 +542,7 @@ extension on TranslationsPlPl {
 			'error_loading_statistics' => 'Błąd ładowania statystyk',
 			'error_path' => 'Nie wybrano ścieżki do zapisu kopii zapasowej',
 			'error_path_re' => 'Nie wybrano plików do przywrócenia',
+			'failed_to_open_settings' => 'Nie udało się otworzyć ustawień: {error}',
 			'first_day_of_week' => 'Pierwszy dzień tygodnia',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsPlPl {
 			'light' => 'Jasny',
 			'longest_streak' => 'Najdłuższa',
 			'low_priority' => 'Niski',
+			'manage_app_notifications' => 'Zarządzaj powiadomieniami aplikacji',
 			'mark_as_active' => 'Oznacz jako aktywne',
 			'mark_as_active_hint' => 'Przywróć to zadanie do statusu aktywnego',
 			'mark_as_cancelled' => 'Oznacz jako anulowane',
@@ -612,9 +624,14 @@ extension on TranslationsPlPl {
 			'no_priority' => 'Bez priorytetu',
 			'no_results' => 'Brak wyników',
 			'notification_channel_high' => 'Przypomnienia wysokiego priorytetu',
+			'notification_channel_hint_high' => 'Pilne alerty z dźwiękiem i wibracją',
+			'notification_channel_hint_low' => 'Ciche alerty z lekką wibracją',
+			'notification_channel_hint_medium' => 'Standardowe alerty z dźwiękiem i wibracją',
+			'notification_channel_hint_none' => 'Ciche, minimalne alerty',
 			'notification_channel_low' => 'Przypomnienia niskiego priorytetu',
 			'notification_channel_medium' => 'Przypomnienia średniego priorytetu',
 			'notification_channel_none' => 'Przypomnienia bez priorytetu',
+			'notification_channels' => 'Kanały powiadomień',
 			'open_notification' => 'Otwórz powiadomienie',
 			'perfect_work' => 'Perfekcyjnie!',
 			'privacy_security' => 'Prywatność i bezpieczeństwo',
@@ -708,13 +725,6 @@ extension on TranslationsPlPl {
 			'week_completed' => 'Ukończone w tym tygodniu',
 			'weekly' => 'Co tydzień',
 			'weekly_progress' => 'Postęp Tygodniowy',
-			'notification_channels' => 'Kanały powiadomień',
-			'manage_app_notifications' => 'Zarządzaj powiadomieniami aplikacji',
-			'notification_channel_hint_high' => 'Pilne alerty z dźwiękiem i wibracją',
-			'notification_channel_hint_medium' => 'Standardowe alerty z dźwiękiem i wibracją',
-			'notification_channel_hint_low' => 'Ciche alerty z lekką wibracją',
-			'notification_channel_hint_none' => 'Ciche, minimalne alerty',
-			'failed_to_open_settings' => 'Nie udało się otworzyć ustawień: {error}',
 			_ => null,
 		};
 	}

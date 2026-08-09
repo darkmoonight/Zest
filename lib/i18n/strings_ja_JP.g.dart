@@ -172,6 +172,11 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => 'Todoを削除';
 	@override String get deleted_todo_query => 'このTodoを削除しますか？';
 	@override String get details => '詳細';
+	@override String get device_calendar => '端末のカレンダー';
+	@override String get device_calendar_default => 'デフォルト';
+	@override String get device_calendar_local => 'ローカル';
+	@override String get device_calendar_permission_denied => 'カレンダーの権限が必要です';
+	@override String get device_calendar_sync => '端末のカレンダーに書き出す';
 	@override String get discord => 'Discord';
 	@override String get doing => '進行中';
 	@override String get done => '完了';
@@ -189,6 +194,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => '統計の読み込みエラー';
 	@override String get error_path => 'バックアップの保存先が選択されていません';
 	@override String get error_path_re => '復元するファイルが選択されていません';
+	@override String get failed_to_open_settings => '設定を開けませんでした: {error}';
 	@override String get first_day_of_week => '週の始まり';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => 'ライト';
 	@override String get longest_streak => '最長';
 	@override String get low_priority => '低';
+	@override String get manage_app_notifications => 'アプリの通知を管理';
 	@override String get mark_as_active => 'アクティブにする';
 	@override String get mark_as_active_hint => 'このTodoをアクティブに戻す';
 	@override String get mark_as_cancelled => 'キャンセル済みにする';
@@ -269,9 +276,14 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => '優先度なし';
 	@override String get no_results => '結果なし';
 	@override String get notification_channel_high => '高優先度リマインダー';
+	@override String get notification_channel_hint_high => '音とバイブ付きの緊急通知';
+	@override String get notification_channel_hint_low => '軽いバイブの静かな通知';
+	@override String get notification_channel_hint_medium => '音とバイブ付きの標準通知';
+	@override String get notification_channel_hint_none => '無音の最小通知';
 	@override String get notification_channel_low => '低優先度リマインダー';
 	@override String get notification_channel_medium => '中優先度リマインダー';
 	@override String get notification_channel_none => '優先度なしリマインダー';
+	@override String get notification_channels => '通知チャネル';
 	@override String get open_notification => '通知を開く';
 	@override String get perfect_work => '完璧です！';
 	@override String get privacy_security => 'プライバシーとセキュリティ';
@@ -365,13 +377,6 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => '今週';
 	@override String get weekly => '毎週';
 	@override String get weekly_progress => '週間進捗';
-	@override String get notification_channels => '通知チャネル';
-	@override String get manage_app_notifications => 'アプリの通知を管理';
-	@override String get notification_channel_hint_high => '音とバイブ付きの緊急通知';
-	@override String get notification_channel_hint_medium => '音とバイブ付きの標準通知';
-	@override String get notification_channel_hint_low => '軽いバイブの静かな通知';
-	@override String get notification_channel_hint_none => '無音の最小通知';
-	@override String get failed_to_open_settings => '設定を開けませんでした: {error}';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -515,6 +520,11 @@ extension on TranslationsJaJp {
 			'deleted_todo' => 'Todoを削除',
 			'deleted_todo_query' => 'このTodoを削除しますか？',
 			'details' => '詳細',
+			'device_calendar' => '端末のカレンダー',
+			'device_calendar_default' => 'デフォルト',
+			'device_calendar_local' => 'ローカル',
+			'device_calendar_permission_denied' => 'カレンダーの権限が必要です',
+			'device_calendar_sync' => '端末のカレンダーに書き出す',
 			'discord' => 'Discord',
 			'doing' => '進行中',
 			'done' => '完了',
@@ -532,6 +542,7 @@ extension on TranslationsJaJp {
 			'error_loading_statistics' => '統計の読み込みエラー',
 			'error_path' => 'バックアップの保存先が選択されていません',
 			'error_path_re' => '復元するファイルが選択されていません',
+			'failed_to_open_settings' => '設定を開けませんでした: {error}',
 			'first_day_of_week' => '週の始まり',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsJaJp {
 			'light' => 'ライト',
 			'longest_streak' => '最長',
 			'low_priority' => '低',
+			'manage_app_notifications' => 'アプリの通知を管理',
 			'mark_as_active' => 'アクティブにする',
 			'mark_as_active_hint' => 'このTodoをアクティブに戻す',
 			'mark_as_cancelled' => 'キャンセル済みにする',
@@ -612,9 +624,14 @@ extension on TranslationsJaJp {
 			'no_priority' => '優先度なし',
 			'no_results' => '結果なし',
 			'notification_channel_high' => '高優先度リマインダー',
+			'notification_channel_hint_high' => '音とバイブ付きの緊急通知',
+			'notification_channel_hint_low' => '軽いバイブの静かな通知',
+			'notification_channel_hint_medium' => '音とバイブ付きの標準通知',
+			'notification_channel_hint_none' => '無音の最小通知',
 			'notification_channel_low' => '低優先度リマインダー',
 			'notification_channel_medium' => '中優先度リマインダー',
 			'notification_channel_none' => '優先度なしリマインダー',
+			'notification_channels' => '通知チャネル',
 			'open_notification' => '通知を開く',
 			'perfect_work' => '完璧です！',
 			'privacy_security' => 'プライバシーとセキュリティ',
@@ -708,13 +725,6 @@ extension on TranslationsJaJp {
 			'week_completed' => '今週',
 			'weekly' => '毎週',
 			'weekly_progress' => '週間進捗',
-			'notification_channels' => '通知チャネル',
-			'manage_app_notifications' => 'アプリの通知を管理',
-			'notification_channel_hint_high' => '音とバイブ付きの緊急通知',
-			'notification_channel_hint_medium' => '音とバイブ付きの標準通知',
-			'notification_channel_hint_low' => '軽いバイブの静かな通知',
-			'notification_channel_hint_none' => '無音の最小通知',
-			'failed_to_open_settings' => '設定を開けませんでした: {error}',
 			_ => null,
 		};
 	}

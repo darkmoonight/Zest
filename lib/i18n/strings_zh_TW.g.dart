@@ -172,6 +172,11 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => '刪除任務';
 	@override String get deleted_todo_query => '您確定要刪除任務嗎？';
 	@override String get details => '詳細';
+	@override String get device_calendar => '裝置行事曆';
+	@override String get device_calendar_default => '預設';
+	@override String get device_calendar_local => '本機';
+	@override String get device_calendar_permission_denied => '需要行事曆權限';
+	@override String get device_calendar_sync => '匯出至裝置行事曆';
 	@override String get discord => 'Discord';
 	@override String get doing => '進行中';
 	@override String get done => '已完成';
@@ -189,6 +194,7 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => '載入統計資料時發生錯誤';
 	@override String get error_path => '您尚未选择保存备份的路径';
 	@override String get error_path_re => '您还没有选择要还原的文件';
+	@override String get failed_to_open_settings => '無法開啟設定：{error}';
 	@override String get first_day_of_week => '一週的第一天';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => '淺色';
 	@override String get longest_streak => '最長';
 	@override String get low_priority => '低';
+	@override String get manage_app_notifications => '管理應用程式通知';
 	@override String get mark_as_active => '標記為活動';
 	@override String get mark_as_active_hint => '將此任務恢復為活動狀態';
 	@override String get mark_as_cancelled => '標記為已取消';
@@ -269,9 +276,14 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => '無優先順序';
 	@override String get no_results => '沒有結果';
 	@override String get notification_channel_high => '高優先度提醒';
+	@override String get notification_channel_hint_high => '含聲音與震動的緊急提醒';
+	@override String get notification_channel_hint_low => '輕微震動的安靜提醒';
+	@override String get notification_channel_hint_medium => '含聲音與震動的預設提醒';
+	@override String get notification_channel_hint_none => '靜音的最低提醒';
 	@override String get notification_channel_low => '低優先度提醒';
 	@override String get notification_channel_medium => '中優先度提醒';
 	@override String get notification_channel_none => '無優先度提醒';
+	@override String get notification_channels => '通知頻道';
 	@override String get open_notification => '開啟通知';
 	@override String get perfect_work => '太棒了！';
 	@override String get privacy_security => '隱私與安全';
@@ -365,13 +377,6 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => '本週完成';
 	@override String get weekly => '每週';
 	@override String get weekly_progress => '每週進度';
-	@override String get notification_channels => '通知頻道';
-	@override String get manage_app_notifications => '管理應用程式通知';
-	@override String get notification_channel_hint_high => '含聲音與震動的緊急提醒';
-	@override String get notification_channel_hint_medium => '含聲音與震動的預設提醒';
-	@override String get notification_channel_hint_low => '輕微震動的安靜提醒';
-	@override String get notification_channel_hint_none => '靜音的最低提醒';
-	@override String get failed_to_open_settings => '無法開啟設定：{error}';
 }
 
 /// The flat map containing all translations for locale <zh-TW>.
@@ -515,6 +520,11 @@ extension on TranslationsZhTw {
 			'deleted_todo' => '刪除任務',
 			'deleted_todo_query' => '您確定要刪除任務嗎？',
 			'details' => '詳細',
+			'device_calendar' => '裝置行事曆',
+			'device_calendar_default' => '預設',
+			'device_calendar_local' => '本機',
+			'device_calendar_permission_denied' => '需要行事曆權限',
+			'device_calendar_sync' => '匯出至裝置行事曆',
 			'discord' => 'Discord',
 			'doing' => '進行中',
 			'done' => '已完成',
@@ -532,6 +542,7 @@ extension on TranslationsZhTw {
 			'error_loading_statistics' => '載入統計資料時發生錯誤',
 			'error_path' => '您尚未选择保存备份的路径',
 			'error_path_re' => '您还没有选择要还原的文件',
+			'failed_to_open_settings' => '無法開啟設定：{error}',
 			'first_day_of_week' => '一週的第一天',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsZhTw {
 			'light' => '淺色',
 			'longest_streak' => '最長',
 			'low_priority' => '低',
+			'manage_app_notifications' => '管理應用程式通知',
 			'mark_as_active' => '標記為活動',
 			'mark_as_active_hint' => '將此任務恢復為活動狀態',
 			'mark_as_cancelled' => '標記為已取消',
@@ -612,9 +624,14 @@ extension on TranslationsZhTw {
 			'no_priority' => '無優先順序',
 			'no_results' => '沒有結果',
 			'notification_channel_high' => '高優先度提醒',
+			'notification_channel_hint_high' => '含聲音與震動的緊急提醒',
+			'notification_channel_hint_low' => '輕微震動的安靜提醒',
+			'notification_channel_hint_medium' => '含聲音與震動的預設提醒',
+			'notification_channel_hint_none' => '靜音的最低提醒',
 			'notification_channel_low' => '低優先度提醒',
 			'notification_channel_medium' => '中優先度提醒',
 			'notification_channel_none' => '無優先度提醒',
+			'notification_channels' => '通知頻道',
 			'open_notification' => '開啟通知',
 			'perfect_work' => '太棒了！',
 			'privacy_security' => '隱私與安全',
@@ -708,13 +725,6 @@ extension on TranslationsZhTw {
 			'week_completed' => '本週完成',
 			'weekly' => '每週',
 			'weekly_progress' => '每週進度',
-			'notification_channels' => '通知頻道',
-			'manage_app_notifications' => '管理應用程式通知',
-			'notification_channel_hint_high' => '含聲音與震動的緊急提醒',
-			'notification_channel_hint_medium' => '含聲音與震動的預設提醒',
-			'notification_channel_hint_low' => '輕微震動的安靜提醒',
-			'notification_channel_hint_none' => '靜音的最低提醒',
-			'failed_to_open_settings' => '無法開啟設定：{error}',
 			_ => null,
 		};
 	}

@@ -5,6 +5,7 @@ import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
 import 'package:zest/core/bootstrap/isar_bootstrap.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/bootstrap/notification_bootstrap.dart';
+import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/todo_service.dart';
 import 'package:zest/core/utils/notification.dart';
@@ -95,9 +96,19 @@ Future<void> _markTodoAsDone(Isar isar, Settings settings, int todoId) async {
 
 /// Builds a [TodoService] for background notification handlers.
 TodoService _todoServiceFor(Isar isar, Settings settings) {
+  final todoRepo = TodoRepository(isar);
   return TodoService(
-    todoRepo: TodoRepository(isar),
+    todoRepo: todoRepo,
     notificationService: NotificationService(settings: settings),
+    calendarSync: DeviceCalendarSyncService(
+      getSettings: () => settings,
+      todoRepo: todoRepo,
+      saveSettings: (updated) async {
+        await isar.writeTxn(() async {
+          await isar.settings.put(updated);
+        });
+      },
+    ),
     timeformat: settings.timeformat,
     languageCode:
         settings.language?.split('_').first ?? AppConstants.defaultLanguageCode,

@@ -129,6 +129,7 @@ class TodosNotifier extends Notifier<TodosState> {
     _todoService = TodoService(
       todoRepo: todoRepo,
       notificationService: ref.read(notificationServiceProvider),
+      calendarSync: ref.read(deviceCalendarSyncServiceProvider),
       timeformat: formatPrefs.$1,
       languageCode: formatPrefs.$2 ?? AppConstants.defaultLanguageCode,
     );

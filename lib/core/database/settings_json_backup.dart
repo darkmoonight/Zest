@@ -69,6 +69,8 @@ class SettingsJsonBackup {
     'notificationChannelsMigrated': s.notificationChannelsMigrated,
     'defaultCategorySeeded': s.defaultCategorySeeded,
     'defaultCategoryId': s.defaultCategoryId,
+    'deviceCalendarSyncEnabled': s.deviceCalendarSyncEnabled,
+    'deviceCalendarId': s.deviceCalendarId,
     'settingsSchemaVersion': s.settingsSchemaVersion,
   };
 
@@ -121,6 +123,9 @@ class SettingsJsonBackup {
     settings.defaultCategorySeeded =
         json['defaultCategorySeeded'] as bool? ?? false;
     settings.defaultCategoryId = json['defaultCategoryId'] as int?;
+    settings.deviceCalendarSyncEnabled =
+        json['deviceCalendarSyncEnabled'] as bool? ?? false;
+    settings.deviceCalendarId = json['deviceCalendarId'] as String?;
     settings.settingsSchemaVersion = json['settingsSchemaVersion'] as int? ?? 0;
     return settings;
   }

@@ -81,6 +81,7 @@ class TasksNotifier extends Notifier<TasksState> {
       taskRepo: taskRepo,
       todoRepo: todoRepo,
       notificationService: ref.read(notificationServiceProvider),
+      calendarSync: ref.read(deviceCalendarSyncServiceProvider),
     );
     _taskService = created;
     return created;

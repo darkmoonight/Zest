@@ -172,6 +172,11 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => 'Yapılacak bir işi sil';
 	@override String get deleted_todo_query => 'Yapılacak işi silmek istediğinizden emin misiniz?';
 	@override String get details => 'Detaylar';
+	@override String get device_calendar => 'Cihaz takvimi';
+	@override String get device_calendar_default => 'Varsayılan';
+	@override String get device_calendar_local => 'yerel';
+	@override String get device_calendar_permission_denied => 'Takvim izni gerekli';
+	@override String get device_calendar_sync => 'Cihaz takvimine aktar';
 	@override String get discord => 'Discord';
 	@override String get doing => 'Yapılıyor';
 	@override String get done => 'Tamamlandı';
@@ -189,6 +194,7 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => 'İstatistikler yüklenirken hata';
 	@override String get error_path => 'Yedeklemenin kaydedileceği yolu seçmediniz';
 	@override String get error_path_re => 'Geri yüklenecek dosyaları seçmediniz';
+	@override String get failed_to_open_settings => 'Ayarlar açılamadı: {error}';
 	@override String get first_day_of_week => 'Haftanın ilk günü';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => 'Açık';
 	@override String get longest_streak => 'En Uzun';
 	@override String get low_priority => 'Düşük';
+	@override String get manage_app_notifications => 'Uygulama bildirimlerini yönet';
 	@override String get mark_as_active => 'Aktif olarak işaretle';
 	@override String get mark_as_active_hint => 'Bu görevi aktif duruma geri yükle';
 	@override String get mark_as_cancelled => 'İptal edildi olarak işaretle';
@@ -269,9 +276,14 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => 'Öncelik yok';
 	@override String get no_results => 'Sonuç bulunamadı';
 	@override String get notification_channel_high => 'Yüksek öncelikli hatırlatıcılar';
+	@override String get notification_channel_hint_high => 'Ses ve titreşimli acil uyarılar';
+	@override String get notification_channel_hint_low => 'Hafif titreşimli sessiz uyarılar';
+	@override String get notification_channel_hint_medium => 'Ses ve titreşimli varsayılan uyarılar';
+	@override String get notification_channel_hint_none => 'Sessiz, minimal uyarılar';
 	@override String get notification_channel_low => 'Düşük öncelikli hatırlatıcılar';
 	@override String get notification_channel_medium => 'Orta öncelikli hatırlatıcılar';
 	@override String get notification_channel_none => 'Önceliksiz hatırlatıcılar';
+	@override String get notification_channels => 'Bildirim kanalları';
 	@override String get open_notification => 'Bildirimi aç';
 	@override String get perfect_work => 'Mükemmel!';
 	@override String get privacy_security => 'Gizlilik ve Güvenlik';
@@ -365,13 +377,6 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Bu hafta tamamlanan';
 	@override String get weekly => 'Haftalık';
 	@override String get weekly_progress => 'Haftalık İlerleme';
-	@override String get notification_channels => 'Bildirim kanalları';
-	@override String get manage_app_notifications => 'Uygulama bildirimlerini yönet';
-	@override String get notification_channel_hint_high => 'Ses ve titreşimli acil uyarılar';
-	@override String get notification_channel_hint_medium => 'Ses ve titreşimli varsayılan uyarılar';
-	@override String get notification_channel_hint_low => 'Hafif titreşimli sessiz uyarılar';
-	@override String get notification_channel_hint_none => 'Sessiz, minimal uyarılar';
-	@override String get failed_to_open_settings => 'Ayarlar açılamadı: {error}';
 }
 
 /// The flat map containing all translations for locale <tr-TR>.
@@ -515,6 +520,11 @@ extension on TranslationsTrTr {
 			'deleted_todo' => 'Yapılacak bir işi sil',
 			'deleted_todo_query' => 'Yapılacak işi silmek istediğinizden emin misiniz?',
 			'details' => 'Detaylar',
+			'device_calendar' => 'Cihaz takvimi',
+			'device_calendar_default' => 'Varsayılan',
+			'device_calendar_local' => 'yerel',
+			'device_calendar_permission_denied' => 'Takvim izni gerekli',
+			'device_calendar_sync' => 'Cihaz takvimine aktar',
 			'discord' => 'Discord',
 			'doing' => 'Yapılıyor',
 			'done' => 'Tamamlandı',
@@ -532,6 +542,7 @@ extension on TranslationsTrTr {
 			'error_loading_statistics' => 'İstatistikler yüklenirken hata',
 			'error_path' => 'Yedeklemenin kaydedileceği yolu seçmediniz',
 			'error_path_re' => 'Geri yüklenecek dosyaları seçmediniz',
+			'failed_to_open_settings' => 'Ayarlar açılamadı: {error}',
 			'first_day_of_week' => 'Haftanın ilk günü',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsTrTr {
 			'light' => 'Açık',
 			'longest_streak' => 'En Uzun',
 			'low_priority' => 'Düşük',
+			'manage_app_notifications' => 'Uygulama bildirimlerini yönet',
 			'mark_as_active' => 'Aktif olarak işaretle',
 			'mark_as_active_hint' => 'Bu görevi aktif duruma geri yükle',
 			'mark_as_cancelled' => 'İptal edildi olarak işaretle',
@@ -612,9 +624,14 @@ extension on TranslationsTrTr {
 			'no_priority' => 'Öncelik yok',
 			'no_results' => 'Sonuç bulunamadı',
 			'notification_channel_high' => 'Yüksek öncelikli hatırlatıcılar',
+			'notification_channel_hint_high' => 'Ses ve titreşimli acil uyarılar',
+			'notification_channel_hint_low' => 'Hafif titreşimli sessiz uyarılar',
+			'notification_channel_hint_medium' => 'Ses ve titreşimli varsayılan uyarılar',
+			'notification_channel_hint_none' => 'Sessiz, minimal uyarılar',
 			'notification_channel_low' => 'Düşük öncelikli hatırlatıcılar',
 			'notification_channel_medium' => 'Orta öncelikli hatırlatıcılar',
 			'notification_channel_none' => 'Önceliksiz hatırlatıcılar',
+			'notification_channels' => 'Bildirim kanalları',
 			'open_notification' => 'Bildirimi aç',
 			'perfect_work' => 'Mükemmel!',
 			'privacy_security' => 'Gizlilik ve Güvenlik',
@@ -708,13 +725,6 @@ extension on TranslationsTrTr {
 			'week_completed' => 'Bu hafta tamamlanan',
 			'weekly' => 'Haftalık',
 			'weekly_progress' => 'Haftalık İlerleme',
-			'notification_channels' => 'Bildirim kanalları',
-			'manage_app_notifications' => 'Uygulama bildirimlerini yönet',
-			'notification_channel_hint_high' => 'Ses ve titreşimli acil uyarılar',
-			'notification_channel_hint_medium' => 'Ses ve titreşimli varsayılan uyarılar',
-			'notification_channel_hint_low' => 'Hafif titreşimli sessiz uyarılar',
-			'notification_channel_hint_none' => 'Sessiz, minimal uyarılar',
-			'failed_to_open_settings' => 'Ayarlar açılamadı: {error}',
 			_ => null,
 		};
 	}

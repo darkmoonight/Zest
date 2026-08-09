@@ -172,6 +172,11 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => 'Xóa một việc cần làm';
 	@override String get deleted_todo_query => 'Bạn có chắc chắn muốn xóa việc cần làm không?';
 	@override String get details => 'Chi tiết';
+	@override String get device_calendar => 'Lịch thiết bị';
+	@override String get device_calendar_default => 'Mặc định';
+	@override String get device_calendar_local => 'cục bộ';
+	@override String get device_calendar_permission_denied => 'Cần quyền truy cập lịch';
+	@override String get device_calendar_sync => 'Xuất sang lịch thiết bị';
 	@override String get discord => 'Discord';
 	@override String get doing => 'Đang làm';
 	@override String get done => 'Xong';
@@ -189,6 +194,7 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => 'Lỗi tải thống kê';
 	@override String get error_path => 'Bạn chưa chọn đường dẫn lưu bản sao lưu';
 	@override String get error_path_re => 'Bạn chưa chọn tệp để khôi phục';
+	@override String get failed_to_open_settings => 'Không thể mở cài đặt: {error}';
 	@override String get first_day_of_week => 'Ngày đầu tuần';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => 'Sáng';
 	@override String get longest_streak => 'Dài nhất';
 	@override String get low_priority => 'Thấp';
+	@override String get manage_app_notifications => 'Quản lý thông báo ứng dụng';
 	@override String get mark_as_active => 'Đánh dấu là đang hoạt động';
 	@override String get mark_as_active_hint => 'Khôi phục việc cần làm này về trạng thái hoạt động';
 	@override String get mark_as_cancelled => 'Đánh dấu là đã hủy';
@@ -269,9 +276,14 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => 'Không ưu tiên';
 	@override String get no_results => 'Không có kết quả';
 	@override String get notification_channel_high => 'Nhắc nhở ưu tiên cao';
+	@override String get notification_channel_hint_high => 'Cảnh báo khẩn với âm thanh và rung';
+	@override String get notification_channel_hint_low => 'Cảnh báo nhẹ với rung nhẹ';
+	@override String get notification_channel_hint_medium => 'Cảnh báo mặc định với âm thanh và rung';
+	@override String get notification_channel_hint_none => 'Cảnh báo tối thiểu, im lặng';
 	@override String get notification_channel_low => 'Nhắc nhở ưu tiên thấp';
 	@override String get notification_channel_medium => 'Nhắc nhở ưu tiên trung bình';
 	@override String get notification_channel_none => 'Nhắc nhở không ưu tiên';
+	@override String get notification_channels => 'Kênh thông báo';
 	@override String get open_notification => 'Mở thông báo';
 	@override String get perfect_work => 'Xuất sắc!';
 	@override String get privacy_security => 'Quyền riêng tư và Bảo mật';
@@ -365,13 +377,6 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Hoàn thành tuần này';
 	@override String get weekly => 'Hàng tuần';
 	@override String get weekly_progress => 'Tiến độ tuần';
-	@override String get notification_channels => 'Kênh thông báo';
-	@override String get manage_app_notifications => 'Quản lý thông báo ứng dụng';
-	@override String get notification_channel_hint_high => 'Cảnh báo khẩn với âm thanh và rung';
-	@override String get notification_channel_hint_medium => 'Cảnh báo mặc định với âm thanh và rung';
-	@override String get notification_channel_hint_low => 'Cảnh báo nhẹ với rung nhẹ';
-	@override String get notification_channel_hint_none => 'Cảnh báo tối thiểu, im lặng';
-	@override String get failed_to_open_settings => 'Không thể mở cài đặt: {error}';
 }
 
 /// The flat map containing all translations for locale <vi-VN>.
@@ -515,6 +520,11 @@ extension on TranslationsViVn {
 			'deleted_todo' => 'Xóa một việc cần làm',
 			'deleted_todo_query' => 'Bạn có chắc chắn muốn xóa việc cần làm không?',
 			'details' => 'Chi tiết',
+			'device_calendar' => 'Lịch thiết bị',
+			'device_calendar_default' => 'Mặc định',
+			'device_calendar_local' => 'cục bộ',
+			'device_calendar_permission_denied' => 'Cần quyền truy cập lịch',
+			'device_calendar_sync' => 'Xuất sang lịch thiết bị',
 			'discord' => 'Discord',
 			'doing' => 'Đang làm',
 			'done' => 'Xong',
@@ -532,6 +542,7 @@ extension on TranslationsViVn {
 			'error_loading_statistics' => 'Lỗi tải thống kê',
 			'error_path' => 'Bạn chưa chọn đường dẫn lưu bản sao lưu',
 			'error_path_re' => 'Bạn chưa chọn tệp để khôi phục',
+			'failed_to_open_settings' => 'Không thể mở cài đặt: {error}',
 			'first_day_of_week' => 'Ngày đầu tuần',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsViVn {
 			'light' => 'Sáng',
 			'longest_streak' => 'Dài nhất',
 			'low_priority' => 'Thấp',
+			'manage_app_notifications' => 'Quản lý thông báo ứng dụng',
 			'mark_as_active' => 'Đánh dấu là đang hoạt động',
 			'mark_as_active_hint' => 'Khôi phục việc cần làm này về trạng thái hoạt động',
 			'mark_as_cancelled' => 'Đánh dấu là đã hủy',
@@ -612,9 +624,14 @@ extension on TranslationsViVn {
 			'no_priority' => 'Không ưu tiên',
 			'no_results' => 'Không có kết quả',
 			'notification_channel_high' => 'Nhắc nhở ưu tiên cao',
+			'notification_channel_hint_high' => 'Cảnh báo khẩn với âm thanh và rung',
+			'notification_channel_hint_low' => 'Cảnh báo nhẹ với rung nhẹ',
+			'notification_channel_hint_medium' => 'Cảnh báo mặc định với âm thanh và rung',
+			'notification_channel_hint_none' => 'Cảnh báo tối thiểu, im lặng',
 			'notification_channel_low' => 'Nhắc nhở ưu tiên thấp',
 			'notification_channel_medium' => 'Nhắc nhở ưu tiên trung bình',
 			'notification_channel_none' => 'Nhắc nhở không ưu tiên',
+			'notification_channels' => 'Kênh thông báo',
 			'open_notification' => 'Mở thông báo',
 			'perfect_work' => 'Xuất sắc!',
 			'privacy_security' => 'Quyền riêng tư và Bảo mật',
@@ -708,13 +725,6 @@ extension on TranslationsViVn {
 			'week_completed' => 'Hoàn thành tuần này',
 			'weekly' => 'Hàng tuần',
 			'weekly_progress' => 'Tiến độ tuần',
-			'notification_channels' => 'Kênh thông báo',
-			'manage_app_notifications' => 'Quản lý thông báo ứng dụng',
-			'notification_channel_hint_high' => 'Cảnh báo khẩn với âm thanh và rung',
-			'notification_channel_hint_medium' => 'Cảnh báo mặc định với âm thanh và rung',
-			'notification_channel_hint_low' => 'Cảnh báo nhẹ với rung nhẹ',
-			'notification_channel_hint_none' => 'Cảnh báo tối thiểu, im lặng',
-			'failed_to_open_settings' => 'Không thể mở cài đặt: {error}',
 			_ => null,
 		};
 	}

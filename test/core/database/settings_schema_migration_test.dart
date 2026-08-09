@@ -71,7 +71,9 @@ void main() {
         ..language = 'ru_RU'
         ..showArchivedInStatistics = true
         ..snoozeDuration = 30
-        ..defaultCategoryId = 7;
+        ..defaultCategoryId = 7
+        ..deviceCalendarSyncEnabled = true
+        ..deviceCalendarId = 'cal-42';
 
       await SettingsJsonBackup.save(dir.path, settings);
       final loaded = await SettingsJsonBackup.load(dir.path);
@@ -82,6 +84,8 @@ void main() {
       expect(loaded.showArchivedInStatistics, isTrue);
       expect(loaded.snoozeDuration, 30);
       expect(loaded.defaultCategoryId, 7);
+      expect(loaded.deviceCalendarSyncEnabled, isTrue);
+      expect(loaded.deviceCalendarId, 'cal-42');
     });
   });
 
@@ -91,13 +95,18 @@ void main() {
         ..theme = 'dark'
         ..showArchivedInStatistics = true
         ..settingsSchemaVersion = 1
-        ..defaultCategoryId = 9;
+        ..defaultCategoryId = 9
+        ..deviceCalendarSyncEnabled = true
+        ..deviceCalendarId = 'primary';
 
       final copy = original.clone();
       expect(copy.theme, 'dark');
       expect(copy.showArchivedInStatistics, isTrue);
       expect(copy.settingsSchemaVersion, 1);
       expect(copy.defaultCategoryId, 9);
+      expect(copy.deviceCalendarSyncEnabled, isTrue);
+      expect(copy.deviceCalendarId, 'primary');
+      expect(identical(copy, original), isFalse);
 
       copy.theme = 'light';
       expect(original.theme, 'dark');

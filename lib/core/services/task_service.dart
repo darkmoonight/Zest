@@ -3,6 +3,7 @@ import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/task_repository.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/i18n/tr.dart';
 
@@ -13,6 +14,7 @@ class TaskService {
     required this._taskRepo,
     required this._todoRepo,
     required this._notificationService,
+    this._calendarSync,
   });
 
   /// Persistence layer for task (category) entities.
@@ -23,6 +25,9 @@ class TaskService {
 
   /// Schedules and cancels todo reminder notifications.
   final NotificationService _notificationService;
+
+  /// Optional device-calendar cleanup when todos are deleted with a category.
+  final DeviceCalendarSyncService? _calendarSync;
 
   // ==================== CREATE ====================
 
@@ -134,6 +139,12 @@ class TaskService {
     }
 
     if (allIds.isNotEmpty) {
+      for (final id in allIds) {
+        final todoItem = await _todoRepo.getById(id);
+        if (todoItem != null) {
+          await _calendarSync?.removeSynced(todoItem);
+        }
+      }
       await _todoRepo.deleteBatch(allIds);
     }
   }

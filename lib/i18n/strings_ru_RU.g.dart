@@ -172,6 +172,11 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => 'Удаление задачи';
 	@override String get deleted_todo_query => 'Вы уверены что хотите удалить задачу?';
 	@override String get details => 'Подробности';
+	@override String get device_calendar => 'Календарь устройства';
+	@override String get device_calendar_default => 'По умолчанию';
+	@override String get device_calendar_local => 'локальный';
+	@override String get device_calendar_permission_denied => 'Нужно разрешение на доступ к календарю';
+	@override String get device_calendar_sync => 'Экспорт в календарь устройства';
 	@override String get discord => 'Discord';
 	@override String get doing => 'В процессе';
 	@override String get done => 'Выполненные';
@@ -189,6 +194,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => 'Ошибка загрузки статистики';
 	@override String get error_path => 'Вы не выбрали путь для сохранения резервной копии';
 	@override String get error_path_re => 'Вы не выбрали файлы для восстановления';
+	@override String get failed_to_open_settings => 'Не удалось открыть настройки: {error}';
 	@override String get first_day_of_week => 'Первый день недели';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => 'Светлая';
 	@override String get longest_streak => 'Рекорд';
 	@override String get low_priority => 'Низкий';
+	@override String get manage_app_notifications => 'Управление уведомлениями приложения';
 	@override String get mark_as_active => 'Отметить как активное';
 	@override String get mark_as_active_hint => 'Восстановить эту задачу в активный статус';
 	@override String get mark_as_cancelled => 'Отметить как отмененное';
@@ -269,9 +276,14 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => 'Нет приоритета';
 	@override String get no_results => 'Ничего не найдено';
 	@override String get notification_channel_high => 'Напоминания высокого приоритета';
+	@override String get notification_channel_hint_high => 'Срочные оповещения со звуком и вибрацией';
+	@override String get notification_channel_hint_low => 'Тихие оповещения с лёгкой вибрацией';
+	@override String get notification_channel_hint_medium => 'Обычные оповещения со звуком и вибрацией';
+	@override String get notification_channel_hint_none => 'Беззвучные минимальные оповещения';
 	@override String get notification_channel_low => 'Напоминания низкого приоритета';
 	@override String get notification_channel_medium => 'Напоминания среднего приоритета';
 	@override String get notification_channel_none => 'Напоминания без приоритета';
+	@override String get notification_channels => 'Каналы уведомлений';
 	@override String get open_notification => 'Открыть уведомление';
 	@override String get perfect_work => 'Отлично!';
 	@override String get privacy_security => 'Конфиденциальность и безопасность';
@@ -365,13 +377,6 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'За неделю';
 	@override String get weekly => 'Еженедельно';
 	@override String get weekly_progress => 'Прогресс за неделю';
-	@override String get notification_channels => 'Каналы уведомлений';
-	@override String get manage_app_notifications => 'Управление уведомлениями приложения';
-	@override String get notification_channel_hint_high => 'Срочные оповещения со звуком и вибрацией';
-	@override String get notification_channel_hint_medium => 'Обычные оповещения со звуком и вибрацией';
-	@override String get notification_channel_hint_low => 'Тихие оповещения с лёгкой вибрацией';
-	@override String get notification_channel_hint_none => 'Беззвучные минимальные оповещения';
-	@override String get failed_to_open_settings => 'Не удалось открыть настройки: {error}';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -515,6 +520,11 @@ extension on TranslationsRuRu {
 			'deleted_todo' => 'Удаление задачи',
 			'deleted_todo_query' => 'Вы уверены что хотите удалить задачу?',
 			'details' => 'Подробности',
+			'device_calendar' => 'Календарь устройства',
+			'device_calendar_default' => 'По умолчанию',
+			'device_calendar_local' => 'локальный',
+			'device_calendar_permission_denied' => 'Нужно разрешение на доступ к календарю',
+			'device_calendar_sync' => 'Экспорт в календарь устройства',
 			'discord' => 'Discord',
 			'doing' => 'В процессе',
 			'done' => 'Выполненные',
@@ -532,6 +542,7 @@ extension on TranslationsRuRu {
 			'error_loading_statistics' => 'Ошибка загрузки статистики',
 			'error_path' => 'Вы не выбрали путь для сохранения резервной копии',
 			'error_path_re' => 'Вы не выбрали файлы для восстановления',
+			'failed_to_open_settings' => 'Не удалось открыть настройки: {error}',
 			'first_day_of_week' => 'Первый день недели',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsRuRu {
 			'light' => 'Светлая',
 			'longest_streak' => 'Рекорд',
 			'low_priority' => 'Низкий',
+			'manage_app_notifications' => 'Управление уведомлениями приложения',
 			'mark_as_active' => 'Отметить как активное',
 			'mark_as_active_hint' => 'Восстановить эту задачу в активный статус',
 			'mark_as_cancelled' => 'Отметить как отмененное',
@@ -612,9 +624,14 @@ extension on TranslationsRuRu {
 			'no_priority' => 'Нет приоритета',
 			'no_results' => 'Ничего не найдено',
 			'notification_channel_high' => 'Напоминания высокого приоритета',
+			'notification_channel_hint_high' => 'Срочные оповещения со звуком и вибрацией',
+			'notification_channel_hint_low' => 'Тихие оповещения с лёгкой вибрацией',
+			'notification_channel_hint_medium' => 'Обычные оповещения со звуком и вибрацией',
+			'notification_channel_hint_none' => 'Беззвучные минимальные оповещения',
 			'notification_channel_low' => 'Напоминания низкого приоритета',
 			'notification_channel_medium' => 'Напоминания среднего приоритета',
 			'notification_channel_none' => 'Напоминания без приоритета',
+			'notification_channels' => 'Каналы уведомлений',
 			'open_notification' => 'Открыть уведомление',
 			'perfect_work' => 'Отлично!',
 			'privacy_security' => 'Конфиденциальность и безопасность',
@@ -708,13 +725,6 @@ extension on TranslationsRuRu {
 			'week_completed' => 'За неделю',
 			'weekly' => 'Еженедельно',
 			'weekly_progress' => 'Прогресс за неделю',
-			'notification_channels' => 'Каналы уведомлений',
-			'manage_app_notifications' => 'Управление уведомлениями приложения',
-			'notification_channel_hint_high' => 'Срочные оповещения со звуком и вибрацией',
-			'notification_channel_hint_medium' => 'Обычные оповещения со звуком и вибрацией',
-			'notification_channel_hint_low' => 'Тихие оповещения с лёгкой вибрацией',
-			'notification_channel_hint_none' => 'Беззвучные минимальные оповещения',
-			'failed_to_open_settings' => 'Не удалось открыть настройки: {error}',
 			_ => null,
 		};
 	}

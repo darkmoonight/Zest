@@ -172,6 +172,11 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get deleted_todo => 'حذف یک کار';
 	@override String get deleted_todo_query => 'آیا مطمئن هستید میخواهید این کار را حذف کنید؟';
 	@override String get details => 'جزئیات';
+	@override String get device_calendar => 'تقویم دستگاه';
+	@override String get device_calendar_default => 'پیش‌فرض';
+	@override String get device_calendar_local => 'محلی';
+	@override String get device_calendar_permission_denied => 'مجوز تقویم لازم است';
+	@override String get device_calendar_sync => 'خروجی به تقویم دستگاه';
 	@override String get discord => 'دیسکورد';
 	@override String get doing => 'در حال انجام';
 	@override String get done => 'انجام شده';
@@ -189,6 +194,7 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_loading_statistics => 'خطا در بارگذاری آمار';
 	@override String get error_path => 'شما مسیری برای ذخیره پشتیبان انتخاب نکرده اید';
 	@override String get error_path_re => 'شما فایلی برای بازگردانی انتخاب نکردید';
+	@override String get failed_to_open_settings => 'باز کردن تنظیمات ممکن نشد: {error}';
 	@override String get first_day_of_week => 'اولین روز هفته';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
 	@override String get font_comfortaa => 'Comfortaa';
@@ -242,6 +248,7 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get light => 'روشن';
 	@override String get longest_streak => 'طولانی‌ترین';
 	@override String get low_priority => 'کم';
+	@override String get manage_app_notifications => 'مدیریت اعلان‌های برنامه';
 	@override String get mark_as_active => 'علامت به عنوان فعال';
 	@override String get mark_as_active_hint => 'این وظیفه را به وضعیت فعال بازگردانید';
 	@override String get mark_as_cancelled => 'علامت به عنوان لغو‌شده';
@@ -269,9 +276,14 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get no_priority => 'بدون اولویت';
 	@override String get no_results => 'نتیجه‌ای یافت نشد';
 	@override String get notification_channel_high => 'یادآورهای اولویت بالا';
+	@override String get notification_channel_hint_high => 'هشدارهای فوری با صدا و لرزش';
+	@override String get notification_channel_hint_low => 'هشدارهای آرام با لرزش ملایم';
+	@override String get notification_channel_hint_medium => 'هشدارهای پیش‌فرض با صدا و لرزش';
+	@override String get notification_channel_hint_none => 'هشدارهای بی‌صدا و حداقلی';
 	@override String get notification_channel_low => 'یادآورهای اولویت پایین';
 	@override String get notification_channel_medium => 'یادآورهای اولویت متوسط';
 	@override String get notification_channel_none => 'یادآورهای بدون اولویت';
+	@override String get notification_channels => 'کانال‌های اعلان';
 	@override String get open_notification => 'باز کردن اعلان';
 	@override String get perfect_work => 'عالی!';
 	@override String get privacy_security => 'حریم خصوصی و امنیت';
@@ -365,13 +377,6 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'تکمیل شده این هفته';
 	@override String get weekly => 'هفتگی';
 	@override String get weekly_progress => 'پیشرفت هفتگی';
-	@override String get notification_channels => 'کانال‌های اعلان';
-	@override String get manage_app_notifications => 'مدیریت اعلان‌های برنامه';
-	@override String get notification_channel_hint_high => 'هشدارهای فوری با صدا و لرزش';
-	@override String get notification_channel_hint_medium => 'هشدارهای پیش‌فرض با صدا و لرزش';
-	@override String get notification_channel_hint_low => 'هشدارهای آرام با لرزش ملایم';
-	@override String get notification_channel_hint_none => 'هشدارهای بی‌صدا و حداقلی';
-	@override String get failed_to_open_settings => 'باز کردن تنظیمات ممکن نشد: {error}';
 }
 
 /// The flat map containing all translations for locale <fa-IR>.
@@ -515,6 +520,11 @@ extension on TranslationsFaIr {
 			'deleted_todo' => 'حذف یک کار',
 			'deleted_todo_query' => 'آیا مطمئن هستید میخواهید این کار را حذف کنید؟',
 			'details' => 'جزئیات',
+			'device_calendar' => 'تقویم دستگاه',
+			'device_calendar_default' => 'پیش‌فرض',
+			'device_calendar_local' => 'محلی',
+			'device_calendar_permission_denied' => 'مجوز تقویم لازم است',
+			'device_calendar_sync' => 'خروجی به تقویم دستگاه',
 			'discord' => 'دیسکورد',
 			'doing' => 'در حال انجام',
 			'done' => 'انجام شده',
@@ -532,6 +542,7 @@ extension on TranslationsFaIr {
 			'error_loading_statistics' => 'خطا در بارگذاری آمار',
 			'error_path' => 'شما مسیری برای ذخیره پشتیبان انتخاب نکرده اید',
 			'error_path_re' => 'شما فایلی برای بازگردانی انتخاب نکردید',
+			'failed_to_open_settings' => 'باز کردن تنظیمات ممکن نشد: {error}',
 			'first_day_of_week' => 'اولین روز هفته',
 			'font_barlow_condensed' => 'Barlow Condensed',
 			'font_comfortaa' => 'Comfortaa',
@@ -585,6 +596,7 @@ extension on TranslationsFaIr {
 			'light' => 'روشن',
 			'longest_streak' => 'طولانی‌ترین',
 			'low_priority' => 'کم',
+			'manage_app_notifications' => 'مدیریت اعلان‌های برنامه',
 			'mark_as_active' => 'علامت به عنوان فعال',
 			'mark_as_active_hint' => 'این وظیفه را به وضعیت فعال بازگردانید',
 			'mark_as_cancelled' => 'علامت به عنوان لغو‌شده',
@@ -612,9 +624,14 @@ extension on TranslationsFaIr {
 			'no_priority' => 'بدون اولویت',
 			'no_results' => 'نتیجه‌ای یافت نشد',
 			'notification_channel_high' => 'یادآورهای اولویت بالا',
+			'notification_channel_hint_high' => 'هشدارهای فوری با صدا و لرزش',
+			'notification_channel_hint_low' => 'هشدارهای آرام با لرزش ملایم',
+			'notification_channel_hint_medium' => 'هشدارهای پیش‌فرض با صدا و لرزش',
+			'notification_channel_hint_none' => 'هشدارهای بی‌صدا و حداقلی',
 			'notification_channel_low' => 'یادآورهای اولویت پایین',
 			'notification_channel_medium' => 'یادآورهای اولویت متوسط',
 			'notification_channel_none' => 'یادآورهای بدون اولویت',
+			'notification_channels' => 'کانال‌های اعلان',
 			'open_notification' => 'باز کردن اعلان',
 			'perfect_work' => 'عالی!',
 			'privacy_security' => 'حریم خصوصی و امنیت',
@@ -708,13 +725,6 @@ extension on TranslationsFaIr {
 			'week_completed' => 'تکمیل شده این هفته',
 			'weekly' => 'هفتگی',
 			'weekly_progress' => 'پیشرفت هفتگی',
-			'notification_channels' => 'کانال‌های اعلان',
-			'manage_app_notifications' => 'مدیریت اعلان‌های برنامه',
-			'notification_channel_hint_high' => 'هشدارهای فوری با صدا و لرزش',
-			'notification_channel_hint_medium' => 'هشدارهای پیش‌فرض با صدا و لرزش',
-			'notification_channel_hint_low' => 'هشدارهای آرام با لرزش ملایم',
-			'notification_channel_hint_none' => 'هشدارهای بی‌صدا و حداقلی',
-			'failed_to_open_settings' => 'باز کردن تنظیمات ممکن نشد: {error}',
 			_ => null,
 		};
 	}
