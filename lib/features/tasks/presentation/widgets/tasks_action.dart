@@ -1,6 +1,7 @@
 // app/ui/tasks/widgets/tasks_action.dart
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as flutter_material show VisualDensity;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -674,7 +675,7 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog>
         tonalColorSameSize: true,
         enableOpacity: false,
         actionButtons: const ColorPickerActionButtons(
-          visualDensity: VisualDensity.compact,
+          visualDensity: flutter_material.VisualDensity.compact,
           dialogActionButtons: false,
         ),
         pickersEnabled: const {

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:isar_community/isar.dart';
@@ -739,9 +739,8 @@ class _TodosActionState extends ConsumerState<TodosAction>
             Expanded(
               child: Text(
                 task.title,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w500),
               ),
             ),
             const SizedBox(width: AppConstants.spacingM),

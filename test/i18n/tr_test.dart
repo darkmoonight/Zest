@@ -8,7 +8,7 @@ void main() {
     });
 
     test('passes through lowercase keys', () {
-      expect(toSlangKey('snooze'), 'snooze');
+      expect(toSlangKey('settings'), 'settings');
     });
 
     test('converts camelCase to snake_case', () {

@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:reorderables/reorderables.dart';
@@ -129,11 +129,13 @@ class _TodosListState extends ConsumerState<TodosList>
     bool isImage,
   ) {
     return Padding(
-      padding: EdgeInsets.only(top: topPadding + (isMobile ? 60 : 70)),
+      padding: EdgeInsets.only(
+        top: topPadding + ResponsiveUtils.getEmptyStateTopOffset(context),
+      ),
       child: ListEmpty(
         img: widget.calendar
-            ? 'assets/images/Calendar.png'
-            : 'assets/images/Todo.png',
+            ? AppConstants.emptyStateCalendarImage
+            : AppConstants.emptyStateTodoImage,
         text: widget.statusFilter == TodoStatus.done
             ? 'completedTodo'.tr
             : widget.statusFilter == TodoStatus.cancelled
@@ -361,7 +363,7 @@ class _TodosListState extends ConsumerState<TodosList>
 
   /// Show todo action bottom sheet.
   void _showTodoActionBottomSheet(Todos todo) {
-    NavigationHelper.showModalSheet(
+    NavigationHelper.showFormModal(
       context: context,
       child: TodosAction(
         text: 'editing'.tr,

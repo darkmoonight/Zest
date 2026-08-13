@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:dynamic_system_colors/dynamic_system_colors.dart';
+import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/theme/app_font.dart';
 import 'package:zest/core/theme/color_palette.dart';
@@ -23,20 +23,8 @@ ButtonStyle _noSplashButtonStyle() => const ButtonStyle(
 
 // Colors
 
-/// Default light scaffold/surface color.
-const Color lightColor = Colors.white;
-
-/// Default dark scaffold/surface color.
-const Color darkColor = Color.fromRGBO(30, 30, 30, 1);
-
 /// Pure black surface used for AMOLED dark theme.
 const Color oledColor = Colors.black;
-
-/// Default light color scheme from the indigo palette.
-ColorScheme colorSchemeLight = AppColorPalette.of(null).lightScheme();
-
-/// Default dark color scheme from the indigo palette.
-ColorScheme colorSchemeDark = AppColorPalette.of(null).darkScheme();
 
 // Theme builders
 
@@ -70,6 +58,19 @@ ThemeData darkTheme(
   appFont: appFont,
 );
 
+/// Harmonizes semantic colors toward [scheme.primary] (Material You).
+ColorScheme _harmonizeColorScheme(ColorScheme scheme) {
+  Color harmonize(Color color) =>
+      Color(Blend.harmonize(color.toARGB32(), scheme.primary.toARGB32()));
+
+  return scheme.copyWith(
+    error: harmonize(scheme.error),
+    onError: harmonize(scheme.onError),
+    errorContainer: harmonize(scheme.errorContainer),
+    onErrorContainer: harmonize(scheme.onErrorContainer),
+  );
+}
+
 /// Assembles a full [ThemeData] from base tokens and optional accent colors.
 ThemeData _buildTheme({
   required ThemeData baseTheme,
@@ -79,9 +80,14 @@ ThemeData _buildTheme({
   required bool edgeToEdgeAvailable,
   required String appFont,
 }) {
-  final harmonizedColorScheme = colorScheme
-      ?.copyWith(brightness: brightness, surface: baseTheme.colorScheme.surface)
-      .harmonized();
+  final harmonizedColorScheme = colorScheme == null
+      ? null
+      : _harmonizeColorScheme(
+          colorScheme.copyWith(
+            brightness: brightness,
+            surface: baseTheme.colorScheme.surface,
+          ),
+        );
 
   return baseTheme.copyWith(
     brightness: brightness,

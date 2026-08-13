@@ -6,8 +6,8 @@ publish_to: "none"
 version: 1.6.1+55
 
 environment:
-  sdk: ">=3.12.2 <4.0.0"
-  flutter: "^3.44.9"
+  sdk: ">=3.13.0 <4.0.0"
+  flutter: "^3.47.0"
 
 dependencies:
   # Flutter SDK
@@ -18,7 +18,7 @@ dependencies:
 
   # State management & navigation
   flutter_riverpod: ^3.4.2
-  go_router: ^17.4.0
+  go_router: ^17.5.0
 
   # Local storage
   isar_community: ^3.3.2
@@ -27,7 +27,7 @@ dependencies:
   path_provider: ^2.1.6
 
   # Localization & formatting
-  intl: ^0.20.2
+  intl: ^0.20.3
   slang: ^4.19.0
   slang_flutter: ^4.19.0
 
@@ -54,9 +54,10 @@ dependencies:
   reorderables: ^0.6.0
   flex_color_picker: ^3.8.0
   sleek_circular_slider: ^2.1.0
-  table_calendar: ^3.2.0
+  table_calendar: ^3.2.1
   flutter_heatmap_calendar: ^1.0.5
   fl_chart: ^1.2.0
+  material_ui: ^1.0.0
 
   # Platform & utilities
   archive: ^4.0.7

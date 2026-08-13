@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/utils/scroll_fab_handler.dart';
 
 /// Listens to scroll events and toggles FAB visibility via [ScrollFabHandler].

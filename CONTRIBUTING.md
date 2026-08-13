@@ -21,6 +21,19 @@ Zest uses [Slang](https://pub.dev/packages/slang) with JSON files in `assets/i18
 1. Add or update keys in `assets/i18n/en-US.i18n.json`.
 2. Mirror the key in all other locale files under `assets/i18n/`.
 3. Run `dart run slang` to regenerate `lib/i18n/strings*.g.dart`.
+4. Run `dart run slang analyze` (or `./scripts/check_i18n.sh`) to verify key parity.
+
+Do not use `slang analyze --full` for CI checks: numeric keys `"12"` / `"24"` (time format labels) break the full analyzer. Plain `slang analyze` is the supported parity check.
+
+## Create / edit forms
+
+Use `NavigationHelper.showFormModal` for TasksAction / TodosAction / TodosTransfer (and similar create/edit sheets). Do not call raw `showModalBottomSheet` for those forms — on tablet/desktop the helper presents a centered dialog with `maxModalWidth`.
+
+## material_ui compatibility
+
+The app targets `package:material_ui` (Flutter 3.47+). A deprecated `MaterialUiCompatibilityBridge` remains in `lib/app.dart` because legacy packages still import `package:flutter/material.dart` (`flex_color_picker`, `google_fonts`, `sleek_circular_slider`, and related). Dynamic color uses `MaterialUiDynamicColorBuilder` (seed from `DynamicColorPlugin`) so Flutter `ColorScheme` conversion is not on the theme hot path. Text themes still bridge via `textThemeToFlutter` / `textThemeFromFlutter` for Google Fonts.
+
+Remove the compatibility bridge only after those packages migrate to `material_ui` or are replaced.
 
 ## Coding Standards
 

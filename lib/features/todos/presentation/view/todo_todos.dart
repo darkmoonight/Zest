@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -112,7 +112,7 @@ class _TodosTodoState extends ConsumerState<TodosTodo> {
   }
 
   void _showEditTodoSheet(BuildContext context) {
-    NavigationHelper.showModalSheet(
+    NavigationHelper.showFormModal(
       context: context,
       enableDrag: false,
       child: TodosAction(
@@ -125,7 +125,7 @@ class _TodosTodoState extends ConsumerState<TodosTodo> {
   }
 
   void _showTodosActionBottomSheet(BuildContext context) {
-    NavigationHelper.showModalSheet(
+    NavigationHelper.showFormModal(
       context: context,
       enableDrag: false,
       child: TodosAction(

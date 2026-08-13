@@ -327,7 +327,6 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => '보관함 표시';
 	@override String get show_archived_in_statistics => '통계에 보관된 항목 포함';
 	@override String get skip => '건너뛰기';
-	@override String get snooze => '스누즈';
 	@override String get snooze_action_label => '{minutes}분 스누즈';
 	@override String get snooze_duration => '스누즈 기간';
 	@override String get sort => '정렬';
@@ -693,7 +692,6 @@ extension on TranslationsKoKr {
 			'show_archived' => '보관함 표시',
 			'show_archived_in_statistics' => '통계에 보관된 항목 포함',
 			'skip' => '건너뛰기',
-			'snooze' => '스누즈',
 			'snooze_action_label' => '{minutes}분 스누즈',
 			'snooze_duration' => '스누즈 기간',
 			'sort' => '정렬',

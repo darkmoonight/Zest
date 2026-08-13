@@ -7,8 +7,6 @@ import 'package:flag_secure/flag_secure.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:zest/platform/quick_action_item.dart';
 
-export 'package:dynamic_system_colors/dynamic_system_colors.dart'
-    show DynamicColorBuilder;
 export 'package:zest/platform/quick_action_item.dart';
 
 /// Maps [QuickActionItem] onto the quick_actions plugin model.

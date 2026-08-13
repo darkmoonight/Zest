@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/i18n/locale_format_helper.dart';
 import 'package:zest/i18n/strings.g.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/di/providers.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
@@ -128,7 +128,7 @@ mixin TodosScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   /// Opens the transfer sheet for the current selection.
   void showTodosTransferSheet(BuildContext context) {
     final selected = ref.read(todosNotifierProvider).selectedTodo;
-    NavigationHelper.showModalSheet(
+    NavigationHelper.showFormModal(
       context: context,
       child: TodosTransfer(text: 'editing'.tr, todos: selected),
       enableDrag: false,

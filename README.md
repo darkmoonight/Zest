@@ -60,6 +60,7 @@ APK and other builds: [Releases](https://github.com/darkmoonight/Zest/releases/l
 git clone https://github.com/darkmoonight/Zest.git && cd Zest
 flutter pub get
 dart run slang
+dart run slang analyze   # or ./scripts/check_i18n.sh — key parity
 dart run build_runner build --delete-conflicting-outputs
 flutter run
 ```

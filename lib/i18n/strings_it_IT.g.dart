@@ -327,7 +327,6 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'Mostra archiviati';
 	@override String get show_archived_in_statistics => 'Includi archiviate nelle statistiche';
 	@override String get skip => 'Salta';
-	@override String get snooze => 'Posponi';
 	@override String get snooze_action_label => 'Posponi di {minutes} min';
 	@override String get snooze_duration => 'Durata posponi';
 	@override String get sort => 'Ordina';
@@ -693,7 +692,6 @@ extension on TranslationsItIt {
 			'show_archived' => 'Mostra archiviati',
 			'show_archived_in_statistics' => 'Includi archiviate nelle statistiche',
 			'skip' => 'Salta',
-			'snooze' => 'Posponi',
 			'snooze_action_label' => 'Posponi di {minutes} min',
 			'snooze_duration' => 'Durata posponi',
 			'sort' => 'Ordina',

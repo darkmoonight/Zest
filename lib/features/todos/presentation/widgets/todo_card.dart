@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -482,9 +482,9 @@ class _TodoCardState extends ConsumerState<TodoCard>
           if (isArchivedCategory)
             MetadataChip(
               accentColor: Theme.of(context).colorScheme.outline,
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest,
+              backgroundColor: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest,
               showBorder: false,
               child: Text(
                 'archived'.tr,

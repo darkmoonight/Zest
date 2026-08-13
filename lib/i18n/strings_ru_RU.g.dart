@@ -327,7 +327,6 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'Показывать архивные';
 	@override String get show_archived_in_statistics => 'Учитывать архив в статистике';
 	@override String get skip => 'Пропустить';
-	@override String get snooze => 'Отложить';
 	@override String get snooze_action_label => 'Отложить на {minutes} мин';
 	@override String get snooze_duration => 'Продолжительность отсрочки';
 	@override String get sort => 'Сортировка';
@@ -693,7 +692,6 @@ extension on TranslationsRuRu {
 			'show_archived' => 'Показывать архивные',
 			'show_archived_in_statistics' => 'Учитывать архив в статистике',
 			'skip' => 'Пропустить',
-			'snooze' => 'Отложить',
 			'snooze_action_label' => 'Отложить на {minutes} мин',
 			'snooze_duration' => 'Продолжительность отсрочки',
 			'sort' => 'Сортировка',

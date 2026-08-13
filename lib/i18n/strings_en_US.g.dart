@@ -905,9 +905,6 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Skip'
 	String get skip => 'Skip';
 
-	/// en-US: 'Snooze'
-	String get snooze => 'Snooze';
-
 	/// en-US: 'Snooze {minutes} min'
 	String get snooze_action_label => 'Snooze {minutes} min';
 
@@ -1406,7 +1403,6 @@ extension on Translations {
 			'show_archived' => 'Show archived',
 			'show_archived_in_statistics' => 'Include archived in statistics',
 			'skip' => 'Skip',
-			'snooze' => 'Snooze',
 			'snooze_action_label' => 'Snooze {minutes} min',
 			'snooze_duration' => 'Snooze Duration',
 			'sort' => 'Sort',

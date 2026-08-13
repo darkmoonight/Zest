@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Supported app languages for the settings picker.
 const List<Map<String, dynamic>> appLanguages = [

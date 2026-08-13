@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -272,54 +272,13 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  /// Show create sheet.
+  /// Show create sheet or dialog depending on form factor.
   void _showCreateSheet() {
-    final isMobile = ResponsiveUtils.isMobile(context);
-    final widget = _getCreateWidget();
-
-    if (isMobile) {
-      NavigationHelper.showModalSheet(context: context, child: widget);
-    } else {
-      NavigationHelper.showAppDialog(
-        context: context,
-        child: _buildDialogWrapper(widget),
-      );
-    }
-  }
-
-  /// Get create widget.
-  Widget _getCreateWidget() {
-    return _tabIndex == 0
-        ? TasksAction(text: 'create'.tr, edit: false)
-        : TodosAction(text: 'create'.tr, edit: false, category: true);
-  }
-
-  /// Builds the dialog wrapper widget.
-  Widget _buildDialogWrapper(Widget child) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        constraints: const BoxConstraints(
-          minWidth: 400,
-          maxWidth: AppConstants.maxModalWidth,
-        ),
-        child: Card(
-          elevation: 0,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              AppConstants.borderRadiusXXLarge,
-            ),
-            side: BorderSide(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-              width: AppConstants.borderWidthThin,
-            ),
-          ),
-          child: child,
-        ),
-      ),
+    NavigationHelper.showFormModal(
+      context: context,
+      child: _tabIndex == 0
+          ? TasksAction(text: 'create'.tr, edit: false)
+          : TodosAction(text: 'create'.tr, edit: false, category: true),
     );
   }
 }

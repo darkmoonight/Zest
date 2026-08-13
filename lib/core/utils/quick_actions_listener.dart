@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/navigation/home_navigation.dart';
 import 'package:zest/core/navigation/home_screen_key.dart';
 import 'package:zest/core/navigation/home_tabs.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
+import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/features/todos/presentation/view/all_todos.dart';
 import 'package:zest/features/todos/presentation/view/calendar_todos.dart';
 import 'package:zest/features/tasks/presentation/widgets/tasks_action.dart';
@@ -106,15 +107,14 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
     );
   }
 
-  /// Shows [sheet] as a modal bottom sheet, guarding against re-entry.
+  /// Shows [sheet] as a form modal, guarding against re-entry.
   Future<void> _showCreateSheet(BuildContext ctx, Widget sheet) async {
     if (_isShowingBottomSheet) return;
     _isShowingBottomSheet = true;
-    await showModalBottomSheet(
-      enableDrag: false,
+    await NavigationHelper.showFormModal(
       context: ctx,
-      isScrollControlled: true,
-      builder: (context) => sheet,
+      enableDrag: false,
+      child: sheet,
     );
     _isShowingBottomSheet = false;
   }
@@ -144,9 +144,8 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
           popToHomeRoot(ctx);
           homeScreenKey.currentState!.changeTabIndex(allTodosTabIndex);
         } else {
-          Navigator.of(
-            ctx,
-          ).push(MaterialPageRoute(builder: (_) => const AllTodos()));
+          Navigator.of(ctx)
+              .push(MaterialPageRoute(builder: (_) => const AllTodos()));
         }
         break;
       case 'action_calendar_todos':
@@ -154,9 +153,8 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
           popToHomeRoot(ctx);
           homeScreenKey.currentState!.changeTabIndex(calendarTabIndex);
         } else {
-          Navigator.of(
-            ctx,
-          ).push(MaterialPageRoute(builder: (_) => const CalendarTodos()));
+          Navigator.of(ctx)
+              .push(MaterialPageRoute(builder: (_) => const CalendarTodos()));
         }
         break;
       case 'action_statistics':

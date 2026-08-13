@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
 import 'package:zest/core/di/provider_refs.dart';
@@ -93,7 +93,7 @@ class _NotificationNavigationListenerState
       if (!ctx.mounted || _isShowingBottomSheet) return;
 
       _isShowingBottomSheet = true;
-      await NavigationHelper.showModalSheet(
+      await NavigationHelper.showFormModal(
         context: ctx,
         child: TodosAction(
           text: 'editing'.tr,

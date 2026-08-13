@@ -1,9 +1,5 @@
-import 'package:dynamic_system_colors/dynamic_system_colors.dart';
-import 'package:flutter/material.dart';
-import 'package:material_color_utilities/material_color_utilities.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/config/settings_catalog.dart';
-
-// ignore_for_file: deprecated_member_use
 
 /// One row in the color palette picker ([id] is stored in Isar settings).
 class _PaletteEntry {
@@ -21,7 +17,7 @@ class AppColorPalette {
   /// Stable palette identifier stored in settings (e.g. `indigo`).
   final String id;
 
-  /// Tonal seed used to derive a full Material 3 [CorePalette].
+  /// Tonal seed used to derive a full Material 3 color scheme.
   final Color seedColor;
 
   /// Default palette id when none is stored.
@@ -121,8 +117,7 @@ class AppColorPalette {
   /// Material You dark color scheme derived from [seedColor].
   ColorScheme darkScheme() => _materialYouScheme(Brightness.dark);
 
-  /// Builds a harmonized [ColorScheme] for [brightness].
-  ColorScheme _materialYouScheme(Brightness brightness) => CorePalette.of(
-    seedColor.toARGB32(),
-  ).toColorScheme(brightness: brightness);
+  /// Builds a [ColorScheme] for [brightness] from [seedColor].
+  ColorScheme _materialYouScheme(Brightness brightness) =>
+      ColorScheme.fromSeed(seedColor: seedColor, brightness: brightness);
 }

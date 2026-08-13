@@ -1,11 +1,10 @@
-import 'package:dynamic_system_colors/dynamic_system_colors.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/bootstrap/app_bootstrap.dart';
 import 'package:zest/core/navigation/app_router.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/theme/app_themes_provider.dart';
+import 'package:zest/core/theme/material_ui_dynamic_color_builder.dart';
 import 'package:zest/core/theme/theme_mode_notifier.dart';
 import 'package:zest/core/bootstrap/notification_navigation_listener.dart';
 import 'package:zest/core/bootstrap/notification_sync_listener.dart';
@@ -66,7 +65,7 @@ class ZestApp extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: DynamicColorBuilder(
+      child: MaterialUiDynamicColorBuilder(
         builder: (lightColorScheme, darkColorScheme) {
           final themes = ref.watch(
             appThemesProvider(
@@ -93,16 +92,21 @@ class ZestApp extends ConsumerWidget {
                       darkTheme: themes.dark,
                       locale: locale,
                       supportedLocales: AppLocaleUtils.supportedLocales,
-                      localizationsDelegates: const [
-                        GlobalMaterialLocalizations.delegate,
-                        GlobalWidgetsLocalizations.delegate,
-                        GlobalCupertinoLocalizations.delegate,
-                      ],
+                      localizationsDelegates:
+                          GlobalMaterialLocalizations.delegates,
                       debugShowCheckedModeBanner: false,
                       title: 'Zest',
-                      builder: (context, child) => Stack(
-                        children: [?child, const SnackBarOverlayWidget()],
-                      ),
+                      builder: (context, child) {
+                        final content = Stack(
+                          children: [?child, const SnackBarOverlayWidget()],
+                        );
+                        // Required until flex_color_picker, google_fonts,
+                        // sleek_circular_slider (and similar) migrate off
+                        // package:flutter/material.dart. Safe to remove once
+                        // those packages use material_ui (or are replaced).
+                        // ignore: deprecated_member_use
+                        return MaterialUiCompatibilityBridge(child: content);
+                      },
                     ),
                   ),
                 ),

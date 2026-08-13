@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/navigation/app_router.dart';
+import 'package:zest/core/utils/responsive_utils.dart';
 
 /// Thin wrappers around common navigation and modal presentation patterns.
 class NavigationHelper {
@@ -41,7 +43,7 @@ class NavigationHelper {
   }
 
   /// Presents [child] as a dialog.
-  static Future<T?>? showAppDialog<T>({
+  static Future<T?> showAppDialog<T>({
     required BuildContext context,
     required Widget child,
     bool barrierDismissible = true,
@@ -50,4 +52,42 @@ class NavigationHelper {
     barrierDismissible: barrierDismissible,
     builder: (context) => child,
   );
+
+  /// Create/edit form presentation: bottom sheet on phone, dialog on tablet+.
+  ///
+  /// Prefer this over raw [showModalBottomSheet] for TasksAction / TodosAction /
+  /// TodosTransfer so desktop gets a centered max-width dialog.
+  static Future<T?> showFormModal<T>({
+    required BuildContext context,
+    required Widget child,
+    bool isDismissible = true,
+    bool enableDrag = true,
+    bool barrierDismissible = true,
+  }) {
+    if (ResponsiveUtils.useDialogForForms(context)) {
+      return showAppDialog<T>(
+        context: context,
+        barrierDismissible: barrierDismissible && isDismissible,
+        child: Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.spacingL,
+            vertical: AppConstants.spacingXL,
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppConstants.maxModalWidth,
+            ),
+            child: child,
+          ),
+        ),
+      );
+    }
+
+    return showModalSheet<T>(
+      context: context,
+      child: child,
+      isDismissible: isDismissible,
+      enableDrag: enableDrag,
+    );
+  }
 }

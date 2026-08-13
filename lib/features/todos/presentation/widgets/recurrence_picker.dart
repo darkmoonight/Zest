@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/services/recurrence_service.dart';
@@ -257,9 +257,8 @@ class _RecurrenceTimeDialog extends StatelessWidget {
                 initialTime: initial,
                 builder: (context, child) {
                   return MediaQuery(
-                    data: MediaQuery.of(
-                      context,
-                    ).copyWith(alwaysUse24HourFormat: use24h),
+                    data: MediaQuery.of(context)
+                        .copyWith(alwaysUse24HourFormat: use24h),
                     child: child!,
                   );
                 },

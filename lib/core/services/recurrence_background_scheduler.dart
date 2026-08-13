@@ -86,9 +86,8 @@ class RecurrenceBackgroundScheduler {
   /// Duration from [now] until the next local midnight.
   static Duration delayUntilNextLocalMidnight([DateTime? now]) {
     final n = now ?? DateTime.now();
-    final nextMidnight = RecurrenceService.calendarDay(
-      n,
-    ).add(const Duration(days: 1));
+    final nextMidnight = RecurrenceService.calendarDay(n)
+        .add(const Duration(days: 1));
     final delay = nextMidnight.difference(n);
     // Workmanager rejects zero/negative delays; keep a tiny positive delay.
     if (delay <= Duration.zero) return _minPositiveDelay;

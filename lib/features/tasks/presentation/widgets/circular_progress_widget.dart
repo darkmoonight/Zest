@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:iconsax_plus/iconsax_plus.dart' show IconsaxPlusBold;
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:zest/core/utils/progress_calculator.dart';
@@ -39,11 +39,11 @@ class CircularProgressWidget extends StatelessWidget {
   /// Builds the widget subtree.
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isMobile = ResponsiveUtils.isMobile(context);
-    final isDesktop = ResponsiveUtils.isDesktop(context);
 
     final calculatedSize =
-        size ?? (isMobile ? 54.0 : (isDesktop ? 70.0 : 62.0));
+        size ?? ResponsiveUtils.getTaskCardCircularSliderSize(context);
+    final isMobile = ResponsiveUtils.isMobile(context);
+    final isDesktop = ResponsiveUtils.isDesktop(context);
     final progress = ProgressCalculator(total: total, completed: completed);
 
     if (progress.isComplete && showCompletedIcon) {

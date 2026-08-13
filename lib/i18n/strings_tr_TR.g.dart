@@ -327,7 +327,6 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'Arşivlenenleri göster';
 	@override String get show_archived_in_statistics => 'İstatistiklerde arşivlenenleri dahil et';
 	@override String get skip => 'Geç';
-	@override String get snooze => 'Ertele';
 	@override String get snooze_action_label => '{minutes} dk ertele';
 	@override String get snooze_duration => 'Erteleme Süresi';
 	@override String get sort => 'Sırala';
@@ -693,7 +692,6 @@ extension on TranslationsTrTr {
 			'show_archived' => 'Arşivlenenleri göster',
 			'show_archived_in_statistics' => 'İstatistiklerde arşivlenenleri dahil et',
 			'skip' => 'Geç',
-			'snooze' => 'Ertele',
 			'snooze_action_label' => '{minutes} dk ertele',
 			'snooze_duration' => 'Erteleme Süresi',
 			'sort' => 'Sırala',

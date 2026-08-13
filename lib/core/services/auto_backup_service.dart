@@ -70,7 +70,7 @@ class AutoBackupService {
         return false;
       }
 
-      return performAutoBackup(isar, currentSettings);
+      return await performAutoBackup(isar, currentSettings);
     } catch (e, stackTrace) {
       if (kDebugMode) {
         debugPrint('Manual auto backup error: $e\n$stackTrace');

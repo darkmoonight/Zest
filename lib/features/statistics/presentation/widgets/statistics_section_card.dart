@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/constants/app_constants.dart';
 
 /// Card shell for statistics chart sections.
@@ -42,9 +42,8 @@ class StatisticsSectionCard extends StatelessWidget {
                 const SizedBox(width: AppConstants.spacingXS),
                 Text(
                   title,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),

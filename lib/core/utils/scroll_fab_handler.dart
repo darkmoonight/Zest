@@ -1,6 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/rendering.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/constants/app_constants.dart';
 
 /// Hides or shows the FAB based on scroll direction and active tab.

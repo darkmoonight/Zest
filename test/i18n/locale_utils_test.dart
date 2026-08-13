@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zest/i18n/locale_utils.dart';
 import 'package:zest/i18n/strings.g.dart';

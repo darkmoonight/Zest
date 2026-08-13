@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:zest/platform/quick_action_item.dart';
 
 export 'package:zest/platform/quick_action_item.dart';
@@ -72,19 +72,5 @@ abstract class PlatformFeatures {
       debugPrint('$key: $value');
     });
     debugPrint('========================');
-  }
-}
-
-/// Fallback dynamic color builder that supplies null schemes on unsupported platforms.
-class DynamicColorBuilder extends StatelessWidget {
-  /// Creates a builder invoked with null light and dark schemes.
-  const DynamicColorBuilder({super.key, required this.builder});
-
-  /// Builds UI from optional dynamic light and dark color schemes.
-  final Widget Function(ColorScheme?, ColorScheme?) builder;
-
-  @override
-  Widget build(BuildContext context) {
-    return builder(null, null);
   }
 }

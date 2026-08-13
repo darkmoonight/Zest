@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:isar_community/isar.dart';
 // Registers the native Isar core library for VM tests.
 // ignore: unused_import

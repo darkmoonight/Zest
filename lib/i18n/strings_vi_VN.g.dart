@@ -327,7 +327,6 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'Hiển thị đã lưu trữ';
 	@override String get show_archived_in_statistics => 'Tính cả đã lưu trữ trong thống kê';
 	@override String get skip => 'Bỏ qua';
-	@override String get snooze => 'Báo lại';
 	@override String get snooze_action_label => 'Báo lại sau {minutes} phút';
 	@override String get snooze_duration => 'Thời gian báo lại';
 	@override String get sort => 'Sắp xếp';
@@ -693,7 +692,6 @@ extension on TranslationsViVn {
 			'show_archived' => 'Hiển thị đã lưu trữ',
 			'show_archived_in_statistics' => 'Tính cả đã lưu trữ trong thống kê',
 			'skip' => 'Bỏ qua',
-			'snooze' => 'Báo lại',
 			'snooze_action_label' => 'Báo lại sau {minutes} phút',
 			'snooze_duration' => 'Thời gian báo lại',
 			'sort' => 'Sắp xếp',

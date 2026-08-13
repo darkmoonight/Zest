@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/constants/app_constants.dart';
 
 /// Drag handle shown at the top of modal bottom sheets on mobile.

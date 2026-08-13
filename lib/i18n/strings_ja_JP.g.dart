@@ -327,7 +327,6 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'アーカイブを表示';
 	@override String get show_archived_in_statistics => '統計にアーカイブを含める';
 	@override String get skip => 'スキップ';
-	@override String get snooze => 'スヌーズ';
 	@override String get snooze_action_label => '{minutes}分スヌーズ';
 	@override String get snooze_duration => 'スヌーズ時間';
 	@override String get sort => '並び替え';
@@ -693,7 +692,6 @@ extension on TranslationsJaJp {
 			'show_archived' => 'アーカイブを表示',
 			'show_archived_in_statistics' => '統計にアーカイブを含める',
 			'skip' => 'スキップ',
-			'snooze' => 'スヌーズ',
 			'snooze_action_label' => '{minutes}分スヌーズ',
 			'snooze_duration' => 'スヌーズ時間',
 			'sort' => '並び替え',

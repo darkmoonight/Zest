@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -396,9 +396,8 @@ class Statistics extends ConsumerWidget {
           SizedBox(width: AppConstants.spacingXS + 2),
           Flexible(
             child: Text(
-              DateFormat.MMMMEEEEd(
-                Localizations.localeOf(context).languageCode,
-              ).format(DateTime.now()),
+              DateFormat.MMMMEEEEd(Localizations.localeOf(context).languageCode)
+                  .format(DateTime.now()),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 fontSize: ResponsiveUtils.getResponsiveFontSize(
                   context,

@@ -327,7 +327,6 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'Archivierte anzeigen';
 	@override String get show_archived_in_statistics => 'Archivierte in Statistik einbeziehen';
 	@override String get skip => 'Überspringen';
-	@override String get snooze => 'Schlummern';
 	@override String get snooze_action_label => 'Schlummern {minutes} Min.';
 	@override String get snooze_duration => 'Schlummerdauer';
 	@override String get sort => 'Sortieren';
@@ -693,7 +692,6 @@ extension on TranslationsDeDe {
 			'show_archived' => 'Archivierte anzeigen',
 			'show_archived_in_statistics' => 'Archivierte in Statistik einbeziehen',
 			'skip' => 'Überspringen',
-			'snooze' => 'Schlummern',
 			'snooze_action_label' => 'Schlummern {minutes} Min.',
 			'snooze_duration' => 'Schlummerdauer',
 			'sort' => 'Sortieren',

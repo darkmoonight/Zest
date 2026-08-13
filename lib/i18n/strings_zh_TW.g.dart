@@ -327,7 +327,6 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => '顯示已封存';
 	@override String get show_archived_in_statistics => '統計包含已封存';
 	@override String get skip => '略過';
-	@override String get snooze => '稍後提醒';
 	@override String get snooze_action_label => '稍後提醒 {minutes} 分鐘';
 	@override String get snooze_duration => '稍後提醒時長';
 	@override String get sort => '排序';
@@ -693,7 +692,6 @@ extension on TranslationsZhTw {
 			'show_archived' => '顯示已封存',
 			'show_archived_in_statistics' => '統計包含已封存',
 			'skip' => '略過',
-			'snooze' => '稍後提醒',
 			'snooze_action_label' => '稍後提醒 {minutes} 分鐘',
 			'snooze_duration' => '稍後提醒時長',
 			'sort' => '排序',

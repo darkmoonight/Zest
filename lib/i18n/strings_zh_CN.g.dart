@@ -327,7 +327,6 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => '显示已归档';
 	@override String get show_archived_in_statistics => '统计包含已归档';
 	@override String get skip => '跳过';
-	@override String get snooze => '稍后提醒';
 	@override String get snooze_action_label => '稍后提醒 {minutes} 分钟';
 	@override String get snooze_duration => '稍后提醒时长';
 	@override String get sort => '排序';
@@ -693,7 +692,6 @@ extension on TranslationsZhCn {
 			'show_archived' => '显示已归档',
 			'show_archived_in_statistics' => '统计包含已归档',
 			'skip' => '跳过',
-			'snooze' => '稍后提醒',
 			'snooze_action_label' => '稍后提醒 {minutes} 分钟',
 			'snooze_duration' => '稍后提醒时长',
 			'sort' => '排序',

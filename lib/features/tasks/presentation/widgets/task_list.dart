@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:reorderables/reorderables.dart';
@@ -83,9 +83,11 @@ class _TasksListState extends ConsumerState<TasksList>
     bool isImage,
   ) {
     return Padding(
-      padding: EdgeInsets.only(top: topPadding + (isMobile ? 60 : 70)),
+      padding: EdgeInsets.only(
+        top: topPadding + ResponsiveUtils.getEmptyStateTopOffset(context),
+      ),
       child: ListEmpty(
-        img: 'assets/images/Category.png',
+        img: AppConstants.emptyStateCategoryImage,
         text: widget.archived ? 'addArchiveCategory'.tr : 'addCategory'.tr,
         subtitle: widget.archived
             ? 'addArchiveCategoryHint'.tr

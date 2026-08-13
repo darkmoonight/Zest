@@ -327,7 +327,6 @@ class TranslationsPtPt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'Mostrar arquivados';
 	@override String get show_archived_in_statistics => 'Incluir arquivadas nas estatísticas';
 	@override String get skip => 'Ignorar';
-	@override String get snooze => 'Adiar';
 	@override String get snooze_action_label => 'Adiar {minutes} min';
 	@override String get snooze_duration => 'Duração do adiamento';
 	@override String get sort => 'Ordenar';
@@ -693,7 +692,6 @@ extension on TranslationsPtPt {
 			'show_archived' => 'Mostrar arquivados',
 			'show_archived_in_statistics' => 'Incluir arquivadas nas estatísticas',
 			'skip' => 'Ignorar',
-			'snooze' => 'Adiar',
 			'snooze_action_label' => 'Adiar {minutes} min',
 			'snooze_duration' => 'Duração do adiamento',
 			'sort' => 'Ordenar',

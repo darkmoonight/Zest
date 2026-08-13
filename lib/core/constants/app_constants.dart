@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Shared layout, timing, and persisted-settings defaults for the app.
 class AppConstants {
@@ -244,6 +244,30 @@ class AppConstants {
   // Assets
   /// Empty-state illustration for task/todo lists.
   static const String emptyStateTaskImage = 'assets/images/Task.png';
+
+  /// Empty-state illustration for category lists.
+  static const String emptyStateCategoryImage = 'assets/images/Category.png';
+
+  /// Empty-state illustration for todo lists.
+  static const String emptyStateTodoImage = 'assets/images/Todo.png';
+
+  /// Empty-state illustration for calendar todo lists.
+  static const String emptyStateCalendarImage = 'assets/images/Calendar.png';
+
+  /// Extra top padding for empty list states on mobile.
+  static const double emptyStateTopOffsetMobile = 60.0;
+
+  /// Extra top padding for empty list states on tablet/desktop.
+  static const double emptyStateTopOffsetWide = 70.0;
+
+  /// Circular progress diameter on mobile task cards.
+  static const double circularProgressSizeMobile = 54.0;
+
+  /// Circular progress diameter on tablet task cards.
+  static const double circularProgressSizeTablet = 62.0;
+
+  /// Circular progress diameter on desktop task cards.
+  static const double circularProgressSizeDesktop = 70.0;
 
   /// Default color for newly created tasks.
   static const Color defaultTaskColor = Color(0xFF2196F3);

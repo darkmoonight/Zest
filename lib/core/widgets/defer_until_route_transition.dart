@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/constants/app_constants.dart';
 
 /// Defers rendering [child] until the current route transition completes.

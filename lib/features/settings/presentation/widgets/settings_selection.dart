@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/services/backup_constants.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/features/settings/presentation/widgets/selection_dialog.dart';
@@ -12,9 +12,9 @@ String formatAutoBackupPathDisplay(Settings settings) {
     return 'defaultPath'.tr;
   }
 
-  final decodedPath = Uri.decodeComponent(
-    path,
-  ).replaceAll('%3A', ':').replaceAll('%2F', '/');
+  final decodedPath = Uri.decodeComponent(path)
+      .replaceAll('%3A', ':')
+      .replaceAll('%2F', '/');
 
   if (isAndroidContentUri(decodedPath)) {
     return 'customPath'.tr;

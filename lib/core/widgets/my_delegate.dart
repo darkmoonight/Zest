@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Sliver persistent header delegate with a fixed height and custom child.
 class MyDelegate extends SliverPersistentHeaderDelegate {

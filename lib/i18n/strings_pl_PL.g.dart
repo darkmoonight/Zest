@@ -327,7 +327,6 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'Pokaż zarchiwizowane';
 	@override String get show_archived_in_statistics => 'Uwzględniaj zarchiwizowane w statystykach';
 	@override String get skip => 'Pomiń';
-	@override String get snooze => 'Odłóż';
 	@override String get snooze_action_label => 'Odłóż na {minutes} min';
 	@override String get snooze_duration => 'Czas drzemki';
 	@override String get sort => 'Sortuj';
@@ -693,7 +692,6 @@ extension on TranslationsPlPl {
 			'show_archived' => 'Pokaż zarchiwizowane',
 			'show_archived_in_statistics' => 'Uwzględniaj zarchiwizowane w statystykach',
 			'skip' => 'Pomiń',
-			'snooze' => 'Odłóż',
 			'snooze_action_label' => 'Odłóż na {minutes} min',
 			'snooze_duration' => 'Czas drzemki',
 			'sort' => 'Sortuj',

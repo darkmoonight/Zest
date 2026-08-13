@@ -327,7 +327,6 @@ class TranslationsEsEs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'Mostrar archivados';
 	@override String get show_archived_in_statistics => 'Incluir archivadas en estadísticas';
 	@override String get skip => 'Omitir';
-	@override String get snooze => 'Posponer';
 	@override String get snooze_action_label => 'Posponer {minutes} min';
 	@override String get snooze_duration => 'Duración de posposición';
 	@override String get sort => 'Ordenar';
@@ -693,7 +692,6 @@ extension on TranslationsEsEs {
 			'show_archived' => 'Mostrar archivados',
 			'show_archived_in_statistics' => 'Incluir archivadas en estadísticas',
 			'skip' => 'Omitir',
-			'snooze' => 'Posponer',
 			'snooze_action_label' => 'Posponer {minutes} min',
 			'snooze_duration' => 'Duración de posposición',
 			'sort' => 'Ordenar',

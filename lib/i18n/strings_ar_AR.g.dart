@@ -327,7 +327,6 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'عرض المؤرشف';
 	@override String get show_archived_in_statistics => 'تضمين المؤرشفة في الإحصاءات';
 	@override String get skip => 'تخطّي';
-	@override String get snooze => 'غفوة';
 	@override String get snooze_action_label => 'غفوة {minutes} دقيقة';
 	@override String get snooze_duration => 'مدة الغفوة';
 	@override String get sort => 'ترتیب';
@@ -693,7 +692,6 @@ extension on TranslationsArAr {
 			'show_archived' => 'عرض المؤرشف',
 			'show_archived_in_statistics' => 'تضمين المؤرشفة في الإحصاءات',
 			'skip' => 'تخطّي',
-			'snooze' => 'غفوة',
 			'snooze_action_label' => 'غفوة {minutes} دقيقة',
 			'snooze_duration' => 'مدة الغفوة',
 			'sort' => 'ترتیب',

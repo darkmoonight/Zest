@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_tile.dart';
 
 /// [SettingsTile] with a scaled [Switch] trailing control.

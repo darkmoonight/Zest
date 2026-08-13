@@ -327,7 +327,6 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'Afficher les archives';
 	@override String get show_archived_in_statistics => 'Inclure les archivées dans les statistiques';
 	@override String get skip => 'Ignorer';
-	@override String get snooze => 'Reporter';
 	@override String get snooze_action_label => 'Reporter de {minutes} min';
 	@override String get snooze_duration => 'Durée du rappel';
 	@override String get sort => 'Trier';
@@ -693,7 +692,6 @@ extension on TranslationsFrFr {
 			'show_archived' => 'Afficher les archives',
 			'show_archived_in_statistics' => 'Inclure les archivées dans les statistiques',
 			'skip' => 'Ignorer',
-			'snooze' => 'Reporter',
 			'snooze_action_label' => 'Reporter de {minutes} min',
 			'snooze_duration' => 'Durée du rappel',
 			'sort' => 'Trier',

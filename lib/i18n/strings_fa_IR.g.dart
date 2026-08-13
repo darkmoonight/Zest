@@ -327,7 +327,6 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get show_archived => 'نمایش بایگانی‌شده';
 	@override String get show_archived_in_statistics => 'شامل آرشیو در آمار';
 	@override String get skip => 'رد شدن';
-	@override String get snooze => 'تعویق';
 	@override String get snooze_action_label => 'تعویق {minutes} دقیقه';
 	@override String get snooze_duration => 'مدت چرت';
 	@override String get sort => 'مرتب‌سازی';
@@ -693,7 +692,6 @@ extension on TranslationsFaIr {
 			'show_archived' => 'نمایش بایگانی‌شده',
 			'show_archived_in_statistics' => 'شامل آرشیو در آمار',
 			'skip' => 'رد شدن',
-			'snooze' => 'تعویق',
 			'snooze_action_label' => 'تعویق {minutes} دقیقه',
 			'snooze_duration' => 'مدت چرت',
 			'sort' => 'مرتب‌سازی',
