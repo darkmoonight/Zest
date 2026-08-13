@@ -26,12 +26,16 @@ class NotificationShow {
   /// On Android, prefers [AndroidScheduleMode.exactAllowWhileIdle] and falls
   /// back to [AndroidScheduleMode.inexactAllowWhileIdle] when exact alarms
   /// are denied.
+  ///
+  /// Permission prompts need a live [Activity]; do not request from
+  /// pre-[runApp] bootstrap or Workmanager isolates. Call
+  /// [requestPermissions] once from the UI after the first frame instead.
   Future<void> showNotification(
     int id,
     String title,
     String body,
     DateTime? date, {
-    bool requestPermission = true,
+    bool requestPermission = false,
     String? markDoneActionText,
     String? snoozeActionText,
     db.Settings? settings,
@@ -45,7 +49,7 @@ class NotificationShow {
     if (date == null) return;
 
     if (requestPermission) {
-      await _requestNotificationPermission();
+      await requestPermissions();
     }
 
     final notificationDetails = _buildNotificationDetails(
@@ -103,8 +107,13 @@ class NotificationShow {
     );
   }
 
-  /// Requests notification permissions on the current platform.
-  Future<void> _requestNotificationPermission() async {
+  /// Requests notification (and Android exact-alarm) permissions.
+  ///
+  /// Must run with an attached Activity (after the first frame). Safe to call
+  /// repeatedly; failures are logged and ignored.
+  Future<void> requestPermissions() async {
+    if (_plugin == null) return;
+
     if (defaultTargetPlatform == TargetPlatform.android) {
       final platform = _plugin!
           .resolvePlatformSpecificImplementation<

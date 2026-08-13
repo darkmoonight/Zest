@@ -1041,10 +1041,10 @@ packages:
     dependency: "direct main"
     description:
       name: restart_app
-      sha256: "30c592fb92ed490f0aa5eb8a2709889eeb9561ef0bab499c30331391bf728edb"
+      sha256: "400dd401b77b599e2defef55fd4c22af3ff80af48616a82f01c2a07070e3e368"
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.0"
+    version: "1.8.3"
   riverpod:
     dependency: transitive
     description:

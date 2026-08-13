@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
+import 'package:zest/core/utils/notification.dart';
 import 'package:zest/features/tasks/application/tasks_notifier.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
+import 'package:zest/platform/platform_features.dart'
+    if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
 
 /// Reloads todo/task state after notification actions and on app resume.
 class NotificationSyncListener extends ConsumerStatefulWidget {
@@ -27,6 +30,11 @@ class _NotificationSyncListenerState
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     NotificationHandlerBridge.onForegroundActionCompleted = _reloadFromDatabase;
+    // Android permission APIs need MainActivity; schedule after first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!PlatformFeatures.supportsNotifications) return;
+      unawaited(NotificationShow().requestPermissions());
+    });
   }
 
   @override

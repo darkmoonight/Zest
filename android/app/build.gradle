@@ -36,6 +36,12 @@ android {
         includeInBundle = false
     }
 
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     defaultConfig {
         applicationId = "com.yoshi.todark"
         minSdkVersion = flutter.minSdkVersion

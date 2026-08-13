@@ -43,7 +43,7 @@ class FakeNotificationShow extends NotificationShow {
     String title,
     String body,
     DateTime? date, {
-    bool requestPermission = true,
+    bool requestPermission = false,
     String? markDoneActionText,
     String? snoozeActionText,
     Settings? settings,
