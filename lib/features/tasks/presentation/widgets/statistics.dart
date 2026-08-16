@@ -10,7 +10,6 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/icon_container.dart';
 import 'package:zest/features/tasks/presentation/widgets/stat_chip.dart';
 
-/// Widget that statistics.
 class Statistics extends ConsumerWidget {
   /// Creates a [Statistics].
   const Statistics({
@@ -20,10 +19,10 @@ class Statistics extends ConsumerWidget {
     required this.percent,
   });
 
-  /// The created todos.
+  /// The created items.
   final int createdTodos;
 
-  /// The completed todos.
+  /// The completed items.
   final int completedTodos;
 
   /// The percent.

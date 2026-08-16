@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:zest/core/constants/app_constants.dart';
 
-/// Formats and parses todo due dates using the user's 12/24-hour preference.
+/// Formats and parses item due dates using the user's 12/24-hour preference.
 class DateTimeFormatHelper {
   /// Private constructor; use static methods only.
   DateTimeFormatHelper._();

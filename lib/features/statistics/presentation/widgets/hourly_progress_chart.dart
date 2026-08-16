@@ -8,7 +8,6 @@ import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/features/statistics/presentation/widgets/statistics_section_card.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Widget that hourly progress chart.
 class HourlyProgressChart extends ConsumerWidget {
   /// Creates a [HourlyProgressChart].
   const HourlyProgressChart({super.key, required this.hourlyData});

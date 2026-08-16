@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/navigation/home_navigation.dart';
 import 'package:zest/core/navigation/home_screen_key.dart';
 import 'package:zest/core/navigation/home_tabs.dart';
@@ -49,13 +50,23 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
     });
   }
 
-  /// Rebuilds quick-action labels when locale changes.
+  /// Rebuilds quick-action labels when locale changes; opens after onboarding.
   @override
   Widget build(BuildContext context) {
     ref.listen(appSettingsProvider.select((s) => s.locale), (_, _) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _setQuickActionsItems();
       });
+    });
+    ref.listen<bool>(settingsProvider.select((s) => s.onboard), (
+      previous,
+      next,
+    ) {
+      if (next && previous != true) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _tryHandlePending(),
+        );
+      }
     });
     return widget.child;
   }
@@ -97,12 +108,18 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
   void _tryHandlePending() {
     if (_pendingShortcut == null) return;
 
+    if (!ref.read(settingsProvider).onboard) {
+      return;
+    }
+
+    final shortcut = _pendingShortcut!;
     whenHomeContextReady(
       fallback: context,
+      shouldContinue: () => _pendingShortcut == shortcut,
       action: (ctx) {
-        final type = _pendingShortcut!;
+        if (_pendingShortcut != shortcut) return;
         _pendingShortcut = null;
-        _handleShortcut(type, ctx);
+        _handleShortcut(shortcut, ctx);
       },
     );
   }

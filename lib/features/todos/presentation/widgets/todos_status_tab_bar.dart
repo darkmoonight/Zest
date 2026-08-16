@@ -7,7 +7,7 @@ import 'package:zest/i18n/tr.dart';
 
 /// Status tab bar sliver with optional archived toggle in [SortMenu].
 class TodosStatusTabBar extends StatelessWidget {
-  /// Creates a pinned status tab bar for todo screens.
+  /// Creates a pinned status tab bar for item screens.
   const TodosStatusTabBar({
     super.key,
     required this.tabController,

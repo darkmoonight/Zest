@@ -83,7 +83,6 @@ class SelectionDialog<T> extends StatefulWidget {
   State<SelectionDialog<T>> createState() => _SelectionDialogState<T>();
 }
 
-/// Widget that selection dialog state.
 class _SelectionDialogState<T> extends State<SelectionDialog<T>> {
   /// The filtered items.
   late List<T> _filteredItems;

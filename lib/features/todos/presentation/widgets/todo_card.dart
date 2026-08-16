@@ -15,7 +15,7 @@ import 'package:zest/core/widgets/metadata_chip.dart';
 import 'package:zest/core/widgets/selectable_card_shell.dart';
 import 'package:zest/features/todos/presentation/widgets/todo_status_change_dialog.dart';
 
-/// Card widget displaying a single todo with status, tags, and actions.
+/// Card widget displaying a single item with status, tags, and actions.
 class TodoCard extends ConsumerStatefulWidget {
   /// Creates a [TodoCard].
   const TodoCard({
@@ -30,19 +30,19 @@ class TodoCard extends ConsumerStatefulWidget {
     required this.onTap,
   });
 
-  /// The todo.
+  /// The item.
   final Todos todo;
 
-  /// The all todos.
+  /// The all items.
   final bool allTodos;
 
   /// The calendar.
   final bool calendar;
 
-  /// The created todos.
+  /// The created items.
   final int createdTodos;
 
-  /// The completed todos.
+  /// The completed items.
   final int completedTodos;
 
   /// The is selected.
@@ -64,6 +64,9 @@ class _TodoCardState extends ConsumerState<TodoCard>
     with SingleTickerProviderStateMixin, CardTapScaleMixin {
   /// Tapped right side.
   bool _tappedRightSide = false;
+
+  /// Generation token so delayed status persists ignore superseded toggles.
+  int _statusWriteGen = 0;
 
   @override
   void initState() {
@@ -246,12 +249,11 @@ class _TodoCardState extends ConsumerState<TodoCard>
 
   /// Handle checkbox change.
   void _handleCheckboxChange(bool val) {
-    Future.delayed(
-      AppConstants.shortAnimation,
-      () => ref
-          .read(todosNotifierProvider.notifier)
-          .updateTodoStatus(widget.todo),
-    );
+    final gen = ++_statusWriteGen;
+    Future.delayed(AppConstants.shortAnimation, () {
+      if (!mounted || gen != _statusWriteGen) return;
+      ref.read(todosNotifierProvider.notifier).updateTodoStatus(widget.todo);
+    });
   }
 
   /// Show status menu.
@@ -280,12 +282,11 @@ class _TodoCardState extends ConsumerState<TodoCard>
           : null;
     });
 
-    Future.delayed(
-      AppConstants.shortAnimation,
-      () => ref
-          .read(todosNotifierProvider.notifier)
-          .updateTodoStatus(widget.todo),
-    );
+    final gen = ++_statusWriteGen;
+    Future.delayed(AppConstants.shortAnimation, () {
+      if (!mounted || gen != _statusWriteGen) return;
+      ref.read(todosNotifierProvider.notifier).updateTodoStatus(widget.todo);
+    });
   }
 
   /// Handle bulk completion.
@@ -295,12 +296,13 @@ class _TodoCardState extends ConsumerState<TodoCard>
       widget.todo.todoCompletionTime = DateTime.now();
     });
 
-    Future.delayed(
-      AppConstants.shortAnimation,
-      () => ref
+    final gen = ++_statusWriteGen;
+    Future.delayed(AppConstants.shortAnimation, () {
+      if (!mounted || gen != _statusWriteGen) return;
+      ref
           .read(todosNotifierProvider.notifier)
-          .updateTodoStatusWithSubtasks(widget.todo, TodoStatus.done),
-    );
+          .updateTodoStatusWithSubtasks(widget.todo, TodoStatus.done);
+    });
   }
 
   /// Handle bulk cancellation.
@@ -310,20 +312,21 @@ class _TodoCardState extends ConsumerState<TodoCard>
       widget.todo.todoCompletionTime = DateTime.now();
     });
 
-    Future.delayed(
-      AppConstants.shortAnimation,
-      () => ref
+    final gen = ++_statusWriteGen;
+    Future.delayed(AppConstants.shortAnimation, () {
+      if (!mounted || gen != _statusWriteGen) return;
+      ref
           .read(todosNotifierProvider.notifier)
-          .updateTodoStatusWithSubtasks(widget.todo, TodoStatus.cancelled),
-    );
+          .updateTodoStatusWithSubtasks(widget.todo, TodoStatus.cancelled);
+    });
   }
 
-  /// Whether this todo belongs to an archived category in list views.
+  /// Whether this item belongs to an archived category in list views.
   bool get _isFromArchivedCategory =>
       (widget.allTodos || widget.calendar) &&
       widget.todo.task.value?.archive == true;
 
-  /// Builds the todo name widget.
+  /// Builds the item name widget.
   Widget _buildTodoName(ColorScheme colorScheme) {
     final isCancelled = widget.todo.status == TodoStatus.cancelled;
     final isDone = widget.todo.status == TodoStatus.done;
@@ -365,7 +368,7 @@ class _TodoCardState extends ConsumerState<TodoCard>
     );
   }
 
-  /// Builds the todo description widget.
+  /// Builds the item description widget.
   Widget _buildTodoDescription(ColorScheme colorScheme) {
     if (widget.todo.description.isEmpty) {
       return const SizedBox.shrink();

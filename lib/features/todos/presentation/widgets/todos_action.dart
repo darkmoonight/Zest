@@ -28,7 +28,7 @@ import 'package:zest/features/todos/presentation/widgets/due_datetime_picker.dar
 import 'package:zest/features/todos/presentation/widgets/recurrence_picker.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Bottom sheet form for creating or editing a todo.
+/// Bottom sheet form for creating or editing a list item.
 class TodosAction extends ConsumerStatefulWidget {
   /// Creates a [TodosAction].
   const TodosAction({
@@ -46,7 +46,7 @@ class TodosAction extends ConsumerStatefulWidget {
   /// The task.
   final Tasks? task;
 
-  /// The todo.
+  /// The item.
   final Todos? todo;
 
   /// The edit.
@@ -98,19 +98,19 @@ class _TodosActionState extends ConsumerState<TodosAction>
   /// The selected task.
   Tasks? _selectedTask;
 
-  /// Todo pinned.
+  /// Item pinned.
   bool _todoPinned = false;
 
-  /// Todo priority.
+  /// Item priority.
   Priority _todoPriority = Priority.none;
 
-  /// Todo recurrence.
+  /// Item recurrence.
   RecurrenceFrequency _todoRecurrence = RecurrenceFrequency.none;
 
   /// Weekdays for weekly recurrence.
   List<int> _todoRecurrenceWeekdays = [];
 
-  /// Clone vs reopen for this todo.
+  /// Clone vs reopen for this item.
   RecurrenceMode _todoRecurrenceMode = RecurrenceMode.clone;
 
   /// Fixed reminder minutes from midnight for recurrence.
@@ -128,7 +128,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
   /// Tag options count.
   int _tagOptionsCount = 0;
 
-  /// All tags collected from existing todos.
+  /// All tags collected from existing items.
   List<String> _allKnownTags = [];
 
   /// Tags matching the current query, excluding already selected ones.
@@ -165,9 +165,9 @@ class _TodosActionState extends ConsumerState<TodosAction>
     });
   }
 
-  /// Prefills due from a category habit reminder without copying recurrence onto the todo.
+  /// Prefills due from a category habit reminder without copying recurrence onto the item.
   ///
-  /// Category recurrence stays on [task]; todos keep `recurrence: none` so midnight
+  /// Category recurrence stays on [task]; items keep `recurrence: none` so midnight
   /// reopen and notifications use the category rule.
   void _applyCategoryHabitDue(Tasks task) {
     if (widget.edit) return;
@@ -238,7 +238,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
       _todoRecurrenceMode = widget.todo!.recurrenceMode;
       _todoRecurrenceMinuteOfDay = widget.todo!.recurrenceMinuteOfDay;
     } else if (!widget.edit && widget.task != null) {
-      // Keep todo recurrence as none; category habit owns the rule.
+      // Keep item recurrence as none; category habit owns the rule.
       _selectedTask = widget.task;
       _applyCategoryHabitDue(widget.task!);
     }
@@ -427,7 +427,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
     NavigationHelper.back(context);
   }
 
-  /// Save todo and return whether it succeeded.
+  /// Save item and return whether it succeeded.
   Future<bool> _saveTodo() async {
     if (widget.edit) {
       return _updateTodo();
@@ -449,7 +449,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
     return task;
   }
 
-  /// Update todo.
+  /// Update item.
   Future<bool> _updateTodo() async {
     final task = await _requireCategory(_selectedTask);
     if (task == null) return false;
@@ -472,7 +472,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
     return true;
   }
 
-  /// Create todo.
+  /// Create item.
   Future<bool> _createTodo() async {
     if (widget.category) {
       final task = await _requireCategory(_selectedTask);
@@ -834,7 +834,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
     );
   }
 
-  /// Loads all unique tags from persisted todos.
+  /// Loads all unique tags from persisted items.
   Future<void> _loadAllTags() async {
     final allTodos = await ref.read(isarProvider).todos.where().findAll();
     final tagsSet = <String>{};
@@ -1260,7 +1260,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
   /// Opens the classical due date/time picker (Material date + time).
   Future<void> _showDateTimePicker() async {
     final appSettings = ref.read(appSettingsProvider);
-    final use24h = appSettings.timeformat != '12';
+    final use24h = !DateTimeFormatHelper.is12HourFormat(appSettings.timeformat);
     final current = DateTimeFormatHelper.parseDateTime(
       _timeController.text,
       timeformat: appSettings.timeformat,
@@ -1389,7 +1389,9 @@ class _TodosActionState extends ConsumerState<TodosAction>
 
   /// Builds the recurrence button widget.
   Widget _buildRecurrenceButton(BuildContext context) {
-    final use24h = ref.watch(appSettingsProvider).timeformat != '12';
+    final use24h = !DateTimeFormatHelper.is12HourFormat(
+      ref.watch(appSettingsProvider).timeformat,
+    );
     return RecurrenceChipButton(
       frequency: _todoRecurrence,
       minuteOfDay: _todoRecurrenceMinuteOfDay,
@@ -1494,7 +1496,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
   }
 }
 
-/// Tracks dirty state for the todo create/edit form.
+/// Tracks dirty state for the item create/edit form.
 class _EditingController {
   _EditingController(
     this._initialTitle,
@@ -1552,12 +1554,12 @@ class _EditingController {
   );
   final ValueNotifier<List<String>> tags = ValueNotifier<List<String>>([]);
 
-  /// Recurrence dirty fields shared with the todo repeat picker.
+  /// Recurrence dirty fields shared with the item repeat picker.
   final RecurrenceFormFields recurrence;
 
   final FormDirtyTracker _dirtyTracker = FormDirtyTracker();
 
-  /// Whether the todo form has unsaved changes.
+  /// Whether the item form has unsaved changes.
   ValueListenable<bool> get canCompose => _dirtyTracker.canCompose;
 
   bool _hasChanges() =>

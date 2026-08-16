@@ -31,9 +31,9 @@ DarwinInitializationSettings buildDarwinInitializationSettings({
   final snoozeLabel = snoozeActionLabel(snoozeMinutes);
 
   return DarwinInitializationSettings(
-    requestAlertPermission: true,
-    requestBadgePermission: true,
-    requestSoundPermission: true,
+    requestAlertPermission: false,
+    requestBadgePermission: false,
+    requestSoundPermission: false,
     notificationCategories: [
       DarwinNotificationCategory(
         NotificationShow.todoCategoryId,
@@ -63,7 +63,9 @@ Future<void> initializeNotificationsPlugin({
 
   final plugin = NotificationPlugin.getOrCreate();
 
-  const androidSettings = AndroidInitializationSettings('ic_notification');
+  const androidSettings = AndroidInitializationSettings(
+    AppConstants.androidNotificationIcon,
+  );
   final iosSettings = buildDarwinInitializationSettings(
     snoozeMinutes: snoozeMinutes,
   );
@@ -86,6 +88,7 @@ Future<void> initializeNotificationsPlugin({
           onDidReceiveBackgroundNotificationResponse,
     );
   } catch (e) {
+    NotificationPlugin.clear();
     debugPrint('Error initializing notifications: $e');
   }
 }

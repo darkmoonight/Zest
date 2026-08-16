@@ -27,7 +27,6 @@ class SettingsAppearanceSection extends ConsumerStatefulWidget {
       _SettingsAppearanceSectionState();
 }
 
-/// Widget that settings appearance section state.
 class _SettingsAppearanceSectionState
     extends SettingsSectionConsumerState<SettingsAppearanceSection> {
   @override

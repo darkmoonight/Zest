@@ -5,7 +5,7 @@ import 'package:zest/features/statistics/presentation/models/statistics_data.dar
 import 'package:zest/features/tasks/application/tasks_notifier.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
 
-/// Recomputes statistics when todos, tasks, settings, or the database change.
+/// Recomputes statistics when items, tasks, settings, or the database change.
 final statisticsProvider = FutureProvider<StatisticsData>((ref) async {
   ref.watch(todosNotifierProvider);
   ref.watch(tasksNotifierProvider);

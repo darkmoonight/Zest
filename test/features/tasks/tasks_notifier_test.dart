@@ -65,7 +65,25 @@ void main() {
 
     final state = container.read(tasksNotifierProvider);
     expect(state.selectedTask.length, 2);
+    expect(state.selectedTaskIds.length, 2);
     expect(tasksNotifier.areAllTasksSelected(archived: false), isTrue);
+  });
+
+  test('multi-selection survives reload by id', () async {
+    final task = await createTestTask(isar, title: 'Keep');
+    await createTestTask(isar, title: 'Other');
+    final tasksNotifier = await notifier();
+
+    tasksNotifier.toggleMultiSelectionTask();
+    tasksNotifier.doMultiSelectionTask(task);
+    final selectedId = task.id;
+
+    await tasksNotifier.reloadTasks();
+
+    final state = container.read(tasksNotifierProvider);
+    expect(state.selectedTaskIds, {selectedId});
+    expect(state.selectedTask.map((t) => t.id), [selectedId]);
+    expect(state.isMultiSelectionTask, isTrue);
   });
 
   test('reorderTasks persists new order', () async {

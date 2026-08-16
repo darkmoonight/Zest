@@ -61,7 +61,6 @@ class OnBoarding extends ConsumerStatefulWidget {
   ConsumerState<OnBoarding> createState() => _OnBoardingState();
 }
 
-/// Widget that on boarding state.
 class _OnBoardingState extends ConsumerState<OnBoarding> {
   /// The page controller.
   late final PageController _pageController;

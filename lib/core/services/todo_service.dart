@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/core/utils/show_snack_bar.dart';
@@ -8,7 +9,7 @@ import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Todo CRUD, status changes, moves, and notification scheduling.
+/// Item CRUD, status changes, moves, and notification scheduling.
 class TodoService {
   /// Creates a service with repository, notifications, and locale formatting.
   TodoService({
@@ -19,10 +20,10 @@ class TodoService {
     this._languageCode = AppConstants.defaultLanguageCode,
   });
 
-  /// Persistence layer for todo entities.
+  /// Persistence layer for item entities.
   final TodoRepository _todoRepo;
 
-  /// Schedules and cancels todo reminder notifications.
+  /// Schedules and cancels item reminder notifications.
   final NotificationService _notificationService;
 
   /// Optional one-way export of deadlines to the device calendar.
@@ -36,7 +37,7 @@ class TodoService {
 
   // ==================== CREATE ====================
 
-  /// Creates a todo under [task] and schedules a reminder when a due time is set.
+  /// Creates a list item under [task] and schedules a reminder when a due time is set.
   Future<Todos> createTodo({
     required Tasks task,
     required String title,
@@ -87,7 +88,7 @@ class TodoService {
 
   // ==================== UPDATE ====================
 
-  /// Updates todo fields and reschedules or cancels its reminder.
+  /// Updates item fields and reschedules or cancels its reminder.
   Future<void> updateTodo({
     required Todos todo,
     required Tasks task,
@@ -135,7 +136,7 @@ class TodoService {
     showSnackBar('updateTodo'.tr);
   }
 
-  /// Persists [todo] status and syncs its notification schedule.
+  /// Persists [item] status and syncs its notification schedule.
   ///
   /// Recurring clones / reopens happen at local midnight via
   /// [RecurrenceCoordinator.runMidnightRollover], not on mark-done.
@@ -154,7 +155,7 @@ class TodoService {
     await _calendarSync?.ensureSynced(todo);
   }
 
-  /// Marks [todo] done and cancels its reminder (notification action / handler).
+  /// Marks [item] done and cancels its reminder (notification action / handler).
   Future<void> markTodoAsDone(Todos todo) async {
     if (todo.status == TodoStatus.done) return;
 
@@ -163,7 +164,7 @@ class TodoService {
     await updateTodoStatus(todo);
   }
 
-  /// Snoozes [todo] by [settings.snoozeDuration] and reschedules its reminder.
+  /// Snoozes [item] by [settings.snoozeDuration] and reschedules its reminder.
   Future<void> snoozeTodo(Todos todo, Settings settings) async {
     final newTime = DateTime.now().add(
       Duration(minutes: settings.snoozeDuration),
@@ -174,7 +175,7 @@ class TodoService {
     await _calendarSync?.ensureSynced(todo);
   }
 
-  /// Sets [todo] and all subtasks to [status] and updates notifications.
+  /// Sets [item] and all subtasks to [status] and updates notifications.
   Future<void> updateStatusWithSubtasks(Todos todo, TodoStatus status) async {
     await _todoRepo.updateStatusWithSubtasks(parentTodo: todo, status: status);
 
@@ -203,7 +204,7 @@ class TodoService {
 
   // ==================== MOVE ====================
 
-  /// Moves [todos] and their subtrees to [task].
+  /// Moves [items] and their subtrees to [task].
   Future<void> moveTodos({
     required List<Todos> todos,
     required Tasks task,
@@ -224,7 +225,11 @@ class TodoService {
     showSnackBar('updateTodo'.tr);
   }
 
-  /// Reparents [rootTodos] and their subtrees under [newParent].
+  /// Reparents [rootTodos] under [newParent], preserving nested subtrees.
+  ///
+  /// Only selected roots (not their descendants) are linked to [newParent].
+  /// Descendant parent links inside each moved tree are kept. Rejects moves
+  /// that would create a cycle ([newParent] inside a moved subtree).
   Future<void> moveTodosToParent({
     required List<Todos> rootTodos,
     required Todos? newParent,
@@ -232,20 +237,41 @@ class TodoService {
     if (rootTodos.isEmpty) return;
 
     final rootTodosCopy = List<Todos>.from(rootTodos);
-    final allIds = <int>{};
-    final newTask = newParent?.task.value;
-
+    final subtreeByRoot = <int, Set<int>>{};
     for (final root in rootTodosCopy) {
-      final subtreeIds = await _collectSubtreeIds(root);
-      allIds.addAll(subtreeIds);
+      subtreeByRoot[root.id] = await _collectSubtreeIds(root);
+    }
+
+    // If both an ancestor and descendant are selected, only move the ancestor.
+    final effectiveRoots = rootTodosCopy.where((root) {
+      return !rootTodosCopy.any(
+        (other) =>
+            other.id != root.id &&
+            (subtreeByRoot[other.id]?.contains(root.id) ?? false),
+      );
+    }).toList();
+
+    final rootIds = <int>{};
+    final allIds = <int>{};
+    for (final root in effectiveRoots) {
+      rootIds.add(root.id);
+      allIds.addAll(subtreeByRoot[root.id] ?? {root.id});
     }
 
     if (allIds.isEmpty) return;
 
+    if (newParent != null && allIds.contains(newParent.id)) {
+      debugPrint(
+        'moveTodosToParent rejected: newParent ${newParent.id} is in moved subtree',
+      );
+      return;
+    }
+
     await _todoRepo.moveToParent(
-      todoIds: allIds,
+      rootIds: rootIds,
+      subtreeIds: allIds,
       newParent: newParent,
-      newTask: newTask,
+      newTask: newParent?.task.value,
     );
 
     showSnackBar('updateTodo'.tr);
@@ -253,7 +279,7 @@ class TodoService {
 
   // ==================== DELETE ====================
 
-  /// Deletes [todos], their subtrees, and associated notifications.
+  /// Deletes [items], their subtrees, and associated notifications.
   Future<void> deleteTodos(List<Todos> todos) async {
     if (todos.isEmpty) return;
 
@@ -281,7 +307,7 @@ class TodoService {
 
   // ==================== HELPERS ====================
 
-  /// Resolves due from [timeString], todo recurrence, or category habit reminder.
+  /// Resolves due from [timeString], item recurrence, or category habit reminder.
   ///
   /// Past recurring reminder times advance to the next valid occurrence
   /// instead of firing immediately.
@@ -311,7 +337,7 @@ class TodoService {
     languageCode: _languageCode,
   );
 
-  /// Collects ids for [root] and every descendant todo.
+  /// Collects ids for [root] and every descendant item.
   Future<Set<int>> _collectSubtreeIds(Todos root) async {
     final ids = <int>{};
     final stack = <Todos>[root];
@@ -340,14 +366,14 @@ class TodoService {
 
   // ==================== COUNTERS ====================
 
-  /// Counts root-level todos belonging to [task].
+  /// Counts root-level items belonging to [task].
   int countForTask(Tasks task, List<Todos> allTodos) {
     return allTodos
         .where((t) => t.task.value?.id == task.id && t.parent.value == null)
         .length;
   }
 
-  /// Counts completed root-level todos belonging to [task].
+  /// Counts completed root-level items belonging to [task].
   int countCompletedForTask(Tasks task, List<Todos> allTodos) {
     return allTodos
         .where(
@@ -359,14 +385,14 @@ class TodoService {
         .length;
   }
 
-  /// Counts root-level todos in non-archived tasks.
+  /// Counts root-level items in non-archived tasks.
   int countAll(List<Todos> allTodos) {
     return allTodos
         .where((t) => t.task.value?.archive == false && t.parent.value == null)
         .length;
   }
 
-  /// Counts completed root-level todos in non-archived tasks.
+  /// Counts completed root-level items in non-archived tasks.
   int countAllCompleted(List<Todos> allTodos) {
     return allTodos
         .where(
@@ -378,7 +404,7 @@ class TodoService {
         .length;
   }
 
-  /// Counts active root todos due on [date].
+  /// Counts active root items due on [date].
   int countForCalendar(
     DateTime date,
     List<Todos> allTodos, {
@@ -396,12 +422,12 @@ class TodoService {
     }).length;
   }
 
-  /// Counts direct child todos of [parent].
+  /// Counts direct child items of [parent].
   int countForParent(Todos parent, List<Todos> allTodos) {
     return allTodos.where((t) => t.parent.value?.id == parent.id).length;
   }
 
-  /// Counts completed direct child todos of [parent].
+  /// Counts completed direct child items of [parent].
   int countCompletedForParent(Todos parent, List<Todos> allTodos) {
     return allTodos
         .where((t) => t.parent.value?.id == parent.id && t.status.isCompleted)
@@ -460,16 +486,10 @@ class TodoService {
         if (excludeArchivedCategories && todo.task.value?.archive != false) {
           return false;
         }
+        // Match [countForCalendar]: root items only, inclusive calendar day.
+        if (todo.parent.value != null) return false;
         if (time == null) return false;
-
-        final startOfDay = DateTime(
-          selectedDay.year,
-          selectedDay.month,
-          selectedDay.day,
-        );
-        final endOfDay = startOfDay.add(const Duration(days: 1));
-
-        return time.isAfter(startOfDay) && time.isBefore(endOfDay);
+        return _isSameDay(selectedDay, time);
       } else if (task != null) {
         return todo.task.value?.id == task.id && todo.parent.value == null;
       } else if (parent != null) {

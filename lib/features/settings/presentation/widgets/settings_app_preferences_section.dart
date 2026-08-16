@@ -31,7 +31,6 @@ class SettingsAppPreferencesSection extends ConsumerStatefulWidget {
       _SettingsAppPreferencesSectionState();
 }
 
-/// Widget that settings app preferences section state.
 class _SettingsAppPreferencesSectionState
     extends SettingsSectionConsumerState<SettingsAppPreferencesSection> {
   String? _calendarLabel;
@@ -195,6 +194,9 @@ class _SettingsAppPreferencesSectionState
 
   Future<void> _onDeviceCalendarSyncChanged(bool enabled) async {
     if (!enabled) {
+      final sync = ref.read(deviceCalendarSyncServiceProvider);
+      await sync.removeAllSynced();
+      if (!mounted) return;
       actions.saveSettingsOptimistic(
         mutate: (s) {
           s.deviceCalendarSyncEnabled = false;
@@ -219,6 +221,7 @@ class _SettingsAppPreferencesSectionState
       },
     );
     final calendarId = await sync.ensureWritableCalendarId();
+    await sync.backfillAllEligible();
     if (!mounted) return;
     await _resolveCalendarLabel(calendarId);
   }
@@ -243,12 +246,16 @@ class _SettingsAppPreferencesSectionState
       items: items,
       currentValue: currentId,
       itemBuilder: (id) => labels[id] ?? id ?? 'deviceCalendarDefault'.tr,
-      onSelected: (id) {
+      onSelected: (id) async {
         setState(() {
           _resolvedCalendarId = id;
           _calendarLabel = id == null ? null : labels[id];
         });
+        final previousId = ref.read(settingsProvider).deviceCalendarId;
         actions.saveSettingsOptimistic(mutate: (s) => s.deviceCalendarId = id);
+        if (previousId != id) {
+          await sync.recreateAllSyncedEvents();
+        }
       },
     );
   }

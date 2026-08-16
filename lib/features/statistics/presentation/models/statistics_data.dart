@@ -1,9 +1,9 @@
 /// Data model holding statistics values.
 class StatisticsData {
-  /// The total todos.
+  /// The total items.
   final int totalTodos;
 
-  /// The completed todos.
+  /// The completed items.
   final int completedTodos;
 
   /// The completion rate.

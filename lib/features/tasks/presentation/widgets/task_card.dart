@@ -30,10 +30,10 @@ class TaskCard extends ConsumerStatefulWidget {
   /// The task.
   final Tasks task;
 
-  /// The created todos.
+  /// The created items.
   final int createdTodos;
 
-  /// The completed todos.
+  /// The completed items.
   final int completedTodos;
 
   /// The percent.
@@ -52,7 +52,6 @@ class TaskCard extends ConsumerStatefulWidget {
   ConsumerState<TaskCard> createState() => _TaskCardState();
 }
 
-/// Widget that task card state.
 class _TaskCardState extends ConsumerState<TaskCard>
     with SingleTickerProviderStateMixin, CardTapScaleMixin {
   @override

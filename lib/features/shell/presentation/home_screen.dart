@@ -16,7 +16,7 @@ import 'package:zest/features/todos/presentation/view/calendar_todos.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_action.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Widget that home screen.
+/// Home bottom navigation shell.
 class HomeScreen extends ConsumerStatefulWidget {
   /// Creates a [HomeScreen].
   const HomeScreen({super.key});
@@ -26,7 +26,6 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => HomeScreenState();
 }
 
-/// Widget that home screen state.
 class HomeScreenState extends ConsumerState<HomeScreen>
     with SingleTickerProviderStateMixin {
   /// The fab animation controller.

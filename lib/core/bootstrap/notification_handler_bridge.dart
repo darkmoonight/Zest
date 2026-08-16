@@ -1,12 +1,12 @@
 /// Callbacks invoked after notification actions handled in the main isolate.
 class NotificationHandlerBridge {
-  /// Reloads in-memory todo/task state after a foreground notification action.
+  /// Reloads in-memory item/task state after a foreground notification action.
   static Future<void> Function()? onForegroundActionCompleted;
 
-  /// Opens the todo edit sheet when the user taps a notification body.
+  /// Opens the item edit sheet when the user taps a notification body.
   static void Function(int todoId)? onTodoOpenRequested;
 
-  /// Todo id deferred until the widget tree can navigate (cold start / resume).
+  /// Item id deferred until the widget tree can navigate (cold start / resume).
   static int? pendingTodoId;
 
   /// Notifies the app that a foreground notification action changed data.
@@ -14,7 +14,7 @@ class NotificationHandlerBridge {
     await onForegroundActionCompleted?.call();
   }
 
-  /// Queues navigation to the todo with [todoId].
+  /// Queues navigation to the item with [todoId].
   static void requestTodoOpen(int todoId) {
     pendingTodoId = todoId;
     onTodoOpenRequested?.call(todoId);

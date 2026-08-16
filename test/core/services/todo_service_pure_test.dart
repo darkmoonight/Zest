@@ -143,6 +143,29 @@ void main() {
       expect(filtered.map((t) => t.id), [4, 5]);
     });
 
+    test('includes midnight dues and excludes subtasks for selected day', () {
+      final midnight = buildTodo(
+        id: 6,
+        task: task,
+        name: 'Midnight',
+        todoCompletedTime: DateTime(2026, 6, 23),
+      );
+      final subtask = buildTodo(
+        id: 7,
+        task: task,
+        name: 'Subtask due',
+        parent: parent,
+        todoCompletedTime: DateTime(2026, 6, 23, 12),
+      );
+      final filtered = service.filterTodos(
+        allTodos: [...allTodos, midnight, subtask],
+        statusFilter: null,
+        selectedDay: DateTime(2026, 6, 23),
+        excludeArchivedCategories: true,
+      );
+      expect(filtered.map((t) => t.id), [5, 6]);
+    });
+
     test('filters by status and search query', () {
       final filtered = service.filterTodos(
         allTodos: allTodos,

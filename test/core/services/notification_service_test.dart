@@ -84,6 +84,42 @@ void main() {
       expect(scheduled.isBefore(after), isTrue);
     });
 
+    test(
+      'skips non-recurring past due when firePastDueImmediately is false',
+      () async {
+        final past = DateTime.now().subtract(const Duration(hours: 1));
+        final todo = buildTodo(
+          id: 8,
+          task: Tasks(id: 1, title: 'T', taskColor: 1),
+          todoCompletedTime: past,
+        );
+
+        final ok = await service.scheduleForTodo(
+          todo,
+          firePastDueImmediately: false,
+        );
+
+        expect(ok, isTrue);
+        expect(fake.shown, isEmpty);
+      },
+    );
+
+    test('advances past-due daily clone instead of now+1s', () async {
+      final past = DateTime.now().subtract(const Duration(hours: 1));
+      final todo = buildTodo(
+        id: 9,
+        task: Tasks(id: 1, title: 'T', taskColor: 1),
+        todoCompletedTime: past,
+      );
+      todo.recurrence = RecurrenceFrequency.daily;
+      todo.recurrenceMinuteOfDay = 9 * 60;
+
+      await service.scheduleForTodo(todo, firePastDueImmediately: false);
+
+      expect(fake.shown, hasLength(1));
+      expect(fake.shown.first.date!.isAfter(DateTime.now()), isTrue);
+    });
+
     test('passes injected settings to showNotification', () async {
       final settings = Settings()..snoozeDuration = 30;
       service = NotificationService(notificationShow: fake, settings: settings);

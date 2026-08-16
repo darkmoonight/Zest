@@ -19,10 +19,10 @@ import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/text_form.dart';
 
-/// Transfer target mode: category or parent todo.
+/// Transfer target mode: category or parent item.
 enum TransferMode { category, todo }
 
-/// Dialog for moving todos to another category or parent.
+/// Dialog for moving items to another category or parent.
 class TodosTransfer extends ConsumerStatefulWidget {
   /// Creates a [TodosTransfer].
   const TodosTransfer({super.key, required this.text, required this.todos});
@@ -30,7 +30,7 @@ class TodosTransfer extends ConsumerStatefulWidget {
   /// Dialog title describing the transfer action.
   final String text;
 
-  /// Todos being moved to the chosen destination.
+  /// Items being moved to the chosen destination.
   final List<Todos> todos;
 
   @override
@@ -44,13 +44,13 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
   /// The task controller.
   late final TextEditingController _taskController;
 
-  /// The todos controller.
+  /// The items controller.
   late final TextEditingController _todosController;
 
   /// The task focus node.
   late final FocusNode _taskFocusNode;
 
-  /// The todo focus node.
+  /// The item focus node.
   late final FocusNode _todoFocusNode;
 
   /// The form key.
@@ -62,7 +62,7 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
   /// The selected task.
   Tasks? _selectedTask;
 
-  /// The selected todo.
+  /// The selected item.
   Todos? _selectedTodo;
 
   /// The editing controller.
@@ -171,7 +171,7 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
     });
   }
 
-  /// Todos.
+  /// Items.
   Future<Iterable<Todos>> _getAvailableTodos(String pattern) async {
     final allTodos = await ref.read(isarProvider).todos.where().findAll();
     final excludedIds = await _collectExcludedIds();
@@ -194,7 +194,7 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
     _taskFocusNode.unfocus();
   }
 
-  /// On todo selected.
+  /// On item selected.
   void _onTodoSelected(Todos selection) {
     setState(() {
       _todosController.text = selection.name;
@@ -456,7 +456,7 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
     );
   }
 
-  /// Builds the todo autocomplete widget.
+  /// Builds the item autocomplete widget.
   Widget _buildTodoAutocomplete(BuildContext context) {
     return RawAutocomplete<Todos>(
       key: const ValueKey('todo'),
@@ -473,7 +473,7 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
     );
   }
 
-  /// Builds the todo field widget.
+  /// Builds the item field widget.
   Widget _buildTodoField(
     BuildContext context,
     TextEditingController controller,
@@ -580,7 +580,7 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
     );
   }
 
-  /// Builds the todo options view widget.
+  /// Builds the item options view widget.
   Widget _buildTodoOptionsView(
     BuildContext context,
     AutocompleteOnSelected<Todos> onSelected,
@@ -646,7 +646,7 @@ class _EditingController {
   /// Sets the destination category for the transfer.
   void setTask(Tasks? task) => _task.value = task;
 
-  /// Sets the destination parent todo for the transfer.
+  /// Sets the destination parent item for the transfer.
   void setTodo(Todos? todo) => _todo.value = todo;
 
   bool _hasSelection() => _task.value != null || _todo.value != null;

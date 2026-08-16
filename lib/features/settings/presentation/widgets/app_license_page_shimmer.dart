@@ -5,7 +5,6 @@ import 'package:zest/core/widgets/shimmer.dart';
 import 'package:zest/core/widgets/shimmer_bone.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_card_shape.dart';
 
-/// Widget that app license page shimmer.
 class AppLicensePageShimmer extends StatelessWidget {
   /// Creates a [AppLicensePageShimmer].
   const AppLicensePageShimmer({super.key});
@@ -179,7 +178,6 @@ class AppLicensePageShimmer extends StatelessWidget {
   }
 }
 
-/// Widget that package tile shimmer.
 class _PackageTileShimmer extends StatelessWidget {
   /// Creates a [_PackageTileShimmer].
   const _PackageTileShimmer({required this.bone});

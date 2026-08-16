@@ -16,6 +16,7 @@ class TasksState {
   const TasksState({
     this.tasks = const [],
     this.selectedTask = const [],
+    this.selectedTaskIds = const {},
     this.isMultiSelectionTask = false,
     this.isPop = true,
   });
@@ -23,8 +24,11 @@ class TasksState {
   /// Loaded task categories for the home list.
   final List<Tasks> tasks;
 
-  /// Selected categories during multi-select mode.
+  /// Selected categories during multi-select mode (resolved from ids).
   final List<Tasks> selectedTask;
+
+  /// Selected category ids; survives list reloads.
+  final Set<int> selectedTaskIds;
 
   /// Whether the categories screen is in multi-select mode.
   final bool isMultiSelectionTask;
@@ -36,12 +40,14 @@ class TasksState {
   TasksState copyWith({
     List<Tasks>? tasks,
     List<Tasks>? selectedTask,
+    Set<int>? selectedTaskIds,
     bool? isMultiSelectionTask,
     bool? isPop,
   }) {
     return TasksState(
       tasks: tasks ?? this.tasks,
       selectedTask: selectedTask ?? this.selectedTask,
+      selectedTaskIds: selectedTaskIds ?? this.selectedTaskIds,
       isMultiSelectionTask: isMultiSelectionTask ?? this.isMultiSelectionTask,
       isPop: isPop ?? this.isPop,
     );
@@ -122,8 +128,56 @@ class TasksNotifier extends Notifier<TasksState> {
 
   /// Reloads task categories from the database into state.
   Future<void> reloadTasks() async {
+    final preservedSelectedIds = state.selectedTaskIds.toSet();
     final newTasks = await taskRepo.getAll();
     state = state.copyWith(tasks: newTasks);
+    _restoreSelectedTasks(preservedSelectedIds);
+  }
+
+  void _restoreSelectedTasks(Set<int> preservedIds) {
+    if (preservedIds.isEmpty) {
+      if (state.selectedTask.isNotEmpty || state.isMultiSelectionTask) {
+        doMultiSelectionTaskClear();
+      }
+      return;
+    }
+
+    final tasksMap = {for (final task in state.tasks) task.id: task};
+    final restored = preservedIds
+        .map((id) => tasksMap[id])
+        .whereType<Tasks>()
+        .toList();
+
+    if (restored.isEmpty) {
+      doMultiSelectionTaskClear();
+    } else {
+      state = state.copyWith(
+        selectedTask: restored,
+        selectedTaskIds: restored.map((e) => e.id).toSet(),
+        isMultiSelectionTask: true,
+        isPop: false,
+      );
+    }
+  }
+
+  void _resyncSelectedTaskFromIds() {
+    if (state.selectedTaskIds.isEmpty) {
+      if (state.selectedTask.isNotEmpty) {
+        state = state.copyWith(selectedTask: const []);
+      }
+      return;
+    }
+
+    final tasksMap = {for (final task in state.tasks) task.id: task};
+    final updated = state.selectedTaskIds
+        .map((id) => tasksMap[id])
+        .whereType<Tasks>()
+        .toList();
+
+    state = state.copyWith(
+      selectedTask: updated,
+      selectedTaskIds: updated.map((e) => e.id).toSet(),
+    );
   }
 
   // ==================== Tasks CRUD ====================
@@ -186,7 +240,7 @@ class TasksNotifier extends Notifier<TasksState> {
     await _reindexTasks();
   }
 
-  /// Archives [taskList], clears selection, and reloads todos.
+  /// Archives [taskList], clears selection, and reloads items.
   Future<void> archiveTask(List<Tasks> taskList) async {
     if (taskList.isEmpty) return;
 
@@ -196,10 +250,9 @@ class TasksNotifier extends Notifier<TasksState> {
     state = state.copyWith(tasks: await taskRepo.getAll());
     doMultiSelectionTaskClear();
     await ref.read(todosNotifierProvider.notifier).reloadTodos();
-    ref.read(todosNotifierProvider.notifier).resyncSelectedTodoFromIds();
   }
 
-  /// Restores [taskList] from archive and reloads todos.
+  /// Restores [taskList] from archive and reloads list items.
   Future<void> noArchiveTask(List<Tasks> taskList) async {
     if (taskList.isEmpty) return;
 
@@ -208,7 +261,6 @@ class TasksNotifier extends Notifier<TasksState> {
     state = state.copyWith(tasks: await taskRepo.getAll());
     doMultiSelectionTaskClear();
     await ref.read(todosNotifierProvider.notifier).reloadTodos();
-    ref.read(todosNotifierProvider.notifier).resyncSelectedTodoFromIds();
   }
 
   /// Persists a new order for [filteredTasks] within the full task list.
@@ -264,39 +316,45 @@ class TasksNotifier extends Notifier<TasksState> {
 
   // ==================== Multi-Selection Tasks ====================
 
-  /// Do multi selection task.
+  /// Toggles [task] in the multi-select id set.
   void doMultiSelectionTask(Tasks task) {
     if (!state.isMultiSelectionTask) return;
 
-    final selected = List<Tasks>.from(state.selectedTask);
-
-    if (selected.contains(task)) {
-      selected.remove(task);
+    final updatedIds = Set<int>.from(state.selectedTaskIds);
+    if (updatedIds.contains(task.id)) {
+      updatedIds.remove(task.id);
     } else {
-      selected.add(task);
+      updatedIds.add(task.id);
     }
 
-    if (selected.isEmpty) {
+    if (updatedIds.isEmpty) {
       state = state.copyWith(
-        selectedTask: selected,
+        selectedTask: const [],
+        selectedTaskIds: const {},
         isMultiSelectionTask: false,
         isPop: true,
       );
     } else {
-      state = state.copyWith(selectedTask: selected, isPop: false);
+      state = state.copyWith(
+        selectedTaskIds: updatedIds,
+        isMultiSelectionTask: true,
+        isPop: false,
+      );
+      _resyncSelectedTaskFromIds();
     }
   }
 
-  /// Do multi selection task clear.
+  /// Clears category multi-select and restores back navigation.
   void doMultiSelectionTaskClear() {
     state = state.copyWith(
       selectedTask: const [],
+      selectedTaskIds: const {},
       isMultiSelectionTask: false,
       isPop: true,
     );
   }
 
-  /// Toggle multi selection task.
+  /// Enters or exits category multi-select mode.
   void toggleMultiSelectionTask() {
     if (state.isMultiSelectionTask) {
       doMultiSelectionTaskClear();
@@ -320,7 +378,7 @@ class TasksNotifier extends Notifier<TasksState> {
     );
 
     return filtered.isNotEmpty &&
-        filtered.every((task) => state.selectedTask.contains(task));
+        filtered.every((task) => state.selectedTaskIds.contains(task.id));
   }
 
   /// Select all tasks.
@@ -335,27 +393,25 @@ class TasksNotifier extends Notifier<TasksState> {
     );
 
     if (select) {
-      final selected = List<Tasks>.from(state.selectedTask);
-      final tasksToAdd = filtered.where((t) => !selected.contains(t)).toList();
-      selected.addAll(tasksToAdd);
+      final updatedIds = Set<int>.from(state.selectedTaskIds)
+        ..addAll(filtered.map((t) => t.id));
 
       state = state.copyWith(
-        selectedTask: selected,
+        selectedTaskIds: updatedIds,
         isMultiSelectionTask: true,
         isPop: false,
       );
+      _resyncSelectedTaskFromIds();
     } else {
-      final selected = List<Tasks>.from(state.selectedTask)
-        ..removeWhere((t) => filtered.contains(t));
+      final filteredIds = filtered.map((t) => t.id).toSet();
+      final updatedIds = Set<int>.from(state.selectedTaskIds)
+        ..removeWhere(filteredIds.contains);
 
-      if (selected.isEmpty) {
-        state = state.copyWith(
-          selectedTask: selected,
-          isMultiSelectionTask: false,
-          isPop: true,
-        );
+      if (updatedIds.isEmpty) {
+        doMultiSelectionTaskClear();
       } else {
-        state = state.copyWith(selectedTask: selected);
+        state = state.copyWith(selectedTaskIds: updatedIds);
+        _resyncSelectedTaskFromIds();
       }
     }
   }

@@ -37,6 +37,9 @@ class FakeNotificationShow extends NotificationShow {
   final List<RecordedSnooze> snoozed = [];
   bool cancelAllCalled = false;
 
+  /// Test double can fail scheduling to exercise migration error paths.
+  bool throwOnShow = false;
+
   @override
   Future<void> showNotification(
     int id,
@@ -49,6 +52,9 @@ class FakeNotificationShow extends NotificationShow {
     Settings? settings,
     Priority priority = Priority.none,
   }) async {
+    if (throwOnShow) {
+      throw StateError('fake showNotification failure');
+    }
     shown.add(
       RecordedNotification(
         id: id,

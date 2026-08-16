@@ -538,7 +538,7 @@ void main() {
       );
     });
 
-    test('does not reset when category mode is clone', () {
+    test('treats legacy category clone mode as reopen', () {
       final task = habitTask(mode: RecurrenceMode.clone);
       final todo = doneTodo(completed: DateTime(2026, 7, 14, 21));
       expect(
@@ -547,7 +547,7 @@ void main() {
           task: task,
           today: DateTime(2026, 7, 15, 8),
         ),
-        isFalse,
+        isTrue,
       );
     });
 

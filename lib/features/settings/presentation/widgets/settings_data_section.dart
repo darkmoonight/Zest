@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/config/setting_enum_pickers.dart';
+import 'package:zest/core/di/list_reload.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/services/isar_service.dart';
 import 'package:zest/core/utils/show_snack_bar.dart';
@@ -12,8 +13,6 @@ import 'package:zest/features/settings/presentation/widgets/settings_section.dar
 import 'package:zest/features/settings/presentation/widgets/settings_section_state.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_switch_tile.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_tile.dart';
-import 'package:zest/features/tasks/application/tasks_notifier.dart';
-import 'package:zest/features/todos/application/todos_notifier.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Backup, restore, auto-backup, and data clearing settings.
@@ -225,11 +224,11 @@ class _SettingsDataSectionState
   /// Localized label for [frequency].
   String _getFrequencyText(AutoBackupFrequency frequency) => frequency.name.tr;
 
-  /// Localized label for completed-todo erase [frequency].
+  /// Localized label for completed-item erase [frequency].
   String _getEraseFrequencyText(AutoEraseCompletedFrequency frequency) =>
       frequency.name.tr;
 
-  /// Confirms and clears all tasks and todos from the database.
+  /// Confirms and clears all tasks and items from the database.
   void _showDeleteAllDBDialog() {
     showConfirmationDialog(
       context: context,
@@ -244,8 +243,7 @@ class _SettingsDataSectionState
           await isar.todos.clear();
           await isar.tasks.clear();
         });
-        await ref.read(tasksNotifierProvider.notifier).reloadTasks();
-        await ref.read(todosNotifierProvider.notifier).reloadTodos();
+        await reloadTodosAndTasks(ref);
         showSnackBar('deleteAll'.tr);
       },
     );

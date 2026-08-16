@@ -5,7 +5,6 @@ import 'package:zest/data/models/db.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 
-/// Widget that sort menu.
 class SortMenu extends StatelessWidget {
   /// Creates a [SortMenu].
   const SortMenu({
@@ -22,7 +21,7 @@ class SortMenu extends StatelessWidget {
   /// The on sort changed.
   final ValueChanged<SortOption> onSortChanged;
 
-  /// Whether archived categories are visible (All Todos only).
+  /// Whether archived categories are visible (All Items only).
   final bool? showArchived;
 
   /// Called when the archived-categories toggle changes.
@@ -120,7 +119,7 @@ class SortMenu extends StatelessWidget {
     );
   }
 
-  /// Checkbox-style menu item for toggling archived categories in All Todos.
+  /// Checkbox-style menu item for toggling archived categories in All Items.
   PopupMenuItem<SortOption> _buildShowArchivedItem(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isChecked = showArchived!;

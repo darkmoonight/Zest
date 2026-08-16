@@ -1,15 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:isar_community/isar.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:zest/core/bootstrap/isar_bootstrap.dart';
-import 'package:zest/core/bootstrap/notification_bootstrap.dart';
-import 'package:zest/core/services/device_calendar_sync_service.dart';
-import 'package:zest/core/services/notification_service.dart';
+import 'package:zest/core/bootstrap/background_isar_context.dart';
 import 'package:zest/core/services/recurrence_coordinator.dart';
 import 'package:zest/core/services/recurrence_service.dart';
-import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/todo_repository.dart';
-import 'package:zest/i18n/locale_utils.dart';
 import 'package:zest/platform/platform_features.dart'
     if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
 
@@ -96,47 +89,22 @@ class RecurrenceBackgroundScheduler {
 
   /// Runs midnight rollover and reschedules active due notifications.
   static Future<void> runBackgroundRollover() async {
-    final (isarInstance, openedHere) =
-        await IsarBootstrap.acquireIsarForBackgroundHandler();
-    if (isarInstance == null) return;
-
-    try {
-      final settings =
-          await isarInstance.settings.where().findFirst() ?? Settings();
-      await applyAppLocale(appLocaleFromLanguageCode(settings.language));
-      await ensureNotificationEnvironmentForBackground(
-        snoozeMinutes: settings.snoozeDuration,
-      );
-
-      final todoRepo = TodoRepository(isarInstance);
-      final notifications = NotificationService(settings: settings);
-      final calendar = DeviceCalendarSyncService(
-        getSettings: () => settings,
-        todoRepo: todoRepo,
-        saveSettings: (updated) async {
-          await isarInstance.writeTxn(() async {
-            await isarInstance.settings.put(updated);
-          });
-        },
-      );
-
+    await withBackgroundIsar((ctx) async {
       await RecurrenceCoordinator(
-        todoRepo: todoRepo,
-        isar: isarInstance,
-        notificationService: notifications,
-        calendarSync: calendar,
+        todoRepo: ctx.todoRepo,
+        isar: ctx.isar,
+        notificationService: ctx.notifications,
+        calendarSync: ctx.calendarSync,
       ).runMidnightRollover();
 
-      final todos = await todoRepo.getAll();
-      await notifications.rescheduleActiveReminders(todos, settings: settings);
+      final items = await ctx.todoRepo.getAll();
+      await ctx.notifications.rescheduleActiveReminders(
+        items,
+        settings: ctx.settings,
+      );
 
-      // Aim the next one-off at the following midnight.
       await registerJobs();
-    } finally {
-      if (openedHere) {
-        await isarInstance.close();
-      }
-    }
+    });
   }
 
   static bool get _supportsBackgroundWork =>

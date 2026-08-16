@@ -109,7 +109,7 @@ class DeviceCalendarClient implements DeviceCalendarGateway {
       _plugin.deleteEvent(eventId: eventId);
 }
 
-/// One-way export of Zest todos with deadlines to the device calendar.
+/// One-way export of Zest items with deadlines to the device calendar.
 class DeviceCalendarSyncService {
   /// Creates a sync service reading live [getSettings] and persisting via [todoRepo].
   DeviceCalendarSyncService({
@@ -124,7 +124,7 @@ class DeviceCalendarSyncService {
   /// Live settings reader.
   final Settings Function() _getSettings;
 
-  /// Persists linked event ids on todos.
+  /// Persists linked event ids on items.
   final TodoRepository _todoRepo;
 
   /// Platform calendar API.
@@ -136,7 +136,7 @@ class DeviceCalendarSyncService {
   /// Optional persistence for [Settings.deviceCalendarId] changes.
   final Future<void> Function(Settings settings)? _saveSettings;
 
-  /// Default event duration when mapping a todo deadline to a timed event.
+  /// Default event duration when mapping a list item deadline to a timed event.
   static const eventDuration = Duration(hours: 1);
 
   /// Display name for the auto-created local calendar.
@@ -151,14 +151,14 @@ class DeviceCalendarSyncService {
   /// Color for the auto-created local [zestCalendarName] calendar.
   static const zestCalendarColorHex = '#2196F3';
 
-  /// Whether [todo] should currently have a linked device-calendar event.
+  /// Whether [item] should currently have a linked device-calendar event.
   static bool shouldSyncTodo(Todos todo, Settings settings) {
     return settings.deviceCalendarSyncEnabled &&
         todo.todoCompletedTime != null &&
         todo.status == TodoStatus.active;
   }
 
-  /// Event end time for a todo deadline start.
+  /// Event end time for a list item deadline start.
   static DateTime eventEnd(DateTime start) => start.add(eventDuration);
 
   /// Whether [calendar] is a device-local (non-synced) calendar.
@@ -275,7 +275,7 @@ class DeviceCalendarSyncService {
     }
   }
 
-  /// Creates, updates, or removes the device-calendar event for [todo].
+  /// Creates, updates, or removes the device-calendar event for [item].
   Future<void> ensureSynced(Todos todo) async {
     if (!_isAndroid) return;
 
@@ -306,8 +306,8 @@ class DeviceCalendarSyncService {
           : latest.description;
       var existingId = latest.deviceCalendarEventId;
 
-      // Target calendar changed (e.g. local Zest → Google): recreate so the
-      // event lands on the calendar Google Calendar actually displays.
+      // Target calendar changed (e.g. local Zest → Google): delete the old
+      // event before recreate so we don't orphan it on the previous calendar.
       if (existingId != null &&
           existingId.isNotEmpty &&
           previousCalendarId != null &&
@@ -316,9 +316,9 @@ class DeviceCalendarSyncService {
           'Device calendar target changed ($previousCalendarId → $calendarId); '
           'recreating event for todo ${latest.id}',
         );
-        existingId = null;
-        latest.deviceCalendarEventId = null;
+        await _removeLinkedEvent(latest, persist: true);
         todo.deviceCalendarEventId = null;
+        existingId = null;
       }
 
       if (existingId == null || existingId.isEmpty) {
@@ -348,9 +348,8 @@ class DeviceCalendarSyncService {
         debugPrint(
           'Device calendar update failed for $existingId, recreating: $e\n$stackTrace',
         );
-        latest.deviceCalendarEventId = null;
+        await _removeLinkedEvent(latest, persist: true);
         todo.deviceCalendarEventId = null;
-        await _todoRepo.update(latest);
         await _createAndPersistEvent(
           todo: latest,
           callerTodo: todo,
@@ -367,13 +366,13 @@ class DeviceCalendarSyncService {
     }
   }
 
-  /// Deletes the linked event for [todo] if any (e.g. before hard delete).
+  /// Deletes the linked event for [item] if any (e.g. before hard delete).
   Future<void> removeSynced(Todos todo) async {
     if (!_isAndroid) return;
     try {
       final latest = await _todoRepo.getById(todo.id) ?? todo;
       todo.deviceCalendarEventId = latest.deviceCalendarEventId;
-      await _removeLinkedEvent(latest, persist: false);
+      await _removeLinkedEvent(latest, persist: true);
       todo.deviceCalendarEventId = null;
       debugPrint('Device calendar removed event for todo ${todo.id}');
     } catch (e, stackTrace) {
@@ -381,6 +380,38 @@ class DeviceCalendarSyncService {
         'Device calendar remove failed for todo ${todo.id}: $e\n$stackTrace',
       );
       todo.deviceCalendarEventId = null;
+    }
+  }
+
+  /// Creates/updates events for all active items with a due date (sync enable).
+  Future<void> backfillAllEligible() async {
+    if (!_isAndroid) return;
+    final todos = await _todoRepo.getAll();
+    for (final todo in todos) {
+      await ensureSynced(todo);
+    }
+  }
+
+  /// Deletes all linked device-calendar events and clears stored ids (sync disable).
+  Future<void> removeAllSynced() async {
+    if (!_isAndroid) return;
+    final todos = await _todoRepo.getAll();
+    for (final todo in todos) {
+      final eventId = todo.deviceCalendarEventId;
+      if (eventId == null || eventId.isEmpty) continue;
+      await removeSynced(todo);
+    }
+  }
+
+  /// Deletes existing events then recreates them on the current target calendar.
+  Future<void> recreateAllSyncedEvents() async {
+    if (!_isAndroid) return;
+    final todos = await _todoRepo.getAll();
+    for (final todo in todos) {
+      final eventId = todo.deviceCalendarEventId;
+      if (eventId == null || eventId.isEmpty) continue;
+      await _removeLinkedEvent(todo, persist: true);
+      await ensureSynced(todo);
     }
   }
 
@@ -392,7 +423,7 @@ class DeviceCalendarSyncService {
         writable.firstWhereOrNull(isGoogleCalendar);
   }
 
-  /// Copies sync-relevant fields from [latest] onto the caller-visible [todo].
+  /// Copies sync-relevant fields from [latest] onto the caller-visible [item].
   void _applyLatestToCaller(Todos todo, Todos latest) {
     todo.deviceCalendarEventId = latest.deviceCalendarEventId;
     todo.name = latest.name;
@@ -401,7 +432,7 @@ class DeviceCalendarSyncService {
     todo.status = latest.status;
   }
 
-  /// Creates a calendar event and stores its id on [todo] and [callerTodo].
+  /// Creates a calendar event and stores its id on [item] and [callerTodo].
   Future<void> _createAndPersistEvent({
     required Todos todo,
     required Todos callerTodo,
@@ -435,7 +466,7 @@ class DeviceCalendarSyncService {
     }
   }
 
-  /// Deletes the linked device event for [todo], optionally persisting a null id.
+  /// Deletes the linked device event for [item], optionally persisting a null id.
   Future<void> _removeLinkedEvent(Todos todo, {bool persist = true}) async {
     final eventId = todo.deviceCalendarEventId;
     if (eventId == null || eventId.isEmpty) return;

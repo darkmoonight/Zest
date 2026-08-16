@@ -48,7 +48,7 @@ final taskRepositoryProvider = Provider<TaskRepository>(
   (ref) => TaskRepository(ref.watch(isarProvider)),
 );
 
-/// Provides the todo repository.
+/// Provides the item repository.
 final todoRepositoryProvider = Provider<TodoRepository>(
   (ref) => TodoRepository(ref.watch(isarProvider)),
 );
@@ -66,7 +66,7 @@ final notificationServiceProvider = Provider<NotificationService>(
   (ref) => NotificationService(settings: ref.watch(settingsProvider)),
 );
 
-/// One-way export of todo deadlines to the Android device calendar.
+/// One-way export of item deadlines to the Android device calendar.
 final deviceCalendarSyncServiceProvider = Provider<DeviceCalendarSyncService>(
   (ref) => DeviceCalendarSyncService(
     getSettings: () => ref.read(liveSettingsProvider),

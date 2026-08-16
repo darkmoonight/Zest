@@ -1,13 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/app.dart';
 import 'package:zest/core/bootstrap/notification_bootstrap.dart';
-import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
-import 'package:zest/core/bootstrap/notification_handlers.dart';
+import 'package:zest/core/bootstrap/notification_callback_wiring.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/di/settings_revision.dart';
 import 'package:zest/core/notifications/notification_channels.dart';
@@ -111,21 +109,17 @@ class SettingsSaveActions {
   /// Re-inits categories and reschedules reminders with current snooze labels.
   Future<void> _refreshNotificationActionLabels() async {
     final settings = this.settings;
+    final callbacks = notificationPluginResponseCallbacks();
     await initializeNotificationsPlugin(
-      onDidReceiveNotificationResponse: (response) async {
-        await handleNotificationResponse(response);
-        await NotificationHandlerBridge.notifyForegroundActionCompleted();
-      },
-      onDidReceiveBackgroundNotificationResponse: kIsWeb
-          ? null
-          : notificationTapBackground,
+      onDidReceiveNotificationResponse: callbacks.onForeground,
+      onDidReceiveBackgroundNotificationResponse: callbacks.onBackground,
       snoozeMinutes: settings.snoozeDuration,
     );
 
-    final todos = await ref.read(todoRepositoryProvider).getAll();
+    final items = await ref.read(todoRepositoryProvider).getAll();
     await ref
         .read(notificationServiceProvider)
-        .rescheduleActiveReminders(todos, settings: settings);
+        .rescheduleActiveReminders(items, settings: settings);
   }
 
   Future<void> _persistSettings({

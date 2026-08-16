@@ -21,7 +21,7 @@ abstract final class NotificationChannelIds {
   static const String none = '${prefix}none';
 }
 
-/// Android notification channel metadata for a todo [db.Priority].
+/// Android notification channel metadata for a list item [db.Priority].
 ///
 /// Defaults (importance, sound, vibration) apply only until the user changes
 /// them in system settings. After creation, open system UI via
@@ -40,7 +40,7 @@ class NotificationChannelConfig {
   /// Stable Android channel id (ASCII), see [NotificationChannelIds].
   final String id;
 
-  /// Todo priority this channel is bound to.
+  /// Item priority this channel is bound to.
   final db.Priority priority;
 
   /// Default importance before user overrides in system settings.
@@ -119,7 +119,7 @@ NotificationChannelConfig notificationChannelForPriority(db.Priority priority) {
 List<NotificationChannelConfig> get allNotificationChannelConfigs =>
     db.Priority.values.map(notificationChannelForPriority).toList();
 
-/// Registers Android notification channels for each todo priority.
+/// Registers Android notification channels for each item priority.
 ///
 /// Safe to call repeatedly; Android keeps user overrides for existing channel
 /// ids. No-op on non-Android platforms.

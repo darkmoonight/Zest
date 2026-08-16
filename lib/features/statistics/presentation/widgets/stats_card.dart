@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 
-/// Widget that stats card.
 class StatsCard extends StatelessWidget {
   /// The title.
   final String title;

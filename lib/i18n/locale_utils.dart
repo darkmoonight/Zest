@@ -9,6 +9,20 @@ AppLocale appLocaleFromLanguageCode(String? language) {
   return AppLocaleUtils.parse(language.replaceAll('_', '-'));
 }
 
+/// Primary language subtag from a stored settings value (`en_US` → `en`).
+String languageCodeFromSettings(String? language) {
+  if (language == null || language.isEmpty) {
+    return AppConstants.defaultLanguageCode;
+  }
+  final sep = language.indexOf('_');
+  if (sep <= 0) {
+    final dash = language.indexOf('-');
+    if (dash <= 0) return language;
+    return language.substring(0, dash);
+  }
+  return language.substring(0, sep);
+}
+
 /// Converts a Flutter [Locale] into the closest supported [AppLocale].
 AppLocale appLocaleFromFlutterLocale(Locale locale) {
   final country = locale.countryCode;

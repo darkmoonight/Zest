@@ -8,8 +8,9 @@ import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/task_repository.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 import 'package:zest/features/tasks/application/tasks_notifier.dart';
+import 'package:zest/i18n/locale_utils.dart';
 
-/// Riverpod state for the todos tab: list, filters, and multi-selection.
+/// Riverpod state for the items tab: list, filters, and multi-selection.
 class TodosState {
   /// Creates a [TodosState].
   const TodosState({
@@ -20,10 +21,10 @@ class TodosState {
     this.isPop = true,
   });
 
-  /// Loaded todos shown in list screens.
+  /// Loaded items shown in list screens.
   final List<Todos> todos;
 
-  /// Selected todos kept in sync with [selectedTodoIds] for UI actions.
+  /// Selected items kept in sync with [selectedTodoIds] for UI actions.
   final List<Todos> selectedTodo;
 
   /// Stable id set for multi-select; survives list reloads.
@@ -53,7 +54,7 @@ class TodosState {
   }
 }
 
-/// Loads and mutates todos; subscribes to Isar watch streams for live updates.
+/// Loads and mutates items; subscribes to Isar watch streams for live updates.
 class TodosNotifier extends Notifier<TodosState> {
   TaskRepository? _taskRepo;
 
@@ -121,7 +122,7 @@ class TodosNotifier extends Notifier<TodosState> {
     return const TodosState();
   }
 
-  /// Ensure todo service.
+  /// Rebuilds [TodoService] when time format or language changes.
   void _ensureTodoService((String, String?) formatPrefs) {
     if (_todoService != null && _todoServicePrefs == formatPrefs) return;
 
@@ -131,7 +132,7 @@ class TodosNotifier extends Notifier<TodosState> {
       notificationService: ref.read(notificationServiceProvider),
       calendarSync: ref.read(deviceCalendarSyncServiceProvider),
       timeformat: formatPrefs.$1,
-      languageCode: formatPrefs.$2 ?? AppConstants.defaultLanguageCode,
+      languageCode: languageCodeFromSettings(formatPrefs.$2),
     );
   }
 
@@ -144,7 +145,7 @@ class TodosNotifier extends Notifier<TodosState> {
     return _todoService!;
   }
 
-  /// Debounce load.
+  /// Debounces Isar watch events before reloading.
   void _debounceLoad() {
     _loadDebounce?.cancel();
     _loadDebounce = Timer(AppConstants.debounceDelay, () async {
@@ -154,45 +155,18 @@ class TodosNotifier extends Notifier<TodosState> {
 
   Future<void> _loadTodos() async {
     final preservedSelectedIds = state.selectedTodoIds.toSet();
-
     final newTodos = await todoRepo.getAll();
-    state = state.copyWith(todos: newTodos);
-
-    _restoreSelectedTodos(preservedSelectedIds);
+    state = state.copyWith(
+      todos: newTodos,
+      selectedTodoIds: preservedSelectedIds,
+    );
+    _resyncSelectedTodoFromIds();
   }
 
-  /// Restore selected todos.
-  void _restoreSelectedTodos(Set<int> preservedIds) {
-    if (preservedIds.isEmpty) {
-      doMultiSelectionTodoClear();
-      return;
-    }
-
-    final todosMap = {for (final todo in state.todos) todo.id: todo};
-    final restored = preservedIds
-        .map((id) => todosMap[id])
-        .whereType<Todos>()
-        .toList();
-
-    if (restored.isEmpty) {
-      doMultiSelectionTodoClear();
-    } else {
-      state = state.copyWith(
-        selectedTodo: restored,
-        selectedTodoIds: restored.map((e) => e.id).toSet(),
-        isMultiSelectionTodo: true,
-        isPop: false,
-      );
-    }
-  }
-
-  /// Reloads todos from the database while preserving multi-select ids.
+  /// Reloads list items from the database while preserving multi-select ids.
   Future<void> reloadTodos() => _loadTodos();
 
-  /// Resync selected todo from ids.
-  void resyncSelectedTodoFromIds() => _resyncSelectedTodoFromIds();
-
-  /// Creates a todo and returns the persisted record.
+  /// Creates a list item and returns the persisted record.
   Future<Todos> addTodo({
     required Tasks task,
     required String title,
@@ -225,7 +199,7 @@ class TodosNotifier extends Notifier<TodosState> {
     return todo;
   }
 
-  /// Persists edits to an existing todo.
+  /// Persists edits to an existing item.
   Future<void> updateTodo({
     required Todos todo,
     required Tasks task,
@@ -256,14 +230,14 @@ class TodosNotifier extends Notifier<TodosState> {
     );
   }
 
-  /// Updates todo status and resyncs the current multi-selection.
+  /// Updates item status and resyncs the current multi-selection.
   Future<void> updateTodoStatus(Todos todo) async {
     await todoService.updateTodoStatus(todo);
     await _loadTodos();
     _resyncSelectedTodoFromIds();
   }
 
-  /// Sets status on [todo] and its subtasks, then resyncs selection.
+  /// Sets status on [item] and its subtasks, then resyncs selection.
   Future<void> updateTodoStatusWithSubtasks(
     Todos todo,
     TodoStatus status,
@@ -273,7 +247,7 @@ class TodosNotifier extends Notifier<TodosState> {
     _resyncSelectedTodoFromIds();
   }
 
-  /// Moves [todoList] to [task] and refreshes todos and task lists.
+  /// Moves [todoList] to [task] and refreshes items and task lists.
   Future<void> moveTodos(List<Todos> todoList, Tasks task) async {
     if (todoList.isEmpty) return;
 
@@ -282,7 +256,7 @@ class TodosNotifier extends Notifier<TodosState> {
     await ref.read(tasksNotifierProvider.notifier).reloadTasks();
   }
 
-  /// Reparents [rootList] under [newParent] and reloads todos.
+  /// Reparents [rootList] under [newParent] and reloads items.
   Future<void> moveTodosToParent(List<Todos> rootList, Todos? newParent) async {
     if (rootList.isEmpty) return;
 
@@ -294,7 +268,7 @@ class TodosNotifier extends Notifier<TodosState> {
     await ref.read(tasksNotifierProvider.notifier).reloadTasks();
   }
 
-  /// Deletes [todoList], updates selection, and reindexes remaining todos.
+  /// Deletes [todoList], updates selection, and reindexes remaining items.
   Future<void> deleteTodo(List<Todos> todoList) async {
     if (todoList.isEmpty) return;
 
@@ -329,21 +303,21 @@ class TodosNotifier extends Notifier<TodosState> {
 
   // ==================== Counters ====================
 
-  /// Created all todos.
+  /// Count of root items across non-archived categories.
   int createdAllTodos() => todoService.countAll(state.todos);
 
-  /// Completed all todos.
+  /// Count of completed root items across non-archived categories.
   int completedAllTodos() => todoService.countAllCompleted(state.todos);
 
-  /// Created all todos task.
+  /// Count of root items in [task].
   int createdAllTodosTask(Tasks task) =>
       todoService.countForTask(task, state.todos);
 
-  /// Completed all todos task.
+  /// Count of completed root items in [task].
   int completedAllTodosTask(Tasks task) =>
       todoService.countCompletedForTask(task, state.todos);
 
-  /// Count total todos calendar.
+  /// Count of active root items due on [date] for calendar markers.
   int countTotalTodosCalendar(
     DateTime date, {
     bool excludeArchivedCategories = true,
@@ -353,17 +327,17 @@ class TodosNotifier extends Notifier<TodosState> {
     excludeArchivedCategories: excludeArchivedCategories,
   );
 
-  /// Created all todos todo.
+  /// Count of direct children under [parent].
   int createdAllTodosTodo(Todos parent) =>
       todoService.countForParent(parent, state.todos);
 
-  /// Completed all todos todo.
+  /// Count of completed direct children under [parent].
   int completedAllTodosTodo(Todos parent) =>
       todoService.countCompletedForParent(parent, state.todos);
 
   // ==================== Filters ====================
 
-  /// Returns todos matching status, search, date, task, and parent filters.
+  /// Returns items matching status, search, date, task, and parent filters.
   List<Todos> getFilteredTodos({
     required TodoStatus? statusFilter,
     String searchQuery = '',
@@ -383,9 +357,9 @@ class TodosNotifier extends Notifier<TodosState> {
     );
   }
 
-  // ==================== Multi-Selection Todos ====================
+  // ==================== Multi-Selection Items ====================
 
-  /// Do multi selection todo.
+  /// Toggles the given entry in the multi-select id set.
   void doMultiSelectionTodo(Todos todo) {
     if (!state.isMultiSelectionTodo) return;
 
@@ -400,7 +374,7 @@ class TodosNotifier extends Notifier<TodosState> {
     _resyncSelectedTodoFromIds();
   }
 
-  /// Do multi selection todo clear.
+  /// Clears multi-select and restores back navigation.
   void doMultiSelectionTodoClear() {
     state = state.copyWith(
       selectedTodoIds: const {},
@@ -410,7 +384,7 @@ class TodosNotifier extends Notifier<TodosState> {
     );
   }
 
-  /// Toggle multi selection todo.
+  /// Enters or exits multi-select mode.
   void toggleMultiSelectionTodo() {
     if (state.isMultiSelectionTodo) {
       doMultiSelectionTodoClear();
@@ -426,7 +400,7 @@ class TodosNotifier extends Notifier<TodosState> {
     }
   }
 
-  /// Resync selected todo from ids.
+  /// Resolves [selectedTodo] entities from [selectedTodoIds] after list changes.
   void _resyncSelectedTodoFromIds() {
     if (state.selectedTodoIds.isEmpty) {
       doMultiSelectionTodoClear();
@@ -521,7 +495,7 @@ class TodosNotifier extends Notifier<TodosState> {
   }
 }
 
-/// Todos notifier provider.
+/// Items notifier provider.
 final todosNotifierProvider = NotifierProvider<TodosNotifier, TodosState>(
   TodosNotifier.new,
 );

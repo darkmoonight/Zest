@@ -69,4 +69,23 @@ void main() {
 
     expect(fake.shown, isEmpty);
   });
+
+  test('does not set migrated flag when reschedule fails', () async {
+    final task = await createTestTask(isar);
+    await createTestTodo(
+      isar,
+      task: task,
+      name: 'Broken',
+      completedTime: DateTime.now().add(const Duration(hours: 1)),
+    );
+
+    fake.throwOnShow = true;
+    await migrateNotificationChannelsIfNeeded(
+      isar: isar,
+      notificationService: NotificationService(notificationShow: fake),
+    );
+
+    final settings = await isar.settings.where().findFirst();
+    expect(settings?.notificationChannelsMigrated, isNot(isTrue));
+  });
 }

@@ -104,7 +104,7 @@ class AppConstants {
   /// Modal sheet height fraction on desktop (large forms).
   static const double modalHeightFractionLargeDesktop = 0.85;
 
-  /// Modal sheet height fraction on desktop (todo action sheet).
+  /// Modal sheet height fraction on desktop (item action sheet).
   static const double modalHeightFractionLargeDesktopWide = 0.90;
 
   /// Modal sheet height fraction on mobile (transfer sheet).
@@ -231,7 +231,10 @@ class AppConstants {
   /// How far ahead calendar / due-date pickers allow selecting dates.
   static const Duration calendarSelectableRange = Duration(days: 1000);
 
-  // Metadata chips (todo/task cards)
+  /// Android small-icon resource name for local notifications.
+  static const String androidNotificationIcon = 'ic_notification';
+
+  // Metadata chips (item/task cards)
   /// Horizontal padding for metadata chips on cards.
   static const double chipPaddingH = 7.0;
 
@@ -242,16 +245,16 @@ class AppConstants {
   static const double chipBorderRadius = 7.0;
 
   // Assets
-  /// Empty-state illustration for task/todo lists.
+  /// Empty-state illustration for task/item lists.
   static const String emptyStateTaskImage = 'assets/images/Task.png';
 
   /// Empty-state illustration for category lists.
   static const String emptyStateCategoryImage = 'assets/images/Category.png';
 
-  /// Empty-state illustration for todo lists.
+  /// Empty-state illustration for item lists.
   static const String emptyStateTodoImage = 'assets/images/Todo.png';
 
-  /// Empty-state illustration for calendar todo lists.
+  /// Empty-state illustration for calendar item lists.
   static const String emptyStateCalendarImage = 'assets/images/Calendar.png';
 
   /// Extra top padding for empty list states on mobile.

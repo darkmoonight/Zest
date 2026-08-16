@@ -6,7 +6,7 @@ import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/settings_repository.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 
-/// Deletes old completed todos on a schedule (Settings → Data).
+/// Deletes old completed items on a schedule (Settings → Data).
 class AutoEraseCompletedService {
   AutoEraseCompletedService._();
 
@@ -34,7 +34,7 @@ class AutoEraseCompletedService {
     return current.difference(last) >= retentionFor(frequency);
   }
 
-  /// Whether [todo] is eligible for erase at [now].
+  /// Whether [item] is eligible for erase at [now].
   static bool isEligible(Todos todo, Duration retention, DateTime now) {
     if (todo.status != TodoStatus.done) return false;
     final completed = todo.todoCompletionTime ?? todo.createdTime;
@@ -43,7 +43,7 @@ class AutoEraseCompletedService {
 
   /// Runs erase when due; updates [Settings.lastAutoEraseCompletedTime].
   ///
-  /// Returns the number of todos deleted (0 when skipped or nothing eligible).
+  /// Returns the number of items deleted (0 when skipped or nothing eligible).
   static Future<int> checkAndPerform({
     required Isar isar,
     required Settings settings,
@@ -67,7 +67,7 @@ class AutoEraseCompletedService {
     return deleted;
   }
 
-  /// Deletes eligible completed todos and stamps last-run time.
+  /// Deletes eligible completed items and stamps last-run time.
   static Future<int> perform({
     required Isar isar,
     required Settings settings,

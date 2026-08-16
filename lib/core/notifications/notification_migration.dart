@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
+import 'package:zest/core/database/settings_persist.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 
-/// Re-schedules active todo reminders onto priority-based Android channels once.
+/// Re-schedules active item reminders onto priority-based Android channels once.
 Future<void> migrateNotificationChannelsIfNeeded({
   required Isar isar,
   NotificationService? notificationService,
@@ -18,10 +20,19 @@ Future<void> migrateNotificationChannelsIfNeeded({
         todo.todoCompletedTime != null && todo.status == TodoStatus.active,
   );
 
+  var failed = false;
   for (final todo in toMigrate) {
-    await service.reschedule(todo);
+    final ok = await service.reschedule(todo, firePastDueImmediately: false);
+    if (!ok) failed = true;
+  }
+
+  if (failed) {
+    debugPrint(
+      'Notification channel migration incomplete; will retry on next launch',
+    );
+    return;
   }
 
   settings.notificationChannelsMigrated = true;
-  await isar.writeTxn(() => isar.settings.put(settings));
+  await persistSettings(isar, settings);
 }

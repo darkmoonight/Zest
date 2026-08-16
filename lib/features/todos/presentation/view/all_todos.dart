@@ -9,9 +9,9 @@ import 'package:zest/features/todos/presentation/widgets/todos_status_tab_bar.da
 import 'package:zest/features/todos/presentation/widgets/todos_tab_views.dart';
 import 'package:zest/core/widgets/scroll_fab_listener.dart';
 
-/// Shared tab/search state and actions for todo list screens.
+/// Shared tab/search state and actions for item list screens.
 class AllTodos extends ConsumerStatefulWidget {
-  /// Creates the global all-todos screen.
+  /// Creates the global all-items screen.
   const AllTodos({super.key});
 
   @override

@@ -8,7 +8,7 @@ import 'package:zest/features/todos/presentation/widgets/todos_transfer.dart';
 import 'package:zest/core/widgets/confirmation_dialog.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Shared tab/search state and actions for todo list screens.
+/// Shared tab/search state and actions for item list screens.
 mixin TodosScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   /// Tab controller for doing / done / cancelled tabs.
   late final TabController tabController;
@@ -19,13 +19,13 @@ mixin TodosScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   /// Scroll controller for the nested scroll view.
   late final ScrollController scrollController;
 
-  /// Current search query applied to todo lists.
+  /// Current search query applied to item lists.
   String searchFilter = '';
 
-  /// Current sort option applied to todo lists.
+  /// Current sort option applied to item lists.
   SortOption sortOption = SortOption.none;
 
-  /// Notifier for todo list mutations used by this screen.
+  /// Notifier for item list mutations used by this screen.
   TodosNotifier get todosNotifier => ref.read(todosNotifierProvider.notifier);
 
   /// Initializes tab, search, and scroll controllers.
@@ -135,7 +135,7 @@ mixin TodosScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     );
   }
 
-  /// Confirms and deletes the current todo selection.
+  /// Confirms and deletes the current item selection.
   Future<void> showDeleteDialog(BuildContext context) async {
     final selected = ref.read(todosNotifierProvider).selectedTodo;
     await showDeleteConfirmation(

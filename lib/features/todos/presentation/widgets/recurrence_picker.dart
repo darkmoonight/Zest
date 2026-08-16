@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
@@ -39,7 +40,7 @@ class RecurrenceSelection {
   /// Weekdays 1–7 when [frequency] is weekly.
   final List<int> weekdays;
 
-  /// Clone (new copy) vs reopen the same todo.
+  /// Clone (new copy) vs reopen the same list item.
   final RecurrenceMode mode;
 
   /// Reminder time as minutes from midnight; null = no forced time.
@@ -58,19 +59,22 @@ String recurrenceModeLabel(RecurrenceMode mode) => switch (mode) {
   RecurrenceMode.reopen => 'recurrenceModeReopen'.tr,
 };
 
-/// Formats [minuteOfDay] as `H:mm` / `h:mm a`-ish using 24h when [use24h].
-String? formatRecurrenceMinuteOfDay(int? minuteOfDay, {bool use24h = true}) {
+/// Formats [minuteOfDay] as `H:mm` / localized 12h using [languageCode].
+String? formatRecurrenceMinuteOfDay(
+  int? minuteOfDay, {
+  bool use24h = true,
+  String? languageCode,
+}) {
   if (minuteOfDay == null) return null;
   final clamped = minuteOfDay.clamp(0, 24 * 60 - 1);
   final hour = clamped ~/ 60;
   final minute = clamped % 60;
-  final mm = minute.toString().padLeft(2, '0');
+  final locale = languageCode ?? LocaleSettings.currentLocale.languageCode;
+  final at = DateTime(2000, 1, 1, hour, minute);
   if (use24h) {
-    return '${hour.toString().padLeft(2, '0')}:$mm';
+    return DateFormat.Hm(locale).format(at);
   }
-  final period = hour >= 12 ? 'PM' : 'AM';
-  final h12 = hour % 12 == 0 ? 12 : hour % 12;
-  return '$h12:$mm $period';
+  return DateFormat.jm(locale).format(at);
 }
 
 /// Chip label: frequency, optionally with reminder time.
@@ -105,6 +109,9 @@ String recurrenceSummaryLabel({
 }
 
 /// Shows frequency, mode, weekdays, and optional time; null if cancelled.
+///
+/// When [allowCloneMode] is false (category habits), mode is forced to reopen
+/// and the mode step is skipped — clone spawning is item-level only.
 Future<RecurrenceSelection?> showRecurrencePicker({
   required BuildContext context,
   required RecurrenceFrequency current,
@@ -112,6 +119,7 @@ Future<RecurrenceSelection?> showRecurrencePicker({
   RecurrenceMode currentMode = RecurrenceMode.clone,
   int? currentMinuteOfDay,
   bool use24h = true,
+  bool allowCloneMode = true,
 }) async {
   RecurrenceFrequency? pickedFrequency;
   await showSelectionDialog<RecurrenceFrequency>(
@@ -142,18 +150,23 @@ Future<RecurrenceSelection?> showRecurrencePicker({
     }
   }
 
-  RecurrenceMode? pickedMode;
-  await showSelectionDialog<RecurrenceMode>(
-    context: context,
-    title: 'recurrenceMode'.tr,
-    icon: IconsaxPlusBold.repeat,
-    items: RecurrenceMode.values,
-    currentValue: currentMode,
-    itemBuilder: recurrenceModeLabel,
-    onSelected: (value) => pickedMode = value,
-  );
-  final mode = pickedMode;
-  if (mode == null || !context.mounted) return null;
+  late final RecurrenceMode mode;
+  if (!allowCloneMode) {
+    mode = RecurrenceMode.reopen;
+  } else {
+    RecurrenceMode? pickedMode;
+    await showSelectionDialog<RecurrenceMode>(
+      context: context,
+      title: 'recurrenceMode'.tr,
+      icon: IconsaxPlusBold.repeat,
+      items: RecurrenceMode.values,
+      currentValue: currentMode,
+      itemBuilder: recurrenceModeLabel,
+      onSelected: (value) => pickedMode = value,
+    );
+    if (pickedMode == null || !context.mounted) return null;
+    mode = pickedMode!;
+  }
 
   final minute = await _showRecurrenceTimeDialog(
     context: context,

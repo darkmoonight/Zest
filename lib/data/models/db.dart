@@ -52,20 +52,20 @@ class Settings {
   /// Notification snooze duration in minutes.
   int snoozeDuration = AppConstants.defaultSnoozeDuration;
 
-  /// Sort order for the all-todos list.
+  /// Sort order for the all-items list.
   @enumerated
   SortOption allTodosSortOption = SortOption.none;
 
-  /// Whether All Todos includes todos from archived categories.
+  /// Whether All Items includes items from archived categories.
   bool showArchivedInAllTodos = false;
 
-  /// Whether Calendar includes todos from archived categories.
+  /// Whether Calendar includes items from archived categories.
   bool showArchivedInCalendar = false;
 
-  /// Whether Statistics includes todos from archived categories.
+  /// Whether Statistics includes items from archived categories.
   bool showArchivedInStatistics = false;
 
-  /// Sort order for the calendar todos list.
+  /// Sort order for the calendar items list.
   @enumerated
   SortOption calendarSortOption = SortOption.none;
 
@@ -91,10 +91,10 @@ class Settings {
   /// Whether the built-in Default category has already been seeded once.
   bool defaultCategorySeeded = false;
 
-  /// User-selected default category id used when creating todos without a pick.
+  /// User-selected default category id used when creating items without a pick.
   int? defaultCategoryId;
 
-  /// Whether todos with deadlines are exported to the device calendar.
+  /// Whether items with deadlines are exported to the device calendar.
   bool deviceCalendarSyncEnabled = false;
 
   /// Target device calendar id for Android export.
@@ -102,15 +102,15 @@ class Settings {
   /// When null, auto-resolves: Google → local Zest → create local Zest.
   String? deviceCalendarId;
 
-  /// Whether completed todos are automatically deleted on a schedule.
+  /// Whether completed items are automatically deleted on a schedule.
   bool autoEraseCompletedEnabled = false;
 
-  /// How often completed todos are erased when [autoEraseCompletedEnabled].
+  /// How often completed items are erased when [autoEraseCompletedEnabled].
   @enumerated
   AutoEraseCompletedFrequency autoEraseCompletedFrequency =
       AutoEraseCompletedFrequency.weekly;
 
-  /// Timestamp of the last successful auto-erase of completed todos.
+  /// Timestamp of the last successful auto-erase of completed items.
   DateTime? lastAutoEraseCompletedTime;
 
   /// Bumped when the Settings Isar layout changes; triggers a re-save migration.
@@ -165,7 +165,7 @@ class Settings {
   }
 }
 
-/// Todo list sort options stored in settings and task/todo records.
+/// Item list sort options stored in settings and task/item records.
 enum SortOption {
   /// No custom sort applied.
   none,
@@ -210,16 +210,16 @@ enum AutoBackupFrequency {
   monthly,
 }
 
-/// How often completed todos are auto-erased.
+/// How often completed items are auto-erased.
 enum AutoEraseCompletedFrequency {
-  /// Erase completed todos older than about one week.
+  /// Erase completed items older than about one week.
   weekly,
 
-  /// Erase completed todos older than about one month.
+  /// Erase completed items older than about one month.
   monthly,
 }
 
-/// How often a todo or category habit repeats.
+/// How often a list item or category habit repeats.
 enum RecurrenceFrequency {
   /// No recurrence.
   none,
@@ -243,7 +243,7 @@ enum RecurrenceMode {
   reopen,
 }
 
-/// Task category grouping todos.
+/// Task category grouping items.
 @collection
 class Tasks {
   /// Isar primary key.
@@ -264,11 +264,11 @@ class Tasks {
   /// Manual sort index in the task list.
   int? index;
 
-  /// Default sort for todos within this task.
+  /// Default sort for items within this task.
   @enumerated
   SortOption sortOption = SortOption.none;
 
-  /// Habit reset / default recurrence for todos in this category.
+  /// Habit reset / default recurrence for items in this category.
   @enumerated
   RecurrenceFrequency recurrence = RecurrenceFrequency.none;
 
@@ -285,7 +285,7 @@ class Tasks {
   /// Whether this is the built-in system Default category.
   bool isSystem;
 
-  /// Todos belonging to this task.
+  /// Items belonging to this task.
   @Backlink(to: 'task')
   final todos = IsarLinks<Todos>();
 
@@ -306,7 +306,7 @@ class Tasks {
   });
 }
 
-/// A todo item, optionally nested under a parent todo.
+/// List item, optionally nested under a parent item.
 @collection
 class Todos {
   /// Isar primary key.
@@ -321,17 +321,17 @@ class Todos {
   /// Scheduled completion or reminder time.
   DateTime? todoCompletedTime;
 
-  /// When the todo was created.
+  /// When the item was created.
   DateTime createdTime;
 
-  /// When the todo was marked done or cancelled.
+  /// When the item was marked done or cancelled.
   DateTime? todoCompletionTime;
 
   /// Legacy completion flag; prefer [status].
   @Deprecated('Use status field instead')
   bool done;
 
-  /// Whether the todo is pinned.
+  /// Whether the item is pinned.
   bool fix;
 
   /// Priority level for sorting and display.
@@ -348,28 +348,28 @@ class Todos {
   /// Manual sort index within its list.
   int? index;
 
-  /// Default sort for child todos.
+  /// Default sort for child items.
   @enumerated
   SortOption childrenSortOption = SortOption.none;
 
   /// Linked device-calendar event id when Android calendar export is enabled.
   String? deviceCalendarEventId;
 
-  /// How this todo repeats after completion.
+  /// How this item repeats after completion.
   @enumerated
   RecurrenceFrequency recurrence = RecurrenceFrequency.none;
 
   /// Weekdays (1–7) for weekly [recurrence]; empty uses due-date weekday.
   List<int> recurrenceWeekdays = [];
 
-  /// Clone-on-complete vs reopen-on-schedule for this todo.
+  /// Clone-on-complete vs reopen-on-schedule for this item.
   @enumerated
   RecurrenceMode recurrenceMode = RecurrenceMode.clone;
 
   /// Fixed reminder time as minutes from midnight; null = no forced time.
   int? recurrenceMinuteOfDay;
 
-  /// Parent todo when this is a subtask.
+  /// Parent item when this is a subtask.
   final parent = IsarLink<Todos>();
 
   /// Direct child subtasks.
@@ -379,7 +379,7 @@ class Todos {
   /// Owning task category.
   final task = IsarLink<Tasks>();
 
-  /// Creates a todo with required name and creation time.
+  /// Creates a list item with required name and creation time.
   Todos({
     this.id = Isar.autoIncrement,
     required this.name,
@@ -400,7 +400,7 @@ class Todos {
   });
 }
 
-/// Todo priority levels with display labels and colors.
+/// Item priority levels with display labels and colors.
 enum Priority {
   /// High priority.
   high(name: 'highPriority', color: Colors.red),
@@ -424,7 +424,7 @@ enum Priority {
   final Color? color;
 }
 
-/// Todo lifecycle status.
+/// Item lifecycle status.
 enum TodoStatus {
   /// Open and not completed.
   active,

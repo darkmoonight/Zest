@@ -5,7 +5,7 @@ import 'package:zest/core/di/providers.dart';
 import 'package:zest/core/widgets/multi_select_action_bar.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Floating action bar for bulk todo selection.
+/// Floating action bar for bulk item selection.
 class SelectionActionBar extends ConsumerWidget {
   /// Creates a [SelectionActionBar].
   const SelectionActionBar({
@@ -17,19 +17,19 @@ class SelectionActionBar extends ConsumerWidget {
     required this.selectedCount,
   });
 
-  /// Opens the transfer sheet for selected todos.
+  /// Opens the transfer sheet for selected items.
   final VoidCallback onTransfer;
 
-  /// Deletes selected todos after confirmation.
+  /// Deletes selected items after confirmation.
   final VoidCallback onDelete;
 
   /// Toggles select-all for the current list.
   final VoidCallback onSelectAll;
 
-  /// Whether all visible todos are selected.
+  /// Whether all visible items are selected.
   final bool isAllSelected;
 
-  /// Number of selected todos.
+  /// Number of selected items.
   final int selectedCount;
 
   @override

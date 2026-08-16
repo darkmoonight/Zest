@@ -2,11 +2,11 @@ import 'package:isar_community/isar.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/features/statistics/presentation/models/statistics_data.dart';
 
-/// Aggregates completion metrics, streaks, and chart data from Isar todos.
+/// Aggregates completion metrics, streaks, and chart data from Isar items.
 class StatisticsService {
-  /// Loads todos and computes dashboard statistics.
+  /// Loads items and computes dashboard statistics.
   ///
-  /// When [includeArchivedCategories] is false, todos whose category is
+  /// When [includeArchivedCategories] is false, items whose category is
   /// archived (or has no linked category) are excluded.
   static Future<StatisticsData> calculateStatistics(
     Isar isar, {

@@ -1016,11 +1016,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: '12-18'
 	String get time_range12to18 => '12-18';
 
-	/// en-US: '12-6 AM'
-	String get time_range12to6_am => '12-6 AM';
+	/// en-US: '12–6 AM'
+	String get time_range12to6_am => '12–6 AM';
 
-	/// en-US: '12-6 PM'
-	String get time_range12to6_pm => '12-6 PM';
+	/// en-US: '12–6 PM'
+	String get time_range12to6_pm => '12–6 PM';
 
 	/// en-US: '18-24'
 	String get time_range18to24 => '18-24';
@@ -1028,11 +1028,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: '6-12'
 	String get time_range6to12 => '6-12';
 
-	/// en-US: '6-12 AM'
-	String get time_range6to12_am => '6-12 AM';
+	/// en-US: '6–12 AM'
+	String get time_range6to12_am => '6–12 AM';
 
-	/// en-US: '6-12 PM'
-	String get time_range6to12_pm => '6-12 PM';
+	/// en-US: '6–12 PM'
+	String get time_range6to12_pm => '6–12 PM';
 
 	/// en-US: 'Organize Your Todos'
 	String get title1 => 'Organize Your Todos';
@@ -1440,12 +1440,12 @@ extension on Translations {
 			'time_period_night' => 'Night',
 			'time_range0to6' => '0-6',
 			'time_range12to18' => '12-18',
-			'time_range12to6_am' => '12-6 AM',
-			'time_range12to6_pm' => '12-6 PM',
+			'time_range12to6_am' => '12–6 AM',
+			'time_range12to6_pm' => '12–6 PM',
 			'time_range18to24' => '18-24',
 			'time_range6to12' => '6-12',
-			'time_range6to12_am' => '6-12 AM',
-			'time_range6to12_pm' => '6-12 PM',
+			'time_range6to12_am' => '6–12 AM',
+			'time_range6to12_pm' => '6–12 PM',
 			'title1' => 'Organize Your Todos',
 			'title2' => 'User-Friendly Design',
 			'title3' => 'Contact Us',

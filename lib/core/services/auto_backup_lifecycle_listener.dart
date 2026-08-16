@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zest/core/di/list_reload.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/services/auto_backup_service.dart';
 import 'package:zest/core/services/auto_erase_completed_service.dart';
 import 'package:zest/core/services/recurrence_background_scheduler.dart';
 import 'package:zest/core/services/recurrence_coordinator.dart';
-import 'package:zest/features/todos/application/todos_notifier.dart';
 
 /// Runs scheduled maintenance when the app returns to the foreground.
 class AutoBackupLifecycleListener extends ConsumerStatefulWidget {
@@ -61,7 +61,7 @@ class _AutoBackupLifecycleListenerState
     }
   }
 
-  /// Runs auto-backup, category habit reset, and auto-erase; then reloads todos.
+  /// Runs auto-backup, rollover, reschedule, auto-erase; then reloads lists.
   Future<void> _runMaintenance() async {
     final onResumed = widget.onResumed;
     if (onResumed != null) {
@@ -83,6 +83,14 @@ class _AutoBackupLifecycleListenerState
       calendarSync: calendar,
     );
     await coordinator.runMidnightRollover();
+
+    final todos = await ref.read(todoRepositoryProvider).getAll();
+    await notifications.rescheduleActiveReminders(
+      todos,
+      settings: settings,
+      firePastDueImmediately: false,
+    );
+
     await RecurrenceBackgroundScheduler.registerJobs();
 
     await AutoEraseCompletedService.checkAndPerform(
@@ -93,7 +101,7 @@ class _AutoBackupLifecycleListenerState
     );
 
     if (!mounted) return;
-    await ref.read(todosNotifierProvider.notifier).reloadTodos();
+    await reloadTodosAndTasks(ref);
   }
 
   /// Passes through the wrapped [child] widget.

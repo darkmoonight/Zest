@@ -1,24 +1,24 @@
+import 'dart:isolate';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:isar_community/isar.dart';
+import 'package:zest/core/bootstrap/background_isar_context.dart';
 import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
-import 'package:zest/core/bootstrap/isar_bootstrap.dart';
-import 'package:zest/core/constants/app_constants.dart';
-import 'package:zest/core/bootstrap/notification_bootstrap.dart';
-import 'package:zest/core/services/device_calendar_sync_service.dart';
-import 'package:zest/core/services/notification_service.dart';
-import 'package:zest/core/services/todo_service.dart';
 import 'package:zest/core/utils/notification.dart';
 import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/todo_repository.dart';
-import 'package:zest/i18n/locale_utils.dart';
 
 /// Background isolate entry point for notification taps and actions.
+///
+/// The plugin invokes this as a synchronous `void` callback and does not await
+/// Futures. An open [ReceivePort] keeps the isolate alive until
+/// [handleNotificationResponse] finishes Isar writes / reschedule.
 @pragma('vm:entry-point')
-void notificationTapBackground(NotificationResponse response) =>
-    handleNotificationResponse(response);
+void notificationTapBackground(NotificationResponse response) {
+  final keepAlive = ReceivePort();
+  handleNotificationResponse(response).whenComplete(keepAlive.close);
+}
 
-/// Handles notification taps: body tap opens the todo; actions mutate the database.
+/// Handles notification taps: body opens the entry; actions mutate the database.
 ///
 /// When [NotificationResponse.actionId] is null, queues navigation via
 /// [NotificationHandlerBridge.requestTodoOpen]. Mark Done and Snooze run in
@@ -29,27 +29,21 @@ Future<void> handleNotificationResponse(NotificationResponse response) async {
     final actionId = response.actionId;
     if (payload == null) return;
 
-    final todoId = int.tryParse(payload);
-    if (todoId == null) return;
+    final itemId = int.tryParse(payload);
+    if (itemId == null) return;
 
     if (actionId == null) {
-      NotificationHandlerBridge.requestTodoOpen(todoId);
+      NotificationHandlerBridge.requestTodoOpen(itemId);
       return;
     }
 
-    await _withIsar((isar) async {
-      final settings = await isar.settings.where().findFirst() ?? Settings();
-      await applyAppLocale(appLocaleFromLanguageCode(settings.language));
-      await ensureNotificationEnvironmentForBackground(
-        snoozeMinutes: settings.snoozeDuration,
-      );
-
+    await withBackgroundIsar((ctx) async {
       switch (actionId) {
         case NotificationShow.actionIdMarkDone:
-          await _markTodoAsDone(isar, settings, todoId);
+          await _markItemDone(ctx, itemId);
           break;
         case NotificationShow.actionIdSnooze:
-          await _snoozeTodo(isar, settings, todoId);
+          await _snoozeItem(ctx, itemId);
           break;
         default:
           break;
@@ -61,71 +55,24 @@ Future<void> handleNotificationResponse(NotificationResponse response) async {
   }
 }
 
-/// Marks the todo with [todoId] done from a notification action.
-Future<void> markTodoAsDone(int todoId) async {
+/// Marks the list item with [itemId] done from a notification action.
+Future<void> markTodoAsDone(int itemId) async {
   try {
-    await _withIsar((isar) async {
-      final settings = await isar.settings.where().findFirst() ?? Settings();
-      await applyAppLocale(appLocaleFromLanguageCode(settings.language));
-      await ensureNotificationEnvironmentForBackground(
-        snoozeMinutes: settings.snoozeDuration,
-      );
-      await _markTodoAsDone(isar, settings, todoId);
-    });
+    await withBackgroundIsar((ctx) => _markItemDone(ctx, itemId));
   } catch (e, stackTrace) {
-    debugPrint('Error marking todo as done: $e');
+    debugPrint('Error marking item as done: $e');
     debugPrint('$stackTrace');
   }
 }
 
-Future<void> _snoozeTodo(Isar isar, Settings settings, int todoId) async {
-  final todo = await isar.todos.get(todoId);
-  if (todo == null) return;
-
-  final todoService = _todoServiceFor(isar, settings);
-  await todoService.snoozeTodo(todo, settings);
+Future<void> _snoozeItem(BackgroundIsarContext ctx, int itemId) async {
+  final item = await ctx.isar.todos.get(itemId);
+  if (item == null) return;
+  await ctx.todoService().snoozeTodo(item, ctx.settings);
 }
 
-Future<void> _markTodoAsDone(Isar isar, Settings settings, int todoId) async {
-  final todo = await isar.todos.get(todoId);
-  if (todo == null) return;
-
-  final todoService = _todoServiceFor(isar, settings);
-  await todoService.markTodoAsDone(todo);
-}
-
-/// Builds a [TodoService] for background notification handlers.
-TodoService _todoServiceFor(Isar isar, Settings settings) {
-  final todoRepo = TodoRepository(isar);
-  return TodoService(
-    todoRepo: todoRepo,
-    notificationService: NotificationService(settings: settings),
-    calendarSync: DeviceCalendarSyncService(
-      getSettings: () => settings,
-      todoRepo: todoRepo,
-      saveSettings: (updated) async {
-        await isar.writeTxn(() async {
-          await isar.settings.put(updated);
-        });
-      },
-    ),
-    timeformat: settings.timeformat,
-    languageCode:
-        settings.language?.split('_').first ?? AppConstants.defaultLanguageCode,
-  );
-}
-
-/// Opens or reuses Isar, runs [action], and closes when opened here.
-Future<void> _withIsar(Future<void> Function(Isar isar) action) async {
-  final (isarInstance, openedHere) =
-      await IsarBootstrap.acquireIsarForBackgroundHandler();
-  if (isarInstance == null) return;
-
-  try {
-    await action(isarInstance);
-  } finally {
-    if (openedHere) {
-      await isarInstance.close();
-    }
-  }
+Future<void> _markItemDone(BackgroundIsarContext ctx, int itemId) async {
+  final item = await ctx.isar.todos.get(itemId);
+  if (item == null) return;
+  await ctx.todoService().markTodoAsDone(item);
 }

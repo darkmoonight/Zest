@@ -12,12 +12,12 @@ import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/app_back_button.dart';
 
-/// Todos list for a parent todo subtree.
+/// Items list for a parent item subtree.
 class TodosTodo extends ConsumerStatefulWidget {
   /// Creates a [TodosTodo].
   const TodosTodo({super.key, required this.todo});
 
-  /// Parent todo whose children are listed.
+  /// Parent item whose children are listed.
   final Todos todo;
 
   @override

@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/constants/app_constants.dart';
 
-/// Styled metadata chip used on todo and task cards.
+/// Styled metadata chip used on item and task cards.
 class MetadataChip extends StatelessWidget {
   /// Creates a chip with accent border and background tints.
   const MetadataChip({

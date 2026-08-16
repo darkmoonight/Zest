@@ -17,7 +17,6 @@ class SettingsPrivacySecuritySection extends ConsumerStatefulWidget {
       _SettingsPrivacySecuritySectionState();
 }
 
-/// Widget that settings privacy security section state.
 class _SettingsPrivacySecuritySectionState
     extends SettingsSectionConsumerState<SettingsPrivacySecuritySection> {
   @override

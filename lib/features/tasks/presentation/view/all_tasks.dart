@@ -24,7 +24,6 @@ class AllTasks extends ConsumerStatefulWidget {
   ConsumerState<AllTasks> createState() => _AllTasksState();
 }
 
-/// Widget that all tasks state.
 class _AllTasksState extends ConsumerState<AllTasks>
     with SingleTickerProviderStateMixin {
   /// The tab controller.

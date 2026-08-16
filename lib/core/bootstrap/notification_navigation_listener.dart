@@ -11,7 +11,7 @@ import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_action.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Opens the todo edit sheet when the user taps a notification body.
+/// Opens the item edit sheet when the user taps a notification body.
 class NotificationNavigationListener extends ConsumerStatefulWidget {
   /// Wraps [child] and handles deferred notification navigation.
   const NotificationNavigationListener({super.key, required this.child});
@@ -69,8 +69,17 @@ class _NotificationNavigationListenerState
     final todoId = _pendingTodoId ?? NotificationHandlerBridge.pendingTodoId;
     if (todoId == null) return;
 
+    // Hold the id until onboarding finishes; HomeScreen is not mounted yet.
+    if (!ref.read(settingsProvider).onboard) {
+      _pendingTodoId = todoId;
+      NotificationHandlerBridge.pendingTodoId = todoId;
+      return;
+    }
+
     whenHomeContextReady(
       fallback: context,
+      shouldContinue: () =>
+          (_pendingTodoId ?? NotificationHandlerBridge.pendingTodoId) == todoId,
       action: (ctx) {
         _pendingTodoId = null;
         NotificationHandlerBridge.pendingTodoId = null;
@@ -108,5 +117,15 @@ class _NotificationNavigationListenerState
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    ref.listen<bool>(settingsProvider.select((s) => s.onboard), (
+      previous,
+      next,
+    ) {
+      if (next && previous != true) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _tryOpenPending());
+      }
+    });
+    return widget.child;
+  }
 }

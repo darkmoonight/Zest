@@ -1,6 +1,6 @@
 import 'package:zest/data/models/db.dart';
 
-/// Pure recurrence math and clone helpers for todos / categories.
+/// Pure recurrence math and clone helpers for items / categories.
 ///
 /// Day model:
 /// - [recurrenceMinuteOfDay] is the reminder / notification clock.
@@ -96,9 +96,9 @@ class RecurrenceService {
     return due;
   }
 
-  /// Resolves due for a todo living under [task], preferring the todo's own rule.
+  /// Resolves due for a list item living under [task], preferring the item's own rule.
   ///
-  /// - Own recurring todo → [todoMinuteOfDay] / weekdays.
+  /// - Own recurring item → [todoMinuteOfDay] / weekdays.
   /// - Otherwise category habit (`todoRecurrence == none`) → [task] reminder.
   /// - Explicit [fallbackTime] (parsed due) wins over a missing category minute.
   static DateTime? resolveDueForTodoInTask({
@@ -133,7 +133,7 @@ class RecurrenceService {
     );
   }
 
-  /// Convenience wrapper around [resolveDueForTodoInTask] using [todo] fields.
+  /// Convenience wrapper around [resolveDueForTodoInTask] using [item] fields.
   static DateTime? resolveDueForTodo({
     required Todos todo,
     required Tasks task,
@@ -150,7 +150,7 @@ class RecurrenceService {
     fallbackTime: fallbackTime,
   );
 
-  /// Whether [todo] is an active child governed by [task]'s habit (no own repeat).
+  /// Whether [item] is an active child governed by [task]'s habit (no own repeat).
   static bool isCategoryHabitChild({
     required Todos todo,
     required Tasks task,
@@ -159,7 +159,7 @@ class RecurrenceService {
       !isRecurring(todo.recurrence) &&
       isRecurring(task.recurrence);
 
-  /// Whether an active category-habit todo needs due stamped from [task].
+  /// Whether an active category-habit item needs due stamped from [task].
   static bool shouldEnsureCategoryHabitDue({
     required Todos todo,
     required Tasks task,
@@ -267,13 +267,15 @@ class RecurrenceService {
     return applyRecurrenceTime(next, minuteOfDay, fallbackTime: from);
   }
 
-  /// Whether a category habit reset should reopen [todo] given [task] rule.
+  /// Whether a category habit reset should reopen [item] given [task] rule.
+  ///
+  /// Category habits only support reopen; legacy [RecurrenceMode.clone] on a
+  /// category is treated as reopen (clone spawning is item-level only).
   static bool shouldResetCategoryHabit({
     required Todos todo,
     required Tasks task,
     DateTime? today,
   }) {
-    if (task.recurrenceMode != RecurrenceMode.reopen) return false;
     if (!isRecurring(task.recurrence)) return false;
     if (isRecurring(todo.recurrence)) return false;
     return _shouldReopenCompleted(
@@ -285,7 +287,7 @@ class RecurrenceService {
     );
   }
 
-  /// Whether a todo with its own reopen recurrence should become active again.
+  /// Whether a list item with its own reopen recurrence should become active again.
   static bool shouldResetTodoHabit({required Todos todo, DateTime? today}) {
     if (todo.recurrenceMode != RecurrenceMode.reopen) return false;
     if (!isRecurring(todo.recurrence)) return false;
@@ -298,7 +300,7 @@ class RecurrenceService {
     );
   }
 
-  /// Whether a done clone-mode todo should spawn an active sibling for [today].
+  /// Whether a done clone-mode item should spawn an active sibling for [today].
   static bool shouldSpawnCloneForToday({required Todos todo, DateTime? today}) {
     if (todo.recurrenceMode != RecurrenceMode.clone) return false;
     if (!isRecurring(todo.recurrence)) return false;
@@ -317,7 +319,7 @@ class RecurrenceService {
     );
   }
 
-  /// Whether an active clone-mode todo's due should be bumped to [today].
+  /// Whether an active clone-mode item's due should be bumped to [today].
   static bool shouldBumpActiveCloneDue({required Todos todo, DateTime? today}) {
     if (todo.recurrenceMode != RecurrenceMode.clone) return false;
     if (!isRecurring(todo.recurrence)) return false;

@@ -55,7 +55,6 @@ class AppLicensePage extends ConsumerWidget {
   }
 }
 
-/// Widget that license package list.
 class _LicensePackageList extends StatelessWidget {
   /// Creates a [_LicensePackageList].
   const _LicensePackageList({
@@ -106,7 +105,6 @@ class _LicensePackageList extends StatelessWidget {
   }
 }
 
-/// Widget that license detail dialog.
 class _LicenseDetailDialog extends StatelessWidget {
   /// Creates a [_LicenseDetailDialog].
   const _LicenseDetailDialog({required this.license});
@@ -174,7 +172,6 @@ TextStyle _licenseBodyStyle(BuildContext context, ColorScheme colorScheme) =>
       height: 1.5,
     );
 
-/// Widget that license app header.
 class _LicenseAppHeader extends ConsumerWidget {
   /// Creates a [_LicenseAppHeader].
   const _LicenseAppHeader({
@@ -288,7 +285,6 @@ class _LicenseAppHeader extends ConsumerWidget {
   }
 }
 
-/// Widget that app version chip.
 class _AppVersionChip extends StatelessWidget {
   /// Creates a [_AppVersionChip].
   const _AppVersionChip({required this.version});

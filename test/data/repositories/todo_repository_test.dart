@@ -127,7 +127,8 @@ void main() {
     final child = await createTestTodo(isar, task: taskA, name: 'Child');
 
     await repo.moveToParent(
-      todoIds: {child.id},
+      rootIds: {child.id},
+      subtreeIds: {child.id},
       newParent: parent,
       newTask: taskB,
     );
@@ -138,6 +139,37 @@ void main() {
 
     expect(reloaded.parent.value?.id, parent.id);
     expect(reloaded.task.value?.id, taskB.id);
+  });
+
+  test('moveToParent preserves nested links inside subtree', () async {
+    final task = await createTestTask(isar, title: 'A');
+    final newParent = await createTestTodo(
+      isar,
+      task: task,
+      name: 'New parent',
+    );
+    final root = await createTestTodo(isar, task: task, name: 'Root');
+    final mid = await createTestTodo(isar, task: task, name: 'Mid');
+    mid.parent.value = root;
+    await isar.writeTxn(() async {
+      await isar.todos.put(mid);
+      await mid.parent.save();
+    });
+
+    await repo.moveToParent(
+      rootIds: {root.id},
+      subtreeIds: {root.id, mid.id},
+      newParent: newParent,
+      newTask: null,
+    );
+
+    final reloadedRoot = (await repo.getById(root.id))!;
+    final reloadedMid = (await repo.getById(mid.id))!;
+    await reloadedRoot.parent.load();
+    await reloadedMid.parent.load();
+
+    expect(reloadedRoot.parent.value?.id, newParent.id);
+    expect(reloadedMid.parent.value?.id, root.id);
   });
 
   test('deleteBatch removes todos', () async {

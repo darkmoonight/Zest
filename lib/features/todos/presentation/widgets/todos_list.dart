@@ -16,7 +16,7 @@ import 'package:zest/features/todos/presentation/widgets/todo_card.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_action.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Scrollable list of filtered and sorted todo cards.
+/// Scrollable list of filtered and sorted item cards.
 class TodosList extends ConsumerStatefulWidget {
   /// Creates a [TodosList].
   const TodosList({
@@ -38,10 +38,10 @@ class TodosList extends ConsumerStatefulWidget {
   /// The task.
   final Tasks? task;
 
-  /// The todo.
+  /// The item.
   final Todos? todo;
 
-  /// The all todos.
+  /// The all items.
   final bool allTodos;
 
   /// The calendar.
@@ -50,13 +50,13 @@ class TodosList extends ConsumerStatefulWidget {
   /// The selected day.
   final DateTime? selectedDay;
 
-  /// The search todo.
+  /// The search item.
   final String searchTodo;
 
   /// The sort option.
   final SortOption? sortOption;
 
-  /// When true, todos from archived categories are hidden (All Todos).
+  /// When true, items from archived categories are hidden (All Items).
   final bool excludeArchivedCategories;
 
   @override
@@ -157,14 +157,14 @@ class _TodosListState extends ConsumerState<TodosList>
     );
   }
 
-  /// Todos.
+  /// Items.
   List<Todos> _getFilteredAndSortedTodos(TodosNotifier todosNotifier) {
     final filteredList = _filterTodos(todosNotifier);
     _sortTodos(filteredList);
     return filteredList;
   }
 
-  /// Todos.
+  /// Items.
   List<Todos> _filterTodos(TodosNotifier todosNotifier) {
     if (widget.task != null) {
       return todosNotifier.getFilteredTodos(
@@ -201,7 +201,7 @@ class _TodosListState extends ConsumerState<TodosList>
     );
   }
 
-  /// Sort todos.
+  /// Sort items.
   void _sortTodos(List<Todos> todos) {
     final opt = widget.sortOption ?? SortOption.none;
 
@@ -285,7 +285,7 @@ class _TodosListState extends ConsumerState<TodosList>
     );
   }
 
-  /// Builds the todo card widget.
+  /// Builds the item card widget.
   Widget _buildTodoCard(
     Todos todo,
     TodosNotifier todosNotifier,
@@ -336,7 +336,7 @@ class _TodosListState extends ConsumerState<TodosList>
     await todosNotifier.reloadTodos();
   }
 
-  /// Handle todo tap.
+  /// Handle item tap.
   void _handleTodoTap(
     Todos todo,
     TodosNotifier todosNotifier,
@@ -349,7 +349,7 @@ class _TodosListState extends ConsumerState<TodosList>
     }
   }
 
-  /// Handle todo double tap.
+  /// Handle item double tap.
   void _handleTodoDoubleTap(
     Todos todo,
     TodosNotifier todosNotifier,
@@ -361,7 +361,7 @@ class _TodosListState extends ConsumerState<TodosList>
     todosNotifier.doMultiSelectionTodo(todo);
   }
 
-  /// Show todo action bottom sheet.
+  /// Show item action bottom sheet.
   void _showTodoActionBottomSheet(Todos todo) {
     NavigationHelper.showFormModal(
       context: context,

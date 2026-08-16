@@ -5,9 +5,9 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/text_form.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Search field sliver shared by todo list screens.
+/// Search field sliver shared by item list screens.
 class TodosSearchSliver extends StatelessWidget {
-  /// Creates a todo search field inside a [SliverToBoxAdapter].
+  /// Creates a list item search field inside a [SliverToBoxAdapter].
   const TodosSearchSliver({
     super.key,
     required this.controller,

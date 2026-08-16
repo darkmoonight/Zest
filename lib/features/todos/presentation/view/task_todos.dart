@@ -13,12 +13,12 @@ import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/app_back_button.dart';
 
-/// Todos list for a task category.
+/// Items list for a task category.
 class TaskTodos extends ConsumerStatefulWidget {
   /// Creates a [TaskTodos].
   const TaskTodos({super.key, required this.task});
 
-  /// Task category whose todos are listed.
+  /// Task category whose items are listed.
   final Tasks task;
 
   @override

@@ -5,7 +5,6 @@ import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Widget that settings section.
 class SettingsSection extends ConsumerWidget {
   /// Creates a [SettingsSection].
   const SettingsSection({

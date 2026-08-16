@@ -9,7 +9,7 @@ const List<String> tabScreenKeys = [
 /// Index of the categories tab in the home [IndexedStack].
 const int categoriesTabIndex = 0;
 
-/// Index of the all-todos tab in the home [IndexedStack].
+/// Index of the all-items tab in the home [IndexedStack].
 const int allTodosTabIndex = 1;
 
 /// Index of the calendar tab in the home [IndexedStack].

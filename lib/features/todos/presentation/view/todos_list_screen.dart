@@ -9,7 +9,7 @@ import 'package:zest/features/todos/presentation/widgets/todos_status_tab_bar.da
 import 'package:zest/features/todos/presentation/widgets/todos_tab_views.dart';
 import 'package:zest/core/widgets/scroll_fab_listener.dart';
 
-/// Configuration for [TodosListScreen] scoped to a task or parent todo.
+/// Configuration for [TodosListScreen] scoped to a task or parent item.
 class TodosListScreenConfig {
   /// Creates a [TodosListScreenConfig].
   const TodosListScreenConfig({
@@ -40,7 +40,7 @@ class TodosListScreenConfig {
   )
   buildTabViewsConfig;
 
-  /// Whether all visible todos in the current tab are selected.
+  /// Whether all visible items in the current tab are selected.
   final bool Function(
     TodoStatus statusFilter,
     String searchFilter,
@@ -61,7 +61,7 @@ class TodosListScreenConfig {
   final Widget? Function(BuildContext context) buildFab;
 }
 
-/// Shared todos list screen shell for task and sub-todo navigation.
+/// Shared items list screen shell for task and sub-item navigation.
 class TodosListScreen extends ConsumerStatefulWidget {
   /// Creates a [TodosListScreen].
   const TodosListScreen({super.key, required this.config});

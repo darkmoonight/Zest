@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_list.dart';
 
-/// Configuration for the three status tabs on todo list screens.
+/// Configuration for the three status tabs on item list screens.
 class TodosTabViewsConfig {
   /// Creates tab view configuration for [TodosTabViews].
   const TodosTabViewsConfig({
@@ -29,19 +29,19 @@ class TodosTabViewsConfig {
   /// Whether lists show calendar-day filtering.
   final bool calendar;
 
-  /// Whether lists show the global all-todos scope.
+  /// Whether lists show the global all-items scope.
   final bool allTodos;
 
   /// Category filter when scoped to a task.
   final Tasks? task;
 
-  /// Parent todo filter for subtasks.
+  /// Parent item filter for subtasks.
   final Todos? todo;
 
   /// Selected calendar day when [calendar] is true.
   final DateTime? selectedDay;
 
-  /// Hides todos from archived categories when true.
+  /// Hides items from archived categories when true.
   final bool excludeArchivedCategories;
 }
 

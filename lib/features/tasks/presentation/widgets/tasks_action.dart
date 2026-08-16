@@ -21,6 +21,7 @@ import 'package:zest/core/widgets/recurrence_form_fields.dart';
 import 'package:zest/core/widgets/text_form.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/color_extensions.dart';
+import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/utils/text_utils.dart';
@@ -56,7 +57,6 @@ class TasksAction extends ConsumerStatefulWidget {
   ConsumerState<TasksAction> createState() => _TasksActionState();
 }
 
-/// Widget that tasks action state.
 class _TasksActionState extends ConsumerState<TasksAction>
     with SingleTickerProviderStateMixin, ModalSheetAnimationMixin {
   /// Form key.
@@ -120,7 +120,9 @@ class _TasksActionState extends ConsumerState<TasksAction>
       _descController.text = widget.task!.description;
       _taskRecurrence = widget.task!.recurrence;
       _taskRecurrenceWeekdays = List<int>.from(widget.task!.recurrenceWeekdays);
-      _taskRecurrenceMode = widget.task!.recurrenceMode;
+      _taskRecurrenceMode = widget.task!.recurrenceMode == RecurrenceMode.clone
+          ? RecurrenceMode.reopen
+          : widget.task!.recurrenceMode;
       _taskRecurrenceMinuteOfDay = widget.task!.recurrenceMinuteOfDay;
     }
 
@@ -357,7 +359,9 @@ class _TasksActionState extends ConsumerState<TasksAction>
   /// Habit-reset control styled like the default-category / color cards.
   Widget _buildRecurrenceRow(BuildContext context) {
     final active = RecurrenceService.isRecurring(_taskRecurrence);
-    final use24h = ref.watch(appSettingsProvider).timeformat != '12';
+    final use24h = !DateTimeFormatHelper.is12HourFormat(
+      ref.watch(appSettingsProvider).timeformat,
+    );
 
     return TaskSheetOptionCard(
       leading: TaskSheetOptionIconPreview(
@@ -383,9 +387,12 @@ class _TasksActionState extends ConsumerState<TasksAction>
             context: context,
             current: _taskRecurrence,
             currentWeekdays: _taskRecurrenceWeekdays,
-            currentMode: _taskRecurrenceMode,
+            currentMode: _taskRecurrenceMode == RecurrenceMode.clone
+                ? RecurrenceMode.reopen
+                : _taskRecurrenceMode,
             currentMinuteOfDay: _taskRecurrenceMinuteOfDay,
             use24h: use24h,
+            allowCloneMode: false,
           );
           if (selection == null || !mounted) return;
           setState(() {
@@ -400,7 +407,7 @@ class _TasksActionState extends ConsumerState<TasksAction>
     );
   }
 
-  /// Toggle to mark this category as the user default for new todos.
+  /// Toggle to mark this category as the user default for new items.
   Widget _buildDefaultToggle() {
     return ValueListenableBuilder<bool>(
       valueListenable: _isDefaultNotifier,
@@ -496,8 +503,6 @@ class _TasksActionState extends ConsumerState<TasksAction>
 }
 
 // ==================== Color Picker Dialog ====================
-
-/// Widget that color picker dialog.
 class _ColorPickerDialog extends StatefulWidget {
   /// The initial color.
   final Color initialColor;
@@ -520,7 +525,6 @@ class _ColorPickerDialog extends StatefulWidget {
   State<_ColorPickerDialog> createState() => _ColorPickerDialogState();
 }
 
-/// Widget that color picker dialog state.
 class _ColorPickerDialogState extends State<_ColorPickerDialog>
     with SingleTickerProviderStateMixin {
   /// The temp color.

@@ -11,11 +11,12 @@ import 'package:zest/features/todos/presentation/widgets/todos_screen_mixin.dart
 import 'package:zest/features/todos/presentation/widgets/todos_status_tab_bar.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_tab_views.dart';
 import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/core/utils/calendar_format_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/scroll_fab_listener.dart';
 
-/// Widget that calendar todos.
+/// Calendar tab: day picker plus filtered list for the selected day.
 class CalendarTodos extends ConsumerStatefulWidget {
   /// Creates a [CalendarTodos].
   const CalendarTodos({super.key});
@@ -25,7 +26,6 @@ class CalendarTodos extends ConsumerStatefulWidget {
   ConsumerState<CalendarTodos> createState() => _CalendarTodosState();
 }
 
-/// Widget that calendar todos state.
 class _CalendarTodosState extends ConsumerState<CalendarTodos>
     with
         SingleTickerProviderStateMixin,
@@ -37,8 +37,13 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
   /// The selected day.
   DateTime? _selectedDay;
 
+  /// Calendar day when selection was last auto-synced to "today".
+  ///
+  /// Used so resume/tab-enter only jump when the calendar day actually changed.
+  late DateTime _calendarDayAtLastSync;
+
   /// F day.
-  DateTime fDay = DateTime.now().add(const Duration(days: -1000));
+  DateTime fDay = DateTime.now().subtract(AppConstants.calendarSelectableRange);
 
   /// L day.
   DateTime lDay = DateTime.now().add(AppConstants.calendarSelectableRange);
@@ -48,7 +53,10 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _selectedDay = _focusedDay;
+    final now = DateTime.now();
+    _focusedDay = now;
+    _selectedDay = now;
+    _calendarDayAtLastSync = RecurrenceService.calendarDay(now);
     initializeTodosScreen(
       initialSortOption: ref.read(settingsProvider).calendarSortOption,
       vsync: this,
@@ -78,9 +86,13 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
     }
   }
 
-  /// Jumps to today when the stored selection is stale.
+  /// Jumps to today only when the calendar day changed since last sync.
   void _syncCalendarToTodayIfNeeded() {
-    final today = DateTime.now();
+    final now = DateTime.now();
+    final today = RecurrenceService.calendarDay(now);
+    if (isSameDay(_calendarDayAtLastSync, today)) return;
+
+    _calendarDayAtLastSync = today;
     if (isSameDay(_selectedDay, today)) return;
 
     setState(() {
@@ -305,16 +317,16 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
     }
   }
 
-  /// Get first day of week.
+  /// Get first day of week from the live settings instance.
   StartingDayOfWeek _getFirstDayOfWeek() =>
       CalendarFormatHelper.startingDayOfWeekFromString(
-        ref.watch(appSettingsProvider).firstDay,
+        ref.read(liveSettingsProvider).firstDay,
       );
 
-  /// Get calendar format.
+  /// Get calendar format from the live settings instance (avoids clone lag).
   CalendarFormat _getCalendarFormat() =>
       CalendarFormatHelper.calendarFormatFromString(
-        ref.read(settingsProvider).calendarFormat,
+        ref.read(liveSettingsProvider).calendarFormat,
       );
 
   /// Void.

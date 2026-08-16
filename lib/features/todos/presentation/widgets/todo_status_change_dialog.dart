@@ -6,9 +6,9 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Animated dialog for changing todo status with optional bulk subtask actions.
+/// Animated dialog for changing item status with optional bulk subtask actions.
 class TodoStatusChangeDialog extends StatefulWidget {
-  /// Todo whose status is being changed.
+  /// Item whose status is being changed.
   final Todos todo;
 
   /// Whether the layout is mobile width.
@@ -17,10 +17,10 @@ class TodoStatusChangeDialog extends StatefulWidget {
   /// Called when the user picks a new status.
   final Function(TodoStatus) onStatusChanged;
 
-  /// Marks the todo and incomplete children as done.
+  /// Marks the item and incomplete children as done.
   final VoidCallback onBulkCompletion;
 
-  /// Marks the todo and children as cancelled.
+  /// Marks the item and children as cancelled.
   final VoidCallback onBulkCancellation;
 
   /// Creates a [TodoStatusChangeDialog].
@@ -38,7 +38,6 @@ class TodoStatusChangeDialog extends StatefulWidget {
   State<TodoStatusChangeDialog> createState() => TodoStatusChangeDialogState();
 }
 
-/// Widget that status change dialog state.
 class TodoStatusChangeDialogState extends State<TodoStatusChangeDialog>
     with SingleTickerProviderStateMixin {
   /// The animation controller.

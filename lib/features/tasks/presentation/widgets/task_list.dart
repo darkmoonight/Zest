@@ -15,7 +15,7 @@ import 'package:zest/features/todos/application/todos_notifier.dart';
 import 'package:zest/features/todos/presentation/view/task_todos.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Widget that tasks list.
+/// Scrollable list of task categories.
 class TasksList extends ConsumerStatefulWidget {
   /// Creates a [TasksList].
   const TasksList({
@@ -35,7 +35,6 @@ class TasksList extends ConsumerStatefulWidget {
   ConsumerState<TasksList> createState() => _TasksListState();
 }
 
-/// Widget that tasks list state.
 class _TasksListState extends ConsumerState<TasksList>
     with AutomaticKeepAliveClientMixin {
   @override
@@ -143,7 +142,7 @@ class _TasksListState extends ConsumerState<TasksList>
       percent: progress.percentageString,
       isSelected:
           tasksState.isMultiSelectionTask &&
-          tasksState.selectedTask.contains(task),
+          tasksState.selectedTaskIds.contains(task.id),
       onTap: () => _handleTaskTap(task, tasksNotifier, tasksState),
       onDoubleTap: () => _handleTaskDoubleTap(task, tasksNotifier, tasksState),
     );

@@ -6,10 +6,10 @@ import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 
-/// Midnight rollover and reopen for recurring todos / habit categories.
+/// Midnight rollover and reopen for recurring items / habit categories.
 ///
 /// Day model: reminder time drives notifications; local midnight creates the
-/// next clone or reopens a habit. Category habits apply only to todos with
+/// next clone or reopens a habit. Category habits apply only to items with
 /// [RecurrenceFrequency.none]. Catch-up is safe on app open / resume / Workmanager.
 class RecurrenceCoordinator {
   /// Creates a coordinator using [todoRepo] and optional notification/calendar.
@@ -48,6 +48,8 @@ class RecurrenceCoordinator {
   Future<int> _bumpStaleActiveClones(DateTime today, List<Todos> todos) async {
     var count = 0;
     for (final todo in todos) {
+      await todo.task.load();
+      if (todo.task.value?.archive == true) continue;
       if (!RecurrenceService.shouldBumpActiveCloneDue(
         todo: todo,
         today: today,
@@ -72,6 +74,7 @@ class RecurrenceCoordinator {
       if (!RecurrenceService.isRecurring(todo.recurrence)) continue;
       if (todo.recurrenceMode != RecurrenceMode.clone) continue;
       await todo.task.load();
+      if (todo.task.value?.archive == true) continue;
       final taskId = todo.task.value?.id;
       if (taskId == null) continue;
       activeFingerprints.add(RecurrenceService.cloneSiblingKey(taskId, todo));
@@ -90,7 +93,7 @@ class RecurrenceCoordinator {
       if (todo.parent.value != null) continue;
       await todo.task.load();
       final task = todo.task.value;
-      if (task == null) continue;
+      if (task == null || task.archive) continue;
       final key = RecurrenceService.cloneSiblingKey(task.id, todo);
       if (activeFingerprints.contains(key)) continue;
       final existing = candidates[key];
@@ -182,6 +185,8 @@ class RecurrenceCoordinator {
     var count = 0;
 
     for (final todo in todos) {
+      await todo.task.load();
+      if (todo.task.value?.archive == true) continue;
       if (!RecurrenceService.shouldResetTodoHabit(todo: todo, today: today)) {
         continue;
       }

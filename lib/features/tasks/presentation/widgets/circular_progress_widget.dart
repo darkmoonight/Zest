@@ -4,7 +4,6 @@ import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:zest/core/utils/progress_calculator.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 
-/// Widget that circular progress widget.
 class CircularProgressWidget extends StatelessWidget {
   /// The total.
   final int total;

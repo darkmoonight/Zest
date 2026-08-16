@@ -12,4 +12,9 @@ class NotificationPlugin {
   static FlutterLocalNotificationsPlugin getOrCreate() {
     return instance ??= FlutterLocalNotificationsPlugin();
   }
+
+  /// Clears [instance] after a failed initialize so callers retry cleanly.
+  static void clear() {
+    instance = null;
+  }
 }

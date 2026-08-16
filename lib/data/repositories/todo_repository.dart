@@ -1,7 +1,7 @@
 import 'package:isar_community/isar.dart';
 import 'package:zest/data/models/db.dart';
 
-/// Isar-backed CRUD and queries for [Todos].
+/// Isar-backed CRUD and queries for ⟦Items⟧.
 class TodoRepository {
   /// Creates a repository backed by [isar].
   TodoRepository(this._isar);
@@ -11,7 +11,7 @@ class TodoRepository {
 
   // ==================== CREATE ====================
 
-  /// Creates a todo linked to [task] and optional [parent].
+  /// Creates a list item linked to [task] and optional [parent].
   Future<Todos> create({
     required String name,
     required String description,
@@ -59,17 +59,17 @@ class TodoRepository {
 
   // ==================== READ ====================
 
-  /// Returns all todos sorted by [Todos.index].
+  /// Returns all items sorted by [Items.index].
   Future<List<Todos>> getAll() async {
     return await _isar.todos.where().sortByIndex().findAll();
   }
 
-  /// Returns the todo with [id], or null when missing.
+  /// Returns the item with [id], or null when missing.
   Future<Todos?> getById(int id) async {
     return await _isar.todos.get(id);
   }
 
-  /// Returns todos belonging to the task with [taskId].
+  /// Returns items belonging to the task with [taskId].
   Future<List<Todos>> getByTaskId(int taskId) async {
     return await _isar.todos
         .filter()
@@ -78,7 +78,7 @@ class TodoRepository {
         .findAll();
   }
 
-  /// Returns direct child todos of the parent with [parentId].
+  /// Returns direct child items of the parent with [parentId].
   Future<List<Todos>> getChildren(int parentId) async {
     return await _isar.todos
         .filter()
@@ -89,7 +89,7 @@ class TodoRepository {
 
   // ==================== UPDATE ====================
 
-  /// Persists changes on an existing [todo].
+  /// Persists changes on an existing [item].
   Future<void> update(Todos todo) async {
     await _isar.writeTxn(() => _isar.todos.put(todo));
   }
@@ -136,7 +136,7 @@ class TodoRepository {
     });
   }
 
-  /// Updates editable fields on [todo] and re-links [task].
+  /// Updates editable fields on [item] and re-links [task].
   Future<void> updateFields({
     required Todos todo,
     required String name,
@@ -168,7 +168,7 @@ class TodoRepository {
     });
   }
 
-  /// Moves todos in [todoIds] to [task], detaching from external parents.
+  /// Moves items in [todoIds] to [task], detaching from external parents.
   Future moveToTask({required Set todoIds, required Tasks task}) async {
     if (todoIds.isEmpty) return;
 
@@ -206,16 +206,21 @@ class TodoRepository {
     });
   }
 
-  /// Reparents todos in [todoIds] under [newParent] and optionally [newTask].
+  /// Reparents [rootIds] under [newParent]; keeps in-subtree parent links.
+  ///
+  /// [subtreeIds] must include every root and descendant. Only roots get
+  /// [newParent]; descendants keep their existing parent. Optional [newTask]
+  /// is applied to the whole subtree.
   Future<void> moveToParent({
-    required Set<int> todoIds,
+    required Set<int> rootIds,
+    required Set<int> subtreeIds,
     required Todos? newParent,
     required Tasks? newTask,
   }) async {
-    if (todoIds.isEmpty) return;
+    if (rootIds.isEmpty || subtreeIds.isEmpty) return;
 
     final todos = <Todos>[];
-    for (final id in todoIds) {
+    for (final id in subtreeIds) {
       final todo = await _isar.todos.get(id);
       if (todo != null) {
         todos.add(todo);
@@ -224,9 +229,20 @@ class TodoRepository {
 
     if (todos.isEmpty) return;
 
+    for (final todo in todos) {
+      await todo.parent.load();
+    }
+
     await _isar.writeTxn(() async {
       for (final todo in todos) {
-        todo.parent.value = newParent;
+        if (rootIds.contains(todo.id)) {
+          todo.parent.value = newParent;
+        } else {
+          final parent = todo.parent.value;
+          if (parent != null && !subtreeIds.contains(parent.id)) {
+            todo.parent.value = null;
+          }
+        }
         if (newTask != null) {
           todo.task.value = newTask;
         }
@@ -236,14 +252,12 @@ class TodoRepository {
 
       for (final todo in todos) {
         await todo.task.save();
-        if (todo.parent.value != null) {
-          await todo.parent.save();
-        }
+        await todo.parent.save();
       }
     });
   }
 
-  /// Persists sequential [Todos.index] values for [todos].
+  /// Persists sequential [Items.index] values for [items].
   Future<void> updateIndexes(List<Todos> todos) async {
     if (todos.isEmpty) return;
 
@@ -257,12 +271,12 @@ class TodoRepository {
 
   // ==================== DELETE ====================
 
-  /// Deletes the todo with [id].
+  /// Deletes the item with [id].
   Future<void> delete(int id) async {
     await _isar.writeTxn(() => _isar.todos.delete(id));
   }
 
-  /// Deletes all todos whose ids are in [ids].
+  /// Deletes all items whose ids are in [ids].
   Future<void> deleteBatch(Set<int> ids) async {
     if (ids.isEmpty) return;
 
@@ -273,7 +287,7 @@ class TodoRepository {
 
   // ==================== WATCH ====================
 
-  /// Emits when any todo collection change may have occurred.
+  /// Emits when any item collection change may have occurred.
   Stream<void> watchLazy() {
     return _isar.todos.watchLazy();
   }

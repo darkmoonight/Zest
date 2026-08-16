@@ -1,13 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/notifications/notification_channels.dart';
 import 'package:zest/core/notifications/notification_i18n.dart';
 import 'package:zest/core/services/notification_plugin.dart';
 import 'package:zest/data/models/db.dart' as db;
 import 'package:zest/i18n/tr.dart';
 
-/// Schedules, snoozes, and cancels local todo reminder notifications.
+/// Schedules, snoozes, and cancels local item reminder notifications.
 class NotificationShow {
   /// Action id for the mark-done notification button.
   static const String actionIdMarkDone = 'mark_done';
@@ -15,7 +16,7 @@ class NotificationShow {
   /// Action id for the snooze notification button.
   static const String actionIdSnooze = 'snooze';
 
-  /// iOS/macOS category id for todo reminder actions.
+  /// iOS/macOS category id for item reminder actions.
   static const String todoCategoryId = 'todoCategory';
 
   /// Returns the shared notifications plugin, or null when unsupported.
@@ -127,11 +128,16 @@ class NotificationShow {
       } catch (e) {
         debugPrint('Error requesting permissions: $e');
       }
-    } else if (defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.macOS) {
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       final platform = _plugin!
           .resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin
+          >();
+      await platform?.requestPermissions(alert: true, badge: true, sound: true);
+    } else if (defaultTargetPlatform == TargetPlatform.macOS) {
+      final platform = _plugin!
+          .resolvePlatformSpecificImplementation<
+            MacOSFlutterLocalNotificationsPlugin
           >();
       await platform?.requestPermissions(alert: true, badge: true, sound: true);
     }
@@ -147,14 +153,15 @@ class NotificationShow {
     db.Settings? settings,
   }) {
     final markText = markDoneActionText ?? 'markAsDone'.tr;
-    final snoozeMinutes = settings?.snoozeDuration ?? 10;
+    final snoozeMinutes =
+        settings?.snoozeDuration ?? AppConstants.defaultSnoozeDuration;
     final snoozeText = snoozeActionText ?? snoozeActionLabel(snoozeMinutes);
     final channel = notificationChannelForPriority(priority);
 
     final androidNotificationDetails = AndroidNotificationDetails(
       channel.id,
       channel.localizedName,
-      icon: 'ic_notification',
+      icon: AppConstants.androidNotificationIcon,
       importance: channel.importance,
       priority: _androidPriority(channel.importance),
       styleInformation: BigTextStyleInformation(
@@ -238,7 +245,10 @@ class NotificationShow {
   }) async {
     if (_plugin == null) return;
 
-    final minutes = snoozeMinutes ?? settings?.snoozeDuration ?? 10;
+    final minutes =
+        snoozeMinutes ??
+        settings?.snoozeDuration ??
+        AppConstants.defaultSnoozeDuration;
     final newDateTime = DateTime.now().add(Duration(minutes: minutes));
 
     try {

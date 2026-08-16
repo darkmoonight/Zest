@@ -29,7 +29,6 @@ class SettingsDateTimeSection extends ConsumerStatefulWidget {
       _SettingsDateTimeSectionState();
 }
 
-/// Widget that settings date time section state.
 class _SettingsDateTimeSectionState
     extends SettingsSectionConsumerState<SettingsDateTimeSection> {
   @override

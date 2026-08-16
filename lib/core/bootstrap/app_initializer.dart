@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/bootstrap/isar_bootstrap.dart';
 import 'package:zest/core/bootstrap/app_bootstrap.dart';
-import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
 import 'package:zest/core/bootstrap/notification_bootstrap.dart';
+import 'package:zest/core/bootstrap/notification_callback_wiring.dart';
 import 'package:zest/core/bootstrap/notification_handlers.dart';
 import 'package:zest/core/database/settings_json_backup.dart';
 import 'package:zest/core/database/settings_persist.dart';
@@ -34,26 +34,22 @@ class AppInitializer {
 
     await initializeNotificationTimeZone();
     final bootstrap = await _initializeIsar();
+    final callbacks = notificationPluginResponseCallbacks();
     await initializeNotificationsPlugin(
-      onDidReceiveNotificationResponse: (response) async {
-        await handleNotificationResponse(response);
-        await NotificationHandlerBridge.notifyForegroundActionCompleted();
-      },
-      onDidReceiveBackgroundNotificationResponse: kIsWeb
-          ? null
-          : notificationTapBackground,
+      onDidReceiveNotificationResponse: callbacks.onForeground,
+      onDidReceiveBackgroundNotificationResponse: callbacks.onBackground,
       snoozeMinutes: bootstrap.settings.snoozeDuration,
     );
 
     final plugin = NotificationPlugin.instance;
     if (plugin != null) {
+      await registerAndroidNotificationChannels(plugin);
       final launchDetails = await plugin.getNotificationAppLaunchDetails();
       final launchResponse = launchDetails?.notificationResponse;
       if (launchDetails?.didNotificationLaunchApp == true &&
           launchResponse != null) {
         await handleNotificationResponse(launchResponse);
       }
-      await registerAndroidNotificationChannels(plugin);
     }
     await migrateNotificationChannelsIfNeeded(isar: bootstrap.isar);
 

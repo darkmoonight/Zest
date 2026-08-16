@@ -5,7 +5,6 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/utils/chart_labels.dart';
 import 'package:zest/features/statistics/presentation/widgets/statistics_section_card.dart';
 
-/// Widget that weekly progress chart.
 class WeeklyProgressChart extends StatelessWidget {
   /// The weekly data keyed by weekday (1 = Monday … 7 = Sunday).
   final Map<int, int> weeklyData;

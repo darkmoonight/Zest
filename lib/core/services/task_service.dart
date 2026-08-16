@@ -10,7 +10,7 @@ import 'package:zest/i18n/tr.dart';
 
 /// Category (task list) CRUD, archive, and notification cleanup.
 class TaskService {
-  /// Creates a service with task/todo repositories and notifications.
+  /// Creates a service with task/item repositories and notifications.
   TaskService({
     required this._taskRepo,
     required this._todoRepo,
@@ -21,13 +21,13 @@ class TaskService {
   /// Persistence layer for task (category) entities.
   final TaskRepository _taskRepo;
 
-  /// Persistence layer for todo entities.
+  /// Persistence layer for item entities.
   final TodoRepository _todoRepo;
 
-  /// Schedules and cancels todo reminder notifications.
+  /// Schedules and cancels item reminder notifications.
   final NotificationService _notificationService;
 
-  /// Optional device-calendar cleanup when todos are deleted with a category.
+  /// Optional device-calendar cleanup when items are deleted with a category.
   final DeviceCalendarSyncService? _calendarSync;
 
   // ==================== CREATE ====================
@@ -67,8 +67,8 @@ class TaskService {
 
   /// Updates task fields and syncs category-habit dues on eligible children.
   ///
-  /// Active todos without their own recurrence get [Tasks.recurrenceMinuteOfDay]
-  /// written to [Todos.todoCompletedTime] and are rescheduled (or cancelled).
+  /// Active items without their own recurrence get [Tasks.recurrenceMinuteOfDay]
+  /// written to [Items.todoCompletedTime] and are rescheduled (or cancelled).
   Future<void> updateTask({
     required Tasks task,
     required String title,
@@ -131,7 +131,7 @@ class TaskService {
     }
   }
 
-  /// Archives [tasks], cancels their todo reminders, and persists archive state.
+  /// Archives [tasks], cancels their item reminders, and persists archive state.
   Future<void> archiveTasks(List<Tasks> tasks) async {
     if (tasks.isEmpty) return;
 
@@ -139,12 +139,15 @@ class TaskService {
     final allTodos = await _collectTodosForTasks(tasksCopy);
 
     await _notificationService.cancelForTask(allTodos);
+    for (final todo in allTodos) {
+      await _calendarSync?.removeSynced(todo);
+    }
     await _taskRepo.updateArchiveStatusBatch(tasksCopy, true);
 
     showSnackBar('categoryArchive'.tr);
   }
 
-  /// Unarchives [tasks], reschedules todo reminders, and persists state.
+  /// Unarchives [tasks], reschedules item reminders, and persists state.
   Future<void> unarchiveTasks(List<Tasks> tasks) async {
     if (tasks.isEmpty) return;
 
@@ -153,6 +156,9 @@ class TaskService {
 
     await _notificationService.scheduleForTask(allTodos);
     await _taskRepo.updateArchiveStatusBatch(tasksCopy, false);
+    for (final todo in allTodos) {
+      await _calendarSync?.ensureSynced(todo);
+    }
 
     showSnackBar('noCategoryArchive'.tr);
   }
@@ -167,7 +173,7 @@ class TaskService {
 
   // ==================== DELETE ====================
 
-  /// Deletes [tasks], their todos, and associated notifications.
+  /// Deletes [tasks], their items, and associated notifications.
   Future<void> deleteTasks(List<Tasks> tasks) async {
     if (tasks.isEmpty) return;
 
@@ -183,7 +189,7 @@ class TaskService {
     showSnackBar('categoryDelete'.tr);
   }
 
-  /// Deletes every todo in [todos] including descendant subtrees.
+  /// Deletes every item in [items] including descendant subtrees.
   Future<void> _deleteAllTodosForTask(List<Todos> todos) async {
     if (todos.isEmpty) return;
 
@@ -206,7 +212,7 @@ class TaskService {
     }
   }
 
-  /// Collects ids for [root] and every descendant todo.
+  /// Collects ids for [root] and every descendant item.
   Future<Set<int>> _collectSubtreeIds(Todos root) async {
     final ids = <int>{};
     final stack = <Todos>[root];
