@@ -243,7 +243,10 @@ enum RecurrenceMode {
   reopen,
 }
 
-/// Task category grouping items.
+/// Category that groups list items.
+///
+/// UI and docs call these **categories**; the Isar collection and type name
+/// remain [Tasks] (renaming would break the schema).
 @collection
 class Tasks {
   /// Isar primary key.
@@ -321,14 +324,22 @@ class Todos {
   /// Scheduled completion or reminder time.
   DateTime? todoCompletedTime;
 
+  /// Scheduled due / reminder time (alias of [todoCompletedTime]).
+  DateTime? get dueAt => todoCompletedTime;
+  set dueAt(DateTime? value) => todoCompletedTime = value;
+
   /// When the item was created.
   DateTime createdTime;
 
   /// When the item was marked done or cancelled.
   DateTime? todoCompletionTime;
 
-  /// Legacy completion flag; prefer [status].
-  @Deprecated('Use status field instead')
+  /// When the item was marked done or cancelled (alias of [todoCompletionTime]).
+  DateTime? get completedAt => todoCompletionTime;
+  set completedAt(DateTime? value) => todoCompletionTime = value;
+
+  /// Legacy completion flag; prefer [status]. Read for migration compat only.
+  @Deprecated('Use status field instead — do not write')
   bool done;
 
   /// Whether the item is pinned.

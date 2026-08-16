@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:zest/core/constants/app_constants.dart';
-import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
@@ -318,22 +317,7 @@ class _TodosListState extends ConsumerState<TodosList>
     final element = todos.removeAt(oldIndex);
     todos.insert(newIndex, element);
 
-    final allTodos = ref.read(todosNotifierProvider).todos.toList();
-    final filteredIds = todos.map((t) => t.id).toSet();
-    var position = 0;
-
-    for (int i = 0; i < allTodos.length && position < todos.length; i++) {
-      if (filteredIds.contains(allTodos[i].id)) {
-        allTodos[i] = todos[position++];
-      }
-    }
-
-    for (int i = 0; i < allTodos.length; i++) {
-      allTodos[i].index = i;
-    }
-
-    await ref.read(todoRepositoryProvider).updateIndexes(allTodos);
-    await todosNotifier.reloadTodos();
+    await todosNotifier.reorderTodos(filteredTodos: todos);
   }
 
   /// Handle item tap.

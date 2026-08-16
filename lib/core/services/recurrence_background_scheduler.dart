@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:zest/core/bootstrap/background_isar_context.dart';
-import 'package:zest/core/services/recurrence_coordinator.dart';
+import 'package:zest/core/services/midnight_maintenance.dart';
 import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/platform/platform_features.dart'
     if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
@@ -90,20 +90,13 @@ class RecurrenceBackgroundScheduler {
   /// Runs midnight rollover and reschedules active due notifications.
   static Future<void> runBackgroundRollover() async {
     await withBackgroundIsar((ctx) async {
-      await RecurrenceCoordinator(
-        todoRepo: ctx.todoRepo,
+      await runMidnightMaintenance(
         isar: ctx.isar,
+        settings: ctx.settings,
+        todoRepo: ctx.todoRepo,
         notificationService: ctx.notifications,
         calendarSync: ctx.calendarSync,
-      ).runMidnightRollover();
-
-      final items = await ctx.todoRepo.getAll();
-      await ctx.notifications.rescheduleActiveReminders(
-        items,
-        settings: ctx.settings,
       );
-
-      await registerJobs();
     });
   }
 

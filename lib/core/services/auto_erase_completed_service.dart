@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
+import 'package:zest/core/database/settings_persist.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/settings_repository.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 
 /// Deletes old completed items on a schedule (Settings → Data).
@@ -93,7 +93,7 @@ class AutoEraseCompletedService {
     }
 
     settings.lastAutoEraseCompletedTime = current;
-    await SettingsRepository(isar).save(settings);
+    await persistSettings(isar, settings);
 
     debugPrint('Auto-erased ${toDelete.length} completed todo(s)');
     return toDelete.length;

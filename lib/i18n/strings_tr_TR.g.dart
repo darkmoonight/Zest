@@ -386,7 +386,7 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get tuesday => 'Salı';
 	@override String get two_week => '2 hafta';
 	@override String get unsaved_changes => 'Kaydedilmemiş Değişiklikler';
-	@override String get update_todo => 'Yapılacakları güncelle';
+	@override String get update_todo => 'Yapılacak güncellendi';
 	@override String get validate_name => 'Lütfen bir isim girin';
 	@override String get version => 'Uygulama sürümü';
 	@override String get wednesday => 'Çarşamba';
@@ -751,7 +751,7 @@ extension on TranslationsTrTr {
 			'tuesday' => 'Salı',
 			'two_week' => '2 hafta',
 			'unsaved_changes' => 'Kaydedilmemiş Değişiklikler',
-			'update_todo' => 'Yapılacakları güncelle',
+			'update_todo' => 'Yapılacak güncellendi',
 			'validate_name' => 'Lütfen bir isim girin',
 			'version' => 'Uygulama sürümü',
 			'wednesday' => 'Çarşamba',

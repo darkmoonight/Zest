@@ -2,26 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:zest/core/di/list_reload.dart';
-import 'package:zest/core/di/provider_refs.dart';
-import 'package:zest/core/services/auto_backup_service.dart';
-import 'package:zest/core/services/auto_erase_completed_service.dart';
-import 'package:zest/core/services/recurrence_background_scheduler.dart';
-import 'package:zest/core/services/recurrence_coordinator.dart';
+import 'package:zest/core/services/app_lifecycle_coordinator.dart';
 
-/// Runs scheduled maintenance when the app returns to the foreground.
+/// Runs [AppLifecycleCoordinator] maintenance on first frame and resume.
 class AutoBackupLifecycleListener extends ConsumerStatefulWidget {
-  /// Wraps [child] and triggers maintenance on lifecycle resume.
+  /// Wraps [child] and observes app lifecycle.
   const AutoBackupLifecycleListener({
     super.key,
     required this.child,
     @visibleForTesting this.onResumed,
   });
 
-  /// Widget subtree to render beneath the lifecycle observer.
+  /// Widget subtree beneath the lifecycle observer.
   final Widget child;
 
-  /// Optional hook for tests; defaults to backup + habit reset + auto-erase.
+  /// Test hook; defaults to [AppLifecycleCoordinator.runMaintenance].
   @visibleForTesting
   final Future<void> Function()? onResumed;
 
@@ -35,7 +30,7 @@ class AutoBackupLifecycleListener extends ConsumerStatefulWidget {
 class _AutoBackupLifecycleListenerState
     extends ConsumerState<AutoBackupLifecycleListener>
     with WidgetsBindingObserver {
-  /// Registers this observer with [WidgetsBinding].
+  /// Registers this observer and runs maintenance after the first frame.
   @override
   void initState() {
     super.initState();
@@ -61,7 +56,7 @@ class _AutoBackupLifecycleListenerState
     }
   }
 
-  /// Runs auto-backup, rollover, reschedule, auto-erase; then reloads lists.
+  /// Delegates to [AppLifecycleCoordinator.runMaintenance].
   Future<void> _runMaintenance() async {
     final onResumed = widget.onResumed;
     if (onResumed != null) {
@@ -69,39 +64,7 @@ class _AutoBackupLifecycleListenerState
       return;
     }
 
-    final isar = ref.read(isarProvider);
-    final settings = ref.read(liveSettingsProvider);
-    final notifications = ref.read(notificationServiceProvider);
-    final calendar = ref.read(deviceCalendarSyncServiceProvider);
-
-    await AutoBackupService.checkAndPerformAutoBackup(isar);
-
-    final coordinator = RecurrenceCoordinator(
-      todoRepo: ref.read(todoRepositoryProvider),
-      isar: isar,
-      notificationService: notifications,
-      calendarSync: calendar,
-    );
-    await coordinator.runMidnightRollover();
-
-    final todos = await ref.read(todoRepositoryProvider).getAll();
-    await notifications.rescheduleActiveReminders(
-      todos,
-      settings: settings,
-      firePastDueImmediately: false,
-    );
-
-    await RecurrenceBackgroundScheduler.registerJobs();
-
-    await AutoEraseCompletedService.checkAndPerform(
-      isar: isar,
-      settings: settings,
-      notificationService: notifications,
-      calendarSync: calendar,
-    );
-
-    if (!mounted) return;
-    await reloadTodosAndTasks(ref);
+    await AppLifecycleCoordinator.runMaintenance(ref);
   }
 
   /// Passes through the wrapped [child] widget.

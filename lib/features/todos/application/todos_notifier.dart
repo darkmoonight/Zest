@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/services/todo_service.dart';
+import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/task_repository.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
-import 'package:zest/features/tasks/application/tasks_notifier.dart';
-import 'package:zest/i18n/locale_utils.dart';
+import 'package:zest/i18n/tr.dart';
 
 /// Riverpod state for the items tab: list, filters, and multi-selection.
 class TodosState {
@@ -60,13 +60,8 @@ class TodosNotifier extends Notifier<TodosState> {
 
   TodoRepository? _todoRepo;
 
-  TodoService? _todoService;
-
   /// Debounce timer for coalescing database reload requests.
   Timer? _loadDebounce;
-
-  /// Cached locale prefs used to rebuild [TodoService].
-  (String, String?)? _todoServicePrefs;
 
   TaskRepository get taskRepo {
     final cached = _taskRepo;
@@ -84,22 +79,12 @@ class TodosNotifier extends Notifier<TodosState> {
     return created;
   }
 
+  /// [TodoService] from [todoServiceProvider] (clock/locale aware).
+  TodoService get todoService => ref.read(todoServiceProvider);
+
   @override
   /// Initializes repositories, watchers, and returns initial [TodosState].
   TodosState build() {
-    final formatPrefs = (
-      ref.read(liveSettingsProvider).timeformat,
-      ref.read(liveSettingsProvider).language,
-    );
-    _ensureTodoService(formatPrefs);
-
-    // Rebuild TodoService when clock/locale prefs change without re-entering
-    // [build] (avoids re-assigning one-time subscriptions / late fields).
-    ref.listen(
-      settingsProvider.select((s) => (s.timeformat, s.language)),
-      (_, next) => _ensureTodoService(next),
-    );
-
     StreamSubscription<void>? taskWatcherSubscription;
     StreamSubscription<void>? todoWatcherSubscription;
 
@@ -120,29 +105,6 @@ class TodosNotifier extends Notifier<TodosState> {
     Future.microtask(_loadTodos);
 
     return const TodosState();
-  }
-
-  /// Rebuilds [TodoService] when time format or language changes.
-  void _ensureTodoService((String, String?) formatPrefs) {
-    if (_todoService != null && _todoServicePrefs == formatPrefs) return;
-
-    _todoServicePrefs = formatPrefs;
-    _todoService = TodoService(
-      todoRepo: todoRepo,
-      notificationService: ref.read(notificationServiceProvider),
-      calendarSync: ref.read(deviceCalendarSyncServiceProvider),
-      timeformat: formatPrefs.$1,
-      languageCode: languageCodeFromSettings(formatPrefs.$2),
-    );
-  }
-
-  /// [TodoService] bound to current time-format and language settings.
-  TodoService get todoService {
-    _ensureTodoService((
-      ref.read(liveSettingsProvider).timeformat,
-      ref.read(liveSettingsProvider).language,
-    ));
-    return _todoService!;
   }
 
   /// Debounces Isar watch events before reloading.
@@ -196,6 +158,7 @@ class TodosNotifier extends Notifier<TodosState> {
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
+    showSnackBar('todoCreate'.tr);
     return todo;
   }
 
@@ -228,6 +191,7 @@ class TodosNotifier extends Notifier<TodosState> {
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
+    showSnackBar('updateTodo'.tr);
   }
 
   /// Updates item status and resyncs the current multi-selection.
@@ -247,13 +211,13 @@ class TodosNotifier extends Notifier<TodosState> {
     _resyncSelectedTodoFromIds();
   }
 
-  /// Moves [todoList] to [task] and refreshes items and task lists.
+  /// Moves [todoList] to [task] and reloads items.
   Future<void> moveTodos(List<Todos> todoList, Tasks task) async {
     if (todoList.isEmpty) return;
 
     await todoService.moveTodos(todos: todoList, task: task);
     await _loadTodos();
-    await ref.read(tasksNotifierProvider.notifier).reloadTasks();
+    showSnackBar('updateTodo'.tr);
   }
 
   /// Reparents [rootList] under [newParent] and reloads items.
@@ -265,7 +229,7 @@ class TodosNotifier extends Notifier<TodosState> {
       newParent: newParent,
     );
     await _loadTodos();
-    await ref.read(tasksNotifierProvider.notifier).reloadTasks();
+    showSnackBar('updateTodo'.tr);
   }
 
   /// Deletes [todoList], updates selection, and reindexes remaining items.
@@ -288,6 +252,7 @@ class TodosNotifier extends Notifier<TodosState> {
     );
     _resyncSelectedTodoFromIds();
     await _reindexTodos();
+    showSnackBar('todoDelete'.tr);
   }
 
   Future<void> _reindexTodos() async {
@@ -299,6 +264,18 @@ class TodosNotifier extends Notifier<TodosState> {
 
     await todoRepo.updateIndexes(all);
     state = state.copyWith(todos: all);
+  }
+
+  /// Persists a new order for [filteredTodos] within the full item list.
+  Future<void> reorderTodos({required List<Todos> filteredTodos}) async {
+    if (filteredTodos.isEmpty) return;
+
+    final allTodos = state.todos.toList();
+    await todoService.reorderTodos(
+      allTodos: allTodos,
+      filteredTodos: filteredTodos,
+    );
+    state = state.copyWith(todos: await todoRepo.getAll());
   }
 
   // ==================== Counters ====================

@@ -376,7 +376,7 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get today_completed => 'مكتمل اليوم';
 	@override String get todo => 'المهام';
 	@override String get todo_attributes => 'سمات المهمة';
-	@override String get todo_create => 'أنشئ المهمة';
+	@override String get todo_create => 'تم إنشاء المهمة';
 	@override String get todo_delete => 'احذف المهمة';
 	@override String get todo_pined => 'تثبيت';
 	@override String get todos_progress => 'تقدّم المهام';
@@ -386,7 +386,7 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get tuesday => 'الثلاثاء';
 	@override String get two_week => 'أسبوعين';
 	@override String get unsaved_changes => 'تغييرات غير محفوظة';
-	@override String get update_todo => 'شهرين';
+	@override String get update_todo => 'تم تحديث المهمة';
 	@override String get validate_name => 'أدخِل إسم';
 	@override String get version => 'إصدار التطبيق';
 	@override String get wednesday => 'الأربعاء';
@@ -741,7 +741,7 @@ extension on TranslationsArAr {
 			'today_completed' => 'مكتمل اليوم',
 			'todo' => 'المهام',
 			'todo_attributes' => 'سمات المهمة',
-			'todo_create' => 'أنشئ المهمة',
+			'todo_create' => 'تم إنشاء المهمة',
 			'todo_delete' => 'احذف المهمة',
 			'todo_pined' => 'تثبيت',
 			'todos_progress' => 'تقدّم المهام',
@@ -751,7 +751,7 @@ extension on TranslationsArAr {
 			'tuesday' => 'الثلاثاء',
 			'two_week' => 'أسبوعين',
 			'unsaved_changes' => 'تغييرات غير محفوظة',
-			'update_todo' => 'شهرين',
+			'update_todo' => 'تم تحديث المهمة',
 			'validate_name' => 'أدخِل إسم',
 			'version' => 'إصدار التطبيق',
 			'wednesday' => 'الأربعاء',

@@ -386,7 +386,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get tuesday => 'Mardi';
 	@override String get two_week => '2 semaines';
 	@override String get unsaved_changes => 'Modifications non enregistrées';
-	@override String get update_todo => 'Tâche modifié';
+	@override String get update_todo => 'Tâche modifiée';
 	@override String get validate_name => 'Veuillez entrer un nom';
 	@override String get version => 'Version de l\'application';
 	@override String get wednesday => 'Mercredi';
@@ -751,7 +751,7 @@ extension on TranslationsFrFr {
 			'tuesday' => 'Mardi',
 			'two_week' => '2 semaines',
 			'unsaved_changes' => 'Modifications non enregistrées',
-			'update_todo' => 'Tâche modifié',
+			'update_todo' => 'Tâche modifiée',
 			'validate_name' => 'Veuillez entrer un nom',
 			'version' => 'Version de l\'application',
 			'wednesday' => 'Mercredi',

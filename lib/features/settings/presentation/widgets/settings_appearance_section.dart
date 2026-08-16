@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
-import 'package:zest/app.dart';
 import 'package:zest/core/config/setting_appearance_pickers.dart';
 import 'package:zest/core/config/setting_enum_pickers.dart';
 import 'package:zest/core/di/provider_refs.dart';
@@ -82,11 +81,7 @@ class _SettingsAppearanceSectionState
           title: 'isImages',
           value: isImage,
           onChanged: (value) {
-            actions.saveSettingsOptimistic(
-              mutate: (s) => s.isImage = value,
-              onOptimistic: () =>
-                  ZestApp.updateAppState(ref, newIsImage: value),
-            );
+            actions.saveSettingsOptimistic(mutate: (s) => s.isImage = value);
           },
         ),
         _buildColorPaletteTile(context, settings, materialColor, colorPalette),
@@ -178,16 +173,7 @@ class _SettingsAppearanceSectionState
       leadingBuilder: def.leadingBuilder,
       enableSearch: def.enableSearch,
       onSelected: (value) {
-        actions.saveSettingsOptimistic(
-          mutate: (s) => def.write(s, value),
-          onOptimistic: () {
-            if (def.titleKey == 'colorPalette') {
-              ZestApp.updateAppState(ref, newColorPalette: value);
-            } else if (def.titleKey == 'appFont') {
-              ZestApp.updateAppState(ref, newAppFont: value);
-            }
-          },
-        );
+        actions.saveSettingsOptimistic(mutate: (s) => def.write(s, value));
       },
     );
   }

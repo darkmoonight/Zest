@@ -5,8 +5,9 @@ import 'package:zest/data/models/db.dart';
 
 /// Reads and writes app settings from Isar.
 ///
-/// The UI mutates the same [Settings] instance exposed by [settingsProvider];
-/// [save] persists that object back to the database.
+/// Writes go to the live [Settings] from [liveSettingsProvider]; UI reads a
+/// clone via [settingsProvider] after [settingsRevisionProvider] bumps (see
+/// [SettingsWriter] / repository [onSaved]).
 ///
 /// Cold-start recovery (JSON sidecar) lives in `IsarBootstrap`; this
 /// repository only falls back to the JSON sidecar if a later read fails.

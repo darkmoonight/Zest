@@ -376,7 +376,7 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get today_completed => 'تکمیل شده امروز';
 	@override String get todo => 'کارها';
 	@override String get todo_attributes => 'ویژگی‌های کار';
-	@override String get todo_create => 'کار ایجادشد';
+	@override String get todo_create => 'کار ایجاد شد';
 	@override String get todo_delete => 'کار حذف شد';
 	@override String get todo_pined => 'پین کردن';
 	@override String get todos_progress => 'پیشرفت کارها';
@@ -741,7 +741,7 @@ extension on TranslationsFaIr {
 			'today_completed' => 'تکمیل شده امروز',
 			'todo' => 'کارها',
 			'todo_attributes' => 'ویژگی‌های کار',
-			'todo_create' => 'کار ایجادشد',
+			'todo_create' => 'کار ایجاد شد',
 			'todo_delete' => 'کار حذف شد',
 			'todo_pined' => 'پین کردن',
 			'todos_progress' => 'پیشرفت کارها',

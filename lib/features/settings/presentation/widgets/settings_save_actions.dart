@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:zest/app.dart';
-import 'package:zest/core/bootstrap/notification_bootstrap.dart';
 import 'package:zest/core/bootstrap/notification_callback_wiring.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/di/settings_revision.dart';
 import 'package:zest/core/notifications/notification_channels.dart';
 import 'package:zest/core/services/auto_backup_service.dart';
 import 'package:zest/core/services/notification_plugin.dart';
+import 'package:zest/core/settings/settings_writer.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/i18n/locale_utils.dart';
 import 'package:zest/platform/platform_features.dart'
     if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
 
@@ -29,36 +29,33 @@ class SettingsSaveActions {
   /// Applies [mutate] immediately and persists in the background.
   void saveSettingsOptimistic({
     required void Function(Settings settings) mutate,
-    VoidCallback? onOptimistic,
     Future<void> Function()? afterSave,
     bool backgroundAfterSave = false,
   }) {
-    final rollback = _SettingsRollback.capture(settings);
-    mutate(settings);
-    ref.read(settingsRevisionProvider.notifier).bump();
-    onOptimistic?.call();
-    unawaited(
-      _persistSettings(
-        afterSave: afterSave,
-        backgroundAfterSave: backgroundAfterSave,
-        rollback: rollback,
-      ),
+    SettingsWriter.writeOptimistic(
+      settings: settings,
+      revision: ref.read(settingsRevisionProvider.notifier),
+      repository: ref.read(settingsRepositoryProvider),
+      mutate: mutate,
+      afterSave: afterSave,
+      backgroundAfterSave: backgroundAfterSave,
     );
   }
 
   /// Updates app locale, persists the choice, refreshes UI, and re-registers
   /// Android notification channel names for the new language.
   Future<void> updateLanguage(Locale locale) async {
-    settings.language = '$locale';
-    ref.read(settingsRevisionProvider.notifier).bump();
-    ZestApp.updateAppState(ref, newLocale: locale);
-
+    await SettingsWriter.write(
+      settings: settings,
+      revision: ref.read(settingsRevisionProvider.notifier),
+      repository: ref.read(settingsRepositoryProvider),
+      mutate: (s) => s.language = '$locale',
+    );
+    await applyAppLocale(appLocaleFromFlutterLocale(locale));
     final plugin = NotificationPlugin.instance;
     if (plugin != null) {
       unawaited(registerAndroidNotificationChannels(plugin));
     }
-
-    unawaited(_persistSettings());
   }
 
   /// Saves the default home screen preference optimistically.
@@ -76,27 +73,25 @@ class SettingsSaveActions {
     }
   }
 
-  /// Saves the clock time format and updates app-wide formatting.
+  /// Saves the clock time format.
   Future<void> saveTimeFormat(String format) async {
-    saveSettingsOptimistic(
-      mutate: (s) => s.timeformat = format,
-      onOptimistic: () => ZestApp.updateAppState(ref, newTimeformat: format),
-    );
+    saveSettingsOptimistic(mutate: (s) => s.timeformat = format);
   }
 
-  /// Saves the calendar first day of week and updates app state.
+  /// Saves the calendar first day of week.
   Future<void> saveFirstDayOfWeek(String day) async {
-    saveSettingsOptimistic(
-      mutate: (s) => s.firstDay = day,
-      onOptimistic: () => ZestApp.updateAppState(ref, newFirstDay: day),
-    );
+    saveSettingsOptimistic(mutate: (s) => s.firstDay = day);
   }
 
-  /// Saves snooze duration and refreshes pending notification action labels.
+  /// Saves snooze duration, then [refreshActiveReminderLabels] (no plugin re-init).
   Future<void> saveSnoozeDuration(int minutes) async {
     saveSettingsOptimistic(
       mutate: (s) => s.snoozeDuration = minutes,
-      afterSave: _refreshNotificationActionLabels,
+      afterSave: () => refreshActiveReminderLabels(
+        todoRepo: ref.read(todoRepositoryProvider),
+        notificationService: ref.read(notificationServiceProvider),
+        settings: settings,
+      ),
       backgroundAfterSave: true,
     );
   }
@@ -105,55 +100,4 @@ class SettingsSaveActions {
   Future<bool> createAutoBackupNow() async {
     return AutoBackupService.performManualAutoBackup(ref.read(isarProvider));
   }
-
-  /// Re-inits categories and reschedules reminders with current snooze labels.
-  Future<void> _refreshNotificationActionLabels() async {
-    final settings = this.settings;
-    final callbacks = notificationPluginResponseCallbacks();
-    await initializeNotificationsPlugin(
-      onDidReceiveNotificationResponse: callbacks.onForeground,
-      onDidReceiveBackgroundNotificationResponse: callbacks.onBackground,
-      snoozeMinutes: settings.snoozeDuration,
-    );
-
-    final items = await ref.read(todoRepositoryProvider).getAll();
-    await ref
-        .read(notificationServiceProvider)
-        .rescheduleActiveReminders(items, settings: settings);
-  }
-
-  Future<void> _persistSettings({
-    Future<void> Function()? afterSave,
-    bool backgroundAfterSave = false,
-    _SettingsRollback? rollback,
-  }) async {
-    try {
-      await ref.read(settingsRepositoryProvider).save(settings);
-      if (afterSave != null) {
-        if (backgroundAfterSave) {
-          unawaited(afterSave());
-        } else {
-          await afterSave();
-        }
-      }
-    } catch (e, stackTrace) {
-      rollback?.restore(settings);
-      ref.read(settingsRevisionProvider.notifier).bump();
-      debugPrint('Failed to save settings: $e\n$stackTrace');
-    }
-  }
-}
-
-/// Captures mutable [Settings] fields for rollback on failed persist.
-class _SettingsRollback {
-  _SettingsRollback._(this._snapshot);
-
-  final Settings _snapshot;
-
-  /// Snapshots all mutable fields from [settings].
-  static _SettingsRollback capture(Settings settings) =>
-      _SettingsRollback._(settings.clone());
-
-  /// Restores the captured snapshot onto [settings].
-  void restore(Settings settings) => settings.copyValuesFrom(_snapshot);
 }

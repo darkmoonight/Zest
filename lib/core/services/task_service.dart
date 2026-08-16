@@ -1,12 +1,11 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:zest/core/utils/show_snack_bar.dart';
+import 'package:zest/core/utils/reorder_filtered.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/task_repository.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/recurrence_service.dart';
-import 'package:zest/i18n/tr.dart';
 
 /// Category (task list) CRUD, archive, and notification cleanup.
 class TaskService {
@@ -32,7 +31,7 @@ class TaskService {
 
   // ==================== CREATE ====================
 
-  /// Creates a task when [title] is unique; shows an error snackbar otherwise.
+  /// Creates a task when [title] is unique; returns `null` if the title exists.
   Future<Tasks?> createTask({
     required String title,
     required String description,
@@ -44,11 +43,10 @@ class TaskService {
     int? recurrenceMinuteOfDay,
   }) async {
     if (await _taskRepo.existsByTitle(title)) {
-      showSnackBar('duplicateCategory'.tr, isError: true);
       return null;
     }
 
-    final task = await _taskRepo.create(
+    return _taskRepo.create(
       title: title,
       description: description,
       color: color,
@@ -58,9 +56,6 @@ class TaskService {
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
-
-    showSnackBar('createCategory'.tr);
-    return task;
   }
 
   // ==================== UPDATE ====================
@@ -97,8 +92,6 @@ class TaskService {
     task.recurrenceMinuteOfDay = recurrenceMinuteOfDay;
 
     await _syncCategoryHabitDues(task);
-
-    showSnackBar('editCategory'.tr);
   }
 
   /// Stamps due + notifications for active children without their own recurrence.
@@ -143,8 +136,6 @@ class TaskService {
       await _calendarSync?.removeSynced(todo);
     }
     await _taskRepo.updateArchiveStatusBatch(tasksCopy, true);
-
-    showSnackBar('categoryArchive'.tr);
   }
 
   /// Unarchives [tasks], reschedules item reminders, and persists state.
@@ -159,8 +150,6 @@ class TaskService {
     for (final todo in allTodos) {
       await _calendarSync?.ensureSynced(todo);
     }
-
-    showSnackBar('noCategoryArchive'.tr);
   }
 
   Future<List<Todos>> _collectTodosForTasks(List<Tasks> tasks) async {
@@ -185,8 +174,6 @@ class TaskService {
       await _deleteAllTodosForTask(todos);
       await _taskRepo.delete(task);
     }
-
-    showSnackBar('categoryDelete'.tr);
   }
 
   /// Deletes every item in [items] including descendant subtrees.
@@ -241,19 +228,12 @@ class TaskService {
   }) async {
     if (filteredTasks.isEmpty) return;
 
-    final filteredIds = filteredTasks.map((t) => t.id).toSet();
-    int position = 0;
-
-    for (
-      int i = 0;
-      i < allTasks.length && position < filteredTasks.length;
-      i++
-    ) {
-      if (filteredIds.contains(allTasks[i].id)) {
-        allTasks[i] = filteredTasks[position++];
-      }
-    }
-
+    reorderFilteredInPlace(
+      all: allTasks,
+      filtered: filteredTasks,
+      idOf: (t) => t.id,
+      assignIndex: (t, i) => t.index = i,
+    );
     await _taskRepo.updateIndexes(allTasks);
   }
 

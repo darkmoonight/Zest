@@ -26,7 +26,10 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
     return AppSettingsState.fromSettings(ref.watch(settingsProvider));
   }
 
-  /// Applies partial setting changes and updates [LocaleSettings] when needed.
+  /// Test helper: applies in-memory overrides without persisting.
+  ///
+  /// Production writes use [SettingsWriter] (revision bump + repository save).
+  @visibleForTesting
   void update({
     bool? amoledTheme,
     bool? materialColor,

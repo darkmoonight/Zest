@@ -12,7 +12,7 @@ abstract class PlatformFeatures {
   static bool get isDesktop => false;
 
   /// Whether the runtime is web.
-  static bool get isWeb => false;
+  static bool get isWeb => true;
 
   /// Whether the runtime is Android.
   static bool get isAndroid => false;

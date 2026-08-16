@@ -8,10 +8,13 @@ import 'package:zest/core/bootstrap/app_bootstrap.dart';
 import 'package:zest/core/di/settings_revision.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
+import 'package:zest/core/services/task_service.dart';
+import 'package:zest/core/services/todo_service.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/settings_repository.dart';
 import 'package:zest/data/repositories/task_repository.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/i18n/locale_utils.dart';
 
 /// Provides the app bootstrap container; must be overridden at startup.
 final bootstrapProvider = Provider<AppBootstrap>((ref) {
@@ -64,6 +67,28 @@ final settingsRepositoryProvider = Provider<SettingsRepository>(
 /// Provides the local notification scheduling service.
 final notificationServiceProvider = Provider<NotificationService>(
   (ref) => NotificationService(settings: ref.watch(settingsProvider)),
+);
+
+/// Item CRUD / status / move service (rebuilds when clock/locale prefs change).
+final todoServiceProvider = Provider<TodoService>((ref) {
+  final settings = ref.watch(settingsProvider);
+  return TodoService(
+    todoRepo: ref.watch(todoRepositoryProvider),
+    notificationService: ref.watch(notificationServiceProvider),
+    calendarSync: ref.watch(deviceCalendarSyncServiceProvider),
+    timeformat: settings.timeformat,
+    languageCode: languageCodeFromSettings(settings.language),
+  );
+});
+
+/// Category (task list) CRUD service.
+final taskServiceProvider = Provider<TaskService>(
+  (ref) => TaskService(
+    taskRepo: ref.watch(taskRepositoryProvider),
+    todoRepo: ref.watch(todoRepositoryProvider),
+    notificationService: ref.watch(notificationServiceProvider),
+    calendarSync: ref.watch(deviceCalendarSyncServiceProvider),
+  ),
 );
 
 /// One-way export of item deadlines to the Android device calendar.

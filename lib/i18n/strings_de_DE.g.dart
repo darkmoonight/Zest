@@ -180,7 +180,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get discord => 'Discord';
 	@override String get doing => 'zu erledigen';
 	@override String get done => 'erledigt';
-	@override String get duplicate_category => 'Die Kategorie exisitiert bereits';
+	@override String get duplicate_category => 'Die Kategorie existiert bereits';
 	@override String get edit => 'Bearbeiten';
 	@override String get edit_category => 'Kategorie angepasst';
 	@override String get edit_category_hint => 'Kategorieinformationen bearbeiten';
@@ -193,7 +193,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error_occurred => 'Ein Fehler ist aufgetreten';
 	@override String get error_loading_statistics => 'Fehler beim Laden der Statistiken';
 	@override String get error_path => 'Du hast keinen Pfad zum Sichern ausgewählt';
-	@override String get error_path_re => 'Du hast keine Datein zum wiederherstellen ausgewählt';
+	@override String get error_path_re => 'Du hast keine Dateien zum Wiederherstellen ausgewählt';
 	@override String get failed_to_open_settings => 'Einstellungen konnten nicht geöffnet werden: {error}';
 	@override String get first_day_of_week => 'Erster Tag der Woche';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
@@ -545,7 +545,7 @@ extension on TranslationsDeDe {
 			'discord' => 'Discord',
 			'doing' => 'zu erledigen',
 			'done' => 'erledigt',
-			'duplicate_category' => 'Die Kategorie exisitiert bereits',
+			'duplicate_category' => 'Die Kategorie existiert bereits',
 			'edit' => 'Bearbeiten',
 			'edit_category' => 'Kategorie angepasst',
 			'edit_category_hint' => 'Kategorieinformationen bearbeiten',
@@ -558,7 +558,7 @@ extension on TranslationsDeDe {
 			'error_occurred' => 'Ein Fehler ist aufgetreten',
 			'error_loading_statistics' => 'Fehler beim Laden der Statistiken',
 			'error_path' => 'Du hast keinen Pfad zum Sichern ausgewählt',
-			'error_path_re' => 'Du hast keine Datein zum wiederherstellen ausgewählt',
+			'error_path_re' => 'Du hast keine Dateien zum Wiederherstellen ausgewählt',
 			'failed_to_open_settings' => 'Einstellungen konnten nicht geöffnet werden: {error}',
 			'first_day_of_week' => 'Erster Tag der Woche',
 			'font_barlow_condensed' => 'Barlow Condensed',

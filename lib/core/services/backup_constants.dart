@@ -7,6 +7,9 @@ const String kAutoBackupFilePrefix = 'auto_backup_zest_db_';
 /// Filename prefix for manual backups (`backup_zest_db_…`).
 const String kManualBackupFilePrefix = 'backup_zest_db_';
 
+/// Filename prefix for a safety copy created before restore.
+const String kBackupBeforeRestorePrefix = 'backup_before_restore_';
+
 /// Method channel name for Android SAF directory / file operations.
 const String kBackupDirectoryPickerChannel = 'directory_picker';
 

@@ -58,12 +58,12 @@ class _SettingsDataSectionState
         SettingsTile(
           leading: const Icon(IconsaxPlusLinear.cloud_plus),
           title: 'backup',
-          onTap: isarService.createBackup,
+          onTap: () => _runBackup(isarService),
         ),
         SettingsTile(
           leading: const Icon(IconsaxPlusLinear.cloud_add),
           title: 'restore',
-          onTap: isarService.restoreDB,
+          onTap: () => _runRestore(isarService),
         ),
         SettingsSwitchTile(
           leading: const Icon(IconsaxPlusLinear.refresh_circle),
@@ -175,6 +175,43 @@ class _SettingsDataSectionState
         actions.saveSettingsOptimistic(mutate: (s) => picker.write(s, value));
       },
     );
+  }
+
+  /// Runs manual backup and shows a snackbar for the outcome.
+  Future<void> _runBackup(IsarService isarService) async {
+    final outcome = await isarService.createBackup();
+    if (!mounted) return;
+    _showBackupOutcome(
+      outcome,
+      successKey: 'successBackup',
+      cancelledKey: 'errorPath',
+    );
+  }
+
+  /// Runs restore and shows a snackbar; success restarts the app.
+  Future<void> _runRestore(IsarService isarService) async {
+    final outcome = await isarService.restoreDB();
+    if (!mounted) return;
+    _showBackupOutcome(
+      outcome,
+      successKey: 'successRestore',
+      cancelledKey: 'errorPathRe',
+    );
+  }
+
+  void _showBackupOutcome(
+    IsarBackupOutcome outcome, {
+    required String successKey,
+    required String cancelledKey,
+  }) {
+    switch (outcome) {
+      case IsarBackupOutcome.success:
+        showSnackBar(successKey.tr);
+      case IsarBackupOutcome.cancelled:
+        showSnackBar(cancelledKey.tr, isInfo: true);
+      case IsarBackupOutcome.failure:
+        showSnackBar('error'.tr, isError: true);
+    }
   }
 
   /// Opens the directory picker and saves the chosen auto-backup path.

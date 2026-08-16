@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
-import 'package:zest/core/utils/show_snack_bar.dart';
+import 'package:zest/core/utils/reorder_filtered.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/recurrence_service.dart';
-import 'package:zest/i18n/tr.dart';
 
 /// Item CRUD, status changes, moves, and notification scheduling.
 class TodoService {
@@ -82,7 +81,6 @@ class TodoService {
     }
     await _calendarSync?.ensureSynced(todo);
 
-    showSnackBar('todoCreate'.tr);
     return todo;
   }
 
@@ -132,8 +130,6 @@ class TodoService {
       await _notificationService.cancel(todo.id);
     }
     await _calendarSync?.ensureSynced(todo);
-
-    showSnackBar('updateTodo'.tr);
   }
 
   /// Persists [item] status and syncs its notification schedule.
@@ -222,7 +218,6 @@ class TodoService {
     if (allIds.isEmpty) return;
 
     await _todoRepo.moveToTask(todoIds: allIds, task: task);
-    showSnackBar('updateTodo'.tr);
   }
 
   /// Reparents [rootTodos] under [newParent], preserving nested subtrees.
@@ -273,8 +268,6 @@ class TodoService {
       newParent: newParent,
       newTask: newParent?.task.value,
     );
-
-    showSnackBar('updateTodo'.tr);
   }
 
   // ==================== DELETE ====================
@@ -301,8 +294,24 @@ class TodoService {
       }
     }
     await _todoRepo.deleteBatch(allIds);
+  }
 
-    showSnackBar('todoDelete'.tr);
+  // ==================== REORDER ====================
+
+  /// Reorders [allTodos] so filtered positions match [filteredTodos] order.
+  Future<void> reorderTodos({
+    required List<Todos> allTodos,
+    required List<Todos> filteredTodos,
+  }) async {
+    if (filteredTodos.isEmpty) return;
+
+    reorderFilteredInPlace(
+      all: allTodos,
+      filtered: filteredTodos,
+      idOf: (t) => t.id,
+      assignIndex: (t, i) => t.index = i,
+    );
+    await _todoRepo.updateIndexes(allTodos);
   }
 
   // ==================== HELPERS ====================

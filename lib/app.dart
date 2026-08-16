@@ -20,32 +20,6 @@ class ZestApp extends ConsumerWidget {
   /// Bootstrap container with Isar and initial settings.
   final AppBootstrap bootstrap;
 
-  /// Applies settings changes through [appSettingsProvider].
-  static void updateAppState(
-    WidgetRef ref, {
-    bool? newAmoledTheme,
-    bool? newMaterialColor,
-    bool? newIsImage,
-    String? newColorPalette,
-    String? newAppFont,
-    String? newTimeformat,
-    String? newFirstDay,
-    Locale? newLocale,
-  }) {
-    ref
-        .read(appSettingsProvider.notifier)
-        .update(
-          amoledTheme: newAmoledTheme,
-          materialColor: newMaterialColor,
-          isImage: newIsImage,
-          colorPalette: newColorPalette,
-          appFont: newAppFont,
-          timeformat: newTimeformat,
-          firstDay: newFirstDay,
-          locale: newLocale,
-        );
-  }
-
   /// Builds the themed [MaterialApp.router] with localization and overlays.
   @override
   Widget build(BuildContext context, WidgetRef ref) {

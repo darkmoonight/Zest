@@ -4,11 +4,14 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
+import 'package:zest/core/di/settings_revision.dart';
 import 'package:zest/core/services/task_service.dart';
+import 'package:zest/core/settings/settings_writer.dart';
+import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/task_repository.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
-import 'package:zest/features/todos/application/todos_notifier.dart';
+import 'package:zest/i18n/tr.dart';
 
 /// Riverpod state and notifier for task categories.
 class TasksState {
@@ -60,8 +63,6 @@ class TasksNotifier extends Notifier<TasksState> {
 
   TodoRepository? _todoRepo;
 
-  TaskService? _taskService;
-
   Timer? _loadDebounce;
 
   TaskRepository get taskRepo {
@@ -80,18 +81,8 @@ class TasksNotifier extends Notifier<TasksState> {
     return created;
   }
 
-  TaskService get taskService {
-    final cached = _taskService;
-    if (cached != null) return cached;
-    final created = TaskService(
-      taskRepo: taskRepo,
-      todoRepo: todoRepo,
-      notificationService: ref.read(notificationServiceProvider),
-      calendarSync: ref.read(deviceCalendarSyncServiceProvider),
-    );
-    _taskService = created;
-    return created;
-  }
+  /// [TaskService] from [taskServiceProvider].
+  TaskService get taskService => ref.read(taskServiceProvider);
 
   @override
   /// Initializes repositories, watchers, and returns initial [TasksState].
@@ -192,7 +183,7 @@ class TasksNotifier extends Notifier<TasksState> {
     RecurrenceMode recurrenceMode = RecurrenceMode.reopen,
     int? recurrenceMinuteOfDay,
   }) async {
-    return taskService.createTask(
+    final task = await taskService.createTask(
       title: title,
       description: description,
       color: color,
@@ -202,6 +193,12 @@ class TasksNotifier extends Notifier<TasksState> {
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
+    if (task == null) {
+      showSnackBar('duplicateCategory'.tr, isError: true);
+      return null;
+    }
+    showSnackBar('createCategory'.tr);
+    return task;
   }
 
   /// Persists edits to an existing task category.
@@ -225,6 +222,7 @@ class TasksNotifier extends Notifier<TasksState> {
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
+    showSnackBar('editCategory'.tr);
   }
 
   /// Deletes [taskList] and reindexes remaining categories.
@@ -238,9 +236,10 @@ class TasksNotifier extends Notifier<TasksState> {
 
     state = state.copyWith(tasks: await taskRepo.getAll());
     await _reindexTasks();
+    showSnackBar('categoryDelete'.tr);
   }
 
-  /// Archives [taskList], clears selection, and reloads items.
+  /// Archives [taskList] and clears selection.
   Future<void> archiveTask(List<Tasks> taskList) async {
     if (taskList.isEmpty) return;
 
@@ -249,10 +248,10 @@ class TasksNotifier extends Notifier<TasksState> {
     await _clearDefaultCategoryIfNeeded(taskList);
     state = state.copyWith(tasks: await taskRepo.getAll());
     doMultiSelectionTaskClear();
-    await ref.read(todosNotifierProvider.notifier).reloadTodos();
+    showSnackBar('categoryArchive'.tr);
   }
 
-  /// Restores [taskList] from archive and reloads list items.
+  /// Restores [taskList] from archive and clears selection.
   Future<void> noArchiveTask(List<Tasks> taskList) async {
     if (taskList.isEmpty) return;
 
@@ -260,7 +259,7 @@ class TasksNotifier extends Notifier<TasksState> {
     await taskService.unarchiveTasks(taskList);
     state = state.copyWith(tasks: await taskRepo.getAll());
     doMultiSelectionTaskClear();
-    await ref.read(todosNotifierProvider.notifier).reloadTodos();
+    showSnackBar('noCategoryArchive'.tr);
   }
 
   /// Persists a new order for [filteredTasks] within the full task list.
@@ -285,8 +284,12 @@ class TasksNotifier extends Notifier<TasksState> {
     if (defaultId == null) return;
     if (!tasks.any((task) => task.id == defaultId)) return;
 
-    settings.defaultCategoryId = null;
-    await ref.read(settingsRepositoryProvider).save(settings);
+    await SettingsWriter.write(
+      settings: settings,
+      revision: ref.read(settingsRevisionProvider.notifier),
+      repository: ref.read(settingsRepositoryProvider),
+      mutate: (s) => s.defaultCategoryId = null,
+    );
   }
 
   Future<void> _reindexTasks() async {

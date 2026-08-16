@@ -171,10 +171,19 @@ class AppConstants {
   ];
 
   /// Default theme mode string stored in Isar.
-  static const String defaultTheme = 'system';
+  static const String themeSystem = 'system';
+
+  /// Theme mode key: dark.
+  static const String themeDark = 'dark';
+
+  /// Theme mode key: light.
+  static const String themeLight = 'light';
+
+  /// Default theme mode string stored in Isar.
+  static const String defaultTheme = themeSystem;
 
   /// Available theme mode picker values.
-  static const List<String> themeChoices = ['system', 'dark', 'light'];
+  static const List<String> themeChoices = [themeSystem, themeDark, themeLight];
 
   /// Default calendar view format.
   static const String defaultCalendarFormat = 'week';

@@ -386,7 +386,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get tuesday => '화요일';
 	@override String get two_week => '2주간';
 	@override String get unsaved_changes => '저장되지 않은 변경 사항';
-	@override String get update_todo => '할 일 변경하기';
+	@override String get update_todo => '할 일이 변경되었습니다';
 	@override String get validate_name => '이름을 입력해주세요';
 	@override String get version => '버전';
 	@override String get wednesday => '수요일';
@@ -751,7 +751,7 @@ extension on TranslationsKoKr {
 			'tuesday' => '화요일',
 			'two_week' => '2주간',
 			'unsaved_changes' => '저장되지 않은 변경 사항',
-			'update_todo' => '할 일 변경하기',
+			'update_todo' => '할 일이 변경되었습니다',
 			'validate_name' => '이름을 입력해주세요',
 			'version' => '버전',
 			'wednesday' => '수요일',

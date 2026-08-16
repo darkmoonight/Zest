@@ -192,8 +192,8 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get error => '出了点问题';
 	@override String get error_occurred => '發生錯誤';
 	@override String get error_loading_statistics => '載入統計資料時發生錯誤';
-	@override String get error_path => '您尚未选择保存备份的路径';
-	@override String get error_path_re => '您还没有选择要还原的文件';
+	@override String get error_path => '您尚未選擇儲存備份的路徑';
+	@override String get error_path_re => '您還沒有選擇要還原的檔案';
 	@override String get failed_to_open_settings => '無法開啟設定：{error}';
 	@override String get first_day_of_week => '一週的第一天';
 	@override String get font_barlow_condensed => 'Barlow Condensed';
@@ -347,7 +347,7 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get subtitle1 => '在我們的應用程式中，您將能夠將任務分類並逐步完成它們。';
 	@override String get subtitle2 => '所有的導覽都是這樣設計的，以方便和快速的方式與應用程式互動。';
 	@override String get subtitle3 => '如果您遇到任何問題，請透過電子郵件或應用程式評論聯繫我們。';
-	@override String get success_backup => '备份已成功创建';
+	@override String get success_backup => '備份已成功建立';
 	@override String get success_restore => '資料已成功還原';
 	@override String get sunday => '星期日';
 	@override String get system => '系統';
@@ -557,8 +557,8 @@ extension on TranslationsZhTw {
 			'error' => '出了点问题',
 			'error_occurred' => '發生錯誤',
 			'error_loading_statistics' => '載入統計資料時發生錯誤',
-			'error_path' => '您尚未选择保存备份的路径',
-			'error_path_re' => '您还没有选择要还原的文件',
+			'error_path' => '您尚未選擇儲存備份的路徑',
+			'error_path_re' => '您還沒有選擇要還原的檔案',
 			'failed_to_open_settings' => '無法開啟設定：{error}',
 			'first_day_of_week' => '一週的第一天',
 			'font_barlow_condensed' => 'Barlow Condensed',
@@ -712,7 +712,7 @@ extension on TranslationsZhTw {
 			'subtitle1' => '在我們的應用程式中，您將能夠將任務分類並逐步完成它們。',
 			'subtitle2' => '所有的導覽都是這樣設計的，以方便和快速的方式與應用程式互動。',
 			'subtitle3' => '如果您遇到任何問題，請透過電子郵件或應用程式評論聯繫我們。',
-			'success_backup' => '备份已成功创建',
+			'success_backup' => '備份已成功建立',
 			'success_restore' => '資料已成功還原',
 			'sunday' => '星期日',
 			'system' => '系統',

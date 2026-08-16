@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:file_selector/file_selector.dart';
@@ -10,10 +11,24 @@ import 'package:restart_app/restart_app.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/services/backup_constants.dart';
 import 'package:zest/core/services/backup_file_writer.dart';
-import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/i18n/tr.dart';
 
+/// Result of a manual backup or restore attempt.
+enum IsarBackupOutcome {
+  /// User cancelled the file/directory picker.
+  cancelled,
+
+  /// Operation completed successfully.
+  success,
+
+  /// Operation failed (IO, validation, or unexpected error).
+  failure,
+}
+
 /// Manual backup, restore, and directory picking for data management settings.
+///
+/// [createBackup] / [restoreDB] return [IsarBackupOutcome]; callers own
+/// snackbars. Successful restore schedules an app restart after a short delay.
 class IsarService {
   /// Creates a service bound to [isar] and a UI [context] for dialogs.
   IsarService(this._isar, this._context);
@@ -21,7 +36,7 @@ class IsarService {
   /// Open Isar database instance.
   final Isar _isar;
 
-  /// Build context for loading dialogs and snackbars.
+  /// Build context for loading dialogs.
   final BuildContext _context;
 
   /// Platform channel for Android directory and SAF operations.
@@ -33,23 +48,17 @@ class IsarService {
   /// Default on-disk Isar database filename.
   static const String _defaultDbName = 'default.isar';
 
-  /// Prefix for a safety copy created before restore.
-  static const String _backupBeforeRestorePrefix = 'backup_before_restore_';
-
   /// Prompts for a destination and writes a gzipped database backup.
-  Future<void> createBackup() async {
+  ///
+  /// Returns [IsarBackupOutcome]; UI shows feedback.
+  Future<IsarBackupOutcome> createBackup() async {
     try {
       final backupDir = await _pickDirectory();
-      if (backupDir == null) {
-        showSnackBar('errorPath'.tr, isInfo: true);
-        return;
-      }
+      if (backupDir == null) return IsarBackupOutcome.cancelled;
 
       final stagingPath = await _stagingDirectory(backupDir);
-      if (stagingPath == null) {
-        showSnackBar('errorPath'.tr, isInfo: true);
-        return;
-      }
+      if (stagingPath == null) return IsarBackupOutcome.cancelled;
+
       _showLoadingDialog('creatingBackup'.tr);
 
       final androidUri = isAndroidContentUri(backupDir) ? backupDir : null;
@@ -60,22 +69,21 @@ class IsarService {
         androidContentUri: androidUri,
       );
 
-      if (result.success) {
-        _hideLoadingDialog();
-        showSnackBar('successBackup'.tr);
-      } else {
-        _hideLoadingDialog();
-        showSnackBar('error'.tr, isError: true);
-      }
+      _hideLoadingDialog();
+      return result.success
+          ? IsarBackupOutcome.success
+          : IsarBackupOutcome.failure;
     } catch (e, stackTrace) {
       _hideLoadingDialog();
       debugPrint('Backup error: $e\n$stackTrace');
-      showSnackBar('error'.tr, isError: true);
+      return IsarBackupOutcome.failure;
     }
   }
 
-  /// Restores the database from a user-selected backup file and restarts the app.
-  Future<void> restoreDB() async {
+  /// Restores from a user-selected backup; on success schedules app restart.
+  ///
+  /// Returns [IsarBackupOutcome]; UI shows feedback before restart.
+  Future<IsarBackupOutcome> restoreDB() async {
     _showLoadingDialog('restoringBackup'.tr);
 
     try {
@@ -93,50 +101,44 @@ class IsarService {
 
       if (backupFile == null) {
         _hideLoadingDialog();
-        showSnackBar('errorPathRe'.tr, isInfo: true);
-        return;
+        return IsarBackupOutcome.cancelled;
       }
 
       final selectedFile = File(backupFile.path);
 
       if (!await selectedFile.exists()) {
         _hideLoadingDialog();
-        showSnackBar('errorPathRe'.tr, isInfo: true);
-        return;
+        return IsarBackupOutcome.cancelled;
       }
 
       final bytes = await selectedFile.readAsBytes();
-      await _restoreFromBytes(bytes);
+      return await _restoreFromBytes(bytes);
     } catch (e, stackTrace) {
       _hideLoadingDialog();
       debugPrint('Restore error: $e\n$stackTrace');
-      showSnackBar('error'.tr, isError: true);
+      return IsarBackupOutcome.failure;
     }
   }
 
   /// Decompresses [bytes], validates them, then finishes restore and restart.
-  Future<void> _restoreFromBytes(List<int> bytes) async {
+  Future<IsarBackupOutcome> _restoreFromBytes(List<int> bytes) async {
     final decompressedBytes = BackupFileWriter.decompressIfNeeded(bytes);
     if (decompressedBytes.isEmpty) {
       _hideLoadingDialog();
-      showSnackBar('error'.tr, isError: true);
-      return;
+      return IsarBackupOutcome.failure;
     }
-    await _finishRestore(decompressedBytes);
-  }
 
-  /// Applies [decompressedBytes], shows success, and restarts the app.
-  Future<void> _finishRestore(List<int> decompressedBytes) async {
     final dbDirectory = await getApplicationSupportDirectory();
     await _performRestore(dbDirectory, decompressedBytes);
-
     _hideLoadingDialog();
-    showSnackBar('successRestore'.tr);
 
-    await Future.delayed(
-      AppConstants.restoreRestartDelay,
-      () => Restart.restartApp(),
+    unawaited(
+      Future.delayed(
+        AppConstants.restoreRestartDelay,
+        () => Restart.restartApp(),
+      ),
     );
+    return IsarBackupOutcome.success;
   }
 
   /// Swaps the live database with [decompressedBytes], keeping a rollback copy.
@@ -150,7 +152,7 @@ class IsarService {
     final currentDbPath = p.join(dbDirectory.path, _defaultDbName);
     final currentDbBackupPath = p.join(
       dbDirectory.path,
-      '$_backupBeforeRestorePrefix${DateTime.now().millisecondsSinceEpoch}${BackupFileWriter.backupExtension}',
+      '$kBackupBeforeRestorePrefix${DateTime.now().millisecondsSinceEpoch}${BackupFileWriter.backupExtension}',
     );
 
     final currentDb = File(currentDbPath);
