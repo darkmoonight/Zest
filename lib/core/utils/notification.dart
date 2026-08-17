@@ -117,10 +117,7 @@ class NotificationShow {
     if (_plugin == null) return;
 
     if (defaultTargetPlatform == TargetPlatform.android) {
-      final platform = _plugin!
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >();
+      final platform = _plugin!.android;
       if (platform == null) return;
 
       try {

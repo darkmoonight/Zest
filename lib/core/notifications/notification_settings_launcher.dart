@@ -3,15 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
 
-/// Opens Android system Settings screens for notification channels.
+/// Opens Android system Settings for this app's notifications.
 ///
 /// [flutter_local_notifications] can create channels but cannot open their
-/// system UI. This helper launches the standard Settings intents instead.
+/// system UI. This helper launches the standard Settings intent instead.
 class NotificationSettingsLauncher {
-  /// Android Settings action for a single notification channel.
-  static const String channelSettingsAction =
-      'android.settings.CHANNEL_NOTIFICATION_SETTINGS';
-
   /// Android Settings action for the app's notification screen.
   static const String appSettingsAction =
       'android.settings.APP_NOTIFICATION_SETTINGS';
@@ -19,40 +15,12 @@ class NotificationSettingsLauncher {
   /// Bundle extra key for the application package name.
   static const String extraAppPackage = 'android.provider.extra.APP_PACKAGE';
 
-  /// Bundle extra key for the notification channel id.
-  static const String extraChannelId = 'android.provider.extra.CHANNEL_ID';
-
-  /// Builds the intent used to open a channel's system settings.
-  static AndroidIntent channelSettingsIntent({
-    required String channelId,
-    required String packageName,
-  }) {
-    return AndroidIntent(
-      action: channelSettingsAction,
-      arguments: <String, dynamic>{
-        extraAppPackage: packageName,
-        extraChannelId: channelId,
-      },
-    );
-  }
-
   /// Builds the intent used to open the app notification settings screen.
   static AndroidIntent appSettingsIntent({required String packageName}) {
     return AndroidIntent(
       action: appSettingsAction,
       arguments: <String, dynamic>{extraAppPackage: packageName},
     );
-  }
-
-  /// Opens system settings for the channel with [channelId].
-  ///
-  /// No-op on non-Android. Throws if the intent plugin fails to launch.
-  static Future<void> openChannelSettings(String channelId) async {
-    if (!_isAndroid) return;
-    await channelSettingsIntent(
-      channelId: channelId,
-      packageName: await _packageName(),
-    ).launch();
   }
 
   /// Opens system settings for this app's notifications.

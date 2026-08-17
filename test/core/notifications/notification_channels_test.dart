@@ -47,5 +47,20 @@ void main() {
     expect(configs, hasLength(Priority.values.length));
     expect(configs.map((c) => c.priority).toList(), Priority.values);
     expect(configs.map((c) => c.id).toSet(), hasLength(Priority.values.length));
+    for (final config in configs) {
+      expect(config.id, NotificationChannelIds.idFor(config.priority));
+    }
+    expect(configs.map((c) => c.nameKey).toSet(), {
+      'notificationChannelHigh',
+      'notificationChannelMedium',
+      'notificationChannelLow',
+      'notificationChannelNone',
+    });
+    expect(configs.map((c) => c.hintKey).toSet(), {
+      'notificationChannelHintHigh',
+      'notificationChannelHintMedium',
+      'notificationChannelHintLow',
+      'notificationChannelHintNone',
+    });
   });
 }

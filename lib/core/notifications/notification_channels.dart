@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:zest/core/services/notification_plugin.dart';
 import 'package:zest/data/models/db.dart' as db;
 import 'package:zest/i18n/tr.dart';
 
@@ -19,13 +20,20 @@ abstract final class NotificationChannelIds {
 
   /// No-priority / silent reminders channel.
   static const String none = '${prefix}none';
+
+  /// Channel id for [priority], matching [high]/[medium]/[low]/[none].
+  static String idFor(db.Priority priority) => switch (priority) {
+    db.Priority.high => high,
+    db.Priority.medium => medium,
+    db.Priority.low => low,
+    db.Priority.none => none,
+  };
 }
 
 /// Android notification channel metadata for a list item [db.Priority].
 ///
-/// Defaults (importance, sound, vibration) apply only until the user changes
-/// them in system settings. After creation, open system UI via
-/// [NotificationSettingsLauncher] to let the user edit a channel.
+/// Sound, vibration, and importance can only be changed in system Settings
+/// after a channel is created.
 class NotificationChannelConfig {
   /// Creates channel metadata used at registration and show time.
   const NotificationChannelConfig({
@@ -55,59 +63,76 @@ class NotificationChannelConfig {
   /// Optional vibration pattern; null uses system default.
   final Int64List? vibrationPattern;
 
+  String get _prioritySuffix {
+    final token = id.substring(NotificationChannelIds.prefix.length);
+    return '${token[0].toUpperCase()}${token.substring(1)}';
+  }
+
   /// Slang key for the user-visible channel name.
-  String get nameKey => switch (priority) {
-    db.Priority.high => 'notificationChannelHigh',
-    db.Priority.medium => 'notificationChannelMedium',
-    db.Priority.low => 'notificationChannelLow',
-    db.Priority.none => 'notificationChannelNone',
-  };
+  String get nameKey => 'notificationChannel$_prioritySuffix';
 
   /// Slang key for a short default-importance subtitle.
-  String get hintKey => switch (priority) {
-    db.Priority.high => 'notificationChannelHintHigh',
-    db.Priority.medium => 'notificationChannelHintMedium',
-    db.Priority.low => 'notificationChannelHintLow',
-    db.Priority.none => 'notificationChannelHintNone',
-  };
+  String get hintKey => 'notificationChannelHint$_prioritySuffix';
 
   /// Localized channel name for [nameKey].
   String get localizedName => nameKey.tr;
 
   /// Localized default-importance hint for [hintKey].
   String get localizedHint => hintKey.tr;
+
+  /// Android channel used at registration time.
+  AndroidNotificationChannel toAndroidChannel() {
+    return AndroidNotificationChannel(
+      id,
+      localizedName,
+      description: localizedHint,
+      importance: importance,
+      playSound: playSound,
+      enableVibration: enableVibration,
+      vibrationPattern: vibrationPattern,
+    );
+  }
+}
+
+NotificationChannelConfig _channel(
+  db.Priority priority, {
+  required Importance importance,
+  bool enableVibration = true,
+  bool playSound = true,
+  List<int>? vibrationPattern,
+}) {
+  return NotificationChannelConfig(
+    id: NotificationChannelIds.idFor(priority),
+    priority: priority,
+    importance: importance,
+    enableVibration: enableVibration,
+    playSound: playSound,
+    vibrationPattern: vibrationPattern == null
+        ? null
+        : Int64List.fromList(vibrationPattern),
+  );
 }
 
 /// Returns the Android channel config for [priority].
 NotificationChannelConfig notificationChannelForPriority(db.Priority priority) {
   return switch (priority) {
-    db.Priority.high => NotificationChannelConfig(
-      id: NotificationChannelIds.high,
-      priority: db.Priority.high,
+    db.Priority.high => _channel(
+      db.Priority.high,
       importance: Importance.max,
-      enableVibration: true,
-      playSound: true,
-      vibrationPattern: Int64List.fromList(const [0, 400, 200, 400]),
+      vibrationPattern: const [0, 400, 200, 400],
     ),
-    db.Priority.medium => NotificationChannelConfig(
-      id: NotificationChannelIds.medium,
-      priority: db.Priority.medium,
+    db.Priority.medium => _channel(
+      db.Priority.medium,
       importance: Importance.defaultImportance,
-      enableVibration: true,
-      playSound: true,
-      vibrationPattern: Int64List.fromList(const [0, 250, 150, 250]),
+      vibrationPattern: const [0, 250, 150, 250],
     ),
-    db.Priority.low => NotificationChannelConfig(
-      id: NotificationChannelIds.low,
-      priority: db.Priority.low,
+    db.Priority.low => _channel(
+      db.Priority.low,
       importance: Importance.low,
-      enableVibration: true,
-      playSound: true,
-      vibrationPattern: Int64List.fromList(const [0, 100]),
+      vibrationPattern: const [0, 100],
     ),
-    db.Priority.none => const NotificationChannelConfig(
-      id: NotificationChannelIds.none,
-      priority: db.Priority.none,
+    db.Priority.none => _channel(
+      db.Priority.none,
       importance: Importance.min,
       enableVibration: false,
       playSound: false,
@@ -126,26 +151,12 @@ List<NotificationChannelConfig> get allNotificationChannelConfigs =>
 Future<void> registerAndroidNotificationChannels(
   FlutterLocalNotificationsPlugin plugin,
 ) async {
-  if (defaultTargetPlatform != TargetPlatform.android) return;
-
-  final android = plugin
-      .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin
-      >();
+  final android = plugin.android;
   if (android == null) return;
 
   try {
     for (final config in allNotificationChannelConfigs) {
-      await android.createNotificationChannel(
-        AndroidNotificationChannel(
-          config.id,
-          config.localizedName,
-          importance: config.importance,
-          playSound: config.playSound,
-          enableVibration: config.enableVibration,
-          vibrationPattern: config.vibrationPattern,
-        ),
-      );
+      await android.createNotificationChannel(config.toAndroidChannel());
     }
   } catch (e) {
     debugPrint('Error registering notification channels: $e');

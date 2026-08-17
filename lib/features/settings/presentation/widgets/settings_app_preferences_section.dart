@@ -264,11 +264,9 @@ class _SettingsAppPreferencesSectionState
   void _showDefaultScreenDialog(BuildContext context) {
     final settings = ref.read(settingsProvider);
     final picker = settingDefaultScreenPicker;
-    showSettingsSelection<String>(
+    showSettingsPicker(
       context: context,
-      title: picker.titleKey,
-      icon: IconsaxPlusBold.monitor_mobbile,
-      items: picker.items,
+      picker: picker,
       currentValue: picker.read(settings),
       itemBuilder: (screen) => screen.tr,
       onSelected: actions.updateDefaultScreen,

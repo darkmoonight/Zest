@@ -164,11 +164,9 @@ class _SettingsDataSectionState
   /// Show max backups dialog.
   void _showMaxBackupsDialog(Settings settings) {
     final picker = settingMaxAutoBackupsPicker;
-    showSettingsSelection<int>(
+    showSettingsPicker(
       context: context,
-      title: picker.titleKey,
-      icon: picker.icon,
-      items: picker.items,
+      picker: picker,
       currentValue: picker.read(settings),
       itemBuilder: (count) => '$count',
       onSelected: (value) async {

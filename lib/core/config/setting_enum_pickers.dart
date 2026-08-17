@@ -83,7 +83,7 @@ const settingMaxAutoBackupsPicker = SettingEnumPickerDefinition<int>(
 /// Default home tab picker on the app preferences section.
 const settingDefaultScreenPicker = SettingEnumPickerDefinition<String>(
   titleKey: 'defaultScreen',
-  icon: IconsaxPlusLinear.home,
+  icon: IconsaxPlusBold.monitor_mobbile,
   items: tabScreenKeys,
   read: _readDefaultScreen,
   write: _writeDefaultScreen,
