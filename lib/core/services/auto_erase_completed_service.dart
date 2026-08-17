@@ -3,6 +3,7 @@ import 'package:isar_community/isar.dart';
 import 'package:zest/core/database/settings_persist.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
+import 'package:zest/core/utils/calendar_date.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 
@@ -10,15 +11,24 @@ import 'package:zest/data/repositories/todo_repository.dart';
 class AutoEraseCompletedService {
   AutoEraseCompletedService._();
 
-  static const _weeklyRetention = Duration(days: 7);
-  static const _monthlyRetention = Duration(days: 30);
-
-  /// Retention window for [frequency].
-  static Duration retentionFor(AutoEraseCompletedFrequency frequency) =>
-      switch (frequency) {
-        AutoEraseCompletedFrequency.weekly => _weeklyRetention,
-        AutoEraseCompletedFrequency.monthly => _monthlyRetention,
-      };
+  /// Inclusive cutoff date: items completed on or before this calendar day.
+  static DateTime retentionCutoff(
+    AutoEraseCompletedFrequency frequency,
+    DateTime now,
+  ) {
+    final today = CalendarDate.day(now);
+    return switch (frequency) {
+      AutoEraseCompletedFrequency.weekly => CalendarDate.addDays(
+        today,
+        -CalendarDate.weeklyDays,
+      ),
+      AutoEraseCompletedFrequency.monthly => DateTime(
+        today.year,
+        today.month - 1,
+        today.day,
+      ),
+    };
+  }
 
   /// Whether an erase run should happen now.
   static bool shouldErase({
@@ -31,14 +41,22 @@ class AutoEraseCompletedService {
     final current = now ?? DateTime.now();
     final last = lastEraseTime;
     if (last == null) return true;
-    return current.difference(last) >= retentionFor(frequency);
+    return switch (frequency) {
+      AutoEraseCompletedFrequency.weekly =>
+        CalendarDate.daysBetween(last, current) >= CalendarDate.weeklyDays,
+      AutoEraseCompletedFrequency.monthly => !CalendarDate.isSameMonth(
+        last,
+        current,
+      ),
+    };
   }
 
-  /// Whether [item] is eligible for erase at [now].
-  static bool isEligible(Todos todo, Duration retention, DateTime now) {
+  /// Whether [item] is eligible for erase given [cutoff] (calendar day).
+  static bool isEligible(Todos todo, DateTime cutoff) {
     if (todo.status != TodoStatus.done) return false;
     final completed = todo.todoCompletionTime ?? todo.createdTime;
-    return !completed.isAfter(now.subtract(retention));
+    final completedDay = CalendarDate.day(completed);
+    return !completedDay.isAfter(CalendarDate.day(cutoff));
   }
 
   /// Runs erase when due; updates [Settings.lastAutoEraseCompletedTime].
@@ -76,12 +94,13 @@ class AutoEraseCompletedService {
     DateTime? now,
   }) async {
     final current = now ?? DateTime.now();
-    final retention = retentionFor(settings.autoEraseCompletedFrequency);
+    final cutoff = retentionCutoff(
+      settings.autoEraseCompletedFrequency,
+      current,
+    );
     final todoRepo = TodoRepository(isar);
     final all = await todoRepo.getAll();
-    final toDelete = all
-        .where((t) => isEligible(t, retention, current))
-        .toList();
+    final toDelete = all.where((t) => isEligible(t, cutoff)).toList();
 
     for (final todo in toDelete) {
       await calendarSync?.removeSynced(todo);

@@ -4,9 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
-import 'package:zest/core/di/settings_revision.dart';
 import 'package:zest/core/services/task_service.dart';
-import 'package:zest/core/settings/settings_writer.dart';
 import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/task_repository.dart';
@@ -284,12 +282,7 @@ class TasksNotifier extends Notifier<TasksState> {
     if (defaultId == null) return;
     if (!tasks.any((task) => task.id == defaultId)) return;
 
-    await SettingsWriter.write(
-      settings: settings,
-      revision: ref.read(settingsRevisionProvider.notifier),
-      repository: ref.read(settingsRepositoryProvider),
-      mutate: (s) => s.defaultCategoryId = null,
-    );
+    await ref.writeLiveSettings(mutate: (s) => s.defaultCategoryId = null);
   }
 
   Future<void> _reindexTasks() async {

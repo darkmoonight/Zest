@@ -92,14 +92,17 @@ class BackgroundIsarContext {
   }
 }
 
-/// Opens a [BackgroundIsarContext], runs [action], and always disposes.
-Future<void> withBackgroundIsar(
+/// Opens a [BackgroundIsarContext], runs [action], and disposes it.
+///
+/// Returns false when Isar cannot be opened.
+Future<bool> withBackgroundIsar(
   Future<void> Function(BackgroundIsarContext ctx) action,
 ) async {
   final ctx = await BackgroundIsarContext.open();
-  if (ctx == null) return;
+  if (ctx == null) return false;
   try {
     await action(ctx);
+    return true;
   } finally {
     await ctx.dispose();
   }

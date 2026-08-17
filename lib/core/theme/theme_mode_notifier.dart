@@ -2,8 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
-import 'package:zest/core/di/settings_revision.dart';
-import 'package:zest/core/settings/settings_writer.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/i18n/tr.dart';
 
@@ -35,12 +33,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
   }
 
   Future<void> _write(void Function(Settings) mutate) {
-    return SettingsWriter.write(
-      settings: ref.read(liveSettingsProvider),
-      revision: ref.read(settingsRevisionProvider.notifier),
-      repository: ref.read(settingsRepositoryProvider),
-      mutate: mutate,
-    );
+    return ref.writeLiveSettings(mutate: mutate);
   }
 
   /// Persists the selected theme mode string and refreshes state.

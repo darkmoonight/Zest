@@ -10,8 +10,8 @@ import 'package:zest/data/models/db.dart';
 class IsarBootstrap {
   IsarBootstrap._();
 
-  /// Isar collection schemas opened at app startup.
-  static const _schemas = [TasksSchema, TodosSchema, SettingsSchema];
+  /// App collection schemas.
+  static const schemas = [TasksSchema, TodosSchema, SettingsSchema];
 
   /// Opens the app database and loads [Settings], recovering preferences when
   /// the Settings row cannot be deserialized (schema churn).
@@ -27,7 +27,7 @@ class IsarBootstrap {
       if (Isar.instanceNames.isNotEmpty) {
         return Isar.getInstance()!;
       }
-      return Isar.open(_schemas, directory: path, inspector: inspector);
+      return Isar.open(schemas, directory: path, inspector: inspector);
     }
 
     var isar = await openMain();
@@ -58,7 +58,7 @@ class IsarBootstrap {
   static Future<(Isar?, bool)> acquireIsarForBackgroundHandler() async {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationSupportDirectory();
-      final isar = await Isar.open(_schemas, directory: dir.path);
+      final isar = await Isar.open(schemas, directory: dir.path);
       return (isar, true);
     }
     return (Isar.getInstance(), false);
@@ -104,7 +104,7 @@ class IsarBootstrap {
     final recovered = await SettingsJsonBackup.load(directory);
 
     final fresh = await Isar.open(
-      _schemas,
+      schemas,
       directory: directory,
       inspector: inspector,
     );

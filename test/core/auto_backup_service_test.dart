@@ -42,7 +42,7 @@ void main() {
       );
     });
 
-    test('weekly waits seven days', () {
+    test('weekly waits seven calendar days', () {
       final lastBackup = DateTime(2026, 6, 1, 12, 0);
 
       expect(
@@ -63,14 +63,14 @@ void main() {
       );
     });
 
-    test('monthly waits thirty days', () {
+    test('monthly waits until the next calendar month', () {
       final lastBackup = DateTime(2026, 5, 1, 12, 0);
 
       expect(
         shouldPerformAutoBackup(
           lastBackupTime: lastBackup,
           frequency: AutoBackupFrequency.monthly,
-          now: DateTime(2026, 5, 30, 12, 0),
+          now: DateTime(2026, 5, 31, 12, 0),
         ),
         isFalse,
       );
@@ -78,7 +78,7 @@ void main() {
         shouldPerformAutoBackup(
           lastBackupTime: lastBackup,
           frequency: AutoBackupFrequency.monthly,
-          now: DateTime(2026, 5, 31, 12, 0),
+          now: DateTime(2026, 6, 1, 12, 0),
         ),
         isTrue,
       );

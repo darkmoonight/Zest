@@ -62,6 +62,7 @@ class NotificationShow {
       settings: settings,
     );
     final scheduledTime = _getScheduledTime(date);
+    if (scheduledTime == null) return;
 
     try {
       await _zonedSchedule(
@@ -222,13 +223,13 @@ class NotificationShow {
     };
   }
 
-  /// Converts [date] to a timezone-aware scheduled time.
-  tz.TZDateTime _getScheduledTime(DateTime date) {
+  /// Converts [date] to a zoned schedule time, or null if conversion fails.
+  tz.TZDateTime? _getScheduledTime(DateTime date) {
     try {
       return tz.TZDateTime.from(date, tz.local);
     } catch (e) {
       debugPrint('Error converting to TZDateTime: $e');
-      return tz.TZDateTime.now(tz.local).add(const Duration(minutes: 1));
+      return null;
     }
   }
 

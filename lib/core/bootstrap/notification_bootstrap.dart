@@ -20,7 +20,7 @@ Future<void> initializeNotificationTimeZone() async {
   } catch (e) {
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('UTC'));
-    debugPrint('Error initializing timezone: $e');
+    debugPrint('Timezone init failed, using UTC: $e');
   }
 }
 

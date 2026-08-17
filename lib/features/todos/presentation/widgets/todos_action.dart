@@ -381,7 +381,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
     );
   }
 
-  /// Void.
+  /// Confirms discard when leaving a dirty create/edit form.
   Future<void> _onPopInvokedWithResult(bool didPop, dynamic result) async {
     if (didPop) return;
 
@@ -1084,7 +1084,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
     );
   }
 
-  /// Void.
+  /// Saves the form if dirty, then opens the item detail screen.
   Future<void> _handleSubTasksNavigation(BuildContext context) async {
     if (widget.edit && widget.todo != null) {
       if (_editingController.canCompose.value) {
@@ -1131,7 +1131,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
     }
   }
 
-  /// Void.
+  /// Creates the item then opens its detail screen.
   Future<void> _createTodoAndNavigateToSubtasks(BuildContext context) async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -1140,6 +1140,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
     TextUtils.trimController(_titleController);
     TextUtils.trimController(_descController);
 
+    late final Todos newTodo;
     try {
       Tasks? taskToUse;
 
@@ -1154,7 +1155,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
       taskToUse ??= await _requireCategory(null);
       if (taskToUse == null) return;
 
-      final newTodo = await ref
+      newTodo = await ref
           .read(todosNotifierProvider.notifier)
           .addTodo(
             task: taskToUse,
@@ -1170,8 +1171,14 @@ class _TodosActionState extends ConsumerState<TodosAction>
             recurrenceMode: _todoRecurrenceMode,
             recurrenceMinuteOfDay: _todoRecurrenceMinuteOfDay,
           );
+    } catch (e, stackTrace) {
+      debugPrint('Create todo before subtasks failed: $e\n$stackTrace');
+      showSnackBar('error'.tr, isError: true);
+      return;
+    }
 
-      if (!context.mounted) return;
+    if (!context.mounted) return;
+    try {
       NavigationHelper.back(context);
 
       if (!context.mounted) return;
@@ -1191,8 +1198,8 @@ class _TodosActionState extends ConsumerState<TodosAction>
           transitionDuration: AppConstants.cardTapAnimation,
         ),
       );
-    } catch (e) {
-      // ignore
+    } catch (e, stackTrace) {
+      debugPrint('Navigate to subtasks after create failed: $e\n$stackTrace');
     }
   }
 
@@ -1397,6 +1404,12 @@ class _TodosActionState extends ConsumerState<TodosAction>
       minuteOfDay: _todoRecurrenceMinuteOfDay,
       use24h: use24h,
       onPressed: () async {
+        final appSettings = ref.read(appSettingsProvider);
+        final due = DateTimeFormatHelper.parseDateTime(
+          _timeController.text,
+          timeformat: appSettings.timeformat,
+          languageCode: appSettings.locale.languageCode,
+        );
         final selection = await showRecurrencePicker(
           context: context,
           current: _todoRecurrence,
@@ -1404,6 +1417,7 @@ class _TodosActionState extends ConsumerState<TodosAction>
           currentMode: _todoRecurrenceMode,
           currentMinuteOfDay: _todoRecurrenceMinuteOfDay,
           use24h: use24h,
+          anchorWeekday: due?.weekday,
         );
         if (selection == null || !mounted) return;
         setState(() {

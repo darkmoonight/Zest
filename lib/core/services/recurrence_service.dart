@@ -1,3 +1,4 @@
+import 'package:zest/core/utils/calendar_date.dart';
 import 'package:zest/data/models/db.dart';
 
 /// Pure recurrence math and clone helpers for items / categories.
@@ -16,9 +17,8 @@ class RecurrenceService {
   static bool isRecurring(RecurrenceFrequency frequency) =>
       frequency != RecurrenceFrequency.none;
 
-  /// Calendar day for [date] at local midnight.
-  static DateTime calendarDay(DateTime date) =>
-      DateTime(date.year, date.month, date.day);
+  /// Local midnight for [date].
+  static DateTime calendarDay(DateTime date) => CalendarDate.day(date);
 
   /// Attaches [minuteOfDay] (or [fallbackTime]'s clock) onto [date]'s calendar day.
   ///
@@ -34,7 +34,13 @@ class RecurrenceService {
     final day = calendarDay(date);
     if (minuteOfDay != null) {
       final clamped = minuteOfDay.clamp(0, _maxMinuteOfDay);
-      return day.add(Duration(minutes: clamped));
+      return DateTime(
+        day.year,
+        day.month,
+        day.day,
+        clamped ~/ 60,
+        clamped % 60,
+      );
     }
     if (fallbackTime != null) {
       return DateTime(
@@ -82,6 +88,23 @@ class RecurrenceService {
     if (!isRecurring(frequency) || minuteOfDay == null) return fallbackTime;
 
     final day = calendarDay(baseDay ?? now);
+    final anchor = fallbackTime ?? baseDay ?? now;
+    if (!_isOccurrenceDay(
+      day,
+      frequency,
+      weekdays,
+      monthlyDayOfMonth: anchor.day,
+      fallbackWeekday: anchor.weekday,
+    )) {
+      return nextReminderAfter(
+        now: now,
+        frequency: frequency,
+        weekdays: weekdays,
+        minuteOfDay: minuteOfDay,
+        fallbackTime: fallbackTime,
+      );
+    }
+
     var due = dueForOccurrenceDay(day, minuteOfDay, fallbackTime: fallbackTime);
     if (due == null) return fallbackTime;
     if (!due.isAfter(now)) {
@@ -160,6 +183,9 @@ class RecurrenceService {
       isRecurring(task.recurrence);
 
   /// Whether an active category-habit item needs due stamped from [task].
+  ///
+  /// Null due always stamps. Stale due restamps only on an occurrence day
+  /// (weekly/monthly use [Todos.todoCompletedTime] as the schedule anchor).
   static bool shouldEnsureCategoryHabitDue({
     required Todos todo,
     required Tasks task,
@@ -171,7 +197,16 @@ class RecurrenceService {
     final todayDate = calendarDay(today ?? DateTime.now());
     final due = todo.todoCompletedTime;
     if (due == null) return true;
-    return calendarDay(due).isBefore(todayDate);
+    if (!calendarDay(due).isBefore(todayDate)) return false;
+
+    final anchor = _scheduleAnchor(due: due, created: todo.createdTime);
+    return _isOccurrenceDay(
+      todayDate,
+      task.recurrence,
+      task.recurrenceWeekdays,
+      monthlyDayOfMonth: anchor.day,
+      fallbackWeekday: anchor.weekday,
+    );
   }
 
   /// Next reminder at or after [now] for the given recurrence rule.
@@ -188,16 +223,17 @@ class RecurrenceService {
     if (!isRecurring(frequency)) return null;
     if (minuteOfDay == null && fallbackTime == null) return null;
 
-    final monthlyDay = (fallbackTime ?? now).day;
+    final anchor = fallbackTime ?? now;
     var day = calendarDay(now);
     for (var i = 0; i < _maxReminderLookaheadDays; i++) {
       if (!_isOccurrenceDay(
         day,
         frequency,
         weekdays,
-        monthlyDayOfMonth: monthlyDay,
+        monthlyDayOfMonth: anchor.day,
+        fallbackWeekday: anchor.weekday,
       )) {
-        day = day.add(const Duration(days: 1));
+        day = _addCalendarDays(day, 1);
         continue;
       }
       final candidate = dueForOccurrenceDay(
@@ -208,7 +244,7 @@ class RecurrenceService {
       if (candidate != null && candidate.isAfter(now)) {
         return candidate;
       }
-      day = day.add(const Duration(days: 1));
+      day = _addCalendarDays(day, 1);
     }
     return null;
   }
@@ -219,11 +255,13 @@ class RecurrenceService {
     required RecurrenceFrequency frequency,
     required List<int> weekdays,
     int? monthlyDayOfMonth,
+    int? fallbackWeekday,
   }) => _isOccurrenceDay(
     calendarDay(day),
     frequency,
     weekdays,
     monthlyDayOfMonth: monthlyDayOfMonth,
+    fallbackWeekday: fallbackWeekday,
   );
 
   /// Fingerprint for matching clone-mode siblings in the same category.
@@ -259,7 +297,7 @@ class RecurrenceService {
 
     final next = switch (frequency) {
       RecurrenceFrequency.none => null,
-      RecurrenceFrequency.daily => base.add(const Duration(days: 1)),
+      RecurrenceFrequency.daily => _addCalendarDays(base, 1),
       RecurrenceFrequency.weekly => _nextWeekly(base, weekdays),
       RecurrenceFrequency.monthly => _nextMonthly(base),
     };
@@ -280,7 +318,9 @@ class RecurrenceService {
     if (isRecurring(todo.recurrence)) return false;
     return _shouldReopenCompleted(
       status: todo.status,
+      due: todo.todoCompletedTime,
       completed: todo.todoCompletionTime,
+      created: todo.createdTime,
       frequency: task.recurrence,
       weekdays: task.recurrenceWeekdays,
       today: today,
@@ -293,7 +333,9 @@ class RecurrenceService {
     if (!isRecurring(todo.recurrence)) return false;
     return _shouldReopenCompleted(
       status: todo.status,
+      due: todo.todoCompletedTime,
       completed: todo.todoCompletionTime,
+      created: todo.createdTime,
       frequency: todo.recurrence,
       weekdays: todo.recurrenceWeekdays,
       today: today,
@@ -311,11 +353,17 @@ class RecurrenceService {
     final todayDate = calendarDay(today ?? DateTime.now());
     if (!_isCompletedBefore(completed, todayDate)) return false;
 
+    final anchor = _scheduleAnchor(
+      due: todo.todoCompletedTime,
+      completed: completed,
+      created: todo.createdTime,
+    );
     return _isOccurrenceDay(
       todayDate,
       todo.recurrence,
       todo.recurrenceWeekdays,
-      monthlyDayOfMonth: completed.day,
+      monthlyDayOfMonth: anchor.day,
+      fallbackWeekday: anchor.weekday,
     );
   }
 
@@ -329,11 +377,13 @@ class RecurrenceService {
     final due = todo.todoCompletedTime;
     if (due != null && !calendarDay(due).isBefore(todayDate)) return false;
 
+    final anchor = _scheduleAnchor(due: due, created: todo.createdTime);
     return _isOccurrenceDay(
       todayDate,
       todo.recurrence,
       todo.recurrenceWeekdays,
-      monthlyDayOfMonth: (due ?? todo.createdTime).day,
+      monthlyDayOfMonth: anchor.day,
+      fallbackWeekday: anchor.weekday,
     );
   }
 
@@ -374,6 +424,15 @@ class RecurrenceService {
     );
   }
 
+  static DateTime _scheduleAnchor({
+    DateTime? due,
+    DateTime? completed,
+    DateTime? created,
+  }) => due ?? completed ?? created ?? DateTime.now();
+
+  static DateTime _addCalendarDays(DateTime from, int days) =>
+      CalendarDate.addDays(from, days, keepTime: true);
+
   static bool _isCompletedBefore(DateTime completed, DateTime todayDate) =>
       calendarDay(completed).isBefore(todayDate);
 
@@ -382,19 +441,26 @@ class RecurrenceService {
     RecurrenceFrequency frequency,
     List<int> weekdays, {
     int? monthlyDayOfMonth,
+    int? fallbackWeekday,
   }) {
     if (!isRecurring(frequency)) return false;
     if (frequency == RecurrenceFrequency.daily) return true;
     if (frequency == RecurrenceFrequency.weekly) {
-      return _matchesWeekday(day, weekdays);
+      return _matchesWeekday(day, weekdays, fallbackWeekday: fallbackWeekday);
     }
     if (frequency != RecurrenceFrequency.monthly) return false;
-    return _matchesMonthlyDay(day, monthlyDayOfMonth ?? day.day);
+    if (monthlyDayOfMonth == null) return false;
+    return _matchesMonthlyDay(day, monthlyDayOfMonth);
   }
 
-  static bool _matchesWeekday(DateTime day, List<int> weekdays) {
-    final days = weekdays.isEmpty ? <int>[day.weekday] : weekdays;
-    return days.contains(day.weekday);
+  static bool _matchesWeekday(
+    DateTime day,
+    List<int> weekdays, {
+    int? fallbackWeekday,
+  }) {
+    if (weekdays.isNotEmpty) return weekdays.contains(day.weekday);
+    if (fallbackWeekday == null) return false;
+    return day.weekday == fallbackWeekday;
   }
 
   static bool _matchesMonthlyDay(DateTime day, int targetDay) {
@@ -408,6 +474,8 @@ class RecurrenceService {
     required DateTime? completed,
     required RecurrenceFrequency frequency,
     required List<int> weekdays,
+    DateTime? due,
+    DateTime? created,
     DateTime? today,
   }) {
     if (status != TodoStatus.done) return false;
@@ -416,11 +484,17 @@ class RecurrenceService {
     final todayDate = calendarDay(today ?? DateTime.now());
     if (!_isCompletedBefore(completed, todayDate)) return false;
 
+    final anchor = _scheduleAnchor(
+      due: due,
+      completed: completed,
+      created: created,
+    );
     return _isOccurrenceDay(
       todayDate,
       frequency,
       weekdays,
-      monthlyDayOfMonth: completed.day,
+      monthlyDayOfMonth: anchor.day,
+      fallbackWeekday: anchor.weekday,
     );
   }
 
@@ -428,14 +502,14 @@ class RecurrenceService {
     final targets = (weekdays.isEmpty ? <int>[from.weekday] : weekdays).toSet()
       ..removeWhere((d) => d < 1 || d > 7);
     if (targets.isEmpty) {
-      return from.add(const Duration(days: 7));
+      return _addCalendarDays(from, 7);
     }
 
     for (var offset = 1; offset <= 7; offset++) {
-      final candidate = from.add(Duration(days: offset));
+      final candidate = _addCalendarDays(from, offset);
       if (targets.contains(candidate.weekday)) return candidate;
     }
-    return from.add(const Duration(days: 7));
+    return _addCalendarDays(from, 7);
   }
 
   static DateTime _nextMonthly(DateTime from) {

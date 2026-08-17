@@ -84,20 +84,41 @@ void main() {
 
   test('populates weekly and hourly progress buckets', () async {
     final task = await createTestTask(isar);
-    final completionTime = DateTime(2026, 6, 23, 14, 30);
+    final completionTime = DateTime.now();
 
     await createTestTodo(
       isar,
       task: task,
-      name: 'Monday afternoon',
+      name: 'Recent afternoon',
       status: TodoStatus.done,
       completionTime: completionTime,
     );
 
     final stats = await StatisticsService.calculateStatistics(isar);
 
-    expect(stats.weeklyProgress.values.any((count) => count > 0), isTrue);
-    expect(stats.hourlyProgress[14], greaterThanOrEqualTo(1));
+    expect(
+      stats.weeklyProgress[completionTime.weekday],
+      greaterThanOrEqualTo(1),
+    );
+    expect(stats.hourlyProgress[completionTime.hour], greaterThanOrEqualTo(1));
+  });
+
+  test('weekly progress ignores completions older than seven days', () async {
+    final task = await createTestTask(isar);
+    final old = DateTime.now().subtract(const Duration(days: 20));
+
+    await createTestTodo(
+      isar,
+      task: task,
+      name: 'Old Monday',
+      status: TodoStatus.done,
+      completionTime: old,
+    );
+
+    final stats = await StatisticsService.calculateStatistics(isar);
+
+    expect(stats.weeklyProgress.values.every((count) => count == 0), isTrue);
+    expect(stats.hourlyProgress[old.hour], greaterThanOrEqualTo(1));
   });
 
   test('streak breaks after a gap day', () async {

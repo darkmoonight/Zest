@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar_community/isar.dart';
+import 'package:zest/core/database/settings_persist.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/data/models/db.dart';
 
@@ -44,6 +45,7 @@ Future<void> seedDefaultCategoryOnce(Isar isar, Settings settings) async {
       settings.defaultCategoryId ??= defaultTask.id;
       await isar.settings.put(settings);
     });
+    await persistSettings(isar, settings);
     return;
   }
 
@@ -52,10 +54,8 @@ Future<void> seedDefaultCategoryOnce(Isar isar, Settings settings) async {
   final system = await getDefaultCategory(isar);
   if (system == null) return;
 
-  await isar.writeTxn(() async {
-    settings.defaultCategoryId = system.id;
-    await isar.settings.put(settings);
-  });
+  settings.defaultCategoryId = system.id;
+  await persistSettings(isar, settings);
 }
 
 /// Whether [task] is the user's selected default category.
@@ -67,13 +67,11 @@ bool isSelectedDefaultCategory(Settings settings, Tasks task) {
   return settings.defaultCategoryId == null && task.isSystem;
 }
 
-/// Persists the user-selected default category via [settingsRepositoryProvider].
+/// Persists the user-selected default category.
 ///
 /// Pass `null` [task] to clear the preference.
 Future<void> setDefaultCategory(WidgetRef ref, {Tasks? task}) async {
-  final settings = ref.read(liveSettingsProvider);
-  settings.defaultCategoryId = task?.id;
-  await ref.read(settingsRepositoryProvider).save(settings);
+  await ref.writeLiveSettings(mutate: (s) => s.defaultCategoryId = task?.id);
 }
 
 /// Returns the user-selected default category if it still exists and is active.

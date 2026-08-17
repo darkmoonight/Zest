@@ -154,10 +154,12 @@ class RecurrenceCoordinator {
           task: task,
           today: today,
         )) {
-          todo.todoCompletedTime = RecurrenceService.resolveDueForTodo(
-            todo: todo,
-            task: task,
+          todo.todoCompletedTime = RecurrenceService.resolveActiveReminderDue(
             now: today,
+            frequency: task.recurrence,
+            weekdays: task.recurrenceWeekdays,
+            minuteOfDay: task.recurrenceMinuteOfDay,
+            fallbackTime: todo.todoCompletedTime ?? todo.createdTime,
           );
           await _persistScheduled(todo);
           count++;

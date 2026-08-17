@@ -10,6 +10,7 @@ import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/task_service.dart';
 import 'package:zest/core/services/todo_service.dart';
+import 'package:zest/core/settings/settings_writer.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/settings_repository.dart';
 import 'package:zest/data/repositories/task_repository.dart';
@@ -101,3 +102,53 @@ final deviceCalendarSyncServiceProvider = Provider<DeviceCalendarSyncService>(
     },
   ),
 );
+
+/// Live [Settings] writes with revision bump and rollback on persist failure.
+extension LiveSettingsWidgetWrite on WidgetRef {
+  /// Mutates live settings and awaits persist.
+  Future<void> writeLiveSettings({
+    required void Function(Settings settings) mutate,
+    Future<void> Function()? afterSave,
+  }) {
+    return SettingsWriter.write(
+      settings: read(liveSettingsProvider),
+      revision: read(settingsRevisionProvider.notifier),
+      repository: read(settingsRepositoryProvider),
+      mutate: mutate,
+      afterSave: afterSave,
+    );
+  }
+
+  /// Mutates live settings and persists in the background.
+  void writeLiveSettingsOptimistic({
+    required void Function(Settings settings) mutate,
+    Future<void> Function()? afterSave,
+    bool backgroundAfterSave = false,
+  }) {
+    SettingsWriter.writeOptimistic(
+      settings: read(liveSettingsProvider),
+      revision: read(settingsRevisionProvider.notifier),
+      repository: read(settingsRepositoryProvider),
+      mutate: mutate,
+      afterSave: afterSave,
+      backgroundAfterSave: backgroundAfterSave,
+    );
+  }
+}
+
+/// [LiveSettingsWidgetWrite] for [Notifier.ref] / other [Ref]s.
+extension LiveSettingsRefWrite on Ref {
+  /// Mutates live settings and awaits persist.
+  Future<void> writeLiveSettings({
+    required void Function(Settings settings) mutate,
+    Future<void> Function()? afterSave,
+  }) {
+    return SettingsWriter.write(
+      settings: read(liveSettingsProvider),
+      revision: read(settingsRevisionProvider.notifier),
+      repository: read(settingsRepositoryProvider),
+      mutate: mutate,
+      afterSave: afterSave,
+    );
+  }
+}

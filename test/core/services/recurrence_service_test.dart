@@ -42,6 +42,27 @@ void main() {
       );
     });
 
+    test('isOccurrenceDay weekly empty does not match other weekdays', () {
+      expect(
+        RecurrenceService.isOccurrenceDay(
+          day: DateTime(2026, 7, 21), // Tuesday
+          frequency: RecurrenceFrequency.weekly,
+          weekdays: const [],
+          fallbackWeekday: DateTime.wednesday,
+        ),
+        isFalse,
+      );
+      expect(
+        RecurrenceService.isOccurrenceDay(
+          day: DateTime(2026, 7, 22), // Wednesday
+          frequency: RecurrenceFrequency.weekly,
+          weekdays: const [],
+          fallbackWeekday: DateTime.wednesday,
+        ),
+        isTrue,
+      );
+    });
+
     test('weekly picks the next matching weekday', () {
       // Wednesday → next Friday
       final from = DateTime(2026, 7, 15, 8);
@@ -228,6 +249,73 @@ void main() {
         isFalse,
       );
     });
+
+    test('weekly empty does not restamp stale due off the due weekday', () {
+      final task = Tasks(
+        title: 'Habits',
+        taskColor: 0xFF00FF00,
+        recurrence: RecurrenceFrequency.weekly,
+        recurrenceWeekdays: const [],
+        recurrenceMode: RecurrenceMode.reopen,
+        recurrenceMinuteOfDay: 18 * 60,
+      );
+      final todo = Todos(
+        name: 'Stretch',
+        description: '',
+        createdTime: DateTime(2026, 7, 1),
+        status: TodoStatus.active,
+        todoCompletedTime: DateTime(2026, 7, 13, 18), // Monday
+      );
+      expect(
+        RecurrenceService.shouldEnsureCategoryHabitDue(
+          todo: todo,
+          task: task,
+          today: DateTime(2026, 7, 15), // Wednesday
+        ),
+        isFalse,
+      );
+      expect(
+        RecurrenceService.shouldEnsureCategoryHabitDue(
+          todo: todo,
+          task: task,
+          today: DateTime(2026, 7, 20), // next Monday
+        ),
+        isTrue,
+      );
+    });
+
+    test('monthly does not restamp stale due off the due day-of-month', () {
+      final task = Tasks(
+        title: 'Habits',
+        taskColor: 0xFF00FF00,
+        recurrence: RecurrenceFrequency.monthly,
+        recurrenceMode: RecurrenceMode.reopen,
+        recurrenceMinuteOfDay: 9 * 60,
+      );
+      final todo = Todos(
+        name: 'Rent',
+        description: '',
+        createdTime: DateTime(2026, 6, 1),
+        status: TodoStatus.active,
+        todoCompletedTime: DateTime(2026, 7, 1, 9),
+      );
+      expect(
+        RecurrenceService.shouldEnsureCategoryHabitDue(
+          todo: todo,
+          task: task,
+          today: DateTime(2026, 7, 15),
+        ),
+        isFalse,
+      );
+      expect(
+        RecurrenceService.shouldEnsureCategoryHabitDue(
+          todo: todo,
+          task: task,
+          today: DateTime(2026, 8, 1),
+        ),
+        isTrue,
+      );
+    });
   });
 
   group('RecurrenceService.resolveActiveReminderDue', () {
@@ -273,6 +361,21 @@ void main() {
           minuteOfDay: 18 * 60 + 37,
         ),
         DateTime(2026, 7, 16, 18, 37),
+      );
+    });
+
+    test('weekly skips today when it is not an occurrence day', () {
+      // Tuesday 10:00, weekly Wednesday 18:00 → Wednesday not Tuesday.
+      final tuesday = DateTime(2026, 7, 14, 10);
+      expect(tuesday.weekday, DateTime.tuesday);
+      expect(
+        RecurrenceService.resolveActiveReminderDue(
+          now: tuesday,
+          frequency: RecurrenceFrequency.weekly,
+          weekdays: const [DateTime.wednesday],
+          minuteOfDay: 18 * 60,
+        ),
+        DateTime(2026, 7, 15, 18),
       );
     });
   });
@@ -359,6 +462,61 @@ void main() {
           today: DateTime(2026, 7, 15, 12),
         ),
         isFalse,
+      );
+    });
+
+    test('weekly with empty weekdays uses due weekday, not every day', () {
+      final todo = Todos(
+        name: 'Weekly',
+        description: '',
+        createdTime: DateTime(2026, 7, 1),
+        status: TodoStatus.done,
+        todoCompletedTime: DateTime(2026, 7, 15, 10), // Wednesday
+        todoCompletionTime: DateTime(2026, 7, 16, 9),
+        recurrence: RecurrenceFrequency.weekly,
+        recurrenceWeekdays: const [],
+        recurrenceMode: RecurrenceMode.clone,
+      );
+      expect(
+        RecurrenceService.shouldSpawnCloneForToday(
+          todo: todo,
+          today: DateTime(2026, 7, 21), // Tuesday
+        ),
+        isFalse,
+      );
+      expect(
+        RecurrenceService.shouldSpawnCloneForToday(
+          todo: todo,
+          today: DateTime(2026, 7, 22), // Wednesday
+        ),
+        isTrue,
+      );
+    });
+
+    test('monthly spawn uses due day-of-month, not completion day', () {
+      final todo = Todos(
+        name: 'Rent',
+        description: '',
+        createdTime: DateTime(2026, 6, 1),
+        status: TodoStatus.done,
+        todoCompletedTime: DateTime(2026, 7, 1, 9),
+        todoCompletionTime: DateTime(2026, 7, 15, 12),
+        recurrence: RecurrenceFrequency.monthly,
+        recurrenceMode: RecurrenceMode.clone,
+      );
+      expect(
+        RecurrenceService.shouldSpawnCloneForToday(
+          todo: todo,
+          today: DateTime(2026, 8, 15),
+        ),
+        isFalse,
+      );
+      expect(
+        RecurrenceService.shouldSpawnCloneForToday(
+          todo: todo,
+          today: DateTime(2026, 8, 1),
+        ),
+        isTrue,
       );
     });
   });
@@ -470,6 +628,15 @@ void main() {
           DateTime(2026, 7, 15, 18, 37),
         ),
         const Duration(hours: 5, minutes: 23),
+      );
+    });
+
+    test('delayUntilNextLocalMidnight uses calendar date not 24h duration', () {
+      final now = DateTime(2026, 3, 8, 12);
+      final nextMidnight = DateTime(now.year, now.month, now.day + 1);
+      expect(
+        RecurrenceBackgroundScheduler.delayUntilNextLocalMidnight(now),
+        nextMidnight.difference(now),
       );
     });
   });
@@ -674,6 +841,61 @@ void main() {
           today: DateTime(2026, 7, 15),
         ),
         isFalse,
+      );
+    });
+
+    test('weekly with empty weekdays reopens on due weekday only', () {
+      final todo = Todos(
+        name: 'Weekly',
+        description: '',
+        createdTime: DateTime(2026, 7, 1),
+        status: TodoStatus.done,
+        todoCompletedTime: DateTime(2026, 7, 15, 10), // Wednesday
+        todoCompletionTime: DateTime(2026, 7, 16, 9),
+        recurrence: RecurrenceFrequency.weekly,
+        recurrenceWeekdays: const [],
+        recurrenceMode: RecurrenceMode.reopen,
+      );
+      expect(
+        RecurrenceService.shouldResetTodoHabit(
+          todo: todo,
+          today: DateTime(2026, 7, 21),
+        ),
+        isFalse,
+      );
+      expect(
+        RecurrenceService.shouldResetTodoHabit(
+          todo: todo,
+          today: DateTime(2026, 7, 22),
+        ),
+        isTrue,
+      );
+    });
+
+    test('monthly reopen uses due day-of-month, not completion day', () {
+      final todo = Todos(
+        name: 'Rent',
+        description: '',
+        createdTime: DateTime(2026, 6, 1),
+        status: TodoStatus.done,
+        todoCompletedTime: DateTime(2026, 7, 1, 9),
+        todoCompletionTime: DateTime(2026, 7, 15, 12),
+        recurrence: RecurrenceFrequency.monthly,
+        recurrenceMode: RecurrenceMode.reopen,
+      );
+      expect(
+        RecurrenceService.shouldResetTodoHabit(
+          todo: todo,
+          today: DateTime(2026, 8, 15),
+        ),
+        isFalse,
+      );
+      expect(
+        RecurrenceService.shouldResetTodoHabit(
+          todo: todo,
+          today: DateTime(2026, 8, 1),
+        ),
+        isTrue,
       );
     });
   });

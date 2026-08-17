@@ -52,6 +52,35 @@ void main() {
       final bytes = Uint8List.fromList([1, 2, 3, 4]);
       expect(BackupFileWriter.decompressIfNeeded(bytes), bytes);
     });
+
+    test('throws on truncated gzip instead of returning garbage', () {
+      const original = 'zest backup payload';
+      final compressed = GZipEncoder().encode(original.codeUnits);
+      expect(compressed.length, greaterThan(4));
+      final truncated = compressed.sublist(0, 4);
+      expect(truncated[0], 0x1f);
+      expect(truncated[1], 0x8b);
+      expect(
+        () => BackupFileWriter.decompressIfNeeded(truncated),
+        throwsA(isA<FormatException>()),
+      );
+    });
+  });
+
+  group('BackupFileWriter.validateIsarDatabase', () {
+    test('accepts a real database copy', () async {
+      final copy = File('${tempDir.path}/copy.isar');
+      await isar.copyToFile(copy.path);
+      final bytes = await copy.readAsBytes();
+      expect(await BackupFileWriter.validateIsarDatabase(bytes), isTrue);
+    });
+
+    test('rejects garbage bytes', () async {
+      expect(
+        await BackupFileWriter.validateIsarDatabase([1, 2, 3, 4]),
+        isFalse,
+      );
+    });
   });
 
   group('BackupFileWriter.write', () {

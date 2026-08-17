@@ -112,6 +112,9 @@ String recurrenceSummaryLabel({
 ///
 /// When [allowCloneMode] is false (category habits), mode is forced to reopen
 /// and the mode step is skipped — clone spawning is item-level only.
+///
+/// [anchorWeekday] (1–7) is the default weekly day when [currentWeekdays] is
+/// empty. Cancelling the weekday dialog aborts the whole picker.
 Future<RecurrenceSelection?> showRecurrencePicker({
   required BuildContext context,
   required RecurrenceFrequency current,
@@ -120,6 +123,7 @@ Future<RecurrenceSelection?> showRecurrencePicker({
   int? currentMinuteOfDay,
   bool use24h = true,
   bool allowCloneMode = true,
+  int? anchorWeekday,
 }) async {
   RecurrenceFrequency? pickedFrequency;
   await showSelectionDialog<RecurrenceFrequency>(
@@ -140,14 +144,14 @@ Future<RecurrenceSelection?> showRecurrencePicker({
 
   var weekdays = List<int>.from(currentWeekdays);
   if (frequency == RecurrenceFrequency.weekly) {
+    final defaultWeekday = anchorWeekday ?? DateTime.now().weekday;
     final pickedWeekdays = await _showWeeklyRecurrenceDialog(
       context: context,
-      initial: weekdays.isEmpty ? <int>[DateTime.now().weekday] : weekdays,
+      initial: weekdays.isEmpty ? <int>[defaultWeekday] : weekdays,
     );
     if (!context.mounted) return null;
-    if (pickedWeekdays != null) {
-      weekdays = pickedWeekdays;
-    }
+    if (pickedWeekdays == null) return null;
+    weekdays = pickedWeekdays;
   }
 
   late final RecurrenceMode mode;

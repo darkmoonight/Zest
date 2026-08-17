@@ -79,8 +79,8 @@ class RecurrenceBackgroundScheduler {
   /// Duration from [now] until the next local midnight.
   static Duration delayUntilNextLocalMidnight([DateTime? now]) {
     final n = now ?? DateTime.now();
-    final nextMidnight = RecurrenceService.calendarDay(n)
-        .add(const Duration(days: 1));
+    final today = RecurrenceService.calendarDay(n);
+    final nextMidnight = DateTime(today.year, today.month, today.day + 1);
     final delay = nextMidnight.difference(n);
     // Workmanager rejects zero/negative delays; keep a tiny positive delay.
     if (delay <= Duration.zero) return _minPositiveDelay;
@@ -89,7 +89,7 @@ class RecurrenceBackgroundScheduler {
 
   /// Runs midnight rollover and reschedules active due notifications.
   static Future<void> runBackgroundRollover() async {
-    await withBackgroundIsar((ctx) async {
+    final opened = await withBackgroundIsar((ctx) async {
       await runMidnightMaintenance(
         isar: ctx.isar,
         settings: ctx.settings,
@@ -98,6 +98,9 @@ class RecurrenceBackgroundScheduler {
         calendarSync: ctx.calendarSync,
       );
     });
+    if (!opened) {
+      throw StateError('Isar unavailable for background recurrence rollover');
+    }
   }
 
   static bool get _supportsBackgroundWork =>

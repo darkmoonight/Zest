@@ -6,7 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:isar_community/isar.dart';
 import 'package:path/path.dart' as p;
+import 'package:zest/core/bootstrap/isar_bootstrap.dart';
 import 'package:zest/core/services/backup_constants.dart';
+import 'package:zest/data/models/db.dart';
 
 /// Outcome of writing a gzipped Isar database backup.
 class BackupWriteResult {
@@ -89,12 +91,77 @@ class BackupFileWriter {
     );
   }
 
-  /// Decompresses [bytes] when gzipped; returns raw bytes otherwise.
+  static const int _gzipMagic0 = 0x1f;
+  static const int _gzipMagic1 = 0x8b;
+  static const int _mdbxMagicOffset = 21;
+  static const _mdbxMagic = [0x11, 0x4c, 0xef, 0xbd, 0x9d, 0x65, 0x59];
+
+  static bool _hasGzipMagic(List<int> bytes) =>
+      bytes.length >= 2 && bytes[0] == _gzipMagic0 && bytes[1] == _gzipMagic1;
+
+  static bool _looksLikeIsar(List<int> bytes) {
+    final end = _mdbxMagicOffset + _mdbxMagic.length;
+    if (bytes.length < end) return false;
+    for (var i = 0; i < _mdbxMagic.length; i++) {
+      if (bytes[_mdbxMagicOffset + i] != _mdbxMagic[i]) return false;
+    }
+    return true;
+  }
+
+  /// Decompresses gzip payloads; returns raw bytes when the file is not gzipped.
   static List<int> decompressIfNeeded(List<int> bytes) {
+    if (!_hasGzipMagic(bytes)) return bytes;
+    final decoded = GZipDecoder().decodeBytes(bytes);
+    if (decoded.isEmpty) {
+      throw const FormatException('Corrupt gzip backup');
+    }
+    return decoded;
+  }
+
+  /// Whether [directory]/[name].isar opens with this app's schemas.
+  static Future<bool> validateIsarDirectory(
+    String directory, {
+    String name = Isar.defaultName,
+    bool deleteFromDisk = false,
+  }) async {
     try {
-      return GZipDecoder().decodeBytes(bytes);
-    } catch (_) {
-      return bytes;
+      final isar = await Isar.open(
+        IsarBootstrap.schemas,
+        directory: directory,
+        name: name,
+        inspector: false,
+      );
+      try {
+        await isar.settings.where().findAll();
+        await isar.tasks.where().findAll();
+        await isar.todos.where().findAll();
+      } finally {
+        await isar.close(deleteFromDisk: deleteFromDisk);
+      }
+      return true;
+    } catch (e) {
+      debugPrint('Invalid Isar backup: $e');
+      return false;
+    }
+  }
+
+  /// Whether [bytes] are a readable Isar database for this app.
+  static Future<bool> validateIsarDatabase(List<int> bytes) async {
+    if (!_looksLikeIsar(bytes)) return false;
+
+    final dir = await Directory.systemTemp.createTemp('zest_restore_validate_');
+    final name = 'v${dir.path.hashCode.abs()}';
+    try {
+      await File(p.join(dir.path, '$name$backupExtension')).writeAsBytes(bytes);
+      return await validateIsarDirectory(
+        dir.path,
+        name: name,
+        deleteFromDisk: true,
+      );
+    } finally {
+      try {
+        if (await dir.exists()) await dir.delete(recursive: true);
+      } catch (_) {}
     }
   }
 

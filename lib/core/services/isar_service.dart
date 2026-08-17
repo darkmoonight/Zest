@@ -42,11 +42,8 @@ class IsarService {
   /// Platform channel for Android directory and SAF operations.
   static const _platform = MethodChannel(kBackupDirectoryPickerChannel);
 
-  /// Temporary filename used during restore.
-  static const String _tempFileName = 'temp.isar';
-
-  /// Default on-disk Isar database filename.
-  static const String _defaultDbName = 'default.isar';
+  /// Staging file used while swapping in a restore.
+  static const String _tempName = 'temp';
 
   /// Prompts for a destination and writes a gzipped database backup.
   ///
@@ -120,40 +117,69 @@ class IsarService {
     }
   }
 
-  /// Decompresses [bytes], validates them, then finishes restore and restart.
+  /// Decompresses, validates, swaps the live database, then restarts.
   Future<IsarBackupOutcome> _restoreFromBytes(List<int> bytes) async {
-    final decompressedBytes = BackupFileWriter.decompressIfNeeded(bytes);
-    if (decompressedBytes.isEmpty) {
-      _hideLoadingDialog();
-      return IsarBackupOutcome.failure;
+    final List<int> decompressedBytes;
+    try {
+      decompressedBytes = BackupFileWriter.decompressIfNeeded(bytes);
+    } catch (e, stackTrace) {
+      return _failRestore('Restore decompress error', e, stackTrace);
+    }
+
+    final valid = await BackupFileWriter.validateIsarDatabase(
+      decompressedBytes,
+    );
+    if (!valid) {
+      return _failRestore();
     }
 
     final dbDirectory = await getApplicationSupportDirectory();
-    await _performRestore(dbDirectory, decompressedBytes);
-    _hideLoadingDialog();
+    try {
+      await _performRestore(dbDirectory, decompressedBytes);
+    } catch (e, stackTrace) {
+      final outcome = _failRestore('Restore swap error', e, stackTrace);
+      if (!_isar.isOpen) unawaited(_scheduleRestart());
+      return outcome;
+    }
 
-    unawaited(
-      Future.delayed(
-        AppConstants.restoreRestartDelay,
-        () => Restart.restartApp(),
-      ),
-    );
+    _hideLoadingDialog();
+    unawaited(_scheduleRestart());
     return IsarBackupOutcome.success;
   }
 
-  /// Swaps the live database with [decompressedBytes], keeping a rollback copy.
+  IsarBackupOutcome _failRestore([
+    String? label,
+    Object? error,
+    StackTrace? stackTrace,
+  ]) {
+    _hideLoadingDialog();
+    if (label != null && error != null) {
+      debugPrint('$label: $error\n$stackTrace');
+    }
+    return IsarBackupOutcome.failure;
+  }
+
+  Future<void> _scheduleRestart() {
+    return Future.delayed(
+      AppConstants.restoreRestartDelay,
+      () => Restart.restartApp(),
+    );
+  }
+
+  /// Replaces the live database with [decompressedBytes]; rolls back on failure.
   Future<void> _performRestore(
     Directory dbDirectory,
     List<int> decompressedBytes,
   ) async {
-    final tempIsarPath = p.join(dbDirectory.path, _tempFileName);
-    final tempFile = File(tempIsarPath);
-
-    final currentDbPath = p.join(dbDirectory.path, _defaultDbName);
+    final ext = BackupFileWriter.backupExtension;
+    final tempFile = File(p.join(dbDirectory.path, '$_tempName$ext'));
+    final currentDbPath = p.join(dbDirectory.path, '${Isar.defaultName}$ext');
     final currentDbBackupPath = p.join(
       dbDirectory.path,
-      '$kBackupBeforeRestorePrefix${DateTime.now().millisecondsSinceEpoch}${BackupFileWriter.backupExtension}',
+      '$kBackupBeforeRestorePrefix${DateTime.now().millisecondsSinceEpoch}$ext',
     );
+
+    await tempFile.writeAsBytes(decompressedBytes);
 
     final currentDb = File(currentDbPath);
     if (await currentDb.exists()) {
@@ -161,16 +187,20 @@ class IsarService {
     }
 
     try {
-      await tempFile.writeAsBytes(decompressedBytes);
       await _isar.close();
+      await tempFile.copy(currentDbPath);
+      await tempFile.delete();
 
-      if (await tempFile.exists()) {
-        await tempFile.copy(currentDbPath);
-        await tempFile.delete();
+      final opened = await BackupFileWriter.validateIsarDirectory(
+        dbDirectory.path,
+      );
+      if (!opened) {
+        throw StateError('Restored database failed verification');
+      }
 
-        if (await File(currentDbBackupPath).exists()) {
-          await File(currentDbBackupPath).delete();
-        }
+      final backup = File(currentDbBackupPath);
+      if (await backup.exists()) {
+        await backup.delete();
       }
     } catch (e) {
       if (await File(currentDbBackupPath).exists()) {
@@ -193,7 +223,7 @@ class IsarService {
     if (Platform.isIOS) {
       return _getIosDocumentsPath();
     }
-    // Desktop (Linux / Windows / macOS): system directory picker.
+    // Desktop directory picker.
     return getDirectoryPath();
   }
 

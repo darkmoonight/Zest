@@ -4,8 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:zest/core/database/settings_persist.dart';
 import 'package:zest/core/services/backup_constants.dart';
 import 'package:zest/core/services/backup_file_writer.dart';
+import 'package:zest/core/utils/calendar_date.dart';
 import 'package:zest/data/models/db.dart';
 
 /// Whether an automatic backup should run for [frequency] given [lastBackupTime].
@@ -19,17 +21,19 @@ bool shouldPerformAutoBackup({
   final current = now ?? DateTime.now();
 
   return switch (frequency) {
-    AutoBackupFrequency.daily => !_isSameCalendarDay(lastBackupTime, current),
+    AutoBackupFrequency.daily => !CalendarDate.isSameDay(
+      lastBackupTime,
+      current,
+    ),
     AutoBackupFrequency.weekly =>
-      current.difference(lastBackupTime).inDays >= 7,
-    AutoBackupFrequency.monthly =>
-      current.difference(lastBackupTime).inDays >= 30,
+      CalendarDate.daysBetween(lastBackupTime, current) >=
+          CalendarDate.weeklyDays,
+    AutoBackupFrequency.monthly => !CalendarDate.isSameMonth(
+      lastBackupTime,
+      current,
+    ),
   };
 }
-
-/// Returns whether [a] and [b] fall on the same calendar day.
-bool _isSameCalendarDay(DateTime a, DateTime b) =>
-    a.year == b.year && a.month == b.month && a.day == b.day;
 
 /// Scheduled and on-demand automatic database backups with retention.
 class AutoBackupService {
@@ -202,10 +206,8 @@ class AutoBackupService {
     Isar isar,
     Settings currentSettings,
   ) async {
-    await isar.writeTxn(() async {
-      currentSettings.lastAutoBackupTime = DateTime.now();
-      await isar.settings.put(currentSettings);
-    });
+    currentSettings.lastAutoBackupTime = DateTime.now();
+    await persistSettings(isar, currentSettings);
   }
 
   /// Lists automatic backup files sorted by newest first.

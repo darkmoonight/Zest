@@ -26,7 +26,7 @@ void main() {
       );
     });
 
-    test('weekly waits seven days', () {
+    test('weekly waits seven calendar days', () {
       final last = DateTime(2026, 7, 1, 12);
       expect(
         AutoEraseCompletedService.shouldErase(
@@ -48,7 +48,7 @@ void main() {
       );
     });
 
-    test('monthly waits thirty days', () {
+    test('monthly waits until the next calendar month', () {
       final last = DateTime(2026, 6, 1, 12);
       expect(
         AutoEraseCompletedService.shouldErase(
@@ -72,8 +72,7 @@ void main() {
   });
 
   group('AutoEraseCompletedService.isEligible', () {
-    final retention = const Duration(days: 7);
-    final now = DateTime(2026, 7, 15, 12);
+    final cutoff = DateTime(2026, 7, 8);
 
     test('keeps recent completed todos', () {
       final todo = Todos(
@@ -83,13 +82,10 @@ void main() {
         status: TodoStatus.done,
         todoCompletionTime: DateTime(2026, 7, 12, 9),
       );
-      expect(
-        AutoEraseCompletedService.isEligible(todo, retention, now),
-        isFalse,
-      );
+      expect(AutoEraseCompletedService.isEligible(todo, cutoff), isFalse);
     });
 
-    test('erases completed todos older than retention', () {
+    test('erases completed todos on or before cutoff', () {
       final todo = Todos(
         name: 'Old',
         description: '',
@@ -97,10 +93,7 @@ void main() {
         status: TodoStatus.done,
         todoCompletionTime: DateTime(2026, 7, 1, 9),
       );
-      expect(
-        AutoEraseCompletedService.isEligible(todo, retention, now),
-        isTrue,
-      );
+      expect(AutoEraseCompletedService.isEligible(todo, cutoff), isTrue);
     });
 
     test('never erases active todos', () {
@@ -111,10 +104,7 @@ void main() {
         status: TodoStatus.active,
         todoCompletionTime: DateTime(2026, 6, 1),
       );
-      expect(
-        AutoEraseCompletedService.isEligible(todo, retention, now),
-        isFalse,
-      );
+      expect(AutoEraseCompletedService.isEligible(todo, cutoff), isFalse);
     });
 
     test('falls back to createdTime when completion time is missing', () {
@@ -124,26 +114,26 @@ void main() {
         createdTime: DateTime(2026, 6, 1),
         status: TodoStatus.done,
       );
-      expect(
-        AutoEraseCompletedService.isEligible(todo, retention, now),
-        isTrue,
-      );
+      expect(AutoEraseCompletedService.isEligible(todo, cutoff), isTrue);
     });
   });
 
-  group('AutoEraseCompletedService.retentionFor', () {
-    test('maps frequencies to windows', () {
+  group('AutoEraseCompletedService.retentionCutoff', () {
+    test('maps frequencies to calendar cutoffs', () {
+      final now = DateTime(2026, 7, 15, 12);
       expect(
-        AutoEraseCompletedService.retentionFor(
+        AutoEraseCompletedService.retentionCutoff(
           AutoEraseCompletedFrequency.weekly,
+          now,
         ),
-        const Duration(days: 7),
+        DateTime(2026, 7, 8),
       );
       expect(
-        AutoEraseCompletedService.retentionFor(
+        AutoEraseCompletedService.retentionCutoff(
           AutoEraseCompletedFrequency.monthly,
+          now,
         ),
-        const Duration(days: 30),
+        DateTime(2026, 6, 15),
       );
     });
   });

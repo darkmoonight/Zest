@@ -102,18 +102,18 @@ class _AllTodosState extends ConsumerState<AllTodos>
     );
   }
 
+  /// Persists archived-category visibility on All Items.
   Future<void> _handleShowArchivedChanged(bool value) async {
-    final settings = ref.read(liveSettingsProvider);
-    settings.showArchivedInAllTodos = value;
-    await ref.read(settingsRepositoryProvider).save(settings);
+    await ref.writeLiveSettings(
+      mutate: (s) => s.showArchivedInAllTodos = value,
+    );
     if (mounted) setState(() {});
   }
 
+  /// Persists the All Items sort option.
   Future<void> _handleSortChanged(SortOption option) async {
     updateSortOption(option);
-    final settings = ref.read(liveSettingsProvider);
-    settings.allTodosSortOption = option;
-    await ref.read(settingsRepositoryProvider).save(settings);
+    await ref.writeLiveSettings(mutate: (s) => s.allTodosSortOption = option);
   }
 
   bool _areAllSelectedInCurrentTab(bool excludeArchived) {

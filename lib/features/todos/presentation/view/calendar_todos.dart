@@ -329,29 +329,26 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
         ref.read(liveSettingsProvider).calendarFormat,
       );
 
-  /// Void.
+  /// Persists the Calendar view format.
   Future<void> _updateCalendarFormat(CalendarFormat format) async {
-    final settings = ref.read(liveSettingsProvider);
-    settings.calendarFormat = CalendarFormatHelper.calendarFormatToString(
-      format,
+    await ref.writeLiveSettings(
+      mutate: (s) => s.calendarFormat =
+          CalendarFormatHelper.calendarFormatToString(format),
     );
-    await ref.read(settingsRepositoryProvider).save(settings);
   }
 
-  /// Persists the archived-categories visibility toggle for Calendar.
+  /// Persists archived-category visibility on Calendar.
   Future<void> _handleShowArchivedChanged(bool value) async {
-    final settings = ref.read(liveSettingsProvider);
-    settings.showArchivedInCalendar = value;
-    await ref.read(settingsRepositoryProvider).save(settings);
+    await ref.writeLiveSettings(
+      mutate: (s) => s.showArchivedInCalendar = value,
+    );
     if (mounted) setState(() {});
   }
 
-  /// Void.
+  /// Persists the Calendar sort option.
   Future<void> _handleSortChanged(SortOption option) async {
     updateSortOption(option);
-    final settings = ref.read(liveSettingsProvider);
-    settings.calendarSortOption = option;
-    await ref.read(settingsRepositoryProvider).save(settings);
+    await ref.writeLiveSettings(mutate: (s) => s.calendarSortOption = option);
   }
 
   /// Builds the selection action bar widget.

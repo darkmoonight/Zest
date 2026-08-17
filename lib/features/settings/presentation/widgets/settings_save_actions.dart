@@ -5,11 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/bootstrap/notification_callback_wiring.dart';
 import 'package:zest/core/di/provider_refs.dart';
-import 'package:zest/core/di/settings_revision.dart';
 import 'package:zest/core/notifications/notification_channels.dart';
 import 'package:zest/core/services/auto_backup_service.dart';
 import 'package:zest/core/services/notification_plugin.dart';
-import 'package:zest/core/settings/settings_writer.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/i18n/locale_utils.dart';
 import 'package:zest/platform/platform_features.dart'
@@ -32,10 +30,7 @@ class SettingsSaveActions {
     Future<void> Function()? afterSave,
     bool backgroundAfterSave = false,
   }) {
-    SettingsWriter.writeOptimistic(
-      settings: settings,
-      revision: ref.read(settingsRevisionProvider.notifier),
-      repository: ref.read(settingsRepositoryProvider),
+    ref.writeLiveSettingsOptimistic(
       mutate: mutate,
       afterSave: afterSave,
       backgroundAfterSave: backgroundAfterSave,
@@ -45,12 +40,7 @@ class SettingsSaveActions {
   /// Updates app locale, persists the choice, refreshes UI, and re-registers
   /// Android notification channel names for the new language.
   Future<void> updateLanguage(Locale locale) async {
-    await SettingsWriter.write(
-      settings: settings,
-      revision: ref.read(settingsRevisionProvider.notifier),
-      repository: ref.read(settingsRepositoryProvider),
-      mutate: (s) => s.language = '$locale',
-    );
+    await ref.writeLiveSettings(mutate: (s) => s.language = '$locale');
     await applyAppLocale(appLocaleFromFlutterLocale(locale));
     final plugin = NotificationPlugin.instance;
     if (plugin != null) {

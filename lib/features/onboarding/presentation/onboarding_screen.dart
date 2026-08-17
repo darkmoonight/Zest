@@ -88,11 +88,9 @@ class _OnBoardingState extends ConsumerState<OnBoarding> {
 
   bool get _isLastPage => _pageIndex == _data.length - 1;
 
-  /// Void.
+  /// Marks onboarding complete and opens the home route.
   Future<void> _completeOnboarding() async {
-    final settings = ref.read(liveSettingsProvider);
-    settings.onboard = true;
-    await ref.read(settingsRepositoryProvider).save(settings);
+    await ref.writeLiveSettings(mutate: (s) => s.onboard = true);
     refreshAppRouter(ref);
 
     if (!mounted) return;
