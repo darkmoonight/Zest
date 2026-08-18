@@ -2,7 +2,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:zest/core/config/todo_card_layout_config.dart';
 import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/data/models/db.dart';
@@ -30,42 +32,47 @@ class TodoCard extends ConsumerStatefulWidget {
     required this.onTap,
   });
 
-  /// The item.
+  /// Item shown by this card.
   final Todos todo;
 
-  /// The all items.
+  /// Whether the card is rendered in the all-items list.
   final bool allTodos;
 
-  /// The calendar.
+  /// Whether the card is rendered in the calendar list.
   final bool calendar;
 
-  /// The created items.
+  /// Number of subtasks under this item.
   final int createdTodos;
 
-  /// The completed items.
+  /// Number of completed subtasks under this item.
   final int completedTodos;
 
-  /// The is selected.
+  /// Whether the card is currently selected in multi-select mode.
   final bool isSelected;
 
-  /// The on double tap.
+  /// Called when the card is double tapped.
   final VoidCallback onDoubleTap;
 
-  /// The on tap.
+  /// Called when the card is tapped outside the detail preview zone.
   final VoidCallback onTap;
 
   @override
-  /// Creates the state for this widget.
   ConsumerState<TodoCard> createState() => _TodoCardState();
 }
 
 /// State for [TodoCard] managing tap animations and status changes.
 class _TodoCardState extends ConsumerState<TodoCard>
     with SingleTickerProviderStateMixin, CardTapScaleMixin {
-  /// Tapped right side.
+  static const double _detailPreviewZoneFraction = 0.15;
+
+  static const double _metadataGapTight = 3;
+  static const double _metadataGap = 5;
+  static const double _metadataSectionGap = 6;
+
+  /// Whether the last tap started in the detail-preview zone.
   bool _tappedRightSide = false;
 
-  /// Generation token so delayed status persists ignore superseded toggles.
+  /// Rejects stale delayed status writes after a newer interaction.
   int _statusWriteGen = 0;
 
   @override
@@ -80,7 +87,6 @@ class _TodoCardState extends ConsumerState<TodoCard>
     super.dispose();
   }
 
-  /// Handle tap down.
   void _handleTapDown(TapDownDetails details) {
     handleCardTapDown(details);
 
@@ -89,8 +95,7 @@ class _TodoCardState extends ConsumerState<TodoCard>
 
     final local = details.localPosition;
     final width = box.size.width;
-    const rightZoneFraction = 0.15;
-    final rightZoneStart = width * (1 - rightZoneFraction);
+    final rightZoneStart = width * (1 - _detailPreviewZoneFraction);
 
     _tappedRightSide = local.dx >= rightZoneStart;
 
@@ -114,7 +119,6 @@ class _TodoCardState extends ConsumerState<TodoCard>
     }
   }
 
-  /// Handle tap up.
   void _handleTapUp(TapUpDetails details) {
     handleCardTapUp(details);
     if (!_tappedRightSide) {
@@ -122,13 +126,11 @@ class _TodoCardState extends ConsumerState<TodoCard>
     }
   }
 
-  /// Handle tap cancel.
   void _handleTapCancel() {
     handleCardTapCancel();
   }
 
   @override
-  /// Builds the widget subtree.
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isMobile = ResponsiveUtils.isMobile(context);
@@ -159,13 +161,16 @@ class _TodoCardState extends ConsumerState<TodoCard>
     );
   }
 
-  /// Builds the card content widget.
   Widget _buildCardContent(
     BuildContext context,
     ColorScheme colorScheme,
     bool isMobile,
     bool isSelected,
   ) {
+    final layout = TodoCardLayoutConfig.decode(
+      ref.watch(settingsProvider.select((s) => s.todoCardLayout)),
+    );
+
     return SelectableCardShell(
       isSelected: isSelected,
       child: Padding(
@@ -189,11 +194,7 @@ class _TodoCardState extends ConsumerState<TodoCard>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildTodoName(colorScheme),
-                        _buildTodoDescription(colorScheme),
-                        _buildCategoryInfo(),
-                        _buildCreatedTime(colorScheme),
-                        _buildCompletionTime(colorScheme),
-                        _buildTagsAndPriority(),
+                        ..._buildMetadataRows(layout, colorScheme),
                       ],
                     ),
                   ),
@@ -208,7 +209,6 @@ class _TodoCardState extends ConsumerState<TodoCard>
     );
   }
 
-  /// Builds the checkbox widget.
   Widget _buildCheckbox(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -232,31 +232,26 @@ class _TodoCardState extends ConsumerState<TodoCard>
                 onChanged: (val) {
                   if (val == null) return;
 
-                  setState(() {
-                    widget.todo.status = val
-                        ? TodoStatus.done
-                        : TodoStatus.active;
-                    widget.todo.todoCompletionTime = val
-                        ? DateTime.now()
-                        : null;
-                  });
-                  _handleCheckboxChange(val);
+                  _applyLocalStatus(val ? TodoStatus.done : TodoStatus.active);
+                  _persistStatus(
+                    () => ref
+                        .read(todosNotifierProvider.notifier)
+                        .updateTodoStatus(widget.todo),
+                  );
                 },
               ),
       ),
     );
   }
 
-  /// Handle checkbox change.
-  void _handleCheckboxChange(bool val) {
+  void _persistStatus(VoidCallback write) {
     final gen = ++_statusWriteGen;
     Future.delayed(AppConstants.shortAnimation, () {
       if (!mounted || gen != _statusWriteGen) return;
-      ref.read(todosNotifierProvider.notifier).updateTodoStatus(widget.todo);
+      write();
     });
   }
 
-  /// Show status menu.
   void _showStatusMenu(BuildContext context) {
     final isMobile = ResponsiveUtils.isMobile(context);
 
@@ -272,52 +267,40 @@ class _TodoCardState extends ConsumerState<TodoCard>
     );
   }
 
-  /// Change status.
   void _changeStatus(TodoStatus newStatus) {
+    _applyLocalStatus(newStatus);
+    _persistStatus(
+      () => ref
+          .read(todosNotifierProvider.notifier)
+          .updateTodoStatus(widget.todo),
+    );
+  }
+
+  void _handleBulkCompletion() {
+    _applyLocalStatus(TodoStatus.done);
+    _persistStatus(
+      () => ref
+          .read(todosNotifierProvider.notifier)
+          .updateTodoStatusWithSubtasks(widget.todo, TodoStatus.done),
+    );
+  }
+
+  void _handleBulkCancellation() {
+    _applyLocalStatus(TodoStatus.cancelled);
+    _persistStatus(
+      () => ref
+          .read(todosNotifierProvider.notifier)
+          .updateTodoStatusWithSubtasks(widget.todo, TodoStatus.cancelled),
+    );
+  }
+
+  void _applyLocalStatus(TodoStatus status) {
     setState(() {
-      widget.todo.status = newStatus;
+      widget.todo.status = status;
       widget.todo.todoCompletionTime =
-          (newStatus == TodoStatus.done || newStatus == TodoStatus.cancelled)
+          (status == TodoStatus.done || status == TodoStatus.cancelled)
           ? DateTime.now()
           : null;
-    });
-
-    final gen = ++_statusWriteGen;
-    Future.delayed(AppConstants.shortAnimation, () {
-      if (!mounted || gen != _statusWriteGen) return;
-      ref.read(todosNotifierProvider.notifier).updateTodoStatus(widget.todo);
-    });
-  }
-
-  /// Handle bulk completion.
-  void _handleBulkCompletion() {
-    setState(() {
-      widget.todo.status = TodoStatus.done;
-      widget.todo.todoCompletionTime = DateTime.now();
-    });
-
-    final gen = ++_statusWriteGen;
-    Future.delayed(AppConstants.shortAnimation, () {
-      if (!mounted || gen != _statusWriteGen) return;
-      ref
-          .read(todosNotifierProvider.notifier)
-          .updateTodoStatusWithSubtasks(widget.todo, TodoStatus.done);
-    });
-  }
-
-  /// Handle bulk cancellation.
-  void _handleBulkCancellation() {
-    setState(() {
-      widget.todo.status = TodoStatus.cancelled;
-      widget.todo.todoCompletionTime = DateTime.now();
-    });
-
-    final gen = ++_statusWriteGen;
-    Future.delayed(AppConstants.shortAnimation, () {
-      if (!mounted || gen != _statusWriteGen) return;
-      ref
-          .read(todosNotifierProvider.notifier)
-          .updateTodoStatusWithSubtasks(widget.todo, TodoStatus.cancelled);
     });
   }
 
@@ -368,10 +351,84 @@ class _TodoCardState extends ConsumerState<TodoCard>
     );
   }
 
+  /// Builds configurable metadata rows below the title.
+  List<Widget> _buildMetadataRows(
+    List<TodoCardLayoutEntry> layout,
+    ColorScheme colorScheme,
+  ) {
+    final mergeCategoryPriority = TodoCardLayoutConfig.mergeCategoryPriority(
+      layout,
+    );
+    var mergedCategoryPriority = false;
+    final rows = <Widget>[];
+
+    for (final id in TodoCardLayoutConfig.visibleIds(layout)) {
+      if (mergeCategoryPriority &&
+          (id == TodoCardFieldId.category || id == TodoCardFieldId.priority)) {
+        if (!mergedCategoryPriority) {
+          final row = _buildCategoryPriorityRow();
+          if (row != null) rows.add(row);
+          mergedCategoryPriority = true;
+        }
+        continue;
+      }
+
+      final row = switch (id) {
+        TodoCardFieldId.description => _buildTodoDescription(colorScheme),
+        TodoCardFieldId.category => _buildCategoryRow(),
+        TodoCardFieldId.created => _buildCreatedTime(colorScheme),
+        TodoCardFieldId.deadline => _buildDeadlineRow(colorScheme),
+        TodoCardFieldId.priority => _buildPriorityRow(),
+        TodoCardFieldId.tags => _buildTagsRow(),
+        TodoCardFieldId.completed => _buildCompletedDateRow(colorScheme),
+      };
+
+      if (row != null) rows.add(row);
+    }
+
+    return rows;
+  }
+
+  Widget? _buildCategoryRow() {
+    final chips = _buildCategoryInfo();
+    if (chips == null) return null;
+    return Padding(
+      padding: const EdgeInsets.only(top: _metadataGap),
+      child: chips,
+    );
+  }
+
+  Widget? _buildPriorityRow() {
+    if (widget.todo.priority == Priority.none) return null;
+    return Padding(
+      padding: const EdgeInsets.only(top: _metadataSectionGap),
+      child: _buildPriorityChip(),
+    );
+  }
+
+  /// Category and priority on one line when both are enabled.
+  Widget? _buildCategoryPriorityRow() {
+    final category = _buildCategoryInfo();
+    if (widget.todo.priority == Priority.none && category == null) return null;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: _metadataGap),
+      child: Wrap(
+        spacing: AppConstants.spacingXS,
+        runSpacing: AppConstants.spacingXS,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          ?category,
+          if (widget.todo.priority != Priority.none) _buildPriorityChip(),
+        ],
+      ),
+    );
+  }
+
   /// Builds the item description widget.
-  Widget _buildTodoDescription(ColorScheme colorScheme) {
+  Widget? _buildTodoDescription(ColorScheme colorScheme) {
     if (widget.todo.description.isEmpty) {
-      return const SizedBox.shrink();
+      return null;
     }
 
     final lines = widget.todo.description.split('\n');
@@ -379,7 +436,7 @@ class _TodoCardState extends ConsumerState<TodoCard>
         lines.length > 2 || lines.any((line) => line.length > 80);
 
     return Padding(
-      padding: const EdgeInsets.only(top: 3),
+      padding: const EdgeInsets.only(top: _metadataGapTight),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -424,10 +481,10 @@ class _TodoCardState extends ConsumerState<TodoCard>
   }
 
   /// Builds the category info widget.
-  Widget _buildCategoryInfo() {
+  Widget? _buildCategoryInfo() {
     if (!((widget.allTodos || widget.calendar) &&
         widget.todo.task.value != null)) {
-      return const SizedBox.shrink();
+      return null;
     }
 
     final task = widget.todo.task.value!;
@@ -440,66 +497,63 @@ class _TodoCardState extends ConsumerState<TodoCard>
         ? categoryColor.withValues(alpha: isArchivedCategory ? 0.65 : 1.0)
         : _darkenColor(categoryColor, isArchivedCategory ? 0.55 : 0.4);
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 5),
-      child: Wrap(
-        spacing: AppConstants.spacingXS,
-        runSpacing: AppConstants.spacingXS,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          MetadataChip(
-            accentColor: categoryColor,
-            backgroundAlpha: isArchivedCategory ? 0.08 : 0.12,
-            borderAlpha: isArchivedCategory ? 0.2 : 0.35,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 7,
-                  height: 7,
-                  decoration: BoxDecoration(
-                    color: categoryColor.withValues(
-                      alpha: isArchivedCategory ? 0.6 : 1.0,
-                    ),
-                    shape: BoxShape.circle,
+    return Wrap(
+      spacing: AppConstants.spacingXS,
+      runSpacing: AppConstants.spacingXS,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        MetadataChip(
+          accentColor: categoryColor,
+          backgroundAlpha: isArchivedCategory ? 0.08 : 0.12,
+          borderAlpha: isArchivedCategory ? 0.2 : 0.35,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: categoryColor.withValues(
+                    alpha: isArchivedCategory ? 0.6 : 1.0,
                   ),
-                ),
-                const SizedBox(width: 5),
-                Flexible(
-                  child: Text(
-                    task.title,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: ResponsiveUtils.getResponsiveFontSize(
-                        context,
-                        11,
-                      ),
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (isArchivedCategory)
-            MetadataChip(
-              accentColor: Theme.of(context).colorScheme.outline,
-              backgroundColor: Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHighest,
-              showBorder: false,
-              child: Text(
-                'archived'.tr,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontSize: ResponsiveUtils.getResponsiveFontSize(context, 10),
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  shape: BoxShape.circle,
                 ),
               ),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Text(
+                  task.title,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontSize: ResponsiveUtils.getResponsiveFontSize(
+                      context,
+                      11,
+                    ),
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (isArchivedCategory)
+          MetadataChip(
+            accentColor: Theme.of(context).colorScheme.outline,
+            backgroundColor: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest,
+            showBorder: false,
+            child: Text(
+              'archived'.tr,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: ResponsiveUtils.getResponsiveFontSize(context, 10),
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 
@@ -513,13 +567,13 @@ class _TodoCardState extends ConsumerState<TodoCard>
   }
 
   /// Builds the created time widget.
-  Widget _buildCreatedTime(ColorScheme colorScheme) {
+  Widget? _buildCreatedTime(ColorScheme colorScheme) {
     if (widget.todo.createdTime.year < 2000) {
-      return const SizedBox.shrink();
+      return null;
     }
 
     return Padding(
-      padding: const EdgeInsets.only(top: 3),
+      padding: const EdgeInsets.only(top: _metadataGapTight),
       child: Row(
         children: [
           Icon(
@@ -527,7 +581,7 @@ class _TodoCardState extends ConsumerState<TodoCard>
             size: 11,
             color: colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(width: 3),
+          const SizedBox(width: _metadataGapTight),
           Text(
             'createdAtLabel'.trFormat({
               'date': _formatCompletionTime(widget.todo.createdTime),
@@ -542,14 +596,14 @@ class _TodoCardState extends ConsumerState<TodoCard>
     );
   }
 
-  /// Builds the completion time widget.
-  Widget _buildCompletionTime(ColorScheme colorScheme) {
+  /// Builds the deadline row.
+  Widget? _buildDeadlineRow(ColorScheme colorScheme) {
     if (widget.todo.todoCompletedTime == null || widget.calendar) {
-      return const SizedBox.shrink();
+      return null;
     }
 
     return Padding(
-      padding: const EdgeInsets.only(top: 3),
+      padding: const EdgeInsets.only(top: _metadataGapTight),
       child: Row(
         children: [
           Icon(
@@ -557,7 +611,7 @@ class _TodoCardState extends ConsumerState<TodoCard>
             size: 11,
             color: colorScheme.primary,
           ),
-          const SizedBox(width: 3),
+          const SizedBox(width: _metadataGapTight),
           Text(
             _formatCompletionTime(widget.todo.todoCompletedTime!),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -571,7 +625,39 @@ class _TodoCardState extends ConsumerState<TodoCard>
     );
   }
 
-  /// Format completion time.
+  /// Builds the completion timestamp for done or cancelled items.
+  Widget? _buildCompletedDateRow(ColorScheme colorScheme) {
+    final completed = widget.todo.todoCompletionTime;
+    if (completed == null ||
+        (widget.todo.status != TodoStatus.done &&
+            widget.todo.status != TodoStatus.cancelled)) {
+      return null;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: _metadataGapTight),
+      child: Row(
+        children: [
+          Icon(
+            IconsaxPlusLinear.tick_circle,
+            size: 11,
+            color: colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: _metadataGapTight),
+          Text(
+            'completedAtLabel'.trFormat({
+              'date': _formatCompletionTime(completed),
+            }),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 10),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _formatCompletionTime(DateTime time) {
     final appSettings = ref.watch(appSettingsProvider);
     return DateTimeFormatHelper.formatDateTime(
@@ -581,17 +667,14 @@ class _TodoCardState extends ConsumerState<TodoCard>
     );
   }
 
-  /// Builds the tags and priority widget.
-  Widget _buildTagsAndPriority() {
-    if (widget.todo.priority == Priority.none && widget.todo.tags.isEmpty) {
-      return const SizedBox.shrink();
-    }
+  Widget? _buildTagsRow() {
+    if (widget.todo.tags.isEmpty) return null;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 6),
+      padding: const EdgeInsets.only(top: _metadataSectionGap),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: Row(children: [_buildPriorityChip(), _buildTagsChips()]),
+        child: _buildTagsChips(),
       ),
     );
   }

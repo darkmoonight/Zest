@@ -6,6 +6,7 @@ import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/notifications/notification_settings_launcher.dart';
 import 'package:zest/core/services/notification_plugin.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
+import 'package:zest/core/utils/notification.dart';
 import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_selection.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section.dart';
@@ -79,13 +80,14 @@ class _SettingsDateTimeSectionState
             onSelected: actions.saveSnoozeDuration,
           ),
         ),
-        if (PlatformFeatures.isAndroid) ...[
+        if (PlatformFeatures.supportsNotifications)
           SettingsTile(
             leading: const Icon(IconsaxPlusLinear.notification),
             title: 'notificationChannels',
             subtitle: 'manageAppNotifications',
-            onTap: _openAppNotificationSettings,
+            onTap: _manageNotifications,
           ),
+        if (PlatformFeatures.isAndroid) ...[
           SettingsTile(
             leading: const Icon(IconsaxPlusLinear.alarm),
             title: 'exactAlarms',
@@ -95,6 +97,15 @@ class _SettingsDateTimeSectionState
         ],
       ],
     );
+  }
+
+  Future<void> _manageNotifications() async {
+    try {
+      await NotificationShow().requestPermissions();
+    } catch (_) {
+      // Fall through to app settings if the platform prompt is unavailable.
+    }
+    await _openAppNotificationSettings();
   }
 
   Future<void> _openAppNotificationSettings() async {

@@ -92,6 +92,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   @override
   /// Builds the widget subtree.
   Widget build(BuildContext context) {
+    final locale = ref.watch(localeProvider);
     final fabVisible = ref.watch(fabNotifierProvider).isVisible;
 
     ref.listen(fabNotifierProvider.select((s) => s.isVisible), (prev, next) {
@@ -108,7 +109,11 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     final isMobile = ResponsiveUtils.isMobile(context);
     final isDesktop = ResponsiveUtils.isDesktop(context);
 
-    final content = IndexedStack(index: _tabIndex, children: _pages);
+    final content = IndexedStack(
+      key: ValueKey(locale),
+      index: _tabIndex,
+      children: _pages,
+    );
 
     final body = isMobile
         ? content

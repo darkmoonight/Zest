@@ -220,6 +220,11 @@ const SettingsSchema = CollectionSchema(
       name: r'timeformat',
       type: IsarType.string,
     ),
+    r'todoCardLayout': PropertySchema(
+      id: 43,
+      name: r'todoCardLayout',
+      type: IsarType.string,
+    ),
   },
 
   estimateSize: _settingsEstimateSize,
@@ -310,6 +315,7 @@ int _settingsEstimateSize(
     }
   }
   bytesCount += 3 + object.timeformat.length * 3;
+  bytesCount += 3 + object.todoCardLayout.length * 3;
   return bytesCount;
 }
 
@@ -362,6 +368,7 @@ void _settingsSerialize(
   writer.writeLong(offsets[40], object.snoozeDuration);
   writer.writeString(offsets[41], object.theme);
   writer.writeString(offsets[42], object.timeformat);
+  writer.writeString(offsets[43], object.todoCardLayout);
 }
 
 Settings _settingsDeserialize(
@@ -431,6 +438,7 @@ Settings _settingsDeserialize(
   object.snoozeDuration = reader.readLong(offsets[40]);
   object.theme = reader.readStringOrNull(offsets[41]);
   object.timeformat = reader.readString(offsets[42]);
+  object.todoCardLayout = reader.readString(offsets[43]);
   return object;
 }
 
@@ -541,6 +549,8 @@ P _settingsDeserializeProp<P>(
     case 41:
       return (reader.readStringOrNull(offset)) as P;
     case 42:
+      return (reader.readString(offset)) as P;
+    case 43:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -4293,6 +4303,150 @@ extension SettingsQueryFilter
       );
     });
   }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> todoCardLayoutEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'todoCardLayout',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  todoCardLayoutGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'todoCardLayout',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  todoCardLayoutLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'todoCardLayout',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> todoCardLayoutBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'todoCardLayout',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  todoCardLayoutStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'todoCardLayout',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  todoCardLayoutEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'todoCardLayout',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  todoCardLayoutContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'todoCardLayout',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> todoCardLayoutMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'todoCardLayout',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  todoCardLayoutIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'todoCardLayout', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  todoCardLayoutIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'todoCardLayout', value: ''),
+      );
+    });
+  }
 }
 
 extension SettingsQueryObject
@@ -4842,6 +4996,18 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByTimeformatDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'timeformat', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByTodoCardLayout() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'todoCardLayout', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByTodoCardLayoutDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'todoCardLayout', Sort.desc);
     });
   }
 }
@@ -5402,6 +5568,18 @@ extension SettingsQuerySortThenBy
       return query.addSortBy(r'timeformat', Sort.desc);
     });
   }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByTodoCardLayout() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'todoCardLayout', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByTodoCardLayoutDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'todoCardLayout', Sort.desc);
+    });
+  }
 }
 
 extension SettingsQueryWhereDistinct
@@ -5734,6 +5912,17 @@ extension SettingsQueryWhereDistinct
       return query.addDistinctBy(r'timeformat', caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByTodoCardLayout({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'todoCardLayout',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
 }
 
 extension SettingsQueryProperty
@@ -6017,6 +6206,12 @@ extension SettingsQueryProperty
   QueryBuilder<Settings, String, QQueryOperations> timeformatProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'timeformat');
+    });
+  }
+
+  QueryBuilder<Settings, String, QQueryOperations> todoCardLayoutProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'todoCardLayout');
     });
   }
 }

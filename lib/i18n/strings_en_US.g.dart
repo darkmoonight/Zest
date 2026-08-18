@@ -1159,6 +1159,39 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'Weekly Progress'
 	String get weekly_progress => 'Weekly Progress';
+
+	/// en-US: 'Completed: {date}'
+	String get completed_at_label => 'Completed: {date}';
+
+	/// en-US: 'List item fields'
+	String get todo_card_layout => 'List item fields';
+
+	/// en-US: 'Choose which details appear and their order'
+	String get todo_card_layout_hint => 'Choose which details appear and their order';
+
+	/// en-US: 'Reset'
+	String get todo_card_layout_reset => 'Reset';
+
+	/// en-US: 'Description'
+	String get todo_card_field_description => 'Description';
+
+	/// en-US: 'Category'
+	String get todo_card_field_category => 'Category';
+
+	/// en-US: 'Created date'
+	String get todo_card_field_created => 'Created date';
+
+	/// en-US: 'Deadline'
+	String get todo_card_field_deadline => 'Deadline';
+
+	/// en-US: 'Priority'
+	String get todo_card_field_priority => 'Priority';
+
+	/// en-US: 'Tags'
+	String get todo_card_field_tags => 'Tags';
+
+	/// en-US: 'Completion date'
+	String get todo_card_field_completed => 'Completion date';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -1542,6 +1575,17 @@ extension on Translations {
 			'week_completed' => 'This Week',
 			'weekly' => 'Weekly',
 			'weekly_progress' => 'Weekly Progress',
+			'completed_at_label' => 'Completed: {date}',
+			'todo_card_layout' => 'List item fields',
+			'todo_card_layout_hint' => 'Choose which details appear and their order',
+			'todo_card_layout_reset' => 'Reset',
+			'todo_card_field_description' => 'Description',
+			'todo_card_field_category' => 'Category',
+			'todo_card_field_created' => 'Created date',
+			'todo_card_field_deadline' => 'Deadline',
+			'todo_card_field_priority' => 'Priority',
+			'todo_card_field_tags' => 'Tags',
+			'todo_card_field_completed' => 'Completion date',
 			_ => null,
 		};
 	}

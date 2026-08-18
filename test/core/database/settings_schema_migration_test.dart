@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
+import 'package:zest/core/config/todo_card_layout_config.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/database/settings_json_backup.dart';
 import 'package:zest/core/database/settings_schema_migration.dart';
@@ -76,7 +77,13 @@ void main() {
         ..deviceCalendarId = 'cal-42'
         ..caldavEnabled = true
         ..caldavUrl = 'https://cal.example'
-        ..caldavUsername = 'ada';
+        ..caldavUsername = 'ada'
+        ..todoCardLayout = TodoCardLayoutConfig.encode([
+          const TodoCardLayoutEntry(
+            id: TodoCardFieldId.created,
+            visible: false,
+          ),
+        ]);
 
       await SettingsJsonBackup.save(dir.path, settings);
       final loaded = await SettingsJsonBackup.load(dir.path);
@@ -92,6 +99,7 @@ void main() {
       expect(loaded.caldavEnabled, isTrue);
       expect(loaded.caldavUrl, 'https://cal.example');
       expect(loaded.caldavUsername, 'ada');
+      expect(loaded.todoCardLayout, settings.todoCardLayout);
     });
   });
 
@@ -105,7 +113,8 @@ void main() {
         ..deviceCalendarSyncEnabled = true
         ..deviceCalendarId = 'primary'
         ..caldavEnabled = true
-        ..caldavCalendarHref = 'https://cal.example/tasks/';
+        ..caldavCalendarHref = 'https://cal.example/tasks/'
+        ..todoCardLayout = TodoCardLayoutConfig.defaultJson;
 
       final copy = original.clone();
       expect(copy.theme, 'dark');
@@ -116,6 +125,7 @@ void main() {
       expect(copy.deviceCalendarId, 'primary');
       expect(copy.caldavEnabled, isTrue);
       expect(copy.caldavCalendarHref, 'https://cal.example/tasks/');
+      expect(copy.todoCardLayout, TodoCardLayoutConfig.defaultJson);
       expect(identical(copy, original), isFalse);
 
       copy.theme = 'light';

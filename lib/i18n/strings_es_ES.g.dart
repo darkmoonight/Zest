@@ -412,6 +412,17 @@ class TranslationsEsEs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Esta Semana';
 	@override String get weekly => 'Semanal';
 	@override String get weekly_progress => 'Progreso Semanal';
+	@override String get completed_at_label => 'Completado: {date}';
+	@override String get todo_card_layout => 'Campos del elemento';
+	@override String get todo_card_layout_hint => 'Elige qué detalles se muestran y en qué orden';
+	@override String get todo_card_layout_reset => 'Restablecer';
+	@override String get todo_card_field_description => 'Descripción';
+	@override String get todo_card_field_category => 'Categoría';
+	@override String get todo_card_field_created => 'Fecha de creación';
+	@override String get todo_card_field_deadline => 'Fecha límite';
+	@override String get todo_card_field_priority => 'Prioridad';
+	@override String get todo_card_field_tags => 'Etiquetas';
+	@override String get todo_card_field_completed => 'Fecha de finalización';
 }
 
 /// The flat map containing all translations for locale <es-ES>.
@@ -795,6 +806,17 @@ extension on TranslationsEsEs {
 			'week_completed' => 'Esta Semana',
 			'weekly' => 'Semanal',
 			'weekly_progress' => 'Progreso Semanal',
+			'completed_at_label' => 'Completado: {date}',
+			'todo_card_layout' => 'Campos del elemento',
+			'todo_card_layout_hint' => 'Elige qué detalles se muestran y en qué orden',
+			'todo_card_layout_reset' => 'Restablecer',
+			'todo_card_field_description' => 'Descripción',
+			'todo_card_field_category' => 'Categoría',
+			'todo_card_field_created' => 'Fecha de creación',
+			'todo_card_field_deadline' => 'Fecha límite',
+			'todo_card_field_priority' => 'Prioridad',
+			'todo_card_field_tags' => 'Etiquetas',
+			'todo_card_field_completed' => 'Fecha de finalización',
 			_ => null,
 		};
 	}

@@ -412,6 +412,17 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'تکمیل شده این هفته';
 	@override String get weekly => 'هفتگی';
 	@override String get weekly_progress => 'پیشرفت هفتگی';
+	@override String get completed_at_label => 'تکمیل: {date}';
+	@override String get todo_card_layout => 'فیلدهای آیتم فهرست';
+	@override String get todo_card_layout_hint => 'جزئیات نمایش‌داده‌شده و ترتیب را انتخاب کنید';
+	@override String get todo_card_layout_reset => 'بازنشانی';
+	@override String get todo_card_field_description => 'توضیحات';
+	@override String get todo_card_field_category => 'دسته';
+	@override String get todo_card_field_created => 'تاریخ ایجاد';
+	@override String get todo_card_field_deadline => 'مهلت';
+	@override String get todo_card_field_priority => 'اولویت';
+	@override String get todo_card_field_tags => 'برچسب‌ها';
+	@override String get todo_card_field_completed => 'تاریخ تکمیل';
 }
 
 /// The flat map containing all translations for locale <fa-IR>.
@@ -795,6 +806,17 @@ extension on TranslationsFaIr {
 			'week_completed' => 'تکمیل شده این هفته',
 			'weekly' => 'هفتگی',
 			'weekly_progress' => 'پیشرفت هفتگی',
+			'completed_at_label' => 'تکمیل: {date}',
+			'todo_card_layout' => 'فیلدهای آیتم فهرست',
+			'todo_card_layout_hint' => 'جزئیات نمایش‌داده‌شده و ترتیب را انتخاب کنید',
+			'todo_card_layout_reset' => 'بازنشانی',
+			'todo_card_field_description' => 'توضیحات',
+			'todo_card_field_category' => 'دسته',
+			'todo_card_field_created' => 'تاریخ ایجاد',
+			'todo_card_field_deadline' => 'مهلت',
+			'todo_card_field_priority' => 'اولویت',
+			'todo_card_field_tags' => 'برچسب‌ها',
+			'todo_card_field_completed' => 'تاریخ تکمیل',
 			_ => null,
 		};
 	}

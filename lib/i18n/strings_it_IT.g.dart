@@ -412,6 +412,17 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Completati questa settimana';
 	@override String get weekly => 'Settimanale';
 	@override String get weekly_progress => 'Progresso Settimanale';
+	@override String get completed_at_label => 'Completato: {date}';
+	@override String get todo_card_layout => 'Campi elemento elenco';
+	@override String get todo_card_layout_hint => 'Scegli quali dettagli mostrare e in che ordine';
+	@override String get todo_card_layout_reset => 'Ripristina';
+	@override String get todo_card_field_description => 'Descrizione';
+	@override String get todo_card_field_category => 'Categoria';
+	@override String get todo_card_field_created => 'Data di creazione';
+	@override String get todo_card_field_deadline => 'Scadenza';
+	@override String get todo_card_field_priority => 'Priorità';
+	@override String get todo_card_field_tags => 'Tag';
+	@override String get todo_card_field_completed => 'Data di completamento';
 }
 
 /// The flat map containing all translations for locale <it-IT>.
@@ -795,6 +806,17 @@ extension on TranslationsItIt {
 			'week_completed' => 'Completati questa settimana',
 			'weekly' => 'Settimanale',
 			'weekly_progress' => 'Progresso Settimanale',
+			'completed_at_label' => 'Completato: {date}',
+			'todo_card_layout' => 'Campi elemento elenco',
+			'todo_card_layout_hint' => 'Scegli quali dettagli mostrare e in che ordine',
+			'todo_card_layout_reset' => 'Ripristina',
+			'todo_card_field_description' => 'Descrizione',
+			'todo_card_field_category' => 'Categoria',
+			'todo_card_field_created' => 'Data di creazione',
+			'todo_card_field_deadline' => 'Scadenza',
+			'todo_card_field_priority' => 'Priorità',
+			'todo_card_field_tags' => 'Tag',
+			'todo_card_field_completed' => 'Data di completamento',
 			_ => null,
 		};
 	}

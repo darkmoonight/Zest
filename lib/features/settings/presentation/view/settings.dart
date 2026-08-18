@@ -4,6 +4,7 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_about_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_app_preferences_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_appearance_section.dart';
+import 'package:zest/features/settings/presentation/widgets/settings_todo_card_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_caldav_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_community_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_data_section.dart';
@@ -33,6 +34,8 @@ class SettingsPage extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SettingsAppearanceSection(),
+              SizedBox(height: sectionGap),
+              const SettingsTodoCardSection(),
               SizedBox(height: sectionGap),
               const SettingsDateTimeSection(),
               SizedBox(height: sectionGap),

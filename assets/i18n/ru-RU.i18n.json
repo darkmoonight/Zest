@@ -371,5 +371,16 @@
   "week": "Неделя",
   "weekCompleted": "За неделю",
   "weekly": "Еженедельно",
-  "weeklyProgress": "Прогресс за неделю"
+  "weeklyProgress": "Прогресс за неделю",
+  "completedAtLabel": "Завершено: {date}",
+  "todoCardLayout": "Поля элемента списка",
+  "todoCardLayoutHint": "Выберите, какие данные показывать и в каком порядке",
+  "todoCardLayoutReset": "Сбросить",
+  "todoCardFieldDescription": "Описание",
+  "todoCardFieldCategory": "Категория",
+  "todoCardFieldCreated": "Дата создания",
+  "todoCardFieldDeadline": "Срок",
+  "todoCardFieldPriority": "Приоритет",
+  "todoCardFieldTags": "Теги",
+  "todoCardFieldCompleted": "Дата завершения"
 }

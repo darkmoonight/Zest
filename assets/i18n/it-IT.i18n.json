@@ -371,5 +371,16 @@
   "week": "Settimana",
   "weekCompleted": "Completati questa settimana",
   "weekly": "Settimanale",
-  "weeklyProgress": "Progresso Settimanale"
+  "weeklyProgress": "Progresso Settimanale",
+  "completedAtLabel": "Completato: {date}",
+  "todoCardLayout": "Campi elemento elenco",
+  "todoCardLayoutHint": "Scegli quali dettagli mostrare e in che ordine",
+  "todoCardLayoutReset": "Ripristina",
+  "todoCardFieldDescription": "Descrizione",
+  "todoCardFieldCategory": "Categoria",
+  "todoCardFieldCreated": "Data di creazione",
+  "todoCardFieldDeadline": "Scadenza",
+  "todoCardFieldPriority": "Priorità",
+  "todoCardFieldTags": "Tag",
+  "todoCardFieldCompleted": "Data di completamento"
 }

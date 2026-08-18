@@ -412,6 +412,17 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Ukończone w tym tygodniu';
 	@override String get weekly => 'Co tydzień';
 	@override String get weekly_progress => 'Postęp Tygodniowy';
+	@override String get completed_at_label => 'Ukończono: {date}';
+	@override String get todo_card_layout => 'Pola elementu listy';
+	@override String get todo_card_layout_hint => 'Wybierz, które szczegóły są widoczne i w jakiej kolejności';
+	@override String get todo_card_layout_reset => 'Resetuj';
+	@override String get todo_card_field_description => 'Opis';
+	@override String get todo_card_field_category => 'Kategoria';
+	@override String get todo_card_field_created => 'Data utworzenia';
+	@override String get todo_card_field_deadline => 'Termin';
+	@override String get todo_card_field_priority => 'Priorytet';
+	@override String get todo_card_field_tags => 'Tagi';
+	@override String get todo_card_field_completed => 'Data ukończenia';
 }
 
 /// The flat map containing all translations for locale <pl-PL>.
@@ -795,6 +806,17 @@ extension on TranslationsPlPl {
 			'week_completed' => 'Ukończone w tym tygodniu',
 			'weekly' => 'Co tydzień',
 			'weekly_progress' => 'Postęp Tygodniowy',
+			'completed_at_label' => 'Ukończono: {date}',
+			'todo_card_layout' => 'Pola elementu listy',
+			'todo_card_layout_hint' => 'Wybierz, które szczegóły są widoczne i w jakiej kolejności',
+			'todo_card_layout_reset' => 'Resetuj',
+			'todo_card_field_description' => 'Opis',
+			'todo_card_field_category' => 'Kategoria',
+			'todo_card_field_created' => 'Data utworzenia',
+			'todo_card_field_deadline' => 'Termin',
+			'todo_card_field_priority' => 'Priorytet',
+			'todo_card_field_tags' => 'Tagi',
+			'todo_card_field_completed' => 'Data ukończenia',
 			_ => null,
 		};
 	}

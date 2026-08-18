@@ -371,5 +371,16 @@
   "week": "週",
   "weekCompleted": "本週完成",
   "weekly": "每週",
-  "weeklyProgress": "每週進度"
+  "weeklyProgress": "每週進度",
+  "completedAtLabel": "完成：{date}",
+  "todoCardLayout": "列表項目欄位",
+  "todoCardLayoutHint": "選擇要顯示的詳情與順序",
+  "todoCardLayoutReset": "重設",
+  "todoCardFieldDescription": "描述",
+  "todoCardFieldCategory": "分類",
+  "todoCardFieldCreated": "建立日期",
+  "todoCardFieldDeadline": "截止日期",
+  "todoCardFieldPriority": "優先順序",
+  "todoCardFieldTags": "標籤",
+  "todoCardFieldCompleted": "完成日期"
 }

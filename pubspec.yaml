@@ -61,7 +61,7 @@ dependencies:
 
   # CalDAV
   caldav: ^1.5.0
-  flutter_secure_storage: ^11.0.0
+  flutter_secure_storage: ^10.0.0
 
   # Platform & utilities
   archive: ^4.0.7

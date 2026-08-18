@@ -371,5 +371,16 @@
   "week": "週",
   "weekCompleted": "今週",
   "weekly": "毎週",
-  "weeklyProgress": "週間進捗"
+  "weeklyProgress": "週間進捗",
+  "completedAtLabel": "完了: {date}",
+  "todoCardLayout": "リスト項目のフィールド",
+  "todoCardLayoutHint": "表示する詳細と順序を選択",
+  "todoCardLayoutReset": "リセット",
+  "todoCardFieldDescription": "説明",
+  "todoCardFieldCategory": "カテゴリ",
+  "todoCardFieldCreated": "作成日",
+  "todoCardFieldDeadline": "期限",
+  "todoCardFieldPriority": "優先度",
+  "todoCardFieldTags": "タグ",
+  "todoCardFieldCompleted": "完了日"
 }

@@ -412,6 +412,17 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => '本周完成';
 	@override String get weekly => '每周';
 	@override String get weekly_progress => '每周进度';
+	@override String get completed_at_label => '完成：{date}';
+	@override String get todo_card_layout => '列表项字段';
+	@override String get todo_card_layout_hint => '选择显示哪些详情及顺序';
+	@override String get todo_card_layout_reset => '重置';
+	@override String get todo_card_field_description => '描述';
+	@override String get todo_card_field_category => '分类';
+	@override String get todo_card_field_created => '创建日期';
+	@override String get todo_card_field_deadline => '截止日期';
+	@override String get todo_card_field_priority => '优先级';
+	@override String get todo_card_field_tags => '标签';
+	@override String get todo_card_field_completed => '完成日期';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -795,6 +806,17 @@ extension on TranslationsZhCn {
 			'week_completed' => '本周完成',
 			'weekly' => '每周',
 			'weekly_progress' => '每周进度',
+			'completed_at_label' => '完成：{date}',
+			'todo_card_layout' => '列表项字段',
+			'todo_card_layout_hint' => '选择显示哪些详情及顺序',
+			'todo_card_layout_reset' => '重置',
+			'todo_card_field_description' => '描述',
+			'todo_card_field_category' => '分类',
+			'todo_card_field_created' => '创建日期',
+			'todo_card_field_deadline' => '截止日期',
+			'todo_card_field_priority' => '优先级',
+			'todo_card_field_tags' => '标签',
+			'todo_card_field_completed' => '完成日期',
 			_ => null,
 		};
 	}

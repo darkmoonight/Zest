@@ -371,5 +371,16 @@
   "week": "أسبوع",
   "weekCompleted": "مكتمل هذا الأسبوع",
   "weekly": "أسبوعي",
-  "weeklyProgress": "التقدم الأسبوعي"
+  "weeklyProgress": "التقدم الأسبوعي",
+  "completedAtLabel": "اكتمل: {date}",
+  "todoCardLayout": "حقول عنصر القائمة",
+  "todoCardLayoutHint": "اختر التفاصيل المعروضة وترتيبها",
+  "todoCardLayoutReset": "إعادة ضبط",
+  "todoCardFieldDescription": "الوصف",
+  "todoCardFieldCategory": "الفئة",
+  "todoCardFieldCreated": "تاريخ الإنشاء",
+  "todoCardFieldDeadline": "الموعد النهائي",
+  "todoCardFieldPriority": "الأولوية",
+  "todoCardFieldTags": "الوسوم",
+  "todoCardFieldCompleted": "تاريخ الإكمال"
 }

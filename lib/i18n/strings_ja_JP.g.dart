@@ -412,6 +412,17 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => '今週';
 	@override String get weekly => '毎週';
 	@override String get weekly_progress => '週間進捗';
+	@override String get completed_at_label => '完了: {date}';
+	@override String get todo_card_layout => 'リスト項目のフィールド';
+	@override String get todo_card_layout_hint => '表示する詳細と順序を選択';
+	@override String get todo_card_layout_reset => 'リセット';
+	@override String get todo_card_field_description => '説明';
+	@override String get todo_card_field_category => 'カテゴリ';
+	@override String get todo_card_field_created => '作成日';
+	@override String get todo_card_field_deadline => '期限';
+	@override String get todo_card_field_priority => '優先度';
+	@override String get todo_card_field_tags => 'タグ';
+	@override String get todo_card_field_completed => '完了日';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -795,6 +806,17 @@ extension on TranslationsJaJp {
 			'week_completed' => '今週',
 			'weekly' => '毎週',
 			'weekly_progress' => '週間進捗',
+			'completed_at_label' => '完了: {date}',
+			'todo_card_layout' => 'リスト項目のフィールド',
+			'todo_card_layout_hint' => '表示する詳細と順序を選択',
+			'todo_card_layout_reset' => 'リセット',
+			'todo_card_field_description' => '説明',
+			'todo_card_field_category' => 'カテゴリ',
+			'todo_card_field_created' => '作成日',
+			'todo_card_field_deadline' => '期限',
+			'todo_card_field_priority' => '優先度',
+			'todo_card_field_tags' => 'タグ',
+			'todo_card_field_completed' => '完了日',
 			_ => null,
 		};
 	}

@@ -412,6 +412,17 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Hoàn thành tuần này';
 	@override String get weekly => 'Hàng tuần';
 	@override String get weekly_progress => 'Tiến độ tuần';
+	@override String get completed_at_label => 'Hoàn thành: {date}';
+	@override String get todo_card_layout => 'Trường mục danh sách';
+	@override String get todo_card_layout_hint => 'Chọn chi tiết hiển thị và thứ tự';
+	@override String get todo_card_layout_reset => 'Đặt lại';
+	@override String get todo_card_field_description => 'Mô tả';
+	@override String get todo_card_field_category => 'Danh mục';
+	@override String get todo_card_field_created => 'Ngày tạo';
+	@override String get todo_card_field_deadline => 'Hạn chót';
+	@override String get todo_card_field_priority => 'Ưu tiên';
+	@override String get todo_card_field_tags => 'Thẻ';
+	@override String get todo_card_field_completed => 'Ngày hoàn thành';
 }
 
 /// The flat map containing all translations for locale <vi-VN>.
@@ -795,6 +806,17 @@ extension on TranslationsViVn {
 			'week_completed' => 'Hoàn thành tuần này',
 			'weekly' => 'Hàng tuần',
 			'weekly_progress' => 'Tiến độ tuần',
+			'completed_at_label' => 'Hoàn thành: {date}',
+			'todo_card_layout' => 'Trường mục danh sách',
+			'todo_card_layout_hint' => 'Chọn chi tiết hiển thị và thứ tự',
+			'todo_card_layout_reset' => 'Đặt lại',
+			'todo_card_field_description' => 'Mô tả',
+			'todo_card_field_category' => 'Danh mục',
+			'todo_card_field_created' => 'Ngày tạo',
+			'todo_card_field_deadline' => 'Hạn chót',
+			'todo_card_field_priority' => 'Ưu tiên',
+			'todo_card_field_tags' => 'Thẻ',
+			'todo_card_field_completed' => 'Ngày hoàn thành',
 			_ => null,
 		};
 	}

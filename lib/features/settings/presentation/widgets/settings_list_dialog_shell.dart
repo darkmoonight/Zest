@@ -240,12 +240,12 @@ class SettingsListDialogCancelSaveFooter extends StatelessWidget {
         children: [
           SettingsListDialogTonalButton(
             labelKey: 'cancel',
-            onPressed: enabled ? () => NavigationHelper.back(context) : () {},
+            onPressed: enabled ? () => NavigationHelper.back(context) : null,
           ),
           const SizedBox(width: AppConstants.spacingS),
           SettingsListDialogTonalButton(
             labelKey: 'save',
-            onPressed: enabled ? onSave : () {},
+            onPressed: enabled ? onSave : null,
           ),
         ],
       ),
@@ -262,15 +262,21 @@ class SettingsListDialogActionsFooter extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(
-      AppConstants.spacingXXL,
-      AppConstants.spacingS,
-      AppConstants.spacingXXL,
-      AppConstants.spacingXXL,
-    ),
-    child: child,
-  );
+  Widget build(BuildContext context) {
+    final horizontalPadding = ResponsiveUtils.isMobile(context)
+        ? AppConstants.spacingL
+        : AppConstants.spacingXXL;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        horizontalPadding,
+        AppConstants.spacingS,
+        horizontalPadding,
+        horizontalPadding,
+      ),
+      child: child,
+    );
+  }
 }
 
 /// Tonal filled button using a translation key for its label.
@@ -287,8 +293,8 @@ class SettingsListDialogTonalButton extends StatelessWidget {
   /// Translation key for the button label.
   final String labelKey;
 
-  /// Called when the button is pressed.
-  final VoidCallback onPressed;
+  /// Called when the button is pressed, or null to disable the button.
+  final VoidCallback? onPressed;
 
   /// Optional override for the button background.
   final Color? backgroundColor;
@@ -309,6 +315,7 @@ class SettingsListDialogTonalButton extends StatelessWidget {
         ),
         backgroundColor: backgroundColor ?? colorScheme.primaryContainer,
         foregroundColor: foregroundColor ?? colorScheme.onPrimaryContainer,
+        minimumSize: const Size(0, 44),
       ),
       child: Text(
         labelKey.tr,

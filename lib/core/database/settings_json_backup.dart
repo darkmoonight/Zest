@@ -85,6 +85,7 @@ class SettingsJsonBackup {
     'caldavLastSyncTime': s.caldavLastSyncTime?.toIso8601String(),
     'caldavLastError': s.caldavLastError,
     'caldavPendingDeletes': s.caldavPendingDeletes,
+    'todoCardLayout': s.todoCardLayout,
     'settingsSchemaVersion': s.settingsSchemaVersion,
   };
 
@@ -164,6 +165,7 @@ class SettingsJsonBackup {
     settings.caldavLastError = json['caldavLastError'] as String?;
     settings.caldavPendingDeletes =
         json['caldavPendingDeletes'] as String? ?? '[]';
+    settings.todoCardLayout = json['todoCardLayout'] as String? ?? '';
     settings.settingsSchemaVersion = json['settingsSchemaVersion'] as int? ?? 0;
     return settings;
   }

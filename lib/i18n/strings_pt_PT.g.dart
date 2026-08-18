@@ -412,6 +412,17 @@ class TranslationsPtPt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Concluídas esta semana';
 	@override String get weekly => 'Semanal';
 	@override String get weekly_progress => 'Progresso Semanal';
+	@override String get completed_at_label => 'Concluído: {date}';
+	@override String get todo_card_layout => 'Campos do item';
+	@override String get todo_card_layout_hint => 'Escolha que detalhes aparecem e a ordem';
+	@override String get todo_card_layout_reset => 'Repor';
+	@override String get todo_card_field_description => 'Descrição';
+	@override String get todo_card_field_category => 'Categoria';
+	@override String get todo_card_field_created => 'Data de criação';
+	@override String get todo_card_field_deadline => 'Prazo';
+	@override String get todo_card_field_priority => 'Prioridade';
+	@override String get todo_card_field_tags => 'Etiquetas';
+	@override String get todo_card_field_completed => 'Data de conclusão';
 }
 
 /// The flat map containing all translations for locale <pt-PT>.
@@ -795,6 +806,17 @@ extension on TranslationsPtPt {
 			'week_completed' => 'Concluídas esta semana',
 			'weekly' => 'Semanal',
 			'weekly_progress' => 'Progresso Semanal',
+			'completed_at_label' => 'Concluído: {date}',
+			'todo_card_layout' => 'Campos do item',
+			'todo_card_layout_hint' => 'Escolha que detalhes aparecem e a ordem',
+			'todo_card_layout_reset' => 'Repor',
+			'todo_card_field_description' => 'Descrição',
+			'todo_card_field_category' => 'Categoria',
+			'todo_card_field_created' => 'Data de criação',
+			'todo_card_field_deadline' => 'Prazo',
+			'todo_card_field_priority' => 'Prioridade',
+			'todo_card_field_tags' => 'Etiquetas',
+			'todo_card_field_completed' => 'Data de conclusão',
 			_ => null,
 		};
 	}

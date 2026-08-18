@@ -412,6 +412,17 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'За неделю';
 	@override String get weekly => 'Еженедельно';
 	@override String get weekly_progress => 'Прогресс за неделю';
+	@override String get completed_at_label => 'Завершено: {date}';
+	@override String get todo_card_layout => 'Поля элемента списка';
+	@override String get todo_card_layout_hint => 'Выберите, какие данные показывать и в каком порядке';
+	@override String get todo_card_layout_reset => 'Сбросить';
+	@override String get todo_card_field_description => 'Описание';
+	@override String get todo_card_field_category => 'Категория';
+	@override String get todo_card_field_created => 'Дата создания';
+	@override String get todo_card_field_deadline => 'Срок';
+	@override String get todo_card_field_priority => 'Приоритет';
+	@override String get todo_card_field_tags => 'Теги';
+	@override String get todo_card_field_completed => 'Дата завершения';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -795,6 +806,17 @@ extension on TranslationsRuRu {
 			'week_completed' => 'За неделю',
 			'weekly' => 'Еженедельно',
 			'weekly_progress' => 'Прогресс за неделю',
+			'completed_at_label' => 'Завершено: {date}',
+			'todo_card_layout' => 'Поля элемента списка',
+			'todo_card_layout_hint' => 'Выберите, какие данные показывать и в каком порядке',
+			'todo_card_layout_reset' => 'Сбросить',
+			'todo_card_field_description' => 'Описание',
+			'todo_card_field_category' => 'Категория',
+			'todo_card_field_created' => 'Дата создания',
+			'todo_card_field_deadline' => 'Срок',
+			'todo_card_field_priority' => 'Приоритет',
+			'todo_card_field_tags' => 'Теги',
+			'todo_card_field_completed' => 'Дата завершения',
 			_ => null,
 		};
 	}

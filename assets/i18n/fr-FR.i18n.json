@@ -371,5 +371,16 @@
   "week": "Semaine",
   "weekCompleted": "Cette Semaine",
   "weekly": "Hebdomadaire",
-  "weeklyProgress": "Progrès Hebdomadaire"
+  "weeklyProgress": "Progrès Hebdomadaire",
+  "completedAtLabel": "Terminé : {date}",
+  "todoCardLayout": "Champs de l'élément",
+  "todoCardLayoutHint": "Choisissez les détails affichés et leur ordre",
+  "todoCardLayoutReset": "Réinitialiser",
+  "todoCardFieldDescription": "Description",
+  "todoCardFieldCategory": "Catégorie",
+  "todoCardFieldCreated": "Date de création",
+  "todoCardFieldDeadline": "Échéance",
+  "todoCardFieldPriority": "Priorité",
+  "todoCardFieldTags": "Tags",
+  "todoCardFieldCompleted": "Date de fin"
 }

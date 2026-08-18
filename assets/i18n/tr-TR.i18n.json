@@ -371,5 +371,16 @@
   "week": "Hafta",
   "weekCompleted": "Bu hafta tamamlanan",
   "weekly": "Haftalık",
-  "weeklyProgress": "Haftalık İlerleme"
+  "weeklyProgress": "Haftalık İlerleme",
+  "completedAtLabel": "Tamamlandı: {date}",
+  "todoCardLayout": "Liste öğesi alanları",
+  "todoCardLayoutHint": "Hangi ayrıntıların görüneceğini ve sırasını seçin",
+  "todoCardLayoutReset": "Sıfırla",
+  "todoCardFieldDescription": "Açıklama",
+  "todoCardFieldCategory": "Kategori",
+  "todoCardFieldCreated": "Oluşturulma tarihi",
+  "todoCardFieldDeadline": "Son tarih",
+  "todoCardFieldPriority": "Öncelik",
+  "todoCardFieldTags": "Etiketler",
+  "todoCardFieldCompleted": "Tamamlanma tarihi"
 }

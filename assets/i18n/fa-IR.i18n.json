@@ -371,5 +371,16 @@
   "week": "هفته",
   "weekCompleted": "تکمیل شده این هفته",
   "weekly": "هفتگی",
-  "weeklyProgress": "پیشرفت هفتگی"
+  "weeklyProgress": "پیشرفت هفتگی",
+  "completedAtLabel": "تکمیل: {date}",
+  "todoCardLayout": "فیلدهای آیتم فهرست",
+  "todoCardLayoutHint": "جزئیات نمایش‌داده‌شده و ترتیب را انتخاب کنید",
+  "todoCardLayoutReset": "بازنشانی",
+  "todoCardFieldDescription": "توضیحات",
+  "todoCardFieldCategory": "دسته",
+  "todoCardFieldCreated": "تاریخ ایجاد",
+  "todoCardFieldDeadline": "مهلت",
+  "todoCardFieldPriority": "اولویت",
+  "todoCardFieldTags": "برچسب‌ها",
+  "todoCardFieldCompleted": "تاریخ تکمیل"
 }

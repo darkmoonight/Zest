@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/navigation/app_routes.dart';
-import 'package:zest/core/navigation/app_router.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/i18n/tr.dart';
 
@@ -91,8 +90,6 @@ class _OnBoardingState extends ConsumerState<OnBoarding> {
   /// Marks onboarding complete and opens the home route.
   Future<void> _completeOnboarding() async {
     await ref.writeLiveSettings(mutate: (s) => s.onboard = true);
-    refreshAppRouter(ref);
-
     if (!mounted) return;
     context.go(AppRoutes.home);
   }

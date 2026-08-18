@@ -371,5 +371,16 @@
   "week": "주간",
   "weekCompleted": "이번 주 완료",
   "weekly": "매주",
-  "weeklyProgress": "주간 진행"
+  "weeklyProgress": "주간 진행",
+  "completedAtLabel": "완료: {date}",
+  "todoCardLayout": "목록 항목 필드",
+  "todoCardLayoutHint": "표시할 세부 정보와 순서를 선택하세요",
+  "todoCardLayoutReset": "초기화",
+  "todoCardFieldDescription": "설명",
+  "todoCardFieldCategory": "카테고리",
+  "todoCardFieldCreated": "생성일",
+  "todoCardFieldDeadline": "마감일",
+  "todoCardFieldPriority": "우선순위",
+  "todoCardFieldTags": "태그",
+  "todoCardFieldCompleted": "완료일"
 }

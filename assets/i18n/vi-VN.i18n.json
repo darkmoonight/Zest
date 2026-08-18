@@ -371,5 +371,16 @@
   "week": "Tuần",
   "weekCompleted": "Hoàn thành tuần này",
   "weekly": "Hàng tuần",
-  "weeklyProgress": "Tiến độ tuần"
+  "weeklyProgress": "Tiến độ tuần",
+  "completedAtLabel": "Hoàn thành: {date}",
+  "todoCardLayout": "Trường mục danh sách",
+  "todoCardLayoutHint": "Chọn chi tiết hiển thị và thứ tự",
+  "todoCardLayoutReset": "Đặt lại",
+  "todoCardFieldDescription": "Mô tả",
+  "todoCardFieldCategory": "Danh mục",
+  "todoCardFieldCreated": "Ngày tạo",
+  "todoCardFieldDeadline": "Hạn chót",
+  "todoCardFieldPriority": "Ưu tiên",
+  "todoCardFieldTags": "Thẻ",
+  "todoCardFieldCompleted": "Ngày hoàn thành"
 }

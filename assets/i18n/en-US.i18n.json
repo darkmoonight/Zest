@@ -371,5 +371,16 @@
   "week": "Week",
   "weekCompleted": "This Week",
   "weekly": "Weekly",
-  "weeklyProgress": "Weekly Progress"
+  "weeklyProgress": "Weekly Progress",
+  "completedAtLabel": "Completed: {date}",
+  "todoCardLayout": "List item fields",
+  "todoCardLayoutHint": "Choose which details appear and their order",
+  "todoCardLayoutReset": "Reset",
+  "todoCardFieldDescription": "Description",
+  "todoCardFieldCategory": "Category",
+  "todoCardFieldCreated": "Created date",
+  "todoCardFieldDeadline": "Deadline",
+  "todoCardFieldPriority": "Priority",
+  "todoCardFieldTags": "Tags",
+  "todoCardFieldCompleted": "Completion date"
 }

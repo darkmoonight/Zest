@@ -412,6 +412,17 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => '이번 주 완료';
 	@override String get weekly => '매주';
 	@override String get weekly_progress => '주간 진행';
+	@override String get completed_at_label => '완료: {date}';
+	@override String get todo_card_layout => '목록 항목 필드';
+	@override String get todo_card_layout_hint => '표시할 세부 정보와 순서를 선택하세요';
+	@override String get todo_card_layout_reset => '초기화';
+	@override String get todo_card_field_description => '설명';
+	@override String get todo_card_field_category => '카테고리';
+	@override String get todo_card_field_created => '생성일';
+	@override String get todo_card_field_deadline => '마감일';
+	@override String get todo_card_field_priority => '우선순위';
+	@override String get todo_card_field_tags => '태그';
+	@override String get todo_card_field_completed => '완료일';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -795,6 +806,17 @@ extension on TranslationsKoKr {
 			'week_completed' => '이번 주 완료',
 			'weekly' => '매주',
 			'weekly_progress' => '주간 진행',
+			'completed_at_label' => '완료: {date}',
+			'todo_card_layout' => '목록 항목 필드',
+			'todo_card_layout_hint' => '표시할 세부 정보와 순서를 선택하세요',
+			'todo_card_layout_reset' => '초기화',
+			'todo_card_field_description' => '설명',
+			'todo_card_field_category' => '카테고리',
+			'todo_card_field_created' => '생성일',
+			'todo_card_field_deadline' => '마감일',
+			'todo_card_field_priority' => '우선순위',
+			'todo_card_field_tags' => '태그',
+			'todo_card_field_completed' => '완료일',
 			_ => null,
 		};
 	}

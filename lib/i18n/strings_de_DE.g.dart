@@ -412,6 +412,17 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Diese Woche';
 	@override String get weekly => 'Wöchentlich';
 	@override String get weekly_progress => 'Wochenfortschritt';
+	@override String get completed_at_label => 'Abgeschlossen: {date}';
+	@override String get todo_card_layout => 'Listenelement-Felder';
+	@override String get todo_card_layout_hint => 'Wähle, welche Details angezeigt werden und in welcher Reihenfolge';
+	@override String get todo_card_layout_reset => 'Zurücksetzen';
+	@override String get todo_card_field_description => 'Beschreibung';
+	@override String get todo_card_field_category => 'Kategorie';
+	@override String get todo_card_field_created => 'Erstellungsdatum';
+	@override String get todo_card_field_deadline => 'Frist';
+	@override String get todo_card_field_priority => 'Priorität';
+	@override String get todo_card_field_tags => 'Tags';
+	@override String get todo_card_field_completed => 'Abschlussdatum';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -795,6 +806,17 @@ extension on TranslationsDeDe {
 			'week_completed' => 'Diese Woche',
 			'weekly' => 'Wöchentlich',
 			'weekly_progress' => 'Wochenfortschritt',
+			'completed_at_label' => 'Abgeschlossen: {date}',
+			'todo_card_layout' => 'Listenelement-Felder',
+			'todo_card_layout_hint' => 'Wähle, welche Details angezeigt werden und in welcher Reihenfolge',
+			'todo_card_layout_reset' => 'Zurücksetzen',
+			'todo_card_field_description' => 'Beschreibung',
+			'todo_card_field_category' => 'Kategorie',
+			'todo_card_field_created' => 'Erstellungsdatum',
+			'todo_card_field_deadline' => 'Frist',
+			'todo_card_field_priority' => 'Priorität',
+			'todo_card_field_tags' => 'Tags',
+			'todo_card_field_completed' => 'Abschlussdatum',
 			_ => null,
 		};
 	}

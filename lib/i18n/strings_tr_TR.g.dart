@@ -412,6 +412,17 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'Bu hafta tamamlanan';
 	@override String get weekly => 'Haftalık';
 	@override String get weekly_progress => 'Haftalık İlerleme';
+	@override String get completed_at_label => 'Tamamlandı: {date}';
+	@override String get todo_card_layout => 'Liste öğesi alanları';
+	@override String get todo_card_layout_hint => 'Hangi ayrıntıların görüneceğini ve sırasını seçin';
+	@override String get todo_card_layout_reset => 'Sıfırla';
+	@override String get todo_card_field_description => 'Açıklama';
+	@override String get todo_card_field_category => 'Kategori';
+	@override String get todo_card_field_created => 'Oluşturulma tarihi';
+	@override String get todo_card_field_deadline => 'Son tarih';
+	@override String get todo_card_field_priority => 'Öncelik';
+	@override String get todo_card_field_tags => 'Etiketler';
+	@override String get todo_card_field_completed => 'Tamamlanma tarihi';
 }
 
 /// The flat map containing all translations for locale <tr-TR>.
@@ -795,6 +806,17 @@ extension on TranslationsTrTr {
 			'week_completed' => 'Bu hafta tamamlanan',
 			'weekly' => 'Haftalık',
 			'weekly_progress' => 'Haftalık İlerleme',
+			'completed_at_label' => 'Tamamlandı: {date}',
+			'todo_card_layout' => 'Liste öğesi alanları',
+			'todo_card_layout_hint' => 'Hangi ayrıntıların görüneceğini ve sırasını seçin',
+			'todo_card_layout_reset' => 'Sıfırla',
+			'todo_card_field_description' => 'Açıklama',
+			'todo_card_field_category' => 'Kategori',
+			'todo_card_field_created' => 'Oluşturulma tarihi',
+			'todo_card_field_deadline' => 'Son tarih',
+			'todo_card_field_priority' => 'Öncelik',
+			'todo_card_field_tags' => 'Etiketler',
+			'todo_card_field_completed' => 'Tamamlanma tarihi',
 			_ => null,
 		};
 	}

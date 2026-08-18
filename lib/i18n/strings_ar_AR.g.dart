@@ -412,6 +412,17 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get week_completed => 'مكتمل هذا الأسبوع';
 	@override String get weekly => 'أسبوعي';
 	@override String get weekly_progress => 'التقدم الأسبوعي';
+	@override String get completed_at_label => 'اكتمل: {date}';
+	@override String get todo_card_layout => 'حقول عنصر القائمة';
+	@override String get todo_card_layout_hint => 'اختر التفاصيل المعروضة وترتيبها';
+	@override String get todo_card_layout_reset => 'إعادة ضبط';
+	@override String get todo_card_field_description => 'الوصف';
+	@override String get todo_card_field_category => 'الفئة';
+	@override String get todo_card_field_created => 'تاريخ الإنشاء';
+	@override String get todo_card_field_deadline => 'الموعد النهائي';
+	@override String get todo_card_field_priority => 'الأولوية';
+	@override String get todo_card_field_tags => 'الوسوم';
+	@override String get todo_card_field_completed => 'تاريخ الإكمال';
 }
 
 /// The flat map containing all translations for locale <ar-AR>.
@@ -795,6 +806,17 @@ extension on TranslationsArAr {
 			'week_completed' => 'مكتمل هذا الأسبوع',
 			'weekly' => 'أسبوعي',
 			'weekly_progress' => 'التقدم الأسبوعي',
+			'completed_at_label' => 'اكتمل: {date}',
+			'todo_card_layout' => 'حقول عنصر القائمة',
+			'todo_card_layout_hint' => 'اختر التفاصيل المعروضة وترتيبها',
+			'todo_card_layout_reset' => 'إعادة ضبط',
+			'todo_card_field_description' => 'الوصف',
+			'todo_card_field_category' => 'الفئة',
+			'todo_card_field_created' => 'تاريخ الإنشاء',
+			'todo_card_field_deadline' => 'الموعد النهائي',
+			'todo_card_field_priority' => 'الأولوية',
+			'todo_card_field_tags' => 'الوسوم',
+			'todo_card_field_completed' => 'تاريخ الإكمال',
 			_ => null,
 		};
 	}

@@ -40,8 +40,8 @@ class SettingsSaveActions {
   /// Updates app locale, persists the choice, refreshes UI, and re-registers
   /// Android notification channel names for the new language.
   Future<void> updateLanguage(Locale locale) async {
-    await ref.writeLiveSettings(mutate: (s) => s.language = '$locale');
     await applyAppLocale(appLocaleFromFlutterLocale(locale));
+    saveSettingsOptimistic(mutate: (s) => s.language = '$locale');
     final plugin = NotificationPlugin.instance;
     if (plugin != null) {
       unawaited(registerAndroidNotificationChannels(plugin));

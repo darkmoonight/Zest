@@ -143,6 +143,9 @@ class Settings {
   /// JSON list of `{uid,href,etag}` objects awaiting remote DELETE.
   String caldavPendingDeletes = '[]';
 
+  /// JSON layout for todo card metadata rows (visibility + order).
+  String todoCardLayout = '';
+
   /// Bumped when the Settings Isar layout changes; triggers a re-save migration.
   int settingsSchemaVersion = 0;
 
@@ -194,6 +197,7 @@ class Settings {
     caldavLastSyncTime = other.caldavLastSyncTime;
     caldavLastError = other.caldavLastError;
     caldavPendingDeletes = other.caldavPendingDeletes;
+    todoCardLayout = other.todoCardLayout;
     settingsSchemaVersion = other.settingsSchemaVersion;
   }
 
