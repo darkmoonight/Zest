@@ -4,6 +4,7 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_about_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_app_preferences_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_appearance_section.dart';
+import 'package:zest/features/settings/presentation/widgets/settings_caldav_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_community_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_data_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_datetime_section.dart';
@@ -38,6 +39,8 @@ class SettingsPage extends ConsumerWidget {
               const SettingsPrivacySecuritySection(),
               SizedBox(height: sectionGap),
               const SettingsAppPreferencesSection(),
+              SizedBox(height: sectionGap),
+              const SettingsCalDavSection(),
               SizedBox(height: sectionGap),
               const SettingsDataSection(),
               SizedBox(height: sectionGap),

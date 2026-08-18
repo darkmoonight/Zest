@@ -128,6 +128,60 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'Backup User Data'
 	String get backup => 'Backup User Data';
 
+	/// en-US: 'CalDAV account'
+	String get caldav_account => 'CalDAV account';
+
+	/// en-US: 'Allow HTTP (insecure)'
+	String get caldav_allow_insecure => 'Allow HTTP (insecure)';
+
+	/// en-US: 'Task list'
+	String get caldav_calendar => 'Task list';
+
+	/// en-US: 'Could not connect: {error}'
+	String get caldav_connection_failed => 'Could not connect: {error}';
+
+	/// en-US: 'Connected to CalDAV server'
+	String get caldav_connection_ok => 'Connected to CalDAV server';
+
+	/// en-US: 'CalDAV sync'
+	String get caldav_enabled => 'CalDAV sync';
+
+	/// en-US: 'Use an app password. HTTP is only for local servers.'
+	String get caldav_insecure_hint => 'Use an app password. HTTP is only for local servers.';
+
+	/// en-US: 'Last sync: {time}'
+	String get caldav_last_sync => 'Last sync: {time}';
+
+	/// en-US: 'Not synced yet'
+	String get caldav_never_synced => 'Not synced yet';
+
+	/// en-US: 'No writable task lists found'
+	String get caldav_no_calendars => 'No writable task lists found';
+
+	/// en-US: 'Not configured'
+	String get caldav_not_configured => 'Not configured';
+
+	/// en-US: 'Password'
+	String get caldav_password => 'Password';
+
+	/// en-US: 'Server URL'
+	String get caldav_server_url => 'Server URL';
+
+	/// en-US: 'CalDAV'
+	String get caldav_sync => 'CalDAV';
+
+	/// en-US: 'Sync failed: {error}'
+	String get caldav_sync_failed => 'Sync failed: {error}';
+
+	/// en-US: 'Sync now'
+	String get caldav_sync_now => 'Sync now';
+
+	/// en-US: 'CalDAV sync finished'
+	String get caldav_sync_success => 'CalDAV sync finished';
+
+	/// en-US: 'Username'
+	String get caldav_username => 'Username';
+
 	/// en-US: 'Calendar'
 	String get calendar => 'Calendar';
 
@@ -1144,6 +1198,24 @@ extension on Translations {
 			'auto_backup_path' => 'Backup Location',
 			'auto_backup_path_set' => 'Backup location updated',
 			'backup' => 'Backup User Data',
+			'caldav_account' => 'CalDAV account',
+			'caldav_allow_insecure' => 'Allow HTTP (insecure)',
+			'caldav_calendar' => 'Task list',
+			'caldav_connection_failed' => 'Could not connect: {error}',
+			'caldav_connection_ok' => 'Connected to CalDAV server',
+			'caldav_enabled' => 'CalDAV sync',
+			'caldav_insecure_hint' => 'Use an app password. HTTP is only for local servers.',
+			'caldav_last_sync' => 'Last sync: {time}',
+			'caldav_never_synced' => 'Not synced yet',
+			'caldav_no_calendars' => 'No writable task lists found',
+			'caldav_not_configured' => 'Not configured',
+			'caldav_password' => 'Password',
+			'caldav_server_url' => 'Server URL',
+			'caldav_sync' => 'CalDAV',
+			'caldav_sync_failed' => 'Sync failed: {error}',
+			'caldav_sync_now' => 'Sync now',
+			'caldav_sync_success' => 'CalDAV sync finished',
+			'caldav_username' => 'Username',
 			'calendar' => 'Calendar',
 			'cancel' => 'Cancel',
 			'cancelled' => 'Cancelled',

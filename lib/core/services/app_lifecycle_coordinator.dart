@@ -6,7 +6,7 @@ import 'package:zest/core/services/auto_backup_service.dart';
 import 'package:zest/core/services/auto_erase_completed_service.dart';
 import 'package:zest/core/services/midnight_maintenance.dart';
 
-/// Owns startup/resume maintenance: backup → midnight → erase → list reload.
+/// Owns startup/resume maintenance: backup → midnight → erase → CalDAV → reload.
 ///
 /// Concurrent callers share one in-flight future. Bumps settings revision when
 /// auto-erase updates [Settings.lastAutoEraseCompletedTime].
@@ -57,6 +57,8 @@ abstract final class AppLifecycleCoordinator {
     if (settings.lastAutoEraseCompletedTime != lastEraseBefore) {
       ref.read(settingsRevisionProvider.notifier).bump();
     }
+
+    await ref.read(calDavSyncServiceProvider).syncNow();
 
     await reloadTodosAndTasks(ref);
   }

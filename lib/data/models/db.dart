@@ -113,6 +113,36 @@ class Settings {
   /// Timestamp of the last successful auto-erase of completed items.
   DateTime? lastAutoEraseCompletedTime;
 
+  /// Whether two-way CalDAV VTODO sync is enabled.
+  bool caldavEnabled = false;
+
+  /// CalDAV server base URL entered by the user.
+  String? caldavUrl;
+
+  /// CalDAV username (password is in secure storage).
+  String? caldavUsername;
+
+  /// Href of the selected VTODO calendar collection.
+  String? caldavCalendarHref;
+
+  /// Display name of the selected VTODO calendar.
+  String? caldavCalendarName;
+
+  /// Last collection CTag used to skip unchanged pulls.
+  String? caldavCtag;
+
+  /// Whether HTTP (non-HTTPS) CalDAV is allowed.
+  bool caldavAllowInsecure = false;
+
+  /// Timestamp of the last successful CalDAV sync.
+  DateTime? caldavLastSyncTime;
+
+  /// Last CalDAV sync error message, or null after success.
+  String? caldavLastError;
+
+  /// JSON list of `{uid,href,etag}` objects awaiting remote DELETE.
+  String caldavPendingDeletes = '[]';
+
   /// Bumped when the Settings Isar layout changes; triggers a re-save migration.
   int settingsSchemaVersion = 0;
 
@@ -154,6 +184,16 @@ class Settings {
     autoEraseCompletedEnabled = other.autoEraseCompletedEnabled;
     autoEraseCompletedFrequency = other.autoEraseCompletedFrequency;
     lastAutoEraseCompletedTime = other.lastAutoEraseCompletedTime;
+    caldavEnabled = other.caldavEnabled;
+    caldavUrl = other.caldavUrl;
+    caldavUsername = other.caldavUsername;
+    caldavCalendarHref = other.caldavCalendarHref;
+    caldavCalendarName = other.caldavCalendarName;
+    caldavCtag = other.caldavCtag;
+    caldavAllowInsecure = other.caldavAllowInsecure;
+    caldavLastSyncTime = other.caldavLastSyncTime;
+    caldavLastError = other.caldavLastError;
+    caldavPendingDeletes = other.caldavPendingDeletes;
     settingsSchemaVersion = other.settingsSchemaVersion;
   }
 
@@ -365,6 +405,18 @@ class Todos {
 
   /// Linked device-calendar event id when Android calendar export is enabled.
   String? deviceCalendarEventId;
+
+  /// CalDAV VTODO UID; assigned on first push.
+  String? caldavUid;
+
+  /// CalDAV resource href for this item.
+  String? caldavHref;
+
+  /// CalDAV ETag used for optimistic locking.
+  String? caldavEtag;
+
+  /// Whether local changes still need to be pushed.
+  bool caldavDirty = false;
 
   /// How this item repeats after completion.
   @enumerated

@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar_community/isar.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:zest/core/bootstrap/app_bootstrap.dart';
+import 'package:zest/core/caldav/caldav_credentials.dart';
+import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/di/settings_revision.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
@@ -77,6 +79,7 @@ final todoServiceProvider = Provider<TodoService>((ref) {
     todoRepo: ref.watch(todoRepositoryProvider),
     notificationService: ref.watch(notificationServiceProvider),
     calendarSync: ref.watch(deviceCalendarSyncServiceProvider),
+    caldavSync: ref.watch(calDavSyncServiceProvider),
     timeformat: settings.timeformat,
     languageCode: languageCodeFromSettings(settings.language),
   );
@@ -100,6 +103,26 @@ final deviceCalendarSyncServiceProvider = Provider<DeviceCalendarSyncService>(
     saveSettings: (settings) async {
       await ref.read(settingsRepositoryProvider).save(settings);
     },
+  ),
+);
+
+/// Secure store for the CalDAV password.
+final calDavCredentialsStoreProvider = Provider<CalDavCredentialsStore>(
+  (ref) => CalDavCredentialsStore(),
+);
+
+/// Two-way CalDAV VTODO sync against the selected calendar.
+final calDavSyncServiceProvider = Provider<CalDavSyncService>(
+  (ref) => CalDavSyncService(
+    isar: ref.watch(isarProvider),
+    getSettings: () => ref.read(liveSettingsProvider),
+    todoRepo: ref.watch(todoRepositoryProvider),
+    saveSettings: (settings) async {
+      await ref.read(settingsRepositoryProvider).save(settings);
+    },
+    credentials: ref.watch(calDavCredentialsStoreProvider),
+    notifications: ref.watch(notificationServiceProvider),
+    calendarSync: ref.watch(deviceCalendarSyncServiceProvider),
   ),
 );
 

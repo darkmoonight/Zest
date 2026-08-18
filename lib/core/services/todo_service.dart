@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/core/utils/reorder_filtered.dart';
@@ -15,6 +16,7 @@ class TodoService {
     required this._todoRepo,
     required this._notificationService,
     this._calendarSync,
+    this._caldavSync,
     this._timeformat = AppConstants.defaultTimeformat,
     this._languageCode = AppConstants.defaultLanguageCode,
   });
@@ -27,6 +29,9 @@ class TodoService {
 
   /// Optional one-way export of deadlines to the device calendar.
   final DeviceCalendarSyncService? _calendarSync;
+
+  /// Optional two-way CalDAV VTODO sync.
+  final CalDavSyncService? _caldavSync;
 
   /// User time format for parsing due-date strings.
   final String _timeformat;
@@ -80,6 +85,7 @@ class TodoService {
       await _notificationService.scheduleForTodo(todo);
     }
     await _calendarSync?.ensureSynced(todo);
+    await _caldavSync?.markDirty(todo);
 
     return todo;
   }
@@ -130,6 +136,7 @@ class TodoService {
       await _notificationService.cancel(todo.id);
     }
     await _calendarSync?.ensureSynced(todo);
+    await _caldavSync?.markDirty(todo);
   }
 
   /// Persists [item] status and syncs its notification schedule.
@@ -149,6 +156,7 @@ class TodoService {
       await _notificationService.cancel(todo.id);
     }
     await _calendarSync?.ensureSynced(todo);
+    await _caldavSync?.markDirty(todo);
   }
 
   /// Marks [item] done and cancels its reminder (notification action / handler).
@@ -169,6 +177,7 @@ class TodoService {
     await _todoRepo.update(todo);
     await _notificationService.snooze(todo, settings);
     await _calendarSync?.ensureSynced(todo);
+    await _caldavSync?.markDirty(todo);
   }
 
   /// Sets [item] and all subtasks to [status] and updates notifications.
@@ -183,6 +192,7 @@ class TodoService {
         final todoItem = await _todoRepo.getById(id);
         if (todoItem != null) {
           await _calendarSync?.ensureSynced(todoItem);
+          await _caldavSync?.markDirty(todoItem);
         }
       }
     } else {
@@ -193,6 +203,7 @@ class TodoService {
         }
         if (todoItem != null) {
           await _calendarSync?.ensureSynced(todoItem);
+          await _caldavSync?.markDirty(todoItem);
         }
       }
     }
@@ -291,6 +302,7 @@ class TodoService {
       final todoItem = await _todoRepo.getById(id);
       if (todoItem != null) {
         await _calendarSync?.removeSynced(todoItem);
+        await _caldavSync?.enqueueDelete(todoItem);
       }
     }
     await _todoRepo.deleteBatch(allIds);

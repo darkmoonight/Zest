@@ -75,6 +75,16 @@ class SettingsJsonBackup {
     'autoEraseCompletedFrequency': s.autoEraseCompletedFrequency.index,
     'lastAutoEraseCompletedTime': s.lastAutoEraseCompletedTime
         ?.toIso8601String(),
+    'caldavEnabled': s.caldavEnabled,
+    'caldavUrl': s.caldavUrl,
+    'caldavUsername': s.caldavUsername,
+    'caldavCalendarHref': s.caldavCalendarHref,
+    'caldavCalendarName': s.caldavCalendarName,
+    'caldavCtag': s.caldavCtag,
+    'caldavAllowInsecure': s.caldavAllowInsecure,
+    'caldavLastSyncTime': s.caldavLastSyncTime?.toIso8601String(),
+    'caldavLastError': s.caldavLastError,
+    'caldavPendingDeletes': s.caldavPendingDeletes,
     'settingsSchemaVersion': s.settingsSchemaVersion,
   };
 
@@ -139,6 +149,21 @@ class SettingsJsonBackup {
     settings.lastAutoEraseCompletedTime = lastErase == null
         ? null
         : DateTime.tryParse(lastErase);
+    settings.caldavEnabled = json['caldavEnabled'] as bool? ?? false;
+    settings.caldavUrl = json['caldavUrl'] as String?;
+    settings.caldavUsername = json['caldavUsername'] as String?;
+    settings.caldavCalendarHref = json['caldavCalendarHref'] as String?;
+    settings.caldavCalendarName = json['caldavCalendarName'] as String?;
+    settings.caldavCtag = json['caldavCtag'] as String?;
+    settings.caldavAllowInsecure =
+        json['caldavAllowInsecure'] as bool? ?? false;
+    final lastCaldav = json['caldavLastSyncTime'] as String?;
+    settings.caldavLastSyncTime = lastCaldav == null
+        ? null
+        : DateTime.tryParse(lastCaldav);
+    settings.caldavLastError = json['caldavLastError'] as String?;
+    settings.caldavPendingDeletes =
+        json['caldavPendingDeletes'] as String? ?? '[]';
     settings.settingsSchemaVersion = json['settingsSchemaVersion'] as int? ?? 0;
     return settings;
   }

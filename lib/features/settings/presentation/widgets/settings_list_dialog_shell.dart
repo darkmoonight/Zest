@@ -15,6 +15,7 @@ class SettingsListDialogShell extends StatelessWidget {
     this.header,
     this.footer,
     this.maxHeightFraction = 0.7,
+    this.shrinkWrapBody = false,
   });
 
   /// Optional widget shown above the scrollable body.
@@ -29,8 +30,10 @@ class SettingsListDialogShell extends StatelessWidget {
   /// Maximum dialog height as a fraction of screen height.
   final double maxHeightFraction;
 
+  /// When true, [body] is not expanded; the dialog wraps its content height.
+  final bool shrinkWrapBody;
+
   @override
-  /// Builds the widget subtree.
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isMobile = ResponsiveUtils.isMobile(context);
@@ -58,7 +61,7 @@ class SettingsListDialogShell extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ?header,
-              Flexible(child: body),
+              if (shrinkWrapBody) body else Flexible(child: body),
               ?footer,
             ],
           ),
@@ -84,7 +87,6 @@ class SettingsListDialogHeader extends StatelessWidget {
   final IconData icon;
 
   @override
-  /// Builds the widget subtree.
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -132,7 +134,6 @@ class SettingsListDialogDismissAction extends StatelessWidget {
   final String labelKey;
 
   @override
-  /// Builds the widget subtree.
   Widget build(BuildContext context) => SettingsListDialogActionsFooter(
     child: Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -170,7 +171,6 @@ class SettingsDialogListTile extends StatelessWidget {
   final Widget? leading;
 
   @override
-  /// Builds the widget subtree.
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -200,6 +200,59 @@ class SettingsDialogListTile extends StatelessWidget {
   }
 }
 
+/// Padded body for compact settings form dialogs.
+class SettingsListDialogFormBody extends StatelessWidget {
+  /// Creates a horizontally padded form body.
+  const SettingsListDialogFormBody({super.key, required this.child});
+
+  /// Form fields laid out in a column or similar.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingXXL),
+      child: child,
+    );
+  }
+}
+
+/// Cancel and save actions for settings form dialogs.
+class SettingsListDialogCancelSaveFooter extends StatelessWidget {
+  /// Creates cancel/save footer buttons.
+  const SettingsListDialogCancelSaveFooter({
+    super.key,
+    required this.onSave,
+    this.enabled = true,
+  });
+
+  /// Called when save is pressed.
+  final VoidCallback onSave;
+
+  /// When false, both buttons are disabled.
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsListDialogActionsFooter(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          SettingsListDialogTonalButton(
+            labelKey: 'cancel',
+            onPressed: enabled ? () => NavigationHelper.back(context) : () {},
+          ),
+          const SizedBox(width: AppConstants.spacingS),
+          SettingsListDialogTonalButton(
+            labelKey: 'save',
+            onPressed: enabled ? onSave : () {},
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Padded footer container for dialog action buttons.
 class SettingsListDialogActionsFooter extends StatelessWidget {
   /// Creates a [SettingsListDialogActionsFooter].
@@ -209,7 +262,6 @@ class SettingsListDialogActionsFooter extends StatelessWidget {
   final Widget child;
 
   @override
-  /// Builds the widget subtree.
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.fromLTRB(
       AppConstants.spacingXXL,
@@ -245,7 +297,6 @@ class SettingsListDialogTonalButton extends StatelessWidget {
   final Color? foregroundColor;
 
   @override
-  /// Builds the widget subtree.
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 

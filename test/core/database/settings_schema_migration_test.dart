@@ -73,7 +73,10 @@ void main() {
         ..snoozeDuration = 30
         ..defaultCategoryId = 7
         ..deviceCalendarSyncEnabled = true
-        ..deviceCalendarId = 'cal-42';
+        ..deviceCalendarId = 'cal-42'
+        ..caldavEnabled = true
+        ..caldavUrl = 'https://cal.example'
+        ..caldavUsername = 'ada';
 
       await SettingsJsonBackup.save(dir.path, settings);
       final loaded = await SettingsJsonBackup.load(dir.path);
@@ -86,6 +89,9 @@ void main() {
       expect(loaded.defaultCategoryId, 7);
       expect(loaded.deviceCalendarSyncEnabled, isTrue);
       expect(loaded.deviceCalendarId, 'cal-42');
+      expect(loaded.caldavEnabled, isTrue);
+      expect(loaded.caldavUrl, 'https://cal.example');
+      expect(loaded.caldavUsername, 'ada');
     });
   });
 
@@ -97,7 +103,9 @@ void main() {
         ..settingsSchemaVersion = 1
         ..defaultCategoryId = 9
         ..deviceCalendarSyncEnabled = true
-        ..deviceCalendarId = 'primary';
+        ..deviceCalendarId = 'primary'
+        ..caldavEnabled = true
+        ..caldavCalendarHref = 'https://cal.example/tasks/';
 
       final copy = original.clone();
       expect(copy.theme, 'dark');
@@ -106,6 +114,8 @@ void main() {
       expect(copy.defaultCategoryId, 9);
       expect(copy.deviceCalendarSyncEnabled, isTrue);
       expect(copy.deviceCalendarId, 'primary');
+      expect(copy.caldavEnabled, isTrue);
+      expect(copy.caldavCalendarHref, 'https://cal.example/tasks/');
       expect(identical(copy, original), isFalse);
 
       copy.theme = 'light';

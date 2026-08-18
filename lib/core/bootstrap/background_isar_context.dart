@@ -1,6 +1,8 @@
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/bootstrap/isar_bootstrap.dart';
 import 'package:zest/core/bootstrap/notification_bootstrap.dart';
+import 'package:zest/core/caldav/caldav_credentials.dart';
+import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/database/settings_persist.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
@@ -18,6 +20,7 @@ class BackgroundIsarContext {
     required this.todoRepo,
     required this.notifications,
     required this.calendarSync,
+    required this.caldavSync,
   });
 
   /// Open Isar handle for this background run.
@@ -37,6 +40,9 @@ class BackgroundIsarContext {
 
   /// Device calendar sync with [persistSettings] writes.
   final DeviceCalendarSyncService calendarSync;
+
+  /// Two-way CalDAV sync for mark-done / snooze in this isolate.
+  final CalDavSyncService caldavSync;
 
   /// Acquires Isar, applies locale, and builds shared services.
   ///
@@ -62,6 +68,17 @@ class BackgroundIsarContext {
         await persistSettings(isarInstance, updated);
       },
     );
+    final caldavSync = CalDavSyncService(
+      isar: isarInstance,
+      getSettings: () => settings,
+      todoRepo: todoRepo,
+      saveSettings: (updated) async {
+        await persistSettings(isarInstance, updated);
+      },
+      credentials: CalDavCredentialsStore(),
+      notifications: notifications,
+      calendarSync: calendarSync,
+    );
 
     return BackgroundIsarContext._(
       isar: isarInstance,
@@ -70,6 +87,7 @@ class BackgroundIsarContext {
       todoRepo: todoRepo,
       notifications: notifications,
       calendarSync: calendarSync,
+      caldavSync: caldavSync,
     );
   }
 
@@ -79,6 +97,7 @@ class BackgroundIsarContext {
       todoRepo: todoRepo,
       notificationService: notifications,
       calendarSync: calendarSync,
+      caldavSync: caldavSync,
       timeformat: settings.timeformat,
       languageCode: languageCodeFromSettings(settings.language),
     );

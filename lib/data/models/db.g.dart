@@ -56,117 +56,167 @@ const SettingsSchema = CollectionSchema(
       type: IsarType.byte,
       enumMap: _SettingsautoEraseCompletedFrequencyEnumValueMap,
     ),
-    r'calendarFormat': PropertySchema(
+    r'caldavAllowInsecure': PropertySchema(
       id: 8,
+      name: r'caldavAllowInsecure',
+      type: IsarType.bool,
+    ),
+    r'caldavCalendarHref': PropertySchema(
+      id: 9,
+      name: r'caldavCalendarHref',
+      type: IsarType.string,
+    ),
+    r'caldavCalendarName': PropertySchema(
+      id: 10,
+      name: r'caldavCalendarName',
+      type: IsarType.string,
+    ),
+    r'caldavCtag': PropertySchema(
+      id: 11,
+      name: r'caldavCtag',
+      type: IsarType.string,
+    ),
+    r'caldavEnabled': PropertySchema(
+      id: 12,
+      name: r'caldavEnabled',
+      type: IsarType.bool,
+    ),
+    r'caldavLastError': PropertySchema(
+      id: 13,
+      name: r'caldavLastError',
+      type: IsarType.string,
+    ),
+    r'caldavLastSyncTime': PropertySchema(
+      id: 14,
+      name: r'caldavLastSyncTime',
+      type: IsarType.dateTime,
+    ),
+    r'caldavPendingDeletes': PropertySchema(
+      id: 15,
+      name: r'caldavPendingDeletes',
+      type: IsarType.string,
+    ),
+    r'caldavUrl': PropertySchema(
+      id: 16,
+      name: r'caldavUrl',
+      type: IsarType.string,
+    ),
+    r'caldavUsername': PropertySchema(
+      id: 17,
+      name: r'caldavUsername',
+      type: IsarType.string,
+    ),
+    r'calendarFormat': PropertySchema(
+      id: 18,
       name: r'calendarFormat',
       type: IsarType.string,
     ),
     r'calendarSortOption': PropertySchema(
-      id: 9,
+      id: 19,
       name: r'calendarSortOption',
       type: IsarType.byte,
       enumMap: _SettingscalendarSortOptionEnumValueMap,
     ),
     r'colorPalette': PropertySchema(
-      id: 10,
+      id: 20,
       name: r'colorPalette',
       type: IsarType.string,
     ),
     r'defaultCategoryId': PropertySchema(
-      id: 11,
+      id: 21,
       name: r'defaultCategoryId',
       type: IsarType.long,
     ),
     r'defaultCategorySeeded': PropertySchema(
-      id: 12,
+      id: 22,
       name: r'defaultCategorySeeded',
       type: IsarType.bool,
     ),
     r'defaultScreen': PropertySchema(
-      id: 13,
+      id: 23,
       name: r'defaultScreen',
       type: IsarType.string,
     ),
     r'deviceCalendarId': PropertySchema(
-      id: 14,
+      id: 24,
       name: r'deviceCalendarId',
       type: IsarType.string,
     ),
     r'deviceCalendarSyncEnabled': PropertySchema(
-      id: 15,
+      id: 25,
       name: r'deviceCalendarSyncEnabled',
       type: IsarType.bool,
     ),
     r'firstDay': PropertySchema(
-      id: 16,
+      id: 26,
       name: r'firstDay',
       type: IsarType.string,
     ),
-    r'isImage': PropertySchema(id: 17, name: r'isImage', type: IsarType.bool),
+    r'isImage': PropertySchema(id: 27, name: r'isImage', type: IsarType.bool),
     r'language': PropertySchema(
-      id: 18,
+      id: 28,
       name: r'language',
       type: IsarType.string,
     ),
     r'lastAutoBackupTime': PropertySchema(
-      id: 19,
+      id: 29,
       name: r'lastAutoBackupTime',
       type: IsarType.dateTime,
     ),
     r'lastAutoEraseCompletedTime': PropertySchema(
-      id: 20,
+      id: 30,
       name: r'lastAutoEraseCompletedTime',
       type: IsarType.dateTime,
     ),
     r'materialColor': PropertySchema(
-      id: 21,
+      id: 31,
       name: r'materialColor',
       type: IsarType.bool,
     ),
     r'maxAutoBackups': PropertySchema(
-      id: 22,
+      id: 32,
       name: r'maxAutoBackups',
       type: IsarType.long,
     ),
     r'notificationChannelsMigrated': PropertySchema(
-      id: 23,
+      id: 33,
       name: r'notificationChannelsMigrated',
       type: IsarType.bool,
     ),
-    r'onboard': PropertySchema(id: 24, name: r'onboard', type: IsarType.bool),
+    r'onboard': PropertySchema(id: 34, name: r'onboard', type: IsarType.bool),
     r'screenPrivacy': PropertySchema(
-      id: 25,
+      id: 35,
       name: r'screenPrivacy',
       type: IsarType.bool,
     ),
     r'settingsSchemaVersion': PropertySchema(
-      id: 26,
+      id: 36,
       name: r'settingsSchemaVersion',
       type: IsarType.long,
     ),
     r'showArchivedInAllTodos': PropertySchema(
-      id: 27,
+      id: 37,
       name: r'showArchivedInAllTodos',
       type: IsarType.bool,
     ),
     r'showArchivedInCalendar': PropertySchema(
-      id: 28,
+      id: 38,
       name: r'showArchivedInCalendar',
       type: IsarType.bool,
     ),
     r'showArchivedInStatistics': PropertySchema(
-      id: 29,
+      id: 39,
       name: r'showArchivedInStatistics',
       type: IsarType.bool,
     ),
     r'snoozeDuration': PropertySchema(
-      id: 30,
+      id: 40,
       name: r'snoozeDuration',
       type: IsarType.long,
     ),
-    r'theme': PropertySchema(id: 31, name: r'theme', type: IsarType.string),
+    r'theme': PropertySchema(id: 41, name: r'theme', type: IsarType.string),
     r'timeformat': PropertySchema(
-      id: 32,
+      id: 42,
       name: r'timeformat',
       type: IsarType.string,
     ),
@@ -196,6 +246,43 @@ int _settingsEstimateSize(
   bytesCount += 3 + object.appFont.length * 3;
   {
     final value = object.autoBackupPath;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.caldavCalendarHref;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.caldavCalendarName;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.caldavCtag;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.caldavLastError;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  bytesCount += 3 + object.caldavPendingDeletes.length * 3;
+  {
+    final value = object.caldavUrl;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.caldavUsername;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -240,31 +327,41 @@ void _settingsSerialize(
   writer.writeString(offsets[5], object.autoBackupPath);
   writer.writeBool(offsets[6], object.autoEraseCompletedEnabled);
   writer.writeByte(offsets[7], object.autoEraseCompletedFrequency.index);
-  writer.writeString(offsets[8], object.calendarFormat);
-  writer.writeByte(offsets[9], object.calendarSortOption.index);
-  writer.writeString(offsets[10], object.colorPalette);
-  writer.writeLong(offsets[11], object.defaultCategoryId);
-  writer.writeBool(offsets[12], object.defaultCategorySeeded);
-  writer.writeString(offsets[13], object.defaultScreen);
-  writer.writeString(offsets[14], object.deviceCalendarId);
-  writer.writeBool(offsets[15], object.deviceCalendarSyncEnabled);
-  writer.writeString(offsets[16], object.firstDay);
-  writer.writeBool(offsets[17], object.isImage);
-  writer.writeString(offsets[18], object.language);
-  writer.writeDateTime(offsets[19], object.lastAutoBackupTime);
-  writer.writeDateTime(offsets[20], object.lastAutoEraseCompletedTime);
-  writer.writeBool(offsets[21], object.materialColor);
-  writer.writeLong(offsets[22], object.maxAutoBackups);
-  writer.writeBool(offsets[23], object.notificationChannelsMigrated);
-  writer.writeBool(offsets[24], object.onboard);
-  writer.writeBool(offsets[25], object.screenPrivacy);
-  writer.writeLong(offsets[26], object.settingsSchemaVersion);
-  writer.writeBool(offsets[27], object.showArchivedInAllTodos);
-  writer.writeBool(offsets[28], object.showArchivedInCalendar);
-  writer.writeBool(offsets[29], object.showArchivedInStatistics);
-  writer.writeLong(offsets[30], object.snoozeDuration);
-  writer.writeString(offsets[31], object.theme);
-  writer.writeString(offsets[32], object.timeformat);
+  writer.writeBool(offsets[8], object.caldavAllowInsecure);
+  writer.writeString(offsets[9], object.caldavCalendarHref);
+  writer.writeString(offsets[10], object.caldavCalendarName);
+  writer.writeString(offsets[11], object.caldavCtag);
+  writer.writeBool(offsets[12], object.caldavEnabled);
+  writer.writeString(offsets[13], object.caldavLastError);
+  writer.writeDateTime(offsets[14], object.caldavLastSyncTime);
+  writer.writeString(offsets[15], object.caldavPendingDeletes);
+  writer.writeString(offsets[16], object.caldavUrl);
+  writer.writeString(offsets[17], object.caldavUsername);
+  writer.writeString(offsets[18], object.calendarFormat);
+  writer.writeByte(offsets[19], object.calendarSortOption.index);
+  writer.writeString(offsets[20], object.colorPalette);
+  writer.writeLong(offsets[21], object.defaultCategoryId);
+  writer.writeBool(offsets[22], object.defaultCategorySeeded);
+  writer.writeString(offsets[23], object.defaultScreen);
+  writer.writeString(offsets[24], object.deviceCalendarId);
+  writer.writeBool(offsets[25], object.deviceCalendarSyncEnabled);
+  writer.writeString(offsets[26], object.firstDay);
+  writer.writeBool(offsets[27], object.isImage);
+  writer.writeString(offsets[28], object.language);
+  writer.writeDateTime(offsets[29], object.lastAutoBackupTime);
+  writer.writeDateTime(offsets[30], object.lastAutoEraseCompletedTime);
+  writer.writeBool(offsets[31], object.materialColor);
+  writer.writeLong(offsets[32], object.maxAutoBackups);
+  writer.writeBool(offsets[33], object.notificationChannelsMigrated);
+  writer.writeBool(offsets[34], object.onboard);
+  writer.writeBool(offsets[35], object.screenPrivacy);
+  writer.writeLong(offsets[36], object.settingsSchemaVersion);
+  writer.writeBool(offsets[37], object.showArchivedInAllTodos);
+  writer.writeBool(offsets[38], object.showArchivedInCalendar);
+  writer.writeBool(offsets[39], object.showArchivedInStatistics);
+  writer.writeLong(offsets[40], object.snoozeDuration);
+  writer.writeString(offsets[41], object.theme);
+  writer.writeString(offsets[42], object.timeformat);
 }
 
 Settings _settingsDeserialize(
@@ -294,36 +391,46 @@ Settings _settingsDeserialize(
         offsets[7],
       )] ??
       AutoEraseCompletedFrequency.weekly;
-  object.calendarFormat = reader.readString(offsets[8]);
+  object.caldavAllowInsecure = reader.readBool(offsets[8]);
+  object.caldavCalendarHref = reader.readStringOrNull(offsets[9]);
+  object.caldavCalendarName = reader.readStringOrNull(offsets[10]);
+  object.caldavCtag = reader.readStringOrNull(offsets[11]);
+  object.caldavEnabled = reader.readBool(offsets[12]);
+  object.caldavLastError = reader.readStringOrNull(offsets[13]);
+  object.caldavLastSyncTime = reader.readDateTimeOrNull(offsets[14]);
+  object.caldavPendingDeletes = reader.readString(offsets[15]);
+  object.caldavUrl = reader.readStringOrNull(offsets[16]);
+  object.caldavUsername = reader.readStringOrNull(offsets[17]);
+  object.calendarFormat = reader.readString(offsets[18]);
   object.calendarSortOption =
       _SettingscalendarSortOptionValueEnumMap[reader.readByteOrNull(
-        offsets[9],
+        offsets[19],
       )] ??
       SortOption.none;
-  object.colorPalette = reader.readString(offsets[10]);
-  object.defaultCategoryId = reader.readLongOrNull(offsets[11]);
-  object.defaultCategorySeeded = reader.readBool(offsets[12]);
-  object.defaultScreen = reader.readString(offsets[13]);
-  object.deviceCalendarId = reader.readStringOrNull(offsets[14]);
-  object.deviceCalendarSyncEnabled = reader.readBool(offsets[15]);
-  object.firstDay = reader.readString(offsets[16]);
+  object.colorPalette = reader.readString(offsets[20]);
+  object.defaultCategoryId = reader.readLongOrNull(offsets[21]);
+  object.defaultCategorySeeded = reader.readBool(offsets[22]);
+  object.defaultScreen = reader.readString(offsets[23]);
+  object.deviceCalendarId = reader.readStringOrNull(offsets[24]);
+  object.deviceCalendarSyncEnabled = reader.readBool(offsets[25]);
+  object.firstDay = reader.readString(offsets[26]);
   object.id = id;
-  object.isImage = reader.readBoolOrNull(offsets[17]);
-  object.language = reader.readStringOrNull(offsets[18]);
-  object.lastAutoBackupTime = reader.readDateTimeOrNull(offsets[19]);
-  object.lastAutoEraseCompletedTime = reader.readDateTimeOrNull(offsets[20]);
-  object.materialColor = reader.readBool(offsets[21]);
-  object.maxAutoBackups = reader.readLong(offsets[22]);
-  object.notificationChannelsMigrated = reader.readBool(offsets[23]);
-  object.onboard = reader.readBool(offsets[24]);
-  object.screenPrivacy = reader.readBoolOrNull(offsets[25]);
-  object.settingsSchemaVersion = reader.readLong(offsets[26]);
-  object.showArchivedInAllTodos = reader.readBool(offsets[27]);
-  object.showArchivedInCalendar = reader.readBool(offsets[28]);
-  object.showArchivedInStatistics = reader.readBool(offsets[29]);
-  object.snoozeDuration = reader.readLong(offsets[30]);
-  object.theme = reader.readStringOrNull(offsets[31]);
-  object.timeformat = reader.readString(offsets[32]);
+  object.isImage = reader.readBoolOrNull(offsets[27]);
+  object.language = reader.readStringOrNull(offsets[28]);
+  object.lastAutoBackupTime = reader.readDateTimeOrNull(offsets[29]);
+  object.lastAutoEraseCompletedTime = reader.readDateTimeOrNull(offsets[30]);
+  object.materialColor = reader.readBool(offsets[31]);
+  object.maxAutoBackups = reader.readLong(offsets[32]);
+  object.notificationChannelsMigrated = reader.readBool(offsets[33]);
+  object.onboard = reader.readBool(offsets[34]);
+  object.screenPrivacy = reader.readBoolOrNull(offsets[35]);
+  object.settingsSchemaVersion = reader.readLong(offsets[36]);
+  object.showArchivedInAllTodos = reader.readBool(offsets[37]);
+  object.showArchivedInCalendar = reader.readBool(offsets[38]);
+  object.showArchivedInStatistics = reader.readBool(offsets[39]);
+  object.snoozeDuration = reader.readLong(offsets[40]);
+  object.theme = reader.readStringOrNull(offsets[41]);
+  object.timeformat = reader.readString(offsets[42]);
   return object;
 }
 
@@ -362,58 +469,78 @@ P _settingsDeserializeProp<P>(
               AutoEraseCompletedFrequency.weekly)
           as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 9:
+      return (reader.readStringOrNull(offset)) as P;
+    case 10:
+      return (reader.readStringOrNull(offset)) as P;
+    case 11:
+      return (reader.readStringOrNull(offset)) as P;
+    case 12:
+      return (reader.readBool(offset)) as P;
+    case 13:
+      return (reader.readStringOrNull(offset)) as P;
+    case 14:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 15:
+      return (reader.readString(offset)) as P;
+    case 16:
+      return (reader.readStringOrNull(offset)) as P;
+    case 17:
+      return (reader.readStringOrNull(offset)) as P;
+    case 18:
+      return (reader.readString(offset)) as P;
+    case 19:
       return (_SettingscalendarSortOptionValueEnumMap[reader.readByteOrNull(
                 offset,
               )] ??
               SortOption.none)
           as P;
-    case 10:
-      return (reader.readString(offset)) as P;
-    case 11:
-      return (reader.readLongOrNull(offset)) as P;
-    case 12:
-      return (reader.readBool(offset)) as P;
-    case 13:
-      return (reader.readString(offset)) as P;
-    case 14:
-      return (reader.readStringOrNull(offset)) as P;
-    case 15:
-      return (reader.readBool(offset)) as P;
-    case 16:
-      return (reader.readString(offset)) as P;
-    case 17:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 18:
-      return (reader.readStringOrNull(offset)) as P;
-    case 19:
-      return (reader.readDateTimeOrNull(offset)) as P;
     case 20:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 21:
-      return (reader.readBool(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 22:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 23:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 24:
-      return (reader.readBool(offset)) as P;
-    case 25:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 26:
-      return (reader.readLong(offset)) as P;
-    case 27:
-      return (reader.readBool(offset)) as P;
-    case 28:
-      return (reader.readBool(offset)) as P;
-    case 29:
-      return (reader.readBool(offset)) as P;
-    case 30:
-      return (reader.readLong(offset)) as P;
-    case 31:
       return (reader.readStringOrNull(offset)) as P;
+    case 25:
+      return (reader.readBool(offset)) as P;
+    case 26:
+      return (reader.readString(offset)) as P;
+    case 27:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 28:
+      return (reader.readStringOrNull(offset)) as P;
+    case 29:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 30:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 31:
+      return (reader.readBool(offset)) as P;
     case 32:
+      return (reader.readLong(offset)) as P;
+    case 33:
+      return (reader.readBool(offset)) as P;
+    case 34:
+      return (reader.readBool(offset)) as P;
+    case 35:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 36:
+      return (reader.readLong(offset)) as P;
+    case 37:
+      return (reader.readBool(offset)) as P;
+    case 38:
+      return (reader.readBool(offset)) as P;
+    case 39:
+      return (reader.readBool(offset)) as P;
+    case 40:
+      return (reader.readLong(offset)) as P;
+    case 41:
+      return (reader.readStringOrNull(offset)) as P;
+    case 42:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1094,6 +1221,1208 @@ extension SettingsQueryFilter
           upper: upper,
           includeUpper: includeUpper,
         ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavAllowInsecureEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavAllowInsecure', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'caldavCalendarHref'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'caldavCalendarHref'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'caldavCalendarHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'caldavCalendarHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'caldavCalendarHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'caldavCalendarHref',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'caldavCalendarHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'caldavCalendarHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'caldavCalendarHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'caldavCalendarHref',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavCalendarHref', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarHrefIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'caldavCalendarHref', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'caldavCalendarName'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'caldavCalendarName'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'caldavCalendarName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'caldavCalendarName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'caldavCalendarName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'caldavCalendarName',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'caldavCalendarName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'caldavCalendarName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'caldavCalendarName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'caldavCalendarName',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavCalendarName', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCalendarNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'caldavCalendarName', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavCtagIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'caldavCtag'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCtagIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'caldavCtag'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavCtagEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'caldavCtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavCtagGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'caldavCtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavCtagLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'caldavCtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavCtagBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'caldavCtag',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavCtagStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'caldavCtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavCtagEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'caldavCtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavCtagContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'caldavCtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavCtagMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'caldavCtag',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavCtagIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavCtag', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavCtagIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'caldavCtag', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavEnabledEqualTo(
+    bool value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavEnabled', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'caldavLastError'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'caldavLastError'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'caldavLastError',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'caldavLastError',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'caldavLastError',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'caldavLastError',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'caldavLastError',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'caldavLastError',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'caldavLastError',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'caldavLastError',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavLastError', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastErrorIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'caldavLastError', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastSyncTimeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'caldavLastSyncTime'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastSyncTimeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'caldavLastSyncTime'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastSyncTimeEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavLastSyncTime', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastSyncTimeGreaterThan(DateTime? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'caldavLastSyncTime',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastSyncTimeLessThan(DateTime? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'caldavLastSyncTime',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavLastSyncTimeBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'caldavLastSyncTime',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavPendingDeletesEqualTo(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'caldavPendingDeletes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavPendingDeletesGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'caldavPendingDeletes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavPendingDeletesLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'caldavPendingDeletes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavPendingDeletesBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'caldavPendingDeletes',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavPendingDeletesStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'caldavPendingDeletes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavPendingDeletesEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'caldavPendingDeletes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavPendingDeletesContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'caldavPendingDeletes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavPendingDeletesMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'caldavPendingDeletes',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavPendingDeletesIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavPendingDeletes', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavPendingDeletesIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          property: r'caldavPendingDeletes',
+          value: '',
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUrlIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'caldavUrl'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUrlIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'caldavUrl'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUrlEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'caldavUrl',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUrlGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'caldavUrl',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUrlLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'caldavUrl',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUrlBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'caldavUrl',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUrlStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'caldavUrl',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUrlEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'caldavUrl',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUrlContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'caldavUrl',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUrlMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'caldavUrl',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUrlIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavUrl', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavUrlIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'caldavUrl', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavUsernameIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'caldavUsername'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavUsernameIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'caldavUsername'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUsernameEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'caldavUsername',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavUsernameGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'caldavUsername',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavUsernameLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'caldavUsername',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUsernameBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'caldavUsername',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavUsernameStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'caldavUsername',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavUsernameEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'caldavUsername',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavUsernameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'caldavUsername',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> caldavUsernameMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'caldavUsername',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavUsernameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavUsername', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  caldavUsernameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'caldavUsername', value: ''),
       );
     });
   }
@@ -3075,6 +4404,131 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavAllowInsecure() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavAllowInsecure', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByCaldavAllowInsecureDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavAllowInsecure', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavCalendarHref() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCalendarHref', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByCaldavCalendarHrefDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCalendarHref', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavCalendarName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCalendarName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByCaldavCalendarNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCalendarName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavCtag() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCtag', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavCtagDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCtag', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavEnabled', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavLastError() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavLastError', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavLastErrorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavLastError', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavLastSyncTime() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavLastSyncTime', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByCaldavLastSyncTimeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavLastSyncTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavPendingDeletes() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavPendingDeletes', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByCaldavPendingDeletesDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavPendingDeletes', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavUrl() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUrl', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavUrlDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUrl', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavUsername() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUsername', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCaldavUsernameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUsername', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByCalendarFormat() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'calendarFormat', Sort.asc);
@@ -3496,6 +4950,131 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavAllowInsecure() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavAllowInsecure', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByCaldavAllowInsecureDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavAllowInsecure', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavCalendarHref() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCalendarHref', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByCaldavCalendarHrefDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCalendarHref', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavCalendarName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCalendarName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByCaldavCalendarNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCalendarName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavCtag() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCtag', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavCtagDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavCtag', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavEnabled', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavLastError() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavLastError', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavLastErrorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavLastError', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavLastSyncTime() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavLastSyncTime', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByCaldavLastSyncTimeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavLastSyncTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavPendingDeletes() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavPendingDeletes', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByCaldavPendingDeletesDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavPendingDeletes', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavUrl() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUrl', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavUrlDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUrl', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavUsername() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUsername', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCaldavUsernameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUsername', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByCalendarFormat() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'calendarFormat', Sort.asc);
@@ -3884,6 +5463,95 @@ extension SettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCaldavAllowInsecure() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'caldavAllowInsecure');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCaldavCalendarHref({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'caldavCalendarHref',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCaldavCalendarName({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'caldavCalendarName',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCaldavCtag({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'caldavCtag', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCaldavEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'caldavEnabled');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCaldavLastError({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'caldavLastError',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCaldavLastSyncTime() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'caldavLastSyncTime');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCaldavPendingDeletes({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'caldavPendingDeletes',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCaldavUrl({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'caldavUrl', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCaldavUsername({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'caldavUsername',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByCalendarFormat({
     bool caseSensitive = true,
   }) {
@@ -4125,6 +5793,70 @@ extension SettingsQueryProperty
   autoEraseCompletedFrequencyProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'autoEraseCompletedFrequency');
+    });
+  }
+
+  QueryBuilder<Settings, bool, QQueryOperations> caldavAllowInsecureProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavAllowInsecure');
+    });
+  }
+
+  QueryBuilder<Settings, String?, QQueryOperations>
+  caldavCalendarHrefProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavCalendarHref');
+    });
+  }
+
+  QueryBuilder<Settings, String?, QQueryOperations>
+  caldavCalendarNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavCalendarName');
+    });
+  }
+
+  QueryBuilder<Settings, String?, QQueryOperations> caldavCtagProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavCtag');
+    });
+  }
+
+  QueryBuilder<Settings, bool, QQueryOperations> caldavEnabledProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavEnabled');
+    });
+  }
+
+  QueryBuilder<Settings, String?, QQueryOperations> caldavLastErrorProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavLastError');
+    });
+  }
+
+  QueryBuilder<Settings, DateTime?, QQueryOperations>
+  caldavLastSyncTimeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavLastSyncTime');
+    });
+  }
+
+  QueryBuilder<Settings, String, QQueryOperations>
+  caldavPendingDeletesProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavPendingDeletes');
+    });
+  }
+
+  QueryBuilder<Settings, String?, QQueryOperations> caldavUrlProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavUrl');
+    });
+  }
+
+  QueryBuilder<Settings, String?, QQueryOperations> caldavUsernameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavUsername');
     });
   }
 
@@ -5957,73 +7689,99 @@ const TodosSchema = CollectionSchema(
   name: r'Todos',
   id: 6051122207432693743,
   properties: {
-    r'childrenSortOption': PropertySchema(
+    r'caldavDirty': PropertySchema(
       id: 0,
+      name: r'caldavDirty',
+      type: IsarType.bool,
+    ),
+    r'caldavEtag': PropertySchema(
+      id: 1,
+      name: r'caldavEtag',
+      type: IsarType.string,
+    ),
+    r'caldavHref': PropertySchema(
+      id: 2,
+      name: r'caldavHref',
+      type: IsarType.string,
+    ),
+    r'caldavUid': PropertySchema(
+      id: 3,
+      name: r'caldavUid',
+      type: IsarType.string,
+    ),
+    r'childrenSortOption': PropertySchema(
+      id: 4,
       name: r'childrenSortOption',
       type: IsarType.byte,
       enumMap: _TodoschildrenSortOptionEnumValueMap,
     ),
+    r'completedAt': PropertySchema(
+      id: 5,
+      name: r'completedAt',
+      type: IsarType.dateTime,
+    ),
     r'createdTime': PropertySchema(
-      id: 1,
+      id: 6,
       name: r'createdTime',
       type: IsarType.dateTime,
     ),
     r'description': PropertySchema(
-      id: 2,
+      id: 7,
       name: r'description',
       type: IsarType.string,
     ),
     r'deviceCalendarEventId': PropertySchema(
-      id: 3,
+      id: 8,
       name: r'deviceCalendarEventId',
       type: IsarType.string,
     ),
-    r'done': PropertySchema(id: 4, name: r'done', type: IsarType.bool),
-    r'fix': PropertySchema(id: 5, name: r'fix', type: IsarType.bool),
-    r'index': PropertySchema(id: 6, name: r'index', type: IsarType.long),
-    r'name': PropertySchema(id: 7, name: r'name', type: IsarType.string),
+    r'done': PropertySchema(id: 9, name: r'done', type: IsarType.bool),
+    r'dueAt': PropertySchema(id: 10, name: r'dueAt', type: IsarType.dateTime),
+    r'fix': PropertySchema(id: 11, name: r'fix', type: IsarType.bool),
+    r'index': PropertySchema(id: 12, name: r'index', type: IsarType.long),
+    r'name': PropertySchema(id: 13, name: r'name', type: IsarType.string),
     r'priority': PropertySchema(
-      id: 8,
+      id: 14,
       name: r'priority',
       type: IsarType.byte,
       enumMap: _TodospriorityEnumValueMap,
     ),
     r'recurrence': PropertySchema(
-      id: 9,
+      id: 15,
       name: r'recurrence',
       type: IsarType.byte,
       enumMap: _TodosrecurrenceEnumValueMap,
     ),
     r'recurrenceMinuteOfDay': PropertySchema(
-      id: 10,
+      id: 16,
       name: r'recurrenceMinuteOfDay',
       type: IsarType.long,
     ),
     r'recurrenceMode': PropertySchema(
-      id: 11,
+      id: 17,
       name: r'recurrenceMode',
       type: IsarType.byte,
       enumMap: _TodosrecurrenceModeEnumValueMap,
     ),
     r'recurrenceWeekdays': PropertySchema(
-      id: 12,
+      id: 18,
       name: r'recurrenceWeekdays',
       type: IsarType.longList,
     ),
     r'status': PropertySchema(
-      id: 13,
+      id: 19,
       name: r'status',
       type: IsarType.byte,
       enumMap: _TodosstatusEnumValueMap,
     ),
-    r'tags': PropertySchema(id: 14, name: r'tags', type: IsarType.stringList),
+    r'tags': PropertySchema(id: 20, name: r'tags', type: IsarType.stringList),
     r'todoCompletedTime': PropertySchema(
-      id: 15,
+      id: 21,
       name: r'todoCompletedTime',
       type: IsarType.dateTime,
     ),
     r'todoCompletionTime': PropertySchema(
-      id: 16,
+      id: 22,
       name: r'todoCompletionTime',
       type: IsarType.dateTime,
     ),
@@ -6070,6 +7828,24 @@ int _todosEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  {
+    final value = object.caldavEtag;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.caldavHref;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.caldavUid;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.description.length * 3;
   {
     final value = object.deviceCalendarEventId;
@@ -6095,23 +7871,29 @@ void _todosSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeByte(offsets[0], object.childrenSortOption.index);
-  writer.writeDateTime(offsets[1], object.createdTime);
-  writer.writeString(offsets[2], object.description);
-  writer.writeString(offsets[3], object.deviceCalendarEventId);
-  writer.writeBool(offsets[4], object.done);
-  writer.writeBool(offsets[5], object.fix);
-  writer.writeLong(offsets[6], object.index);
-  writer.writeString(offsets[7], object.name);
-  writer.writeByte(offsets[8], object.priority.index);
-  writer.writeByte(offsets[9], object.recurrence.index);
-  writer.writeLong(offsets[10], object.recurrenceMinuteOfDay);
-  writer.writeByte(offsets[11], object.recurrenceMode.index);
-  writer.writeLongList(offsets[12], object.recurrenceWeekdays);
-  writer.writeByte(offsets[13], object.status.index);
-  writer.writeStringList(offsets[14], object.tags);
-  writer.writeDateTime(offsets[15], object.todoCompletedTime);
-  writer.writeDateTime(offsets[16], object.todoCompletionTime);
+  writer.writeBool(offsets[0], object.caldavDirty);
+  writer.writeString(offsets[1], object.caldavEtag);
+  writer.writeString(offsets[2], object.caldavHref);
+  writer.writeString(offsets[3], object.caldavUid);
+  writer.writeByte(offsets[4], object.childrenSortOption.index);
+  writer.writeDateTime(offsets[5], object.completedAt);
+  writer.writeDateTime(offsets[6], object.createdTime);
+  writer.writeString(offsets[7], object.description);
+  writer.writeString(offsets[8], object.deviceCalendarEventId);
+  writer.writeBool(offsets[9], object.done);
+  writer.writeDateTime(offsets[10], object.dueAt);
+  writer.writeBool(offsets[11], object.fix);
+  writer.writeLong(offsets[12], object.index);
+  writer.writeString(offsets[13], object.name);
+  writer.writeByte(offsets[14], object.priority.index);
+  writer.writeByte(offsets[15], object.recurrence.index);
+  writer.writeLong(offsets[16], object.recurrenceMinuteOfDay);
+  writer.writeByte(offsets[17], object.recurrenceMode.index);
+  writer.writeLongList(offsets[18], object.recurrenceWeekdays);
+  writer.writeByte(offsets[19], object.status.index);
+  writer.writeStringList(offsets[20], object.tags);
+  writer.writeDateTime(offsets[21], object.todoCompletedTime);
+  writer.writeDateTime(offsets[22], object.todoCompletionTime);
 }
 
 Todos _todosDeserialize(
@@ -6121,35 +7903,41 @@ Todos _todosDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Todos(
-    createdTime: reader.readDateTime(offsets[1]),
-    description: reader.readStringOrNull(offsets[2]) ?? '',
-    done: reader.readBoolOrNull(offsets[4]) ?? false,
-    fix: reader.readBoolOrNull(offsets[5]) ?? false,
+    createdTime: reader.readDateTime(offsets[6]),
+    description: reader.readStringOrNull(offsets[7]) ?? '',
+    done: reader.readBoolOrNull(offsets[9]) ?? false,
+    fix: reader.readBoolOrNull(offsets[11]) ?? false,
     id: id,
-    index: reader.readLongOrNull(offsets[6]),
-    name: reader.readString(offsets[7]),
+    index: reader.readLongOrNull(offsets[12]),
+    name: reader.readString(offsets[13]),
     priority:
-        _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[8])] ??
+        _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[14])] ??
         Priority.none,
     recurrence:
-        _TodosrecurrenceValueEnumMap[reader.readByteOrNull(offsets[9])] ??
+        _TodosrecurrenceValueEnumMap[reader.readByteOrNull(offsets[15])] ??
         RecurrenceFrequency.none,
-    recurrenceMinuteOfDay: reader.readLongOrNull(offsets[10]),
+    recurrenceMinuteOfDay: reader.readLongOrNull(offsets[16]),
     recurrenceMode:
-        _TodosrecurrenceModeValueEnumMap[reader.readByteOrNull(offsets[11])] ??
+        _TodosrecurrenceModeValueEnumMap[reader.readByteOrNull(offsets[17])] ??
         RecurrenceMode.clone,
-    recurrenceWeekdays: reader.readLongList(offsets[12]) ?? const [],
+    recurrenceWeekdays: reader.readLongList(offsets[18]) ?? const [],
     status:
-        _TodosstatusValueEnumMap[reader.readByteOrNull(offsets[13])] ??
+        _TodosstatusValueEnumMap[reader.readByteOrNull(offsets[19])] ??
         TodoStatus.active,
-    tags: reader.readStringList(offsets[14]) ?? const [],
-    todoCompletedTime: reader.readDateTimeOrNull(offsets[15]),
-    todoCompletionTime: reader.readDateTimeOrNull(offsets[16]),
+    tags: reader.readStringList(offsets[20]) ?? const [],
+    todoCompletedTime: reader.readDateTimeOrNull(offsets[21]),
+    todoCompletionTime: reader.readDateTimeOrNull(offsets[22]),
   );
+  object.caldavDirty = reader.readBool(offsets[0]);
+  object.caldavEtag = reader.readStringOrNull(offsets[1]);
+  object.caldavHref = reader.readStringOrNull(offsets[2]);
+  object.caldavUid = reader.readStringOrNull(offsets[3]);
   object.childrenSortOption =
-      _TodoschildrenSortOptionValueEnumMap[reader.readByteOrNull(offsets[0])] ??
+      _TodoschildrenSortOptionValueEnumMap[reader.readByteOrNull(offsets[4])] ??
       SortOption.none;
-  object.deviceCalendarEventId = reader.readStringOrNull(offsets[3]);
+  object.completedAt = reader.readDateTimeOrNull(offsets[5]);
+  object.deviceCalendarEventId = reader.readStringOrNull(offsets[8]);
+  object.dueAt = reader.readDateTimeOrNull(offsets[10]);
   return object;
 }
 
@@ -6161,50 +7949,62 @@ P _todosDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
+      return (reader.readBool(offset)) as P;
+    case 1:
+      return (reader.readStringOrNull(offset)) as P;
+    case 2:
+      return (reader.readStringOrNull(offset)) as P;
+    case 3:
+      return (reader.readStringOrNull(offset)) as P;
+    case 4:
       return (_TodoschildrenSortOptionValueEnumMap[reader.readByteOrNull(
                 offset,
               )] ??
               SortOption.none)
           as P;
-    case 1:
-      return (reader.readDateTime(offset)) as P;
-    case 2:
-      return (reader.readStringOrNull(offset) ?? '') as P;
-    case 3:
-      return (reader.readStringOrNull(offset)) as P;
-    case 4:
-      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 5:
-      return (reader.readBoolOrNull(offset) ?? false) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 6:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 7:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset) ?? '') as P;
     case 8:
+      return (reader.readStringOrNull(offset)) as P;
+    case 9:
+      return (reader.readBoolOrNull(offset) ?? false) as P;
+    case 10:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 11:
+      return (reader.readBoolOrNull(offset) ?? false) as P;
+    case 12:
+      return (reader.readLongOrNull(offset)) as P;
+    case 13:
+      return (reader.readString(offset)) as P;
+    case 14:
       return (_TodospriorityValueEnumMap[reader.readByteOrNull(offset)] ??
               Priority.none)
           as P;
-    case 9:
+    case 15:
       return (_TodosrecurrenceValueEnumMap[reader.readByteOrNull(offset)] ??
               RecurrenceFrequency.none)
           as P;
-    case 10:
+    case 16:
       return (reader.readLongOrNull(offset)) as P;
-    case 11:
+    case 17:
       return (_TodosrecurrenceModeValueEnumMap[reader.readByteOrNull(offset)] ??
               RecurrenceMode.clone)
           as P;
-    case 12:
+    case 18:
       return (reader.readLongList(offset) ?? const []) as P;
-    case 13:
+    case 19:
       return (_TodosstatusValueEnumMap[reader.readByteOrNull(offset)] ??
               TodoStatus.active)
           as P;
-    case 14:
+    case 20:
       return (reader.readStringList(offset) ?? const []) as P;
-    case 15:
+    case 21:
       return (reader.readDateTimeOrNull(offset)) as P;
-    case 16:
+    case 22:
       return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -6365,6 +8165,502 @@ extension TodosQueryWhere on QueryBuilder<Todos, Todos, QWhereClause> {
 }
 
 extension TodosQueryFilter on QueryBuilder<Todos, Todos, QFilterCondition> {
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavDirtyEqualTo(
+    bool value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavDirty', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'caldavEtag'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'caldavEtag'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'caldavEtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'caldavEtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'caldavEtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'caldavEtag',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'caldavEtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'caldavEtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'caldavEtag',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'caldavEtag',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavEtag', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavEtagIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'caldavEtag', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'caldavHref'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'caldavHref'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'caldavHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'caldavHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'caldavHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'caldavHref',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'caldavHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'caldavHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'caldavHref',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'caldavHref',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavHref', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavHrefIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'caldavHref', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'caldavUid'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'caldavUid'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'caldavUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'caldavUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'caldavUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'caldavUid',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'caldavUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'caldavUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'caldavUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'caldavUid',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'caldavUid', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> caldavUidIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'caldavUid', value: ''),
+      );
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterFilterCondition> childrenSortOptionEqualTo(
     SortOption value,
   ) {
@@ -6413,6 +8709,81 @@ extension TodosQueryFilter on QueryBuilder<Todos, Todos, QFilterCondition> {
       return query.addFilterCondition(
         FilterCondition.between(
           property: r'childrenSortOption',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> completedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'completedAt'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> completedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'completedAt'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> completedAtEqualTo(
+    DateTime? value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'completedAt', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> completedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'completedAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> completedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'completedAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> completedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'completedAt',
           lower: lower,
           includeLower: includeLower,
           upper: upper,
@@ -6793,6 +9164,81 @@ extension TodosQueryFilter on QueryBuilder<Todos, Todos, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.equalTo(property: r'done', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> dueAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'dueAt'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> dueAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'dueAt'),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> dueAtEqualTo(
+    DateTime? value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'dueAt', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> dueAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'dueAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> dueAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'dueAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterFilterCondition> dueAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'dueAt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
       );
     });
   }
@@ -7957,6 +10403,54 @@ extension TodosQueryLinks on QueryBuilder<Todos, Todos, QFilterCondition> {
 }
 
 extension TodosQuerySortBy on QueryBuilder<Todos, Todos, QSortBy> {
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByCaldavDirty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavDirty', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByCaldavDirtyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavDirty', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByCaldavEtag() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavEtag', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByCaldavEtagDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavEtag', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByCaldavHref() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavHref', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByCaldavHrefDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavHref', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByCaldavUid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByCaldavUidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUid', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> sortByChildrenSortOption() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'childrenSortOption', Sort.asc);
@@ -7966,6 +10460,18 @@ extension TodosQuerySortBy on QueryBuilder<Todos, Todos, QSortBy> {
   QueryBuilder<Todos, Todos, QAfterSortBy> sortByChildrenSortOptionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'childrenSortOption', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByCompletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByCompletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedAt', Sort.desc);
     });
   }
 
@@ -8014,6 +10520,18 @@ extension TodosQuerySortBy on QueryBuilder<Todos, Todos, QSortBy> {
   QueryBuilder<Todos, Todos, QAfterSortBy> sortByDoneDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'done', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByDueAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dueAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> sortByDueAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dueAt', Sort.desc);
     });
   }
 
@@ -8139,6 +10657,54 @@ extension TodosQuerySortBy on QueryBuilder<Todos, Todos, QSortBy> {
 }
 
 extension TodosQuerySortThenBy on QueryBuilder<Todos, Todos, QSortThenBy> {
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByCaldavDirty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavDirty', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByCaldavDirtyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavDirty', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByCaldavEtag() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavEtag', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByCaldavEtagDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavEtag', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByCaldavHref() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavHref', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByCaldavHrefDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavHref', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByCaldavUid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByCaldavUidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'caldavUid', Sort.desc);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QAfterSortBy> thenByChildrenSortOption() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'childrenSortOption', Sort.asc);
@@ -8148,6 +10714,18 @@ extension TodosQuerySortThenBy on QueryBuilder<Todos, Todos, QSortThenBy> {
   QueryBuilder<Todos, Todos, QAfterSortBy> thenByChildrenSortOptionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'childrenSortOption', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByCompletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByCompletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedAt', Sort.desc);
     });
   }
 
@@ -8196,6 +10774,18 @@ extension TodosQuerySortThenBy on QueryBuilder<Todos, Todos, QSortThenBy> {
   QueryBuilder<Todos, Todos, QAfterSortBy> thenByDoneDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'done', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByDueAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dueAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QAfterSortBy> thenByDueAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dueAt', Sort.desc);
     });
   }
 
@@ -8333,9 +10923,45 @@ extension TodosQuerySortThenBy on QueryBuilder<Todos, Todos, QSortThenBy> {
 }
 
 extension TodosQueryWhereDistinct on QueryBuilder<Todos, Todos, QDistinct> {
+  QueryBuilder<Todos, Todos, QDistinct> distinctByCaldavDirty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'caldavDirty');
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QDistinct> distinctByCaldavEtag({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'caldavEtag', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QDistinct> distinctByCaldavHref({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'caldavHref', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QDistinct> distinctByCaldavUid({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'caldavUid', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Todos, Todos, QDistinct> distinctByChildrenSortOption() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'childrenSortOption');
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QDistinct> distinctByCompletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'completedAt');
     });
   }
 
@@ -8367,6 +10993,12 @@ extension TodosQueryWhereDistinct on QueryBuilder<Todos, Todos, QDistinct> {
   QueryBuilder<Todos, Todos, QDistinct> distinctByDone() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'done');
+    });
+  }
+
+  QueryBuilder<Todos, Todos, QDistinct> distinctByDueAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'dueAt');
     });
   }
 
@@ -8452,10 +11084,40 @@ extension TodosQueryProperty on QueryBuilder<Todos, Todos, QQueryProperty> {
     });
   }
 
+  QueryBuilder<Todos, bool, QQueryOperations> caldavDirtyProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavDirty');
+    });
+  }
+
+  QueryBuilder<Todos, String?, QQueryOperations> caldavEtagProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavEtag');
+    });
+  }
+
+  QueryBuilder<Todos, String?, QQueryOperations> caldavHrefProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavHref');
+    });
+  }
+
+  QueryBuilder<Todos, String?, QQueryOperations> caldavUidProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'caldavUid');
+    });
+  }
+
   QueryBuilder<Todos, SortOption, QQueryOperations>
   childrenSortOptionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'childrenSortOption');
+    });
+  }
+
+  QueryBuilder<Todos, DateTime?, QQueryOperations> completedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'completedAt');
     });
   }
 
@@ -8481,6 +11143,12 @@ extension TodosQueryProperty on QueryBuilder<Todos, Todos, QQueryProperty> {
   QueryBuilder<Todos, bool, QQueryOperations> doneProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'done');
+    });
+  }
+
+  QueryBuilder<Todos, DateTime?, QQueryOperations> dueAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'dueAt');
     });
   }
 

@@ -291,4 +291,19 @@ class TodoRepository {
   Stream<void> watchLazy() {
     return _isar.todos.watchLazy();
   }
+
+  /// Returns the item with CalDAV [uid], or null.
+  Future<Todos?> getByCalDavUid(String uid) {
+    return _isar.todos.filter().caldavUidEqualTo(uid).findFirst();
+  }
+
+  /// Returns items that still need a CalDAV push.
+  Future<List<Todos>> getDirtyCalDav() {
+    return _isar.todos.filter().caldavDirtyEqualTo(true).findAll();
+  }
+
+  /// Returns items that already have a CalDAV UID.
+  Future<List<Todos>> getWithCalDavUid() {
+    return _isar.todos.filter().caldavUidIsNotNull().findAll();
+  }
 }
