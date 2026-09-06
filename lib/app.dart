@@ -74,8 +74,8 @@ class ZestApp extends ConsumerWidget {
                         final content = Stack(
                           children: [?child, const SnackBarOverlayWidget()],
                         );
-                        // Required until flex_color_picker, google_fonts,
-                        // sleek_circular_slider (and similar) migrate off
+                        // Required until google_fonts, sleek_circular_slider,
+                        // table_calendar (and similar) migrate off
                         // package:flutter/material.dart. Safe to remove once
                         // those packages use material_ui (or are replaced).
                         // ignore: deprecated_member_use
