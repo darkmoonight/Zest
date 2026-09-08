@@ -73,7 +73,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Aufgabenliste';
 	@override String get caldav_connection_failed => 'Verbindung fehlgeschlagen: {error}';
 	@override String get caldav_connection_ok => 'Mit CalDAV-Server verbunden';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => 'Serverversion für {count} konfliktierende(s) Element(e) beibehalten';
 	@override String get caldav_enabled => 'CalDAV-Sync';
 	@override String get caldav_insecure_hint => 'App-Passwort verwenden. HTTP nur für lokale Server.';
 	@override String get caldav_last_sync => 'Letzte Sync: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsDeDe {
 			'caldav_calendar' => 'Aufgabenliste',
 			'caldav_connection_failed' => 'Verbindung fehlgeschlagen: {error}',
 			'caldav_connection_ok' => 'Mit CalDAV-Server verbunden',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => 'Serverversion für {count} konfliktierende(s) Element(e) beibehalten',
 			'caldav_enabled' => 'CalDAV-Sync',
 			'caldav_insecure_hint' => 'App-Passwort verwenden. HTTP nur für lokale Server.',
 			'caldav_last_sync' => 'Letzte Sync: {time}',

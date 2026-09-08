@@ -50,7 +50,11 @@ class _TasksListState extends ConsumerState<TasksList>
     final tasksNotifier = ref.read(tasksNotifierProvider.notifier);
     final todosNotifier = ref.read(todosNotifierProvider.notifier);
     final tasksState = ref.watch(tasksNotifierProvider);
+    // Progress badges need todo changes even though TasksNotifier only watches
+    // the tasks collection after the single-watch split.
+    ref.watch(todosNotifierProvider.select((s) => s.todos));
     final isImage = ref.watch(appSettingsProvider).isImage;
+    final taskCounts = todosNotifier.rootCountsByTaskId();
 
     final tasks = tasksNotifier.getFilteredTasks(
       archived: widget.archived,
@@ -66,7 +70,7 @@ class _TasksListState extends ConsumerState<TasksList>
         SliverOverlapInjector(
           handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
         ),
-        _buildReorderableList(tasks, tasksNotifier, todosNotifier, tasksState),
+        _buildReorderableList(tasks, tasksNotifier, tasksState, taskCounts),
         const SliverToBoxAdapter(
           child: SizedBox(height: AppConstants.listFabClearanceHeight),
         ),
@@ -104,17 +108,13 @@ class _TasksListState extends ConsumerState<TasksList>
   Widget _buildReorderableList(
     List<Tasks> tasks,
     TasksNotifier tasksNotifier,
-    TodosNotifier todosNotifier,
     TasksState tasksState,
+    Map<int, (int, int)> taskCounts,
   ) {
     return ReorderableSliverList(
       delegate: ReorderableSliverChildBuilderDelegate(
-        (context, index) => _buildTaskCard(
-          tasks[index],
-          tasksNotifier,
-          todosNotifier,
-          tasksState,
-        ),
+        (context, index) =>
+            _buildTaskCard(tasks[index], tasksNotifier, tasksState, taskCounts),
         childCount: tasks.length,
       ),
       onReorder: (oldIndex, newIndex) =>
@@ -126,13 +126,11 @@ class _TasksListState extends ConsumerState<TasksList>
   Widget _buildTaskCard(
     Tasks task,
     TasksNotifier tasksNotifier,
-    TodosNotifier todosNotifier,
     TasksState tasksState,
+    Map<int, (int, int)> taskCounts,
   ) {
-    final progress = ProgressCalculator(
-      total: todosNotifier.createdAllTodosTask(task),
-      completed: todosNotifier.completedAllTodosTask(task),
-    );
+    final counts = taskCounts[task.id] ?? (0, 0);
+    final progress = ProgressCalculator(total: counts.$1, completed: counts.$2);
 
     return TaskCard(
       key: ValueKey(task.id),

@@ -114,9 +114,6 @@ class AppConstants {
   static const double modalHeightFractionMediumDesktop = 0.65;
 
   // Opacity
-  /// Light opacity overlay.
-  static const double opacityLight = 0.3;
-
   /// Medium opacity overlay.
   static const double opacityMedium = 0.5;
 
@@ -145,6 +142,11 @@ class AppConstants {
   // Debounce
   /// Default debounce delay for scroll and input handlers.
   static const debounceDelay = Duration(milliseconds: 150);
+
+  /// Delay after first paint before startup backup/CalDAV maintenance.
+  ///
+  /// Keeps the first frames free for shell/list paint (reduces skipped frames).
+  static const Duration startupMaintenanceDelay = Duration(milliseconds: 800);
 
   // Settings defaults
   /// Default clock display format (24-hour).
@@ -193,13 +195,6 @@ class AppConstants {
 
   /// Month calendar format identifier.
   static const String calendarFormatMonth = 'month';
-
-  /// Available calendar format picker values.
-  static const List<String> calendarFormatChoices = [
-    defaultCalendarFormat,
-    calendarFormatTwoWeeks,
-    calendarFormatMonth,
-  ];
 
   /// Default home tab on first launch.
   static const String defaultScreen = 'categories';

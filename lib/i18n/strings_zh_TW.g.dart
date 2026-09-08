@@ -73,7 +73,7 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => '工作清單';
 	@override String get caldav_connection_failed => '無法連線：{error}';
 	@override String get caldav_connection_ok => '已連線至 CalDAV 伺服器';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => '已為 {count} 個衝突項目保留伺服器版本';
 	@override String get caldav_enabled => 'CalDAV 同步';
 	@override String get caldav_insecure_hint => '請使用應用程式密碼。HTTP 僅供本機伺服器使用。';
 	@override String get caldav_last_sync => '上次同步：{time}';
@@ -468,7 +468,7 @@ extension on TranslationsZhTw {
 			'caldav_calendar' => '工作清單',
 			'caldav_connection_failed' => '無法連線：{error}',
 			'caldav_connection_ok' => '已連線至 CalDAV 伺服器',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => '已為 {count} 個衝突項目保留伺服器版本',
 			'caldav_enabled' => 'CalDAV 同步',
 			'caldav_insecure_hint' => '請使用應用程式密碼。HTTP 僅供本機伺服器使用。',
 			'caldav_last_sync' => '上次同步：{time}',

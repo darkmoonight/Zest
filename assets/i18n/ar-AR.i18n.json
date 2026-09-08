@@ -33,7 +33,7 @@
   "caldavCalendar": "قائمة المهام",
   "caldavConnectionFailed": "تعذر الاتصال: {error}",
   "caldavConnectionOk": "تم الاتصال بخادم CalDAV",
-  "caldavConflictServerWins": "Server version kept for {count} conflicting item(s)",
+  "caldavConflictServerWins": "تم الاحتفاظ بإصدار الخادم لـ {count} من العناصر المتعارضة",
   "caldavEnabled": "مزامنة CalDAV",
   "caldavInsecureHint": "استخدم كلمة مرور التطبيق. HTTP للخوادم المحلية فقط.",
   "caldavLastSync": "آخر مزامنة: {time}",

@@ -21,10 +21,6 @@ final Map<String, String> _packageLicenseTextCache = {};
 /// Clears cached full license text loaded by [loadPackageLicenseText].
 void clearPackageLicenseCaches() => _packageLicenseTextCache.clear();
 
-/// Clears license caches; intended for tests only.
-@visibleForTesting
-void clearPackageLicenseCachesForTest() => clearPackageLicenseCaches();
-
 /// Joins [LicenseParagraph] texts with blank lines between entries.
 String licenseParagraphsText(Iterable<LicenseParagraph> paragraphs) =>
     paragraphs.map((paragraph) => paragraph.text).join('\n\n');

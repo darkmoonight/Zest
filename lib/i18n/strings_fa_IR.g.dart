@@ -73,7 +73,7 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'فهرست کارها';
 	@override String get caldav_connection_failed => 'اتصال برقرار نشد: {error}';
 	@override String get caldav_connection_ok => 'به سرور CalDAV متصل شد';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => 'نسخه سرور برای {count} مورد متناقض نگه داشته شد';
 	@override String get caldav_enabled => 'همگام‌سازی CalDAV';
 	@override String get caldav_insecure_hint => 'از رمز عبور برنامه استفاده کنید. HTTP فقط برای سرورهای محلی.';
 	@override String get caldav_last_sync => 'آخرین همگام‌سازی: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsFaIr {
 			'caldav_calendar' => 'فهرست کارها',
 			'caldav_connection_failed' => 'اتصال برقرار نشد: {error}',
 			'caldav_connection_ok' => 'به سرور CalDAV متصل شد',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => 'نسخه سرور برای {count} مورد متناقض نگه داشته شد',
 			'caldav_enabled' => 'همگام‌سازی CalDAV',
 			'caldav_insecure_hint' => 'از رمز عبور برنامه استفاده کنید. HTTP فقط برای سرورهای محلی.',
 			'caldav_last_sync' => 'آخرین همگام‌سازی: {time}',

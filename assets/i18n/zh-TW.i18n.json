@@ -33,7 +33,7 @@
   "caldavCalendar": "工作清單",
   "caldavConnectionFailed": "無法連線：{error}",
   "caldavConnectionOk": "已連線至 CalDAV 伺服器",
-  "caldavConflictServerWins": "Server version kept for {count} conflicting item(s)",
+  "caldavConflictServerWins": "已為 {count} 個衝突項目保留伺服器版本",
   "caldavEnabled": "CalDAV 同步",
   "caldavInsecureHint": "請使用應用程式密碼。HTTP 僅供本機伺服器使用。",
   "caldavLastSync": "上次同步：{time}",

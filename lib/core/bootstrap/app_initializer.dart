@@ -101,8 +101,9 @@ bool _seedDefaultSettings(Settings settings, Locale deviceLocale) {
   var changed = false;
 
   if (settings.language == null) {
-    settings.language =
-        '${deviceLocale.languageCode}_${deviceLocale.countryCode}';
+    settings.language = languageCodeFromAppLocale(
+      appLocaleFromFlutterLocale(deviceLocale),
+    );
     changed = true;
   }
 

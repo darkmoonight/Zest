@@ -73,7 +73,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Список задач';
 	@override String get caldav_connection_failed => 'Не удалось подключиться: {error}';
 	@override String get caldav_connection_ok => 'Подключение к CalDAV успешно';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => 'Версия с сервера сохранена для {count} конфликтующих элементов';
 	@override String get caldav_enabled => 'Синхронизация CalDAV';
 	@override String get caldav_insecure_hint => 'Используйте пароль приложения. HTTP только для локальных серверов.';
 	@override String get caldav_last_sync => 'Последняя синхронизация: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsRuRu {
 			'caldav_calendar' => 'Список задач',
 			'caldav_connection_failed' => 'Не удалось подключиться: {error}',
 			'caldav_connection_ok' => 'Подключение к CalDAV успешно',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => 'Версия с сервера сохранена для {count} конфликтующих элементов',
 			'caldav_enabled' => 'Синхронизация CalDAV',
 			'caldav_insecure_hint' => 'Используйте пароль приложения. HTTP только для локальных серверов.',
 			'caldav_last_sync' => 'Последняя синхронизация: {time}',

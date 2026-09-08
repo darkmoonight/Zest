@@ -9,16 +9,6 @@ import 'package:zest/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:zest/core/navigation/home_screen_key.dart';
 import 'package:zest/features/shell/presentation/home_screen.dart';
 
-/// Forces [appRouterProvider] to re-evaluate redirects from a [WidgetRef].
-void refreshAppRouter(WidgetRef ref) {
-  ref.read(_routerRefreshProvider).value++;
-}
-
-/// Forces [appRouterProvider] to re-evaluate redirects from a [Ref].
-void refreshAppRouterFromRef(Ref ref) {
-  ref.read(_routerRefreshProvider).value++;
-}
-
 /// Notifier that triggers [appRouterProvider] redirect re-evaluation.
 final _routerRefreshProvider = Provider<ValueNotifier<int>>((ref) {
   final notifier = ValueNotifier(0);

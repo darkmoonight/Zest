@@ -33,7 +33,7 @@
   "caldavCalendar": "タスクリスト",
   "caldavConnectionFailed": "接続できませんでした: {error}",
   "caldavConnectionOk": "CalDAV サーバーに接続しました",
-  "caldavConflictServerWins": "Server version kept for {count} conflicting item(s)",
+  "caldavConflictServerWins": "{count} 件の競合アイテムでサーバー版を保持しました",
   "caldavEnabled": "CalDAV 同期",
   "caldavInsecureHint": "アプリパスワードを使用してください。HTTP はローカルサーバーのみです。",
   "caldavLastSync": "最終同期: {time}",

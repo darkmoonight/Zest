@@ -73,7 +73,7 @@ class TranslationsEsEs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Lista de tareas';
 	@override String get caldav_connection_failed => 'No se pudo conectar: {error}';
 	@override String get caldav_connection_ok => 'Conectado al servidor CalDAV';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => 'Se conservó la versión del servidor para {count} elemento(s) en conflicto';
 	@override String get caldav_enabled => 'Sincronización CalDAV';
 	@override String get caldav_insecure_hint => 'Usa una contraseña de aplicación. HTTP solo para servidores locales.';
 	@override String get caldav_last_sync => 'Última sincronización: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsEsEs {
 			'caldav_calendar' => 'Lista de tareas',
 			'caldav_connection_failed' => 'No se pudo conectar: {error}',
 			'caldav_connection_ok' => 'Conectado al servidor CalDAV',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => 'Se conservó la versión del servidor para {count} elemento(s) en conflicto',
 			'caldav_enabled' => 'Sincronización CalDAV',
 			'caldav_insecure_hint' => 'Usa una contraseña de aplicación. HTTP solo para servidores locales.',
 			'caldav_last_sync' => 'Última sincronización: {time}',

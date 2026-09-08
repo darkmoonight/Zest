@@ -88,12 +88,7 @@ class TodosNotifier extends Notifier<TodosState> {
   @override
   /// Initializes repositories, watchers, and returns initial [TodosState].
   TodosState build() {
-    StreamSubscription<void>? taskWatcherSubscription;
     StreamSubscription<void>? todoWatcherSubscription;
-
-    taskWatcherSubscription = taskRepo.watchLazy().listen((_) {
-      _debounceLoad();
-    });
 
     todoWatcherSubscription = todoRepo.watchLazy().listen((_) {
       _debounceLoad();
@@ -101,7 +96,6 @@ class TodosNotifier extends Notifier<TodosState> {
 
     ref.onDispose(() {
       _loadDebounce?.cancel();
-      taskWatcherSubscription?.cancel();
       todoWatcherSubscription?.cancel();
     });
 
@@ -121,7 +115,7 @@ class TodosNotifier extends Notifier<TodosState> {
   Future<void> _loadTodos() async {
     final generation = ++_loadGeneration;
     final preservedSelectedIds = state.selectedTodoIds.toSet();
-    final newTodos = await todoRepo.getAll();
+    final newTodos = await todoRepo.getAllWithLinks();
     if (generation != _loadGeneration) return;
     state = state.copyWith(
       todos: newTodos,
@@ -316,6 +310,56 @@ class TodosNotifier extends Notifier<TodosState> {
   /// Count of completed direct children under [parent].
   int completedAllTodosTodo(Todos parent) =>
       todoService.countCompletedForParent(parent, state.todos);
+
+  /// One-pass child counts keyed by parent id: `(created, completed)`.
+  Map<int, (int, int)> childCountsByParentId() {
+    final counts = <int, (int, int)>{};
+    for (final todo in state.todos) {
+      final parentId = todo.parent.value?.id;
+      if (parentId == null) continue;
+      final prev = counts[parentId] ?? (0, 0);
+      counts[parentId] = (
+        prev.$1 + 1,
+        prev.$2 + (todo.status.isCompleted ? 1 : 0),
+      );
+    }
+    return counts;
+  }
+
+  /// One-pass root counts keyed by task id: `(created, completed)`.
+  Map<int, (int, int)> rootCountsByTaskId() {
+    final counts = <int, (int, int)>{};
+    for (final todo in state.todos) {
+      if (todo.parent.value != null) continue;
+      final taskId = todo.task.value?.id;
+      if (taskId == null) continue;
+      final prev = counts[taskId] ?? (0, 0);
+      counts[taskId] = (
+        prev.$1 + 1,
+        prev.$2 + (todo.status.isCompleted ? 1 : 0),
+      );
+    }
+    return counts;
+  }
+
+  /// One-pass calendar marker counts keyed by local calendar day.
+  Map<DateTime, int> calendarDayCounts({
+    bool excludeArchivedCategories = true,
+  }) {
+    final counts = <DateTime, int>{};
+    for (final todo in state.todos) {
+      if (excludeArchivedCategories && todo.task.value?.archive != false) {
+        continue;
+      }
+      if (todo.parent.value != null) continue;
+      if (todo.status != TodoStatus.active) continue;
+      final due = todo.todoCompletedTime;
+      if (due == null) continue;
+      final day = DateTime(due.year, due.month, due.day);
+      counts[day] = (counts[day] ?? 0) + 1;
+    }
+    return counts;
+  }
 
   // ==================== Filters ====================
 

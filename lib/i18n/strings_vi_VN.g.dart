@@ -73,7 +73,7 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Danh sách việc';
 	@override String get caldav_connection_failed => 'Không thể kết nối: {error}';
 	@override String get caldav_connection_ok => 'Đã kết nối máy chủ CalDAV';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => 'Đã giữ phiên bản máy chủ cho {count} mục bị xung đột';
 	@override String get caldav_enabled => 'Đồng bộ CalDAV';
 	@override String get caldav_insecure_hint => 'Dùng mật khẩu ứng dụng. HTTP chỉ cho máy chủ local.';
 	@override String get caldav_last_sync => 'Lần đồng bộ cuối: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsViVn {
 			'caldav_calendar' => 'Danh sách việc',
 			'caldav_connection_failed' => 'Không thể kết nối: {error}',
 			'caldav_connection_ok' => 'Đã kết nối máy chủ CalDAV',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => 'Đã giữ phiên bản máy chủ cho {count} mục bị xung đột',
 			'caldav_enabled' => 'Đồng bộ CalDAV',
 			'caldav_insecure_hint' => 'Dùng mật khẩu ứng dụng. HTTP chỉ cho máy chủ local.',
 			'caldav_last_sync' => 'Lần đồng bộ cuối: {time}',

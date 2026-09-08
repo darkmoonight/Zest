@@ -33,7 +33,7 @@
   "caldavCalendar": "Lista zadań",
   "caldavConnectionFailed": "Nie udało się połączyć: {error}",
   "caldavConnectionOk": "Połączono z serwerem CalDAV",
-  "caldavConflictServerWins": "Server version kept for {count} conflicting item(s)",
+  "caldavConflictServerWins": "Zachowano wersję serwera dla {count} konfliktujących elementów",
   "caldavEnabled": "Synchronizacja CalDAV",
   "caldavInsecureHint": "Użyj hasła aplikacji. HTTP tylko dla serwerów lokalnych.",
   "caldavLastSync": "Ostatnia synchronizacja: {time}",

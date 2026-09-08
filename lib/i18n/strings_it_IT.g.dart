@@ -73,7 +73,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Elenco attività';
 	@override String get caldav_connection_failed => 'Connessione non riuscita: {error}';
 	@override String get caldav_connection_ok => 'Connesso al server CalDAV';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => 'Versione del server mantenuta per {count} elemento/i in conflitto';
 	@override String get caldav_enabled => 'Sincronizzazione CalDAV';
 	@override String get caldav_insecure_hint => 'Usa una password per app. HTTP solo per server locali.';
 	@override String get caldav_last_sync => 'Ultima sync: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsItIt {
 			'caldav_calendar' => 'Elenco attività',
 			'caldav_connection_failed' => 'Connessione non riuscita: {error}',
 			'caldav_connection_ok' => 'Connesso al server CalDAV',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => 'Versione del server mantenuta per {count} elemento/i in conflitto',
 			'caldav_enabled' => 'Sincronizzazione CalDAV',
 			'caldav_insecure_hint' => 'Usa una password per app. HTTP solo per server locali.',
 			'caldav_last_sync' => 'Ultima sync: {time}',

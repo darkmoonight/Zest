@@ -7,11 +7,6 @@ class TextUtils {
     controller.text = _normalizeSpaces(controller.text);
   }
 
-  /// Returns [text] with normalized line and inline whitespace.
-  static String trimText(String text) {
-    return _normalizeSpaces(text);
-  }
-
   /// Collapses runs of spaces/tabs and trims empty leading/trailing lines.
   static String _normalizeSpaces(String text) {
     final lines = text.split('\n');

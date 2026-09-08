@@ -73,7 +73,7 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'قائمة المهام';
 	@override String get caldav_connection_failed => 'تعذر الاتصال: {error}';
 	@override String get caldav_connection_ok => 'تم الاتصال بخادم CalDAV';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => 'تم الاحتفاظ بإصدار الخادم لـ {count} من العناصر المتعارضة';
 	@override String get caldav_enabled => 'مزامنة CalDAV';
 	@override String get caldav_insecure_hint => 'استخدم كلمة مرور التطبيق. HTTP للخوادم المحلية فقط.';
 	@override String get caldav_last_sync => 'آخر مزامنة: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsArAr {
 			'caldav_calendar' => 'قائمة المهام',
 			'caldav_connection_failed' => 'تعذر الاتصال: {error}',
 			'caldav_connection_ok' => 'تم الاتصال بخادم CalDAV',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => 'تم الاحتفاظ بإصدار الخادم لـ {count} من العناصر المتعارضة',
 			'caldav_enabled' => 'مزامنة CalDAV',
 			'caldav_insecure_hint' => 'استخدم كلمة مرور التطبيق. HTTP للخوادم المحلية فقط.',
 			'caldav_last_sync' => 'آخر مزامنة: {time}',

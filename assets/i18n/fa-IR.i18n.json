@@ -33,7 +33,7 @@
   "caldavCalendar": "فهرست کارها",
   "caldavConnectionFailed": "اتصال برقرار نشد: {error}",
   "caldavConnectionOk": "به سرور CalDAV متصل شد",
-  "caldavConflictServerWins": "Server version kept for {count} conflicting item(s)",
+  "caldavConflictServerWins": "نسخه سرور برای {count} مورد متناقض نگه داشته شد",
   "caldavEnabled": "همگام‌سازی CalDAV",
   "caldavInsecureHint": "از رمز عبور برنامه استفاده کنید. HTTP فقط برای سرورهای محلی.",
   "caldavLastSync": "آخرین همگام‌سازی: {time}",

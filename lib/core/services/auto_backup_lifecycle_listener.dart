@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/services/app_lifecycle_coordinator.dart';
 
 /// Runs [AppLifecycleCoordinator] maintenance on first frame and resume.
@@ -30,20 +31,31 @@ class AutoBackupLifecycleListener extends ConsumerStatefulWidget {
 class _AutoBackupLifecycleListenerState
     extends ConsumerState<AutoBackupLifecycleListener>
     with WidgetsBindingObserver {
-  /// Registers this observer and runs maintenance after the first frame.
+  Timer? _startupMaintenanceTimer;
+
+  /// Registers this observer and defers startup maintenance past first paint.
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      unawaited(_runMaintenance());
+      // First paint + IndexedStack tabs complete before backup/CalDAV.
+      _startupMaintenanceTimer?.cancel();
+      _startupMaintenanceTimer = Timer(
+        AppConstants.startupMaintenanceDelay,
+        () {
+          if (!mounted) return;
+          unawaited(_runMaintenance());
+        },
+      );
     });
   }
 
   /// Unregisters this observer from [WidgetsBinding].
   @override
   void dispose() {
+    _startupMaintenanceTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

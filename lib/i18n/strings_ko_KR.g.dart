@@ -73,7 +73,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => '할 일 목록';
 	@override String get caldav_connection_failed => '연결 실패: {error}';
 	@override String get caldav_connection_ok => 'CalDAV 서버에 연결됨';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => '충돌하는 항목 {count}개에 대해 서버 버전을 유지했습니다';
 	@override String get caldav_enabled => 'CalDAV 동기화';
 	@override String get caldav_insecure_hint => '앱 비밀번호를 사용하세요. HTTP는 로컬 서버 전용입니다.';
 	@override String get caldav_last_sync => '마지막 동기화: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsKoKr {
 			'caldav_calendar' => '할 일 목록',
 			'caldav_connection_failed' => '연결 실패: {error}',
 			'caldav_connection_ok' => 'CalDAV 서버에 연결됨',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => '충돌하는 항목 {count}개에 대해 서버 버전을 유지했습니다',
 			'caldav_enabled' => 'CalDAV 동기화',
 			'caldav_insecure_hint' => '앱 비밀번호를 사용하세요. HTTP는 로컬 서버 전용입니다.',
 			'caldav_last_sync' => '마지막 동기화: {time}',

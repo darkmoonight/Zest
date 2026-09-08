@@ -33,7 +33,7 @@
   "caldavCalendar": "할 일 목록",
   "caldavConnectionFailed": "연결 실패: {error}",
   "caldavConnectionOk": "CalDAV 서버에 연결됨",
-  "caldavConflictServerWins": "Server version kept for {count} conflicting item(s)",
+  "caldavConflictServerWins": "충돌하는 항목 {count}개에 대해 서버 버전을 유지했습니다",
   "caldavEnabled": "CalDAV 동기화",
   "caldavInsecureHint": "앱 비밀번호를 사용하세요. HTTP는 로컬 서버 전용입니다.",
   "caldavLastSync": "마지막 동기화: {time}",

@@ -8,7 +8,7 @@ import 'package:zest/core/services/task_service.dart';
 import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/task_repository.dart';
-import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/features/todos/application/todos_notifier.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Riverpod state and notifier for task categories.
@@ -59,8 +59,6 @@ class TasksState {
 class TasksNotifier extends Notifier<TasksState> {
   TaskRepository? _taskRepo;
 
-  TodoRepository? _todoRepo;
-
   Timer? _loadDebounce;
 
   /// Monotonic token so stale [getAll] results cannot overwrite newer loads.
@@ -74,14 +72,6 @@ class TasksNotifier extends Notifier<TasksState> {
     return created;
   }
 
-  TodoRepository get todoRepo {
-    final cached = _todoRepo;
-    if (cached != null) return cached;
-    final created = ref.read(todoRepositoryProvider);
-    _todoRepo = created;
-    return created;
-  }
-
   /// [TaskService] from [taskServiceProvider].
   TaskService get taskService => ref.read(taskServiceProvider);
 
@@ -89,20 +79,14 @@ class TasksNotifier extends Notifier<TasksState> {
   /// Initializes repositories, watchers, and returns initial [TasksState].
   TasksState build() {
     StreamSubscription<void>? taskWatcherSubscription;
-    StreamSubscription<void>? todoWatcherSubscription;
 
     taskWatcherSubscription = taskRepo.watchLazy().listen((_) {
-      _debounceLoad();
-    });
-
-    todoWatcherSubscription = todoRepo.watchLazy().listen((_) {
       _debounceLoad();
     });
 
     ref.onDispose(() {
       _loadDebounce?.cancel();
       taskWatcherSubscription?.cancel();
-      todoWatcherSubscription?.cancel();
     });
 
     Future.microtask(reloadTasks);
@@ -239,6 +223,8 @@ class TasksNotifier extends Notifier<TasksState> {
 
     state = state.copyWith(tasks: await taskRepo.getAll());
     await _reindexTasks();
+    // Archive flags live on linked tasks; refresh todos for filters/counts.
+    unawaited(ref.read(todosNotifierProvider.notifier).reloadTodos());
     showSnackBar('categoryDelete'.tr);
   }
 
@@ -251,6 +237,7 @@ class TasksNotifier extends Notifier<TasksState> {
     await _clearDefaultCategoryIfNeeded(taskList);
     state = state.copyWith(tasks: await taskRepo.getAll());
     doMultiSelectionTaskClear();
+    unawaited(ref.read(todosNotifierProvider.notifier).reloadTodos());
     showSnackBar('categoryArchive'.tr);
   }
 
@@ -262,6 +249,7 @@ class TasksNotifier extends Notifier<TasksState> {
     await taskService.unarchiveTasks(taskList);
     state = state.copyWith(tasks: await taskRepo.getAll());
     doMultiSelectionTaskClear();
+    unawaited(ref.read(todosNotifierProvider.notifier).reloadTodos());
     showSnackBar('noCategoryArchive'.tr);
   }
 

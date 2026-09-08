@@ -33,7 +33,7 @@
   "caldavCalendar": "Danh sách việc",
   "caldavConnectionFailed": "Không thể kết nối: {error}",
   "caldavConnectionOk": "Đã kết nối máy chủ CalDAV",
-  "caldavConflictServerWins": "Server version kept for {count} conflicting item(s)",
+  "caldavConflictServerWins": "Đã giữ phiên bản máy chủ cho {count} mục bị xung đột",
   "caldavEnabled": "Đồng bộ CalDAV",
   "caldavInsecureHint": "Dùng mật khẩu ứng dụng. HTTP chỉ cho máy chủ local.",
   "caldavLastSync": "Lần đồng bộ cuối: {time}",

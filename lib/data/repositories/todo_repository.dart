@@ -64,6 +64,21 @@ class TodoRepository {
     return await _isar.todos.where().sortByIndex().findAll();
   }
 
+  /// [getAll] with `task` and `parent` links loaded (avoids UI-thread loadSync).
+  Future<List<Todos>> getAllWithLinks() async {
+    final todos = await getAll();
+    await prefetchLinks(todos);
+    return todos;
+  }
+
+  /// Loads [task] and [parent] links for [todos] concurrently.
+  Future<void> prefetchLinks(List<Todos> todos) async {
+    if (todos.isEmpty) return;
+    await Future.wait([
+      for (final todo in todos) ...[todo.task.load(), todo.parent.load()],
+    ]);
+  }
+
   /// Returns the item with [id], or null when missing.
   Future<Todos?> getById(int id) async {
     return await _isar.todos.get(id);

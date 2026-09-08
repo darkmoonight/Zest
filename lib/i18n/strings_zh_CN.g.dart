@@ -73,7 +73,7 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => '任务列表';
 	@override String get caldav_connection_failed => '无法连接：{error}';
 	@override String get caldav_connection_ok => '已连接到 CalDAV 服务器';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => '已为 {count} 个冲突项保留服务器版本';
 	@override String get caldav_enabled => 'CalDAV 同步';
 	@override String get caldav_insecure_hint => '请使用应用专用密码。HTTP 仅用于本地服务器。';
 	@override String get caldav_last_sync => '上次同步：{time}';
@@ -468,7 +468,7 @@ extension on TranslationsZhCn {
 			'caldav_calendar' => '任务列表',
 			'caldav_connection_failed' => '无法连接：{error}',
 			'caldav_connection_ok' => '已连接到 CalDAV 服务器',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => '已为 {count} 个冲突项保留服务器版本',
 			'caldav_enabled' => 'CalDAV 同步',
 			'caldav_insecure_hint' => '请使用应用专用密码。HTTP 仅用于本地服务器。',
 			'caldav_last_sync' => '上次同步：{time}',

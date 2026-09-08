@@ -9,7 +9,7 @@ import 'package:zest/core/utils/default_category.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final bootstrap = await AppInitializer.initialize();
-  // Auto-backup runs once via [AppLifecycleCoordinator] on first frame.
+  // Auto-backup/CalDAV run via [AppLifecycleCoordinator] after first paint.
   runApp(
     ProviderScope(
       overrides: [bootstrapProvider.overrideWithValue(bootstrap)],

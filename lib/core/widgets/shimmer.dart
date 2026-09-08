@@ -16,10 +16,6 @@ class MyShimmer extends StatelessWidget {
   /// Returns the mask color used by shimmer child widgets.
   static Color shimmerMaskColor(BuildContext context) => Colors.white;
 
-  /// Returns the fill color for shimmer placeholder containers.
-  static Color placeholderFillColor(BuildContext context) =>
-      shimmerMaskColor(context);
-
   /// Blends surface tones for shimmer base and highlight colors.
   static Color _surfaceTone(
     BuildContext context, {

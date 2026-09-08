@@ -73,7 +73,7 @@ class TranslationsPtPt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Lista de tarefas';
 	@override String get caldav_connection_failed => 'Falha na ligação: {error}';
 	@override String get caldav_connection_ok => 'Ligado ao servidor CalDAV';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => 'Versão do servidor mantida para {count} item(ns) em conflito';
 	@override String get caldav_enabled => 'Sincronização CalDAV';
 	@override String get caldav_insecure_hint => 'Use uma palavra-passe de aplicação. HTTP só para servidores locais.';
 	@override String get caldav_last_sync => 'Última sincronização: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsPtPt {
 			'caldav_calendar' => 'Lista de tarefas',
 			'caldav_connection_failed' => 'Falha na ligação: {error}',
 			'caldav_connection_ok' => 'Ligado ao servidor CalDAV',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => 'Versão do servidor mantida para {count} item(ns) em conflito',
 			'caldav_enabled' => 'Sincronização CalDAV',
 			'caldav_insecure_hint' => 'Use uma palavra-passe de aplicação. HTTP só para servidores locais.',
 			'caldav_last_sync' => 'Última sincronização: {time}',

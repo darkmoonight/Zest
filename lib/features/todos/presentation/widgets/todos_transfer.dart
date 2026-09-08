@@ -197,7 +197,8 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
 
   /// Items.
   Future<Iterable<Todos>> _getAvailableTodos(String pattern) async {
-    final allTodos = await ref.read(isarProvider).todos.where().findAll();
+    final todoRepo = ref.read(todoRepositoryProvider);
+    final allTodos = await todoRepo.getAllWithLinks();
     final excludedIds = await _collectExcludedIds();
     final query = pattern.toLowerCase();
 
@@ -626,7 +627,6 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
       margin: const EdgeInsets.only(bottom: AppConstants.spacingS),
       maxHeight: 200,
       itemBuilder: (context, todo) {
-        todo.task.loadSync();
         final colorScheme = Theme.of(context).colorScheme;
         return Row(
           children: [

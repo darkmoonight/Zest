@@ -73,7 +73,7 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Görev listesi';
 	@override String get caldav_connection_failed => 'Bağlanılamadı: {error}';
 	@override String get caldav_connection_ok => 'CalDAV sunucusuna bağlandı';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => '{count} çakışan öğe için sunucu sürümü korundu';
 	@override String get caldav_enabled => 'CalDAV senkronizasyonu';
 	@override String get caldav_insecure_hint => 'Uygulama şifresi kullanın. HTTP yalnızca yerel sunucular içindir.';
 	@override String get caldav_last_sync => 'Son senkron: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsTrTr {
 			'caldav_calendar' => 'Görev listesi',
 			'caldav_connection_failed' => 'Bağlanılamadı: {error}',
 			'caldav_connection_ok' => 'CalDAV sunucusuna bağlandı',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => '{count} çakışan öğe için sunucu sürümü korundu',
 			'caldav_enabled' => 'CalDAV senkronizasyonu',
 			'caldav_insecure_hint' => 'Uygulama şifresi kullanın. HTTP yalnızca yerel sunucular içindir.',
 			'caldav_last_sync' => 'Son senkron: {time}',

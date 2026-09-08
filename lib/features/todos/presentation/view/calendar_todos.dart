@@ -168,6 +168,9 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
   Widget _buildCalendar(BuildContext context, bool excludeArchived) {
     final colorScheme = Theme.of(context).colorScheme;
     final isMobile = ResponsiveUtils.isMobile(context);
+    final dayCounts = ref
+        .read(todosNotifierProvider.notifier)
+        .calendarDayCounts(excludeArchivedCategories: excludeArchived);
 
     return SliverToBoxAdapter(
       child: Container(
@@ -196,12 +199,8 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
             },
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, day, events) {
-                final countTodos = ref
-                    .read(todosNotifierProvider.notifier)
-                    .countTotalTodosCalendar(
-                      day,
-                      excludeArchivedCategories: excludeArchived,
-                    );
+                final key = DateTime(day.year, day.month, day.day);
+                final countTodos = dayCounts[key] ?? 0;
                 if (countTodos == 0) return const SizedBox.shrink();
 
                 return Positioned(

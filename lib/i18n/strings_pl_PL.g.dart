@@ -73,7 +73,7 @@ class TranslationsPlPl extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Lista zadań';
 	@override String get caldav_connection_failed => 'Nie udało się połączyć: {error}';
 	@override String get caldav_connection_ok => 'Połączono z serwerem CalDAV';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => 'Zachowano wersję serwera dla {count} konfliktujących elementów';
 	@override String get caldav_enabled => 'Synchronizacja CalDAV';
 	@override String get caldav_insecure_hint => 'Użyj hasła aplikacji. HTTP tylko dla serwerów lokalnych.';
 	@override String get caldav_last_sync => 'Ostatnia synchronizacja: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsPlPl {
 			'caldav_calendar' => 'Lista zadań',
 			'caldav_connection_failed' => 'Nie udało się połączyć: {error}',
 			'caldav_connection_ok' => 'Połączono z serwerem CalDAV',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => 'Zachowano wersję serwera dla {count} konfliktujących elementów',
 			'caldav_enabled' => 'Synchronizacja CalDAV',
 			'caldav_insecure_hint' => 'Użyj hasła aplikacji. HTTP tylko dla serwerów lokalnych.',
 			'caldav_last_sync' => 'Ostatnia synchronizacja: {time}',

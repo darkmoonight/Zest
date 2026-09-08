@@ -102,6 +102,7 @@ class _TodosListState extends ConsumerState<TodosList>
     final isImage = ref.watch(appSettingsProvider).isImage;
 
     final todos = _getFilteredAndSortedTodos(todosNotifier);
+    final childCounts = todosNotifier.childCountsByParentId();
 
     if (todos.isEmpty) {
       return _buildEmptyState(context, isMobile, topPadding, isImage);
@@ -112,7 +113,7 @@ class _TodosListState extends ConsumerState<TodosList>
         SliverOverlapInjector(
           handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
         ),
-        _buildReorderableList(todos, todosNotifier, todosState),
+        _buildReorderableList(todos, todosNotifier, todosState, childCounts),
         const SliverToBoxAdapter(
           child: SizedBox(height: AppConstants.listFabClearanceHeight),
         ),
@@ -272,11 +273,16 @@ class _TodosListState extends ConsumerState<TodosList>
     List<Todos> todos,
     TodosNotifier todosNotifier,
     TodosState todosState,
+    Map<int, (int, int)> childCounts,
   ) {
     return ReorderableSliverList(
       delegate: ReorderableSliverChildBuilderDelegate(
-        (context, index) =>
-            _buildTodoCard(todos[index], todosNotifier, todosState),
+        (context, index) => _buildTodoCard(
+          todos[index],
+          todosNotifier,
+          todosState,
+          childCounts,
+        ),
         childCount: todos.length,
       ),
       onReorder: (oldIndex, newIndex) =>
@@ -289,14 +295,16 @@ class _TodosListState extends ConsumerState<TodosList>
     Todos todo,
     TodosNotifier todosNotifier,
     TodosState todosState,
+    Map<int, (int, int)> childCounts,
   ) {
+    final counts = childCounts[todo.id] ?? (0, 0);
     return TodoCard(
       key: ValueKey(todo.id),
       todo: todo,
       allTodos: widget.allTodos,
       calendar: widget.calendar,
-      createdTodos: todosNotifier.createdAllTodosTodo(todo),
-      completedTodos: todosNotifier.completedAllTodosTodo(todo),
+      createdTodos: counts.$1,
+      completedTodos: counts.$2,
       isSelected:
           todosState.isMultiSelectionTodo &&
           todosState.selectedTodoIds.contains(todo.id),

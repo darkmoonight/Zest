@@ -73,7 +73,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Liste de tâches';
 	@override String get caldav_connection_failed => 'Connexion impossible : {error}';
 	@override String get caldav_connection_ok => 'Connecté au serveur CalDAV';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => 'Version serveur conservée pour {count} élément(s) en conflit';
 	@override String get caldav_enabled => 'Synchro CalDAV';
 	@override String get caldav_insecure_hint => 'Utilisez un mot de passe d\'application. HTTP uniquement pour les serveurs locaux.';
 	@override String get caldav_last_sync => 'Dernière synchro : {time}';
@@ -468,7 +468,7 @@ extension on TranslationsFrFr {
 			'caldav_calendar' => 'Liste de tâches',
 			'caldav_connection_failed' => 'Connexion impossible : {error}',
 			'caldav_connection_ok' => 'Connecté au serveur CalDAV',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => 'Version serveur conservée pour {count} élément(s) en conflit',
 			'caldav_enabled' => 'Synchro CalDAV',
 			'caldav_insecure_hint' => 'Utilisez un mot de passe d\'application. HTTP uniquement pour les serveurs locaux.',
 			'caldav_last_sync' => 'Dernière synchro : {time}',

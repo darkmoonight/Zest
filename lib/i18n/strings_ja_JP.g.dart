@@ -73,7 +73,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'タスクリスト';
 	@override String get caldav_connection_failed => '接続できませんでした: {error}';
 	@override String get caldav_connection_ok => 'CalDAV サーバーに接続しました';
-	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
+	@override String get caldav_conflict_server_wins => '{count} 件の競合アイテムでサーバー版を保持しました';
 	@override String get caldav_enabled => 'CalDAV 同期';
 	@override String get caldav_insecure_hint => 'アプリパスワードを使用してください。HTTP はローカルサーバーのみです。';
 	@override String get caldav_last_sync => '最終同期: {time}';
@@ -468,7 +468,7 @@ extension on TranslationsJaJp {
 			'caldav_calendar' => 'タスクリスト',
 			'caldav_connection_failed' => '接続できませんでした: {error}',
 			'caldav_connection_ok' => 'CalDAV サーバーに接続しました',
-			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
+			'caldav_conflict_server_wins' => '{count} 件の競合アイテムでサーバー版を保持しました',
 			'caldav_enabled' => 'CalDAV 同期',
 			'caldav_insecure_hint' => 'アプリパスワードを使用してください。HTTP はローカルサーバーのみです。',
 			'caldav_last_sync' => '最終同期: {time}',

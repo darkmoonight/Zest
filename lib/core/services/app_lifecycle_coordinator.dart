@@ -10,6 +10,9 @@ import 'package:zest/core/services/midnight_maintenance.dart';
 ///
 /// Concurrent callers share one in-flight future. Bumps settings revision when
 /// auto-erase updates [Settings.lastAutoEraseCompletedTime].
+///
+/// Startup callers should delay past first paint (see
+/// [AutoBackupLifecycleListener] + [AppConstants.startupMaintenanceDelay]).
 abstract final class AppLifecycleCoordinator {
   static Future<void>? _inFlight;
 
