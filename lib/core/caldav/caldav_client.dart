@@ -62,7 +62,12 @@ class PackageCalDavRemote implements CalDavRemote {
         remote,
         _toPackage(todo, calendar.uid),
       );
-      return _fromPackage(created, categories: todo.categories);
+      return _fromPackage(
+        created,
+        categories: todo.categories,
+        recurrenceMode: todo.recurrenceMode,
+        recurrenceMinuteOfDay: todo.recurrenceMinuteOfDay,
+      );
     } on caldav.ConflictException catch (e) {
       throw CalDavConflict(e.message);
     }
@@ -75,7 +80,12 @@ class PackageCalDavRemote implements CalDavRemote {
   ) async {
     try {
       final updated = await _client.updateTodo(_toPackage(todo, calendar.uid));
-      return _fromPackage(updated, categories: todo.categories);
+      return _fromPackage(
+        updated,
+        categories: todo.categories,
+        recurrenceMode: todo.recurrenceMode,
+        recurrenceMinuteOfDay: todo.recurrenceMinuteOfDay,
+      );
     } on caldav.ConflictException catch (e) {
       throw CalDavConflict(e.message);
     }
@@ -143,6 +153,8 @@ class PackageCalDavRemote implements CalDavRemote {
   static VtodoRecord _fromPackage(
     caldav.CalendarTodo todo, {
     List<String>? categories,
+    String? recurrenceMode,
+    int? recurrenceMinuteOfDay,
   }) {
     return VtodoRecord(
       uid: todo.uid,
@@ -156,6 +168,16 @@ class PackageCalDavRemote implements CalDavRemote {
       status: _statusToIcal(todo.status),
       categories:
           categories ?? VtodoMapper.categoriesFromIcs(todo.rawIcalendar),
+      rrule: todo.rrule ?? VtodoMapper.rruleFromIcs(todo.rawIcalendar),
+      recurrenceMode:
+          recurrenceMode ??
+          VtodoMapper.icsProperty(todo.rawIcalendar, 'X-ZEST-REC-MODE'),
+      recurrenceMinuteOfDay:
+          recurrenceMinuteOfDay ??
+          int.tryParse(
+            VtodoMapper.icsProperty(todo.rawIcalendar, 'X-ZEST-REC-MINUTE') ??
+                '',
+          ),
       rawIcalendar: todo.rawIcalendar,
     );
   }
@@ -173,7 +195,10 @@ class PackageCalDavRemote implements CalDavRemote {
       completed: todo.completed,
       percentComplete: todo.status == 'COMPLETED' ? 100 : null,
       priority: todo.priority,
+      rrule: todo.rrule,
       categories: todo.categories,
+      recurrenceMode: todo.recurrenceMode,
+      recurrenceMinuteOfDay: todo.recurrenceMinuteOfDay,
     );
   }
 
@@ -193,7 +218,7 @@ class PackageCalDavRemote implements CalDavRemote {
       };
 }
 
-/// Injects CATEGORIES into ICS emitted by `package:caldav`.
+/// Injects CATEGORIES / Zest recurrence extras into ICS from `package:caldav`.
 class _TaggedCalendarTodo extends caldav.CalendarTodo {
   _TaggedCalendarTodo({
     required super.uid,
@@ -207,17 +232,34 @@ class _TaggedCalendarTodo extends caldav.CalendarTodo {
     super.completed,
     super.percentComplete,
     super.priority,
+    super.rrule,
     required this.categories,
+    this.recurrenceMode,
+    this.recurrenceMinuteOfDay,
   });
 
   final List<String> categories;
+  final String? recurrenceMode;
+  final int? recurrenceMinuteOfDay;
 
   @override
   String toIcalendar() {
-    final ics = super.toIcalendar();
-    if (categories.isEmpty) return ics;
-    final escaped = categories.map(_escapeIcalText).join(',');
-    return ics.replaceFirst('\nEND:VTODO', '\nCATEGORIES:$escaped\nEND:VTODO');
+    var ics = super.toIcalendar();
+    final extras = <String>[];
+    if (categories.isNotEmpty) {
+      final escaped = categories.map(_escapeIcalText).join(',');
+      extras.add('CATEGORIES:$escaped');
+    }
+    final mode = recurrenceMode?.trim();
+    if (mode != null && mode.isNotEmpty) {
+      extras.add('X-ZEST-REC-MODE:${_escapeIcalText(mode)}');
+    }
+    final minute = recurrenceMinuteOfDay;
+    if (minute != null) {
+      extras.add('X-ZEST-REC-MINUTE:$minute');
+    }
+    if (extras.isEmpty) return ics;
+    return ics.replaceFirst('\nEND:VTODO', '\n${extras.join('\n')}\nEND:VTODO');
   }
 
   static String _escapeIcalText(String value) {

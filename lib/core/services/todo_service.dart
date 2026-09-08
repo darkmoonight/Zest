@@ -107,7 +107,8 @@ class TodoService {
     RecurrenceMode recurrenceMode = RecurrenceMode.clone,
     int? recurrenceMinuteOfDay,
   }) async {
-    final date = _resolveDueDate(
+    final date = _resolveDueDatePreservingOnParseFailure(
+      todo: todo,
       timeString: timeString,
       task: task,
       recurrence: recurrence,
@@ -229,6 +230,7 @@ class TodoService {
     if (allIds.isEmpty) return;
 
     await _todoRepo.moveToTask(todoIds: allIds, task: task);
+    await _syncCalDavAfterHierarchyChange(allIds);
   }
 
   /// Reparents [rootTodos] under [newParent], preserving nested subtrees.
@@ -279,6 +281,30 @@ class TodoService {
       newParent: newParent,
       newTask: newParent?.task.value,
     );
+    await _syncCalDavAfterHierarchyChange(allIds);
+  }
+
+  /// After reparent/move: push roots, remote-delete former synced roots that
+  /// became nested subtasks (CalDAV only syncs root items).
+  Future<void> _syncCalDavAfterHierarchyChange(Set<int> todoIds) async {
+    final caldav = _caldavSync;
+    if (caldav == null) return;
+
+    for (final id in todoIds) {
+      final todo = await _todoRepo.getById(id);
+      if (todo == null) continue;
+      await todo.parent.load();
+      if (todo.parent.value != null) {
+        await caldav.enqueueDelete(todo);
+        todo.caldavUid = null;
+        todo.caldavHref = null;
+        todo.caldavEtag = null;
+        todo.caldavDirty = false;
+        await _todoRepo.update(todo);
+      } else {
+        await caldav.markDirty(todo);
+      }
+    }
   }
 
   // ==================== DELETE ====================
@@ -348,6 +374,28 @@ class TodoService {
       todoMinuteOfDay: recurrenceMinuteOfDay,
       baseDay: parsed,
       fallbackTime: parsed,
+    );
+  }
+
+  /// Like [_resolveDueDate], but keeps the existing due when [timeString] is
+  /// non-empty and fails to parse (e.g. locale/format changed mid-edit).
+  DateTime? _resolveDueDatePreservingOnParseFailure({
+    required Todos todo,
+    required String timeString,
+    required Tasks task,
+    required RecurrenceFrequency recurrence,
+    required List<int> recurrenceWeekdays,
+    required int? recurrenceMinuteOfDay,
+  }) {
+    if (timeString.isNotEmpty && _parseDate(timeString) == null) {
+      return todo.todoCompletedTime;
+    }
+    return _resolveDueDate(
+      timeString: timeString,
+      task: task,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
   }
 

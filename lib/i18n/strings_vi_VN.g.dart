@@ -16,22 +16,22 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsViVn({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.viVn,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <vi-VN>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsViVn _root = this; // ignore: unused_field
 
@@ -73,6 +73,7 @@ class TranslationsViVn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Danh sách việc';
 	@override String get caldav_connection_failed => 'Không thể kết nối: {error}';
 	@override String get caldav_connection_ok => 'Đã kết nối máy chủ CalDAV';
+	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
 	@override String get caldav_enabled => 'Đồng bộ CalDAV';
 	@override String get caldav_insecure_hint => 'Dùng mật khẩu ứng dụng. HTTP chỉ cho máy chủ local.';
 	@override String get caldav_last_sync => 'Lần đồng bộ cuối: {time}';
@@ -467,6 +468,7 @@ extension on TranslationsViVn {
 			'caldav_calendar' => 'Danh sách việc',
 			'caldav_connection_failed' => 'Không thể kết nối: {error}',
 			'caldav_connection_ok' => 'Đã kết nối máy chủ CalDAV',
+			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
 			'caldav_enabled' => 'Đồng bộ CalDAV',
 			'caldav_insecure_hint' => 'Dùng mật khẩu ứng dụng. HTTP chỉ cho máy chủ local.',
 			'caldav_last_sync' => 'Lần đồng bộ cuối: {time}',

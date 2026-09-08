@@ -19,6 +19,7 @@ pluginManagement {
 plugins {
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
     id "com.android.application" version "9.1.0" apply false
+    // Version pin for Flutter's KGP check / plugins; app module uses built-in Kotlin.
     id "org.jetbrains.kotlin.android" version "2.4.0" apply false
 }
 

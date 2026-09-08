@@ -16,22 +16,22 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsFaIr({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.faIr,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <fa-IR>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsFaIr _root = this; // ignore: unused_field
 
@@ -73,6 +73,7 @@ class TranslationsFaIr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'فهرست کارها';
 	@override String get caldav_connection_failed => 'اتصال برقرار نشد: {error}';
 	@override String get caldav_connection_ok => 'به سرور CalDAV متصل شد';
+	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
 	@override String get caldav_enabled => 'همگام‌سازی CalDAV';
 	@override String get caldav_insecure_hint => 'از رمز عبور برنامه استفاده کنید. HTTP فقط برای سرورهای محلی.';
 	@override String get caldav_last_sync => 'آخرین همگام‌سازی: {time}';
@@ -467,6 +468,7 @@ extension on TranslationsFaIr {
 			'caldav_calendar' => 'فهرست کارها',
 			'caldav_connection_failed' => 'اتصال برقرار نشد: {error}',
 			'caldav_connection_ok' => 'به سرور CalDAV متصل شد',
+			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
 			'caldav_enabled' => 'همگام‌سازی CalDAV',
 			'caldav_insecure_hint' => 'از رمز عبور برنامه استفاده کنید. HTTP فقط برای سرورهای محلی.',
 			'caldav_last_sync' => 'آخرین همگام‌سازی: {time}',

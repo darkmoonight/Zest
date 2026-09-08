@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/utils/calendar_date.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_list_dialog_shell.dart';
 import 'package:zest/i18n/tr.dart';
@@ -87,8 +88,8 @@ class _DueDateTimeDialog extends StatelessWidget {
   Future<void> _pickDateTime(BuildContext context) async {
     final now = DateTime.now();
     final initial = current ?? now;
-    final firstDate = now.subtract(const Duration(days: 1));
-    final lastDate = now.add(selectableRange);
+    final firstDate = CalendarDate.addDays(now, -1);
+    final lastDate = CalendarDate.addDays(now, selectableRange.inDays);
 
     final date = await showDatePicker(
       context: context,

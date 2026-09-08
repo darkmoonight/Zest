@@ -92,6 +92,7 @@ final taskServiceProvider = Provider<TaskService>(
     todoRepo: ref.watch(todoRepositoryProvider),
     notificationService: ref.watch(notificationServiceProvider),
     calendarSync: ref.watch(deviceCalendarSyncServiceProvider),
+    caldavSync: ref.watch(calDavSyncServiceProvider),
   ),
 );
 

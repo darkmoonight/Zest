@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
+import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/database/settings_persist.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
@@ -67,6 +68,7 @@ class AutoEraseCompletedService {
     required Settings settings,
     NotificationService? notificationService,
     DeviceCalendarSyncService? calendarSync,
+    CalDavSyncService? caldavSync,
   }) async {
     if (!shouldErase(
       enabled: settings.autoEraseCompletedEnabled,
@@ -81,6 +83,7 @@ class AutoEraseCompletedService {
       settings: settings,
       notificationService: notificationService,
       calendarSync: calendarSync,
+      caldavSync: caldavSync,
     );
     return deleted;
   }
@@ -91,6 +94,7 @@ class AutoEraseCompletedService {
     required Settings settings,
     NotificationService? notificationService,
     DeviceCalendarSyncService? calendarSync,
+    CalDavSyncService? caldavSync,
     DateTime? now,
   }) async {
     final current = now ?? DateTime.now();
@@ -105,6 +109,7 @@ class AutoEraseCompletedService {
     for (final todo in toDelete) {
       await calendarSync?.removeSynced(todo);
       await notificationService?.cancel(todo.id);
+      await caldavSync?.enqueueDelete(todo);
     }
 
     if (toDelete.isNotEmpty) {

@@ -84,11 +84,35 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
     _todoFocusNode = FocusNode();
     _formKey = GlobalKey<FormState>();
     _editingController = _EditingController();
+    _taskController.addListener(_onTaskTextChanged);
+    _todosController.addListener(_onTodoTextChanged);
+  }
+
+  void _onTaskTextChanged() {
+    final selected = _selectedTask;
+    if (selected == null) return;
+    if (_taskController.text == selected.title) return;
+    setState(() {
+      _selectedTask = null;
+      _editingController.setTask(null);
+    });
+  }
+
+  void _onTodoTextChanged() {
+    final selected = _selectedTodo;
+    if (selected == null) return;
+    if (_todosController.text == selected.name) return;
+    setState(() {
+      _selectedTodo = null;
+      _editingController.setTodo(null);
+    });
   }
 
   @override
   /// Releases resources when the widget is removed.
   void dispose() {
+    _taskController.removeListener(_onTaskTextChanged);
+    _todosController.removeListener(_onTodoTextChanged);
     _taskController.dispose();
     _todosController.dispose();
     _taskFocusNode.dispose();
@@ -229,19 +253,22 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
   void _onSavePressed() {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_mode == TransferMode.category && _selectedTask != null) {
-      ref
-          .read(todosNotifierProvider.notifier)
-          .moveTodos(widget.todos, _selectedTask!);
+    if (_mode == TransferMode.category) {
+      final task = _selectedTask;
+      if (task == null) return;
+      ref.read(todosNotifierProvider.notifier).moveTodos(widget.todos, task);
       ref.read(todosNotifierProvider.notifier).doMultiSelectionTodoClear();
       NavigationHelper.back(context);
-    } else if (_mode == TransferMode.todo && _selectedTodo != null) {
-      ref
-          .read(todosNotifierProvider.notifier)
-          .moveTodosToParent(widget.todos, _selectedTodo);
-      ref.read(todosNotifierProvider.notifier).doMultiSelectionTodoClear();
-      NavigationHelper.back(context);
+      return;
     }
+
+    final parent = _selectedTodo;
+    if (parent == null) return;
+    ref
+        .read(todosNotifierProvider.notifier)
+        .moveTodosToParent(widget.todos, parent);
+    ref.read(todosNotifierProvider.notifier).doMultiSelectionTodoClear();
+    NavigationHelper.back(context);
   }
 
   @override
@@ -451,6 +478,9 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
         if (value == null || value.isEmpty) {
           return 'selectCategory'.tr;
         }
+        if (_selectedTask == null) {
+          return 'transfer_todo_hint'.tr;
+        }
         return null;
       },
     );
@@ -503,6 +533,9 @@ class _TodosTransferState extends ConsumerState<TodosTransfer>
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'selectTodoParent'.tr;
+        }
+        if (_selectedTodo == null) {
+          return 'transfer_todo_hint'.tr;
         }
         return null;
       },

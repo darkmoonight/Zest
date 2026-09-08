@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/utils/reorder_filtered.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/task_repository.dart';
@@ -15,6 +16,7 @@ class TaskService {
     required this._todoRepo,
     required this._notificationService,
     this._calendarSync,
+    this._caldavSync,
   });
 
   /// Persistence layer for task (category) entities.
@@ -28,6 +30,9 @@ class TaskService {
 
   /// Optional device-calendar cleanup when items are deleted with a category.
   final DeviceCalendarSyncService? _calendarSync;
+
+  /// Optional two-way CalDAV VTODO sync (remote delete enqueue).
+  final CalDavSyncService? _caldavSync;
 
   // ==================== CREATE ====================
 
@@ -193,6 +198,7 @@ class TaskService {
         final todoItem = await _todoRepo.getById(id);
         if (todoItem != null) {
           await _calendarSync?.removeSynced(todoItem);
+          await _caldavSync?.enqueueDelete(todoItem);
         }
       }
       await _todoRepo.deleteBatch(allIds);

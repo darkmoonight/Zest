@@ -8,7 +8,14 @@ import 'package:zest/data/repositories/settings_repository.dart';
 /// Single write path for live [Settings]: mutate → revision bump → persist.
 ///
 /// UI clones ([settingsProvider]) refresh on the revision bump.
+///
+/// Persists are serialized on a chain. Rollback after a failed save only
+/// applies when no newer mutation has been applied (epoch match), so an older
+/// failure cannot wipe a newer in-memory settings change.
 abstract final class SettingsWriter {
+  static int _epoch = 0;
+  static Future<void> _persistChain = Future<void>.value();
+
   /// Applies [mutate] immediately, bumps revision, persists in the background.
   static void writeOptimistic({
     required Settings settings,
@@ -19,10 +26,12 @@ abstract final class SettingsWriter {
     bool backgroundAfterSave = false,
   }) {
     final rollback = _applyMutation(settings, revision, mutate);
+    final epoch = _epoch;
     unawaited(
-      _persist(
+      _enqueuePersist(
         settings: settings,
         rollback: rollback,
+        epoch: epoch,
         revision: revision,
         repository: repository,
         afterSave: afterSave,
@@ -38,11 +47,13 @@ abstract final class SettingsWriter {
     required SettingsRepository repository,
     required void Function(Settings settings) mutate,
     Future<void> Function()? afterSave,
-  }) async {
+  }) {
     final rollback = _applyMutation(settings, revision, mutate);
-    await _persist(
+    final epoch = _epoch;
+    return _enqueuePersist(
       settings: settings,
       rollback: rollback,
+      epoch: epoch,
       revision: revision,
       repository: repository,
       afterSave: afterSave,
@@ -56,13 +67,40 @@ abstract final class SettingsWriter {
   ) {
     final rollback = settings.clone();
     mutate(settings);
+    _epoch++;
     revision.bump();
     return rollback;
+  }
+
+  static Future<void> _enqueuePersist({
+    required Settings settings,
+    required Settings rollback,
+    required int epoch,
+    required SettingsRevisionNotifier revision,
+    required SettingsRepository repository,
+    Future<void> Function()? afterSave,
+    bool backgroundAfterSave = false,
+  }) {
+    final next = _persistChain.then((_) {
+      return _persist(
+        settings: settings,
+        rollback: rollback,
+        epoch: epoch,
+        revision: revision,
+        repository: repository,
+        afterSave: afterSave,
+        backgroundAfterSave: backgroundAfterSave,
+      );
+    });
+    // Keep the chain alive even if one persist fails.
+    _persistChain = next.catchError((_) {});
+    return next;
   }
 
   static Future<void> _persist({
     required Settings settings,
     required Settings rollback,
+    required int epoch,
     required SettingsRevisionNotifier revision,
     required SettingsRepository repository,
     Future<void> Function()? afterSave,
@@ -78,8 +116,11 @@ abstract final class SettingsWriter {
         }
       }
     } catch (e, stackTrace) {
-      settings.copyValuesFrom(rollback);
-      revision.bump();
+      // Only roll back if nothing newer mutated live settings since this write.
+      if (epoch == _epoch) {
+        settings.copyValuesFrom(rollback);
+        revision.bump();
+      }
       debugPrint('Failed to save settings: $e\n$stackTrace');
     }
   }

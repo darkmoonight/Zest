@@ -16,22 +16,22 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsKoKr({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.koKr,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <ko-KR>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsKoKr _root = this; // ignore: unused_field
 
@@ -73,6 +73,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => '할 일 목록';
 	@override String get caldav_connection_failed => '연결 실패: {error}';
 	@override String get caldav_connection_ok => 'CalDAV 서버에 연결됨';
+	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
 	@override String get caldav_enabled => 'CalDAV 동기화';
 	@override String get caldav_insecure_hint => '앱 비밀번호를 사용하세요. HTTP는 로컬 서버 전용입니다.';
 	@override String get caldav_last_sync => '마지막 동기화: {time}';
@@ -467,6 +468,7 @@ extension on TranslationsKoKr {
 			'caldav_calendar' => '할 일 목록',
 			'caldav_connection_failed' => '연결 실패: {error}',
 			'caldav_connection_ok' => 'CalDAV 서버에 연결됨',
+			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
 			'caldav_enabled' => 'CalDAV 동기화',
 			'caldav_insecure_hint' => '앱 비밀번호를 사용하세요. HTTP는 로컬 서버 전용입니다.',
 			'caldav_last_sync' => '마지막 동기화: {time}',

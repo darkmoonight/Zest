@@ -306,4 +306,16 @@ class TodoRepository {
   Future<List<Todos>> getWithCalDavUid() {
     return _isar.todos.filter().caldavUidIsNotNull().findAll();
   }
+
+  /// Next free global [Todos.index] (`max(index) + 1`, or `0` when empty).
+  Future<int> nextIndex() async {
+    final todos = await getAll();
+    if (todos.isEmpty) return 0;
+    var maxIndex = -1;
+    for (final todo in todos) {
+      final index = todo.index ?? 0;
+      if (index > maxIndex) maxIndex = index;
+    }
+    return maxIndex + 1;
+  }
 }

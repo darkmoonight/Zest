@@ -200,11 +200,13 @@ void main() {
 
     final result = await sync.syncNow();
     expect(result.success, isTrue);
+    expect(result.conflicts, 1);
 
     final stored = await todoRepo.getByCalDavUid('uid-conflict');
     expect(stored?.name, 'Server title');
     expect(stored?.caldavDirty, isFalse);
     expect(stored?.caldavEtag, 'server');
+    expect(settings.caldavLastError, contains('conflicting item'));
   });
 
   test(
@@ -216,6 +218,10 @@ void main() {
       todo.caldavEtag = 'e';
       todo.caldavDirty = false;
       await todoRepo.update(todo);
+
+      // Prior successful sync (known ctag) required for empty-list tombstones.
+      settings.caldavCtag = 'previous-ctag';
+      await isar.writeTxn(() => isar.settings.put(settings));
 
       final result = await sync.syncNow();
       expect(result.success, isTrue);

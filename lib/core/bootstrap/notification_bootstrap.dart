@@ -13,15 +13,35 @@ import 'package:zest/platform/platform_features.dart'
 
 /// Initializes timezone data for scheduled notifications.
 Future<void> initializeNotificationTimeZone() async {
+  tz.initializeTimeZones();
   try {
     final timeZoneName = await FlutterTimezone.getLocalTimezone();
-    tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation(timeZoneName.identifier));
+    return;
   } catch (e) {
-    tz.initializeTimeZones();
-    tz.setLocalLocation(tz.getLocation('UTC'));
-    debugPrint('Timezone init failed, using UTC: $e');
+    debugPrint('Timezone lookup failed, retrying once: $e');
   }
+
+  try {
+    final timeZoneName = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZoneName.identifier));
+    return;
+  } catch (e) {
+    debugPrint('Timezone init failed, using fixed device offset (not UTC): $e');
+    tz.setLocalLocation(_deviceOffsetLocation());
+  }
+}
+
+/// Fixed-offset [tz.Location] matching the current device wall-clock offset.
+tz.Location _deviceOffsetLocation() {
+  final offset = DateTime.now().timeZoneOffset;
+  return tz.Location('DeviceLocal', [tz.minTime], [0], [
+    tz.TimeZone(
+      offset,
+      isDst: false,
+      abbreviation: DateTime.now().timeZoneName,
+    ),
+  ]);
 }
 
 /// Builds Darwin init settings including localized notification action categories.

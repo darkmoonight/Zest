@@ -22,6 +22,7 @@ class CalDavSyncResult {
     this.skipped = false,
     this.success = false,
     this.error,
+    this.conflicts = 0,
   });
 
   /// Sync was not configured or already in flight (queued).
@@ -32,6 +33,9 @@ class CalDavSyncResult {
 
   /// Failure message when [success] is false and not [skipped].
   final String? error;
+
+  /// Local dirty items overwritten by the server after HTTP 412/409.
+  final int conflicts;
 }
 
 /// Builds a [CalDavRemote] from account fields.
@@ -182,20 +186,31 @@ class CalDavSyncService {
       }
 
       var pushed = await _flushPendingDeletes(remote, settings);
-      pushed = await _pushDirty(remote, calendar) || pushed;
+      final push = await _pushDirty(remote, calendar);
+      pushed = push.changed || pushed;
       final ctagUnchanged =
           calendar.ctag != null &&
           calendar.ctag == settings.caldavCtag &&
           !pushed;
       if (!ctagUnchanged) {
-        await _pull(remote, calendar, settings);
+        await _pull(
+          remote,
+          calendar,
+          settings,
+          previousCtag: settings.caldavCtag,
+        );
       }
 
       settings.caldavCtag = calendar.ctag;
       settings.caldavLastSyncTime = DateTime.now();
-      settings.caldavLastError = null;
+      if (push.conflicts > 0) {
+        settings.caldavLastError =
+            'Server copy kept for ${push.conflicts} conflicting item(s)';
+      } else {
+        settings.caldavLastError = null;
+      }
       await saveSettings(settings);
-      return const CalDavSyncResult(success: true);
+      return CalDavSyncResult(success: true, conflicts: push.conflicts);
     } catch (e, stack) {
       debugPrint('CalDAV sync failed: $e\n$stack');
       settings.caldavLastError = '$e';
@@ -237,12 +252,13 @@ class CalDavSyncService {
     return changed;
   }
 
-  Future<bool> _pushDirty(
+  Future<({bool changed, int conflicts})> _pushDirty(
     CalDavRemote remote,
     CalDavCalendarInfo calendar,
   ) async {
     final dirty = await todoRepo.getDirtyCalDav();
     var changed = false;
+    var conflicts = 0;
     for (final todo in dirty) {
       await todo.parent.load();
       if (todo.parent.value != null) {
@@ -263,10 +279,11 @@ class CalDavSyncService {
         changed = true;
       } on CalDavConflict {
         await _applyServerCopy(remote, calendar, todo);
+        conflicts++;
         changed = true;
       }
     }
-    return changed;
+    return (changed: changed, conflicts: conflicts);
   }
 
   Future<void> _applyServerCopy(
@@ -289,8 +306,9 @@ class CalDavSyncService {
   Future<void> _pull(
     CalDavRemote remote,
     CalDavCalendarInfo calendar,
-    Settings settings,
-  ) async {
+    Settings settings, {
+    String? previousCtag,
+  }) async {
     final remotes = await remote.getTodos(calendar);
     final remoteByUid = {for (final item in remotes) item.uid: item};
     final category = await getFallbackCategory(isar, settings);
@@ -306,7 +324,7 @@ class CalDavSyncService {
           fix: false,
           priority: VtodoMapper.priorityFromIcal(remoteTodo.priority),
           tags: remoteTodo.categories,
-          index: (await todoRepo.getAll()).length,
+          index: await todoRepo.nextIndex(),
           task: category,
         );
         VtodoMapper.applyToTodo(created, remoteTodo);
@@ -321,6 +339,14 @@ class CalDavSyncService {
     }
 
     final locals = await todoRepo.getWithCalDavUid();
+    // Empty remote listing: only tombstone when we previously knew a ctag
+    // (calendar was synced before). Avoid wiping locals on a suspicious
+    // empty first listing / partial failure that returned [].
+    if (remotes.isEmpty && locals.isNotEmpty && previousCtag == null) {
+      debugPrint('CalDAV pull: skipping empty-list tombstones (no prior ctag)');
+      return;
+    }
+
     for (final local in locals) {
       final uid = local.caldavUid;
       if (uid == null || remoteByUid.containsKey(uid)) continue;

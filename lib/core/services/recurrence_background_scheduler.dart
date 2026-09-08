@@ -96,6 +96,7 @@ class RecurrenceBackgroundScheduler {
         todoRepo: ctx.todoRepo,
         notificationService: ctx.notifications,
         calendarSync: ctx.calendarSync,
+        caldavSync: ctx.caldavSync,
       );
     });
     if (!opened) {

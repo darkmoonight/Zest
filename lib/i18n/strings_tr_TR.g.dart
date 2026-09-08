@@ -16,22 +16,22 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsTrTr({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.trTr,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <tr-TR>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsTrTr _root = this; // ignore: unused_field
 
@@ -73,6 +73,7 @@ class TranslationsTrTr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Görev listesi';
 	@override String get caldav_connection_failed => 'Bağlanılamadı: {error}';
 	@override String get caldav_connection_ok => 'CalDAV sunucusuna bağlandı';
+	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
 	@override String get caldav_enabled => 'CalDAV senkronizasyonu';
 	@override String get caldav_insecure_hint => 'Uygulama şifresi kullanın. HTTP yalnızca yerel sunucular içindir.';
 	@override String get caldav_last_sync => 'Son senkron: {time}';
@@ -467,6 +468,7 @@ extension on TranslationsTrTr {
 			'caldav_calendar' => 'Görev listesi',
 			'caldav_connection_failed' => 'Bağlanılamadı: {error}',
 			'caldav_connection_ok' => 'CalDAV sunucusuna bağlandı',
+			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
 			'caldav_enabled' => 'CalDAV senkronizasyonu',
 			'caldav_insecure_hint' => 'Uygulama şifresi kullanın. HTTP yalnızca yerel sunucular içindir.',
 			'caldav_last_sync' => 'Son senkron: {time}',

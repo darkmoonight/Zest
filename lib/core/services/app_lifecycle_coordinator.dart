@@ -44,6 +44,7 @@ abstract final class AppLifecycleCoordinator {
       todoRepo: todoRepo,
       notificationService: notifications,
       calendarSync: calendar,
+      caldavSync: ref.read(calDavSyncServiceProvider),
       firePastDueImmediately: false,
     );
 
@@ -53,6 +54,7 @@ abstract final class AppLifecycleCoordinator {
       settings: settings,
       notificationService: notifications,
       calendarSync: calendar,
+      caldavSync: ref.read(calDavSyncServiceProvider),
     );
     if (settings.lastAutoEraseCompletedTime != lastEraseBefore) {
       ref.read(settingsRevisionProvider.notifier).bump();

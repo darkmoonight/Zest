@@ -16,22 +16,22 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsRuRu({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.ruRu,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <ru-RU>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsRuRu _root = this; // ignore: unused_field
 
@@ -73,6 +73,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Список задач';
 	@override String get caldav_connection_failed => 'Не удалось подключиться: {error}';
 	@override String get caldav_connection_ok => 'Подключение к CalDAV успешно';
+	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
 	@override String get caldav_enabled => 'Синхронизация CalDAV';
 	@override String get caldav_insecure_hint => 'Используйте пароль приложения. HTTP только для локальных серверов.';
 	@override String get caldav_last_sync => 'Последняя синхронизация: {time}';
@@ -467,6 +468,7 @@ extension on TranslationsRuRu {
 			'caldav_calendar' => 'Список задач',
 			'caldav_connection_failed' => 'Не удалось подключиться: {error}',
 			'caldav_connection_ok' => 'Подключение к CalDAV успешно',
+			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
 			'caldav_enabled' => 'Синхронизация CalDAV',
 			'caldav_insecure_hint' => 'Используйте пароль приложения. HTTP только для локальных серверов.',
 			'caldav_last_sync' => 'Последняя синхронизация: {time}',

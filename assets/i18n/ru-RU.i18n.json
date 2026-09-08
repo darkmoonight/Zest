@@ -33,6 +33,7 @@
   "caldavCalendar": "Список задач",
   "caldavConnectionFailed": "Не удалось подключиться: {error}",
   "caldavConnectionOk": "Подключение к CalDAV успешно",
+  "caldavConflictServerWins": "Server version kept for {count} conflicting item(s)",
   "caldavEnabled": "Синхронизация CalDAV",
   "caldavInsecureHint": "Используйте пароль приложения. HTTP только для локальных серверов.",
   "caldavLastSync": "Последняя синхронизация: {time}",

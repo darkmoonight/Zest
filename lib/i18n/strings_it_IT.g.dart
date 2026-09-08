@@ -16,22 +16,22 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsItIt({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.itIt,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <it-IT>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsItIt _root = this; // ignore: unused_field
 
@@ -73,6 +73,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'Elenco attività';
 	@override String get caldav_connection_failed => 'Connessione non riuscita: {error}';
 	@override String get caldav_connection_ok => 'Connesso al server CalDAV';
+	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
 	@override String get caldav_enabled => 'Sincronizzazione CalDAV';
 	@override String get caldav_insecure_hint => 'Usa una password per app. HTTP solo per server locali.';
 	@override String get caldav_last_sync => 'Ultima sync: {time}';
@@ -467,6 +468,7 @@ extension on TranslationsItIt {
 			'caldav_calendar' => 'Elenco attività',
 			'caldav_connection_failed' => 'Connessione non riuscita: {error}',
 			'caldav_connection_ok' => 'Connesso al server CalDAV',
+			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
 			'caldav_enabled' => 'Sincronizzazione CalDAV',
 			'caldav_insecure_hint' => 'Usa una password per app. HTTP solo per server locali.',
 			'caldav_last_sync' => 'Ultima sync: {time}',

@@ -16,22 +16,22 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsZhCn({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.zhCn,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <zh-CN>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsZhCn _root = this; // ignore: unused_field
 
@@ -73,6 +73,7 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => '任务列表';
 	@override String get caldav_connection_failed => '无法连接：{error}';
 	@override String get caldav_connection_ok => '已连接到 CalDAV 服务器';
+	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
 	@override String get caldav_enabled => 'CalDAV 同步';
 	@override String get caldav_insecure_hint => '请使用应用专用密码。HTTP 仅用于本地服务器。';
 	@override String get caldav_last_sync => '上次同步：{time}';
@@ -467,6 +468,7 @@ extension on TranslationsZhCn {
 			'caldav_calendar' => '任务列表',
 			'caldav_connection_failed' => '无法连接：{error}',
 			'caldav_connection_ok' => '已连接到 CalDAV 服务器',
+			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
 			'caldav_enabled' => 'CalDAV 同步',
 			'caldav_insecure_hint' => '请使用应用专用密码。HTTP 仅用于本地服务器。',
 			'caldav_last_sync' => '上次同步：{time}',

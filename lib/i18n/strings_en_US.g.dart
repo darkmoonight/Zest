@@ -20,20 +20,21 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	Translations({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.enUs,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ) {
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <en-US>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	dynamic operator[](String key) => $meta.getTranslation(key);
+	dynamic operator[](String key) => _meta.getTranslation(key);
 
 	late final Translations _root = this; // ignore: unused_field
 
@@ -142,6 +143,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// en-US: 'Connected to CalDAV server'
 	String get caldav_connection_ok => 'Connected to CalDAV server';
+
+	/// en-US: 'Server version kept for {count} conflicting item(s)'
+	String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
 
 	/// en-US: 'CalDAV sync'
 	String get caldav_enabled => 'CalDAV sync';
@@ -1236,6 +1240,7 @@ extension on Translations {
 			'caldav_calendar' => 'Task list',
 			'caldav_connection_failed' => 'Could not connect: {error}',
 			'caldav_connection_ok' => 'Connected to CalDAV server',
+			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
 			'caldav_enabled' => 'CalDAV sync',
 			'caldav_insecure_hint' => 'Use an app password. HTTP is only for local servers.',
 			'caldav_last_sync' => 'Last sync: {time}',

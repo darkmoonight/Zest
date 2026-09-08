@@ -33,6 +33,7 @@
   "caldavCalendar": "Görev listesi",
   "caldavConnectionFailed": "Bağlanılamadı: {error}",
   "caldavConnectionOk": "CalDAV sunucusuna bağlandı",
+  "caldavConflictServerWins": "Server version kept for {count} conflicting item(s)",
   "caldavEnabled": "CalDAV senkronizasyonu",
   "caldavInsecureHint": "Uygulama şifresi kullanın. HTTP yalnızca yerel sunucular içindir.",
   "caldavLastSync": "Son senkron: {time}",

@@ -6,8 +6,8 @@ publish_to: "none"
 version: 1.6.1+55
 
 environment:
-  sdk: ">=3.13.0 <4.0.0"
-  flutter: "^3.47.0"
+  sdk: ">=3.13.2 <4.0.0"
+  flutter: "^3.47.2"
 
 dependencies:
   # Flutter SDK
@@ -36,7 +36,7 @@ dependencies:
   flutter_timezone: ^5.1.0
 
   # Android widgets & background work
-  workmanager: ^0.10.9
+  workmanager: ^0.10.10
   # home_widget: ^0.9.2
   quick_actions: ^1.1.0
 

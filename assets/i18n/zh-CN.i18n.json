@@ -33,6 +33,7 @@
   "caldavCalendar": "任务列表",
   "caldavConnectionFailed": "无法连接：{error}",
   "caldavConnectionOk": "已连接到 CalDAV 服务器",
+  "caldavConflictServerWins": "Server version kept for {count} conflicting item(s)",
   "caldavEnabled": "CalDAV 同步",
   "caldavInsecureHint": "请使用应用专用密码。HTTP 仅用于本地服务器。",
   "caldavLastSync": "上次同步：{time}",

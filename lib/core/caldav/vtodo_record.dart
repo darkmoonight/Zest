@@ -12,6 +12,9 @@ class VtodoRecord {
     this.priority = 0,
     this.status = 'NEEDS-ACTION',
     this.categories = const [],
+    this.rrule,
+    this.recurrenceMode,
+    this.recurrenceMinuteOfDay,
     this.rawIcalendar,
   });
 
@@ -45,6 +48,15 @@ class VtodoRecord {
   /// Category labels from CATEGORIES.
   final List<String> categories;
 
+  /// RFC 5545 RRULE body (without the `RRULE:` prefix), or null.
+  final String? rrule;
+
+  /// Zest recurrence mode (`CLONE` / `REOPEN`) from `X-ZEST-REC-MODE`.
+  final String? recurrenceMode;
+
+  /// Reminder minutes from midnight from `X-ZEST-REC-MINUTE`.
+  final int? recurrenceMinuteOfDay;
+
   /// Raw ICS for fields not exposed by the protocol model.
   final String? rawIcalendar;
 
@@ -60,6 +72,9 @@ class VtodoRecord {
     int? priority,
     String? status,
     List<String>? categories,
+    String? rrule,
+    String? recurrenceMode,
+    int? recurrenceMinuteOfDay,
     String? rawIcalendar,
   }) {
     return VtodoRecord(
@@ -73,6 +88,10 @@ class VtodoRecord {
       priority: priority ?? this.priority,
       status: status ?? this.status,
       categories: categories ?? this.categories,
+      rrule: rrule ?? this.rrule,
+      recurrenceMode: recurrenceMode ?? this.recurrenceMode,
+      recurrenceMinuteOfDay:
+          recurrenceMinuteOfDay ?? this.recurrenceMinuteOfDay,
       rawIcalendar: rawIcalendar ?? this.rawIcalendar,
     );
   }

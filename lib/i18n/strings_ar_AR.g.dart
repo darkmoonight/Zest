@@ -16,22 +16,22 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsArAr({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.arAr,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <ar-AR>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsArAr _root = this; // ignore: unused_field
 
@@ -73,6 +73,7 @@ class TranslationsArAr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get caldav_calendar => 'قائمة المهام';
 	@override String get caldav_connection_failed => 'تعذر الاتصال: {error}';
 	@override String get caldav_connection_ok => 'تم الاتصال بخادم CalDAV';
+	@override String get caldav_conflict_server_wins => 'Server version kept for {count} conflicting item(s)';
 	@override String get caldav_enabled => 'مزامنة CalDAV';
 	@override String get caldav_insecure_hint => 'استخدم كلمة مرور التطبيق. HTTP للخوادم المحلية فقط.';
 	@override String get caldav_last_sync => 'آخر مزامنة: {time}';
@@ -467,6 +468,7 @@ extension on TranslationsArAr {
 			'caldav_calendar' => 'قائمة المهام',
 			'caldav_connection_failed' => 'تعذر الاتصال: {error}',
 			'caldav_connection_ok' => 'تم الاتصال بخادم CalDAV',
+			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
 			'caldav_enabled' => 'مزامنة CalDAV',
 			'caldav_insecure_hint' => 'استخدم كلمة مرور التطبيق. HTTP للخوادم المحلية فقط.',
 			'caldav_last_sync' => 'آخر مزامنة: {time}',

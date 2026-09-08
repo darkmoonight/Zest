@@ -1,4 +1,5 @@
 import 'package:isar_community/isar.dart';
+import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/recurrence_background_scheduler.dart';
@@ -17,6 +18,7 @@ Future<void> runMidnightMaintenance({
   required TodoRepository todoRepo,
   required NotificationService notificationService,
   DeviceCalendarSyncService? calendarSync,
+  CalDavSyncService? caldavSync,
   DateTime? now,
   bool firePastDueImmediately = true,
   bool registerBackgroundJobs = true,
@@ -26,6 +28,7 @@ Future<void> runMidnightMaintenance({
     isar: isar,
     notificationService: notificationService,
     calendarSync: calendarSync,
+    caldavSync: caldavSync,
   ).runMidnightRollover(now: now);
 
   final todos = await todoRepo.getAll();

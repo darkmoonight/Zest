@@ -54,6 +54,7 @@ void main() {
       expect(record.priority, 1);
       expect(record.status, 'COMPLETED');
       expect(record.categories, ['groceries', 'home']);
+      expect(record.rrule, isNull);
 
       final other = Todos(
         id: 8,
@@ -69,6 +70,53 @@ void main() {
       expect(other.status, TodoStatus.done);
       expect(other.tags, ['groceries', 'home']);
       expect(other.caldavDirty, isFalse);
+      expect(other.recurrence, RecurrenceFrequency.none);
+    });
+
+    test('round-trips weekly recurrence, mode, and minute of day', () {
+      final todo = Todos(
+        id: 9,
+        name: 'Gym',
+        createdTime: DateTime.utc(2026, 1, 1),
+        recurrence: RecurrenceFrequency.weekly,
+        recurrenceWeekdays: const [DateTime.monday, DateTime.wednesday],
+        recurrenceMode: RecurrenceMode.reopen,
+        recurrenceMinuteOfDay: 7 * 60 + 30,
+      )..caldavUid = 'uid-rec';
+
+      final record = VtodoMapper.toRecord(todo);
+      expect(record.rrule, 'FREQ=WEEKLY;BYDAY=MO,WE');
+      expect(record.recurrenceMode, 'REOPEN');
+      expect(record.recurrenceMinuteOfDay, 450);
+
+      final other = Todos(
+        id: 10,
+        name: 'x',
+        createdTime: DateTime.utc(2026, 1, 2),
+      );
+      VtodoMapper.applyToTodo(other, record);
+      expect(other.recurrence, RecurrenceFrequency.weekly);
+      expect(other.recurrenceWeekdays, [DateTime.monday, DateTime.wednesday]);
+      expect(other.recurrenceMode, RecurrenceMode.reopen);
+      expect(other.recurrenceMinuteOfDay, 450);
+    });
+
+    test('applyRrule parses RRULE from raw ICS extras', () {
+      const ics =
+          'BEGIN:VTODO\nSUMMARY:X\nRRULE:FREQ=DAILY\n'
+          'X-ZEST-REC-MODE:CLONE\nX-ZEST-REC-MINUTE:600\nEND:VTODO';
+      final todo = Todos(
+        id: 11,
+        name: 'old',
+        createdTime: DateTime.utc(2026, 1, 1),
+      );
+      VtodoMapper.applyToTodo(
+        todo,
+        const VtodoRecord(uid: 'u', summary: 'X', rawIcalendar: ics),
+      );
+      expect(todo.recurrence, RecurrenceFrequency.daily);
+      expect(todo.recurrenceMode, RecurrenceMode.clone);
+      expect(todo.recurrenceMinuteOfDay, 600);
     });
 
     test('categoriesFromIcs reads CATEGORIES', () {

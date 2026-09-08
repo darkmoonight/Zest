@@ -100,6 +100,14 @@ class _SettingsCalDavSectionState
   String _statusText(Settings settings, String timeformat) {
     final error = settings.caldavLastError;
     if (error != null && error.isNotEmpty) {
+      final conflictMatch = RegExp(
+        r'Server copy kept for (\d+) conflicting item',
+      ).firstMatch(error);
+      if (conflictMatch != null) {
+        return 'caldavConflictServerWins'.trFormat({
+          'count': conflictMatch.group(1)!,
+        });
+      }
       return 'caldavSyncFailed'.trFormat({'error': error});
     }
     final last = settings.caldavLastSyncTime;
@@ -194,7 +202,16 @@ class _SettingsCalDavSectionState
         return;
       }
       if (result.success) {
-        showSnackBar('caldavSyncSuccess'.tr);
+        if (result.conflicts > 0) {
+          showSnackBar(
+            'caldavConflictServerWins'.trFormat({
+              'count': '${result.conflicts}',
+            }),
+            isInfo: true,
+          );
+        } else {
+          showSnackBar('caldavSyncSuccess'.tr);
+        }
       } else {
         showSnackBar(
           'caldavSyncFailed'.trFormat({'error': result.error ?? ''}),

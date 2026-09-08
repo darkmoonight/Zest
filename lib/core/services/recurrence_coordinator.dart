@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
+import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/recurrence_service.dart';
@@ -18,12 +19,14 @@ class RecurrenceCoordinator {
     required this._isar,
     this._notificationService,
     this._calendarSync,
+    this._caldavSync,
   });
 
   final TodoRepository _todoRepo;
   final Isar _isar;
   final NotificationService? _notificationService;
   final DeviceCalendarSyncService? _calendarSync;
+  final CalDavSyncService? _caldavSync;
 
   /// Runs midnight rollover (clone ensure + reopen) and returns changed count.
   ///
@@ -106,7 +109,7 @@ class RecurrenceCoordinator {
     }
 
     var count = 0;
-    var nextIndex = todos.length;
+    var nextIndex = await _todoRepo.nextIndex();
     for (final todo in candidates.values) {
       await todo.task.load();
       final task = todo.task.value;
@@ -133,6 +136,7 @@ class RecurrenceCoordinator {
       );
       await _scheduleOrCancel(created);
       await _calendarSync?.ensureSynced(created);
+      await _caldavSync?.markDirty(created);
       count++;
     }
     return count;
@@ -223,6 +227,7 @@ class RecurrenceCoordinator {
     await _todoRepo.update(todo);
     await _scheduleOrCancel(todo);
     await _calendarSync?.ensureSynced(todo);
+    await _caldavSync?.markDirty(todo);
   }
 
   Future<void> _scheduleOrCancel(Todos todo) async {

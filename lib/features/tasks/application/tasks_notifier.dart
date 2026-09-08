@@ -63,6 +63,9 @@ class TasksNotifier extends Notifier<TasksState> {
 
   Timer? _loadDebounce;
 
+  /// Monotonic token so stale [getAll] results cannot overwrite newer loads.
+  int _loadGeneration = 0;
+
   TaskRepository get taskRepo {
     final cached = _taskRepo;
     if (cached != null) return cached;
@@ -117,8 +120,10 @@ class TasksNotifier extends Notifier<TasksState> {
 
   /// Reloads task categories from the database into state.
   Future<void> reloadTasks() async {
+    final generation = ++_loadGeneration;
     final preservedSelectedIds = state.selectedTaskIds.toSet();
     final newTasks = await taskRepo.getAll();
+    if (generation != _loadGeneration) return;
     state = state.copyWith(tasks: newTasks);
     _restoreSelectedTasks(preservedSelectedIds);
   }

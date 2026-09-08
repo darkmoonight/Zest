@@ -63,6 +63,9 @@ class TodosNotifier extends Notifier<TodosState> {
   /// Debounce timer for coalescing database reload requests.
   Timer? _loadDebounce;
 
+  /// Monotonic token so stale [getAll] results cannot overwrite newer loads.
+  int _loadGeneration = 0;
+
   TaskRepository get taskRepo {
     final cached = _taskRepo;
     if (cached != null) return cached;
@@ -116,8 +119,10 @@ class TodosNotifier extends Notifier<TodosState> {
   }
 
   Future<void> _loadTodos() async {
+    final generation = ++_loadGeneration;
     final preservedSelectedIds = state.selectedTodoIds.toSet();
     final newTodos = await todoRepo.getAll();
+    if (generation != _loadGeneration) return;
     state = state.copyWith(
       todos: newTodos,
       selectedTodoIds: preservedSelectedIds,
@@ -151,7 +156,7 @@ class TodosNotifier extends Notifier<TodosState> {
       pinned: pinned,
       priority: priority,
       tags: tags,
-      currentTodoCount: state.todos.length,
+      currentTodoCount: await todoRepo.nextIndex(),
       parent: parent,
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
