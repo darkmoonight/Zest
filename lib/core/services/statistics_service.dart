@@ -35,8 +35,9 @@ class StatisticsService {
         ? 0.0
         : (completedTodos.length / todos.length) * 100;
 
-    final heatmap = _calculateHeatmap(completedTodos, today);
-    final streakData = _calculateStreak(heatmap, today);
+    final completionDays = _completionDayCounts(completedTodos);
+    final heatmap = _heatmapWindow(completionDays, today);
+    final streakData = _calculateStreak(completionDays, today);
 
     return StatisticsData(
       totalTodos: todos.length,
@@ -57,31 +58,37 @@ class StatisticsService {
     return time == null ? null : CalendarDate.day(time);
   }
 
-  /// Daily completion counts for the past [CalendarDate.yearDays].
-  static Map<DateTime, int> _calculateHeatmap(
-    List<Todos> completedTodos,
-    DateTime today,
-  ) {
-    final heatmap = <DateTime, int>{};
-    final startDate = CalendarDate.addDays(today, -CalendarDate.yearDays);
-
+  /// All-time daily completion counts (used for streaks).
+  static Map<DateTime, int> _completionDayCounts(List<Todos> completedTodos) {
+    final counts = <DateTime, int>{};
     for (final todo in completedTodos) {
       final date = _completionDay(todo);
-      if (date == null || date.isBefore(startDate)) continue;
-      heatmap[date] = (heatmap[date] ?? 0) + 1;
+      if (date == null) continue;
+      counts[date] = (counts[date] ?? 0) + 1;
     }
-
-    return heatmap;
+    return counts;
   }
 
-  /// Current and longest completion streaks from [heatmap].
+  /// Daily completion counts for the past [CalendarDate.yearDays] (heatmap UI).
+  static Map<DateTime, int> _heatmapWindow(
+    Map<DateTime, int> completionDays,
+    DateTime today,
+  ) {
+    final startDate = CalendarDate.addDays(today, -CalendarDate.yearDays);
+    return {
+      for (final entry in completionDays.entries)
+        if (!entry.key.isBefore(startDate)) entry.key: entry.value,
+    };
+  }
+
+  /// Current and all-time longest completion streaks from [completionDays].
   static Map<String, int> _calculateStreak(
-    Map<DateTime, int> heatmap,
+    Map<DateTime, int> completionDays,
     DateTime todayDate,
   ) {
-    if (heatmap.isEmpty) return {'current': 0, 'longest': 0};
+    if (completionDays.isEmpty) return {'current': 0, 'longest': 0};
 
-    final sortedDates = heatmap.keys.toList()..sort();
+    final sortedDates = completionDays.keys.toList()..sort();
 
     var currentStreak = 0;
     var longestStreak = 0;

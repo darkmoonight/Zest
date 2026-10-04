@@ -95,7 +95,7 @@ class DeviceCalendarClient implements DeviceCalendarGateway {
     required DateTime endDate,
     String? description,
   }) => _plugin.updateEvent(
-    eventId: eventId,
+    instanceId: eventId,
     title: title,
     startDate: startDate,
     endDate: endDate,
@@ -106,7 +106,7 @@ class DeviceCalendarClient implements DeviceCalendarGateway {
 
   @override
   Future<void> deleteEvent({required String eventId}) =>
-      _plugin.deleteEvent(eventId: eventId);
+      _plugin.deleteEvent(instanceId: eventId);
 }
 
 /// One-way export of Zest items with deadlines to the device calendar.

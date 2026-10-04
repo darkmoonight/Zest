@@ -150,6 +150,50 @@ void main() {
     expect(stats.currentStreak, lessThanOrEqualTo(1));
   });
 
+  test(
+    'longest streak uses all-time completions beyond heatmap window',
+    () async {
+      final task = await createTestTask(isar);
+      final today = DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+      );
+      // Five consecutive days older than the 365-day heatmap window.
+      final streakStart = today.subtract(const Duration(days: 400));
+
+      for (var offset = 0; offset < 5; offset++) {
+        await createTestTodo(
+          isar,
+          task: task,
+          name: 'Old streak $offset',
+          status: TodoStatus.done,
+          completionTime: streakStart.add(Duration(days: offset)),
+        );
+      }
+
+      // One recent completion so heatmap is non-empty but current streak is short.
+      await createTestTodo(
+        isar,
+        task: task,
+        name: 'Today only',
+        status: TodoStatus.done,
+        completionTime: today,
+      );
+
+      final stats = await StatisticsService.calculateStatistics(isar);
+
+      expect(stats.longestStreak, 5);
+      expect(stats.currentStreak, 1);
+      expect(
+        stats.completionHeatmap.keys.every(
+          (day) => !day.isBefore(today.subtract(const Duration(days: 365))),
+        ),
+        isTrue,
+      );
+    },
+  );
+
   test('excludes todos from archived categories by default', () async {
     final active = await createTestTask(isar, title: 'Active');
     final archived = await createTestTask(

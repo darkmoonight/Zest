@@ -1,13 +1,9 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' as flutter;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/config/settings_catalog.dart';
-import 'package:zest/core/theme/material_scheme_bridge.dart';
 
-typedef _GoogleTextThemeBuilder = flutter.TextTheme Function([
-  flutter.TextTheme?,
-]);
+typedef _GoogleTextThemeBuilder = TextTheme Function([TextTheme?]);
 
 /// One row in the app font picker ([id] is stored in Isar settings).
 class _FontEntry {
@@ -23,11 +19,14 @@ class _FontEntry {
     if (_system) {
       return base.apply(fontFamily: AppFont.platformFontFamily());
     }
-    return textThemeFromFlutter(_googleTextTheme!(textThemeToFlutter(base)));
+    return _googleTextTheme!(base);
   }
 }
 
 /// Built-in app font choices (Google Fonts or platform default).
+///
+/// To add a font: register an id in [_catalog] (A–Z after [system]), add a
+/// `font<Id>` display name to every `assets/i18n/*.i18n.json`, then run slang.
 class AppFont {
   /// Private constructor; use static methods only.
   AppFont._();
@@ -38,11 +37,12 @@ class AppFont {
   /// Platform system font id.
   static const String system = 'system';
 
-  /// Default font id when none is stored.
+  /// Default font id (current Rain look).
   static const String defaultId = ubuntu;
 
   static const String _labelPrefix = 'font';
 
+  /// Ordered catalog: app default and platform default first, then A–Z.
   static final List<_FontEntry> _catalog = [
     _FontEntry.google(ubuntu, GoogleFonts.ubuntuTextTheme),
     const _FontEntry.system(system),
@@ -95,7 +95,10 @@ class AppFont {
   static TextTheme textTheme(String? id, TextTheme baseTheme) =>
       _byId[resolve(id)]!.apply(baseTheme);
 
-  /// Platform system font family from the engine, with OS-specific fallbacks.
+  /// Platform system font from the engine, with OS-specific fallbacks.
+  ///
+  /// Material defaults bake in Roboto on Android; this uses the engine-reported
+  /// family when available (OEM fonts) or generic platform families otherwise.
   @visibleForTesting
   static String platformFontFamily({String? engineFamily}) {
     final resolved = engineFamily ?? _engineSystemFontFamily;
