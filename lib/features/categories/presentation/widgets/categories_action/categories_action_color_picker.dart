@@ -1,4 +1,4 @@
-part of '../tasks_action.dart';
+part of '../categories_action.dart';
 
 // ==================== Color Picker Dialog ====================
 class _ColorPickerDialog extends StatefulWidget {

@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:archive/archive.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:isar_community/isar.dart';
 import 'package:path/path.dart' as p;
 import 'package:zest/core/bootstrap/isar_bootstrap.dart';
 import 'package:zest/core/services/backup_constants.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/data/models/db.dart';
 
 /// Outcome of writing a gzipped Isar database backup.
@@ -147,7 +147,7 @@ class BackupFileWriter {
       }
       return true;
     } catch (e) {
-      debugPrint('Invalid Isar backup: $e');
+      AppLog.d('Invalid Isar backup: $e');
       return false;
     }
   }
@@ -197,14 +197,12 @@ class BackupFileWriter {
         },
       );
 
-      if (kDebugMode && success != true) {
-        debugPrint('Failed to save backup to Android content URI');
+      if (success != true) {
+        AppLog.d('Failed to save backup to Android content URI');
       }
       return success == true;
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint('Android backup save error: $e');
-      }
+      AppLog.d('Android backup save error: $e');
       return false;
     }
   }
@@ -223,6 +221,8 @@ class BackupFileWriter {
     final snapshot = _CaldavBackupSnapshot(
       url: settings.caldavUrl,
       username: settings.caldavUsername,
+      calendarHref: settings.caldavCalendarHref,
+      calendarName: settings.caldavCalendarName,
       ctag: settings.caldavCtag,
       lastError: settings.caldavLastError,
       pendingDeletes: settings.caldavPendingDeletes,
@@ -231,6 +231,8 @@ class BackupFileWriter {
     await isar.writeTxn(() async {
       settings.caldavUrl = null;
       settings.caldavUsername = null;
+      settings.caldavCalendarHref = null;
+      settings.caldavCalendarName = null;
       settings.caldavCtag = null;
       settings.caldavLastError = null;
       settings.caldavPendingDeletes = '[]';
@@ -253,6 +255,8 @@ class BackupFileWriter {
     await isar.writeTxn(() async {
       settings.caldavUrl = snapshot.url;
       settings.caldavUsername = snapshot.username;
+      settings.caldavCalendarHref = snapshot.calendarHref;
+      settings.caldavCalendarName = snapshot.calendarName;
       settings.caldavCtag = snapshot.ctag;
       settings.caldavLastError = snapshot.lastError;
       settings.caldavPendingDeletes = snapshot.pendingDeletes;
@@ -266,6 +270,8 @@ class _CaldavBackupSnapshot {
   const _CaldavBackupSnapshot({
     required this.url,
     required this.username,
+    required this.calendarHref,
+    required this.calendarName,
     required this.ctag,
     required this.lastError,
     required this.pendingDeletes,
@@ -273,6 +279,8 @@ class _CaldavBackupSnapshot {
 
   final String? url;
   final String? username;
+  final String? calendarHref;
+  final String? calendarName;
   final String? ctag;
   final String? lastError;
   final String pendingDeletes;

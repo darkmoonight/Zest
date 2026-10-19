@@ -11,7 +11,7 @@ void main() {
       () {
         // test/core/services/task_service_test.dart
         // test/core/services/todo_service_test.dart
-        // test/features/tasks/tasks_notifier_test.dart
+        // test/features/categories/categories_notifier_test.dart
         // test/features/todos/todos_notifier_test.dart
         // test/core/bootstrap/notification_handlers_test.dart
         expect(true, isTrue);

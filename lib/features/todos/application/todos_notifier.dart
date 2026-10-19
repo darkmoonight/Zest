@@ -9,7 +9,7 @@ import 'package:zest/domain/entities/todo.dart';
 import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/domain/repositories/category_repository.dart';
 import 'package:zest/domain/repositories/todo_repository.dart';
-import 'package:zest/features/tasks/application/tasks_notifier.dart';
+import 'package:zest/features/categories/application/categories_notifier.dart';
 
 /// Riverpod state for the items tab: list, filters, and multi-selection.
 class TodosState {
@@ -80,7 +80,7 @@ class TodosState {
 
 /// Loads and mutates items; subscribes to Isar watch streams for live updates.
 class TodosNotifier extends Notifier<TodosState> {
-  CategoryRepositoryPort? _taskRepo;
+  CategoryRepositoryPort? _categoryRepo;
 
   TodoRepositoryPort? _todoRepo;
 
@@ -90,11 +90,11 @@ class TodosNotifier extends Notifier<TodosState> {
   /// Monotonic token so stale [getAll] results cannot overwrite newer loads.
   int _loadGeneration = 0;
 
-  CategoryRepositoryPort get taskRepo {
-    final cached = _taskRepo;
+  CategoryRepositoryPort get categoryRepo {
+    final cached = _categoryRepo;
     if (cached != null) return cached;
     final created = ref.read(categoryRepositoryProvider);
-    _taskRepo = created;
+    _categoryRepo = created;
     return created;
   }
 
@@ -295,7 +295,7 @@ class TodosNotifier extends Notifier<TodosState> {
 
   /// Count of root items across non-archived categories.
   Set<int> _archivedCategoryIds() {
-    final tasks = ref.read(tasksNotifierProvider).tasks;
+    final tasks = ref.read(categoriesNotifierProvider).categories;
     return {
       for (final t in tasks)
         if (t.archive) t.id,

@@ -99,17 +99,20 @@ class _NotificationNavigationListenerState
       if (!ctx.mounted || _isShowingBottomSheet) return;
 
       _isShowingBottomSheet = true;
-      await NavigationHelper.showFormModal(
-        context: ctx,
-        child: TodosAction(
-          text: 'editing'.tr,
-          edit: true,
-          todo: todo,
-          showCategory: true,
-        ),
-        enableDrag: false,
-      );
-      _isShowingBottomSheet = false;
+      try {
+        await NavigationHelper.showFormModal(
+          context: ctx,
+          child: TodosAction(
+            text: 'editing'.tr,
+            edit: true,
+            todo: todo,
+            showCategory: true,
+          ),
+          enableDrag: false,
+        );
+      } finally {
+        _isShowingBottomSheet = false;
+      }
     });
   }
 

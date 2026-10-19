@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:display_mode/display_mode.dart';
 import 'package:flag_secure/flag_secure.dart';
 import 'package:quick_actions/quick_actions.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/platform/quick_action_item.dart';
 
 export 'package:zest/platform/quick_action_item.dart';
@@ -62,7 +63,7 @@ class PlatformFeatures {
         await setOptimalDisplayMode();
       }
     } catch (e) {
-      debugPrint('PlatformFeatures initialization error: $e');
+      AppLog.d('PlatformFeatures initialization error: $e');
     }
   }
 
@@ -90,11 +91,11 @@ class PlatformFeatures {
           : active;
 
       await FlutterDisplayMode.setPreferredMode(optimalMode);
-      debugPrint(
+      AppLog.d(
         'Display mode set: ${optimalMode.width}x${optimalMode.height}@${optimalMode.refreshRate}Hz',
       );
     } catch (e) {
-      debugPrint('Error setting optimal display mode: $e');
+      AppLog.d('Error setting optimal display mode: $e');
     }
   }
 
@@ -107,13 +108,13 @@ class PlatformFeatures {
     try {
       if (enabled) {
         await FlagSecure.set();
-        debugPrint('Screen privacy enabled');
+        AppLog.d('Screen privacy enabled');
       } else {
         await FlagSecure.unset();
-        debugPrint('Screen privacy disabled');
+        AppLog.d('Screen privacy disabled');
       }
     } on PlatformException catch (e) {
-      debugPrint('Error setting screen privacy: $e');
+      AppLog.d('Error setting screen privacy: $e');
       rethrow;
     }
   }
@@ -127,9 +128,9 @@ class PlatformFeatures {
     try {
       _quickActions = const QuickActions();
       _quickActions!.initialize(onShortcut);
-      debugPrint('Quick actions initialized');
+      AppLog.d('Quick actions initialized');
     } catch (e) {
-      debugPrint('Error initializing quick actions: $e');
+      AppLog.d('Error initializing quick actions: $e');
     }
   }
 
@@ -140,9 +141,9 @@ class PlatformFeatures {
     try {
       final shortcutItems = items.map((item) => item.toShortcutItem()).toList();
       _quickActions!.setShortcutItems(shortcutItems);
-      debugPrint('Quick actions set: ${items.length} items');
+      AppLog.d('Quick actions set: ${items.length} items');
     } catch (e) {
-      debugPrint('Error setting quick action items: $e');
+      AppLog.d('Error setting quick action items: $e');
     }
   }
 
@@ -162,7 +163,7 @@ class PlatformFeatures {
         );
       }
     } catch (e) {
-      debugPrint('Error setting system UI mode: $e');
+      AppLog.d('Error setting system UI mode: $e');
     }
   }
 
@@ -185,10 +186,10 @@ class PlatformFeatures {
 
   /// Logs [getPlatformInfo] to the debug console.
   static void logPlatformInfo() {
-    debugPrint('=== Platform Features ===');
+    AppLog.d('=== Platform Features ===');
     getPlatformInfo().forEach((key, value) {
-      debugPrint('$key: $value');
+      AppLog.d('$key: $value');
     });
-    debugPrint('========================');
+    AppLog.d('========================');
   }
 }

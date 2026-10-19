@@ -2,23 +2,22 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
-import 'package:zest/core/utils/default_category.dart';
 import 'package:zest/core/utils/progress_calculator.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/card_tap_scale_mixin.dart';
 import 'package:zest/core/widgets/selectable_card_shell.dart';
 import 'package:zest/core/widgets/metadata_chip.dart';
 import 'package:zest/domain/entities/entities.dart';
-import 'package:zest/features/tasks/presentation/widgets/circular_progress_widget.dart';
+import 'package:zest/features/categories/presentation/widgets/circular_progress_widget.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
 /// Card widget displaying a task with progress and selection state.
-class TaskCard extends ConsumerStatefulWidget {
-  /// Creates a [TaskCard].
-  const TaskCard({
+class CategoryCard extends ConsumerStatefulWidget {
+  /// Creates a [CategoryCard].
+  const CategoryCard({
     super.key,
-    required this.task,
+    required this.category,
     required this.createdTodos,
     required this.completedTodos,
     required this.percent,
@@ -28,7 +27,7 @@ class TaskCard extends ConsumerStatefulWidget {
   });
 
   /// The category.
-  final Category task;
+  final Category category;
 
   /// The created items.
   final int createdTodos;
@@ -49,10 +48,10 @@ class TaskCard extends ConsumerStatefulWidget {
   final VoidCallback onTap;
 
   @override
-  ConsumerState<TaskCard> createState() => _TaskCardState();
+  ConsumerState<CategoryCard> createState() => _CategoryCardState();
 }
 
-class _TaskCardState extends ConsumerState<TaskCard>
+class _CategoryCardState extends ConsumerState<CategoryCard>
     with SingleTickerProviderStateMixin, CardTapScaleMixin {
   @override
   void initState() {
@@ -75,7 +74,7 @@ class _TaskCardState extends ConsumerState<TaskCard>
       total: widget.createdTodos,
       completed: widget.completedTodos,
     );
-    final taskColor = Color(widget.task.colorArgb);
+    final taskColor = Color(widget.category.colorArgb);
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -155,7 +154,7 @@ class _TaskCardState extends ConsumerState<TaskCard>
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          widget.task.title,
+          widget.category.title,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontSize: ResponsiveUtils.getResponsiveFontSize(context, 16),
             fontWeight: FontWeight.w600,
@@ -164,10 +163,10 @@ class _TaskCardState extends ConsumerState<TaskCard>
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        if (widget.task.description.isNotEmpty) ...[
+        if (widget.category.description.isNotEmpty) ...[
           const SizedBox(height: 3),
           Text(
-            widget.task.description,
+            widget.category.description,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
               fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
@@ -216,10 +215,11 @@ class _TaskCardState extends ConsumerState<TaskCard>
     ProgressCalculator progress,
     Color taskColor,
   ) {
-    final isDefault = isSelectedDefaultCategory(
-      ref.watch(settingsProvider),
-      widget.task,
+    final defaultCategoryId = ref.watch(
+      settingsProvider.select((s) => s.defaultCategoryId),
     );
+    final isDefault = defaultCategoryId == widget.category.id ||
+        (defaultCategoryId == null && widget.category.isSystem);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -229,7 +229,7 @@ class _TaskCardState extends ConsumerState<TaskCard>
           _buildDefaultBadge(context, taskColor),
           SizedBox(height: AppConstants.spacingXS + 1),
         ],
-        _buildTaskCounter(context, colorScheme, taskColor),
+        _buildCategoryCounter(context, colorScheme, taskColor),
         if (progress.isComplete) ...[
           SizedBox(height: AppConstants.spacingXS + 1),
           _buildCompletedBadge(context, taskColor),
@@ -239,7 +239,7 @@ class _TaskCardState extends ConsumerState<TaskCard>
   }
 
   /// Builds the task counter widget.
-  Widget _buildTaskCounter(
+  Widget _buildCategoryCounter(
     BuildContext context,
     ColorScheme colorScheme,
     Color taskColor,

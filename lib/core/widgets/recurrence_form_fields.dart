@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/features/todos/presentation/widgets/recurrence_picker.dart';
 
 /// Dirty-tracking notifiers for recurrence picker fields shared by forms.

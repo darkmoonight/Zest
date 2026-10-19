@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/data/repositories/category_repository.dart';
-import 'package:zest/features/tasks/application/tasks_notifier.dart';
+import 'package:zest/features/categories/application/categories_notifier.dart';
 
 import '../../helpers/fake_notification_show.dart';
 import '../../helpers/isar_test_helper.dart';
@@ -34,7 +34,7 @@ void main() {
     await closeTestIsar(isar);
   });
 
-  Future<TasksNotifier> notifier() => readTasksNotifier(container);
+  Future<CategoriesNotifier> notifier() => readCategoriesNotifier(container);
 
   test('archiveTask clears multi-selection', () async {
     final task = await createTestTask(isar, title: 'Archive');
@@ -46,28 +46,28 @@ void main() {
     );
     final tasksNotifier = await notifier();
 
-    tasksNotifier.toggleMultiSelectionTask();
-    tasksNotifier.doMultiSelectionTask(task);
+    tasksNotifier.toggleMultiSelectionCategory();
+    tasksNotifier.doMultiSelectionCategory(task);
 
-    await tasksNotifier.archiveTask([task]);
+    await tasksNotifier.archiveCategories([task]);
 
-    final state = container.read(tasksNotifierProvider);
-    expect(state.isMultiSelectionTask, isFalse);
-    expect(state.selectedTask, isEmpty);
-    expect(state.tasks.first.archive, isTrue);
+    final state = container.read(categoriesNotifierProvider);
+    expect(state.isMultiSelectionCategory, isFalse);
+    expect(state.selectedCategories, isEmpty);
+    expect(state.categories.first.archive, isTrue);
   });
 
-  test('selectAllTasks selects filtered tasks', () async {
+  test('selectAllCategories selects filtered tasks', () async {
     await createTestTask(isar, title: 'A');
     await createTestTask(isar, title: 'B');
     final tasksNotifier = await notifier();
 
-    tasksNotifier.selectAllTasks(select: true, archived: false);
+    tasksNotifier.selectAllCategories(select: true, archived: false);
 
-    final state = container.read(tasksNotifierProvider);
-    expect(state.selectedTask.length, 2);
-    expect(state.selectedTaskIds.length, 2);
-    expect(tasksNotifier.areAllTasksSelected(archived: false), isTrue);
+    final state = container.read(categoriesNotifierProvider);
+    expect(state.selectedCategories.length, 2);
+    expect(state.selectedCategoryIds.length, 2);
+    expect(tasksNotifier.areAllCategoriesSelected(archived: false), isTrue);
   });
 
   test('multi-selection survives reload by id', () async {
@@ -75,59 +75,59 @@ void main() {
     await createTestTask(isar, title: 'Other');
     final tasksNotifier = await notifier();
 
-    tasksNotifier.toggleMultiSelectionTask();
-    tasksNotifier.doMultiSelectionTask(task);
+    tasksNotifier.toggleMultiSelectionCategory();
+    tasksNotifier.doMultiSelectionCategory(task);
     final selectedId = task.id;
 
-    await tasksNotifier.reloadTasks();
+    await tasksNotifier.reloadCategories();
 
-    final state = container.read(tasksNotifierProvider);
-    expect(state.selectedTaskIds, {selectedId});
-    expect(state.selectedTask.map((t) => t.id), [selectedId]);
-    expect(state.isMultiSelectionTask, isTrue);
+    final state = container.read(categoriesNotifierProvider);
+    expect(state.selectedCategoryIds, {selectedId});
+    expect(state.selectedCategories.map((t) => t.id), [selectedId]);
+    expect(state.isMultiSelectionCategory, isTrue);
   });
 
-  test('reorderTasks persists new order', () async {
+  test('reorderCategories persists new order', () async {
     final first = await createTestTask(isar, title: 'A', index: 0);
     final second = await createTestTask(isar, title: 'B', index: 1);
     final tasksNotifier = await notifier();
 
-    await tasksNotifier.reorderTasks(
+    await tasksNotifier.reorderCategories(
       filteredTasks: [second, first],
       archived: false,
     );
 
-    expect(container.read(tasksNotifierProvider).tasks.map((t) => t.title), [
+    expect(container.read(categoriesNotifierProvider).categories.map((t) => t.title), [
       'B',
       'A',
     ]);
   });
 
-  test('doMultiSelectionTask exits when last item is deselected', () async {
+  test('doMultiSelectionCategory exits when last item is deselected', () async {
     final task = await createTestTask(isar, title: 'Only');
     final tasksNotifier = await notifier();
 
-    tasksNotifier.toggleMultiSelectionTask();
-    tasksNotifier.doMultiSelectionTask(task);
-    tasksNotifier.doMultiSelectionTask(task);
+    tasksNotifier.toggleMultiSelectionCategory();
+    tasksNotifier.doMultiSelectionCategory(task);
+    tasksNotifier.doMultiSelectionCategory(task);
 
-    final state = container.read(tasksNotifierProvider);
-    expect(state.isMultiSelectionTask, isFalse);
-    expect(state.selectedTask, isEmpty);
+    final state = container.read(categoriesNotifierProvider);
+    expect(state.isMultiSelectionCategory, isFalse);
+    expect(state.selectedCategories, isEmpty);
   });
 
   test('noArchiveTask unarchives task and clears selection', () async {
     final task = await createTestTask(isar, title: 'Archived', archive: true);
     final tasksNotifier = await notifier();
 
-    tasksNotifier.toggleMultiSelectionTask();
-    tasksNotifier.doMultiSelectionTask(task);
+    tasksNotifier.toggleMultiSelectionCategory();
+    tasksNotifier.doMultiSelectionCategory(task);
 
-    await tasksNotifier.noArchiveTask([task]);
+    await tasksNotifier.unarchiveCategories([task]);
 
-    final state = container.read(tasksNotifierProvider);
-    expect(state.isMultiSelectionTask, isFalse);
-    expect(state.tasks.first.archive, isFalse);
+    final state = container.read(categoriesNotifierProvider);
+    expect(state.isMultiSelectionCategory, isFalse);
+    expect(state.categories.first.archive, isFalse);
   });
 
   test('deleteTask removes task and reindexes remaining tasks', () async {
@@ -135,15 +135,15 @@ void main() {
     final second = await createTestTask(isar, title: 'B', index: 1);
     final tasksNotifier = await notifier();
 
-    await tasksNotifier.deleteTask([first]);
+    await tasksNotifier.deleteCategories([first]);
 
     final titles = container
-        .read(tasksNotifierProvider)
-        .tasks
+        .read(categoriesNotifierProvider)
+        .categories
         .map((task) => task.title)
         .toList();
     expect(titles, ['B']);
-    expect(container.read(tasksNotifierProvider).tasks.first.index, 0);
+    expect(container.read(categoriesNotifierProvider).categories.first.index, 0);
     expect(await categoryRepo.getById(second.id), isNotNull);
   });
 
@@ -153,7 +153,7 @@ void main() {
     live.defaultCategoryId = task.id;
 
     final tasksNotifier = await notifier();
-    await tasksNotifier.archiveTask([task]);
+    await tasksNotifier.archiveCategories([task]);
 
     expect(container.read(liveSettingsProvider).defaultCategoryId, isNull);
   });
@@ -164,7 +164,7 @@ void main() {
     live.defaultCategoryId = task.id;
 
     final tasksNotifier = await notifier();
-    await tasksNotifier.deleteTask([task]);
+    await tasksNotifier.deleteCategories([task]);
 
     expect(container.read(liveSettingsProvider).defaultCategoryId, isNull);
   });

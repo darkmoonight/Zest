@@ -2,7 +2,7 @@ import 'package:zest/core/utils/calendar_date.dart';
 import 'package:zest/domain/entities/todo.dart';
 import 'package:zest/domain/repositories/category_repository.dart';
 import 'package:zest/domain/repositories/todo_repository.dart';
-import 'package:zest/features/statistics/presentation/models/statistics_data.dart';
+import 'package:zest/domain/models/statistics_data.dart';
 
 /// Aggregates completion metrics, streaks, and chart data from items.
 class StatisticsService {

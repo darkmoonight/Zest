@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/data/models/db.dart';
 
 /// Sidecar JSON copy of [Settings] so preferences survive Isar schema churn.
@@ -22,7 +22,7 @@ class SettingsJsonBackup {
       final file = File(_path(directory));
       await file.writeAsString(jsonEncode(_toJson(settings)));
     } catch (e, stackTrace) {
-      debugPrint('Settings JSON backup failed: $e\n$stackTrace');
+      AppLog.d('Settings JSON backup failed: $e\n$stackTrace');
     }
   }
 
@@ -35,7 +35,7 @@ class SettingsJsonBackup {
       if (json is! Map<String, dynamic>) return null;
       return _fromJson(json);
     } catch (e, stackTrace) {
-      debugPrint('Settings JSON restore failed: $e\n$stackTrace');
+      AppLog.d('Settings JSON restore failed: $e\n$stackTrace');
       return null;
     }
   }
@@ -75,12 +75,10 @@ class SettingsJsonBackup {
     'autoEraseCompletedFrequency': s.autoEraseCompletedFrequency.index,
     'lastAutoEraseCompletedTime': s.lastAutoEraseCompletedTime
         ?.toIso8601String(),
-    // CalDAV identity + sync runtime stay out of the portable sidecar.
-    // Password is never here (FlutterSecureStorage). URL/username must be
-    // re-entered after restore; ctag/errors/pending deletes are ephemeral.
+    // CalDAV identity + calendar selection + sync runtime stay out of the
+    // portable sidecar. Password is never here (FlutterSecureStorage).
+    // URL/username/href/name must be re-entered after restore.
     'caldavEnabled': s.caldavEnabled,
-    'caldavCalendarHref': s.caldavCalendarHref,
-    'caldavCalendarName': s.caldavCalendarName,
     'caldavAllowInsecure': s.caldavAllowInsecure,
     'caldavLastSyncTime': s.caldavLastSyncTime?.toIso8601String(),
     'todoCardLayout': s.todoCardLayout,
@@ -149,12 +147,12 @@ class SettingsJsonBackup {
         ? null
         : DateTime.tryParse(lastErase);
     settings.caldavEnabled = json['caldavEnabled'] as bool? ?? false;
-    // Intentionally ignore legacy caldavUrl / caldavUsername / ctag /
-    // lastError / pendingDeletes keys if present in older sidecars.
+    // Intentionally ignore legacy identity / calendar selection / sync
+    // runtime keys if present in older sidecars.
     settings.caldavUrl = null;
     settings.caldavUsername = null;
-    settings.caldavCalendarHref = json['caldavCalendarHref'] as String?;
-    settings.caldavCalendarName = json['caldavCalendarName'] as String?;
+    settings.caldavCalendarHref = null;
+    settings.caldavCalendarName = null;
     settings.caldavCtag = null;
     settings.caldavAllowInsecure =
         json['caldavAllowInsecure'] as bool? ?? false;

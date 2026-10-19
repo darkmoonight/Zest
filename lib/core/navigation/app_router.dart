@@ -13,7 +13,11 @@ import 'package:zest/features/shell/presentation/home_screen.dart';
 final _routerRefreshProvider = Provider<ValueNotifier<int>>((ref) {
   final notifier = ValueNotifier(0);
   ref.onDispose(notifier.dispose);
-  ref.listen(settingsProvider, (_, _) => notifier.value++);
+  // Only onboard affects [resolveAppRedirect]; ignore other settings noise.
+  ref.listen(
+    settingsProvider.select((s) => s.onboard),
+    (_, _) => notifier.value++,
+  );
   return notifier;
 });
 

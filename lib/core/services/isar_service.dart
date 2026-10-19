@@ -12,6 +12,7 @@ import 'package:zest/core/caldav/caldav_credentials.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/services/backup_constants.dart';
 import 'package:zest/core/services/backup_file_writer.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/i18n/tr.dart';
 
@@ -74,7 +75,7 @@ class IsarService {
           : IsarBackupOutcome.failure;
     } catch (e, stackTrace) {
       _hideLoadingDialog();
-      debugPrint('Backup error: $e\n$stackTrace');
+      AppLog.d('Backup error: $e\n$stackTrace');
       return IsarBackupOutcome.failure;
     }
   }
@@ -114,7 +115,7 @@ class IsarService {
       return await _restoreFromBytes(bytes);
     } catch (e, stackTrace) {
       _hideLoadingDialog();
-      debugPrint('Restore error: $e\n$stackTrace');
+      AppLog.d('Restore error: $e\n$stackTrace');
       return IsarBackupOutcome.failure;
     }
   }
@@ -160,7 +161,7 @@ class IsarService {
   ]) {
     _hideLoadingDialog();
     if (label != null && error != null) {
-      debugPrint('$label: $error\n$stackTrace');
+      AppLog.d('$label: $error\n$stackTrace');
     }
     return IsarBackupOutcome.failure;
   }
@@ -241,7 +242,7 @@ class IsarService {
       );
       return uri;
     } on PlatformException catch (e) {
-      debugPrint('Error picking directory: $e');
+      AppLog.d('Error picking directory: $e');
       return null;
     }
   }

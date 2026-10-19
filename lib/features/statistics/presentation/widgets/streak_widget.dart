@@ -3,7 +3,7 @@ import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/features/statistics/presentation/widgets/statistics_section_card.dart';
-import 'package:zest/features/tasks/presentation/widgets/stat_chip.dart';
+import 'package:zest/features/categories/presentation/widgets/stat_chip.dart';
 
 class StreakWidget extends StatelessWidget {
   /// The current streak.

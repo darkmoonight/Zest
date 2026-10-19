@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/settings/app_settings_state.dart';
 import 'package:zest/features/statistics/application/statistics_provider.dart';
-import 'package:zest/features/statistics/presentation/models/statistics_data.dart';
+import 'package:zest/domain/models/statistics_data.dart';
 import 'package:zest/features/statistics/presentation/view/statistics.dart';
 import 'package:zest/i18n/strings.g.dart';
 

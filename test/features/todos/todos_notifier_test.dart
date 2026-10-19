@@ -15,12 +15,12 @@ void main() {
     isar = await openTestIsar();
     container = createTestContainer(isar: isar);
     await readTodosNotifier(container);
-    await readTasksNotifier(container);
+    await readCategoriesNotifier(container);
   });
 
   tearDown(() async {
     if (isarCoreUnavailable) return;
-    // Let pending TasksNotifier microtask reloads finish before dispose.
+    // Let pending CategoriesNotifier microtask reloads finish before dispose.
     await Future<void>.delayed(Duration.zero);
     container.dispose();
     await closeTestIsar(isar);

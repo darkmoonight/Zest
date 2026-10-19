@@ -131,7 +131,9 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
 
   /// Builds the scrollable content widget.
   Widget _buildScrollableContent(BuildContext context, TodosState todosState) {
-    final showArchived = ref.watch(settingsProvider).showArchivedInCalendar;
+    final showArchived = ref.watch(
+      settingsProvider.select((s) => s.showArchivedInCalendar),
+    );
     final excludeArchived = !showArchived;
 
     return ScrollFabListener(

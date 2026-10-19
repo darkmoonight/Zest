@@ -274,7 +274,7 @@ class _SettingsDataSectionState
       confirmText: 'delete',
       onConfirm: () async {
         await createIsarService(ref, context).clearAllData();
-        await reloadTodosAndTasks(ref);
+        await reloadTodosAndCategories(ref);
         showSnackBar('deleteAll'.tr);
       },
     );

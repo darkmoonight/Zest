@@ -55,7 +55,7 @@ class NavigationHelper {
 
   /// Create/edit form presentation: bottom sheet on phone, dialog on tablet+.
   ///
-  /// Prefer this over raw [showModalBottomSheet] for TasksAction / TodosAction /
+  /// Prefer this over raw [showModalBottomSheet] for CategoriesAction / TodosAction /
   /// TodosTransfer so desktop gets a centered max-width dialog.
   static Future<T?> showFormModal<T>({
     required BuildContext context,

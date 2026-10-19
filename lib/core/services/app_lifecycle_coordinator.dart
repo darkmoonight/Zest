@@ -65,6 +65,6 @@ abstract final class AppLifecycleCoordinator {
 
     await ref.read(calDavSyncServiceProvider).syncNow();
 
-    await reloadTodosAndTasks(ref);
+    await reloadTodosAndCategories(ref);
   }
 }

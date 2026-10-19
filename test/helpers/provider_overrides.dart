@@ -8,7 +8,7 @@ import 'package:zest/core/settings/app_settings_state.dart';
 import 'package:zest/data/mappers/settings_mapper.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/features/shell/application/fab_notifier.dart';
-import 'package:zest/features/tasks/application/tasks_notifier.dart';
+import 'package:zest/features/categories/application/categories_notifier.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
 
 import 'fake_notification_show.dart';
@@ -57,11 +57,11 @@ Future<TodosNotifier> readTodosNotifier(ProviderContainer container) async {
   return notifier;
 }
 
-/// Reads [TasksNotifier] after its initial async load completes.
-Future<TasksNotifier> readTasksNotifier(ProviderContainer container) async {
-  final notifier = container.read(tasksNotifierProvider.notifier);
+/// Reads [CategoriesNotifier] after its initial async load completes.
+Future<CategoriesNotifier> readCategoriesNotifier(ProviderContainer container) async {
+  final notifier = container.read(categoriesNotifierProvider.notifier);
   await Future<void>.delayed(Duration.zero);
-  await notifier.reloadTasks();
+  await notifier.reloadCategories();
   return notifier;
 }
 

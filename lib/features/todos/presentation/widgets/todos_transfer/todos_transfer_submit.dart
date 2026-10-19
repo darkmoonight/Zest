@@ -10,7 +10,7 @@ mixin _TodosTransferSubmit
     if (!_formKey.currentState!.validate()) return;
 
     if (_mode == TransferMode.category) {
-      final task = _selectedTask;
+      final task = _selectedCategories;
       if (task == null) return;
       await ref
           .read(todosNotifierProvider.notifier)

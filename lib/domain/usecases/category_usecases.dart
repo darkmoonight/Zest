@@ -1,18 +1,18 @@
-import 'package:zest/core/caldav/caldav_sync_service.dart';
+import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/core/utils/reorder_filtered.dart';
 import 'package:zest/domain/entities/category.dart';
 import 'package:zest/domain/entities/todo.dart';
 import 'package:zest/domain/enums/enums.dart';
+import 'package:zest/domain/ports/caldav_sync_port.dart';
+import 'package:zest/domain/ports/device_calendar_sync_port.dart';
+import 'package:zest/domain/ports/notification_scheduler_port.dart';
 import 'package:zest/domain/repositories/category_repository.dart';
 import 'package:zest/domain/repositories/todo_repository.dart';
-import 'package:zest/core/services/device_calendar_sync_service.dart';
-import 'package:zest/core/services/notification_service.dart';
-import 'package:zest/core/services/recurrence_service.dart';
 
 /// Category (task list) CRUD, archive, and notification cleanup.
-class TaskService {
+class CategoryService {
   /// Creates a service with category/item repositories and notifications.
-  TaskService({
+  CategoryService({
     required this._categoryRepo,
     required this._todoRepo,
     required this._notificationService,
@@ -27,18 +27,18 @@ class TaskService {
   final TodoRepositoryPort _todoRepo;
 
   /// Schedules and cancels item reminder notifications.
-  final NotificationService _notificationService;
+  final NotificationSchedulerPort _notificationService;
 
   /// Optional device-calendar cleanup when items are deleted with a category.
-  final DeviceCalendarSyncService? _calendarSync;
+  final DeviceCalendarSyncPort? _calendarSync;
 
   /// Optional two-way CalDAV VTODO sync (remote delete enqueue).
-  final CalDavSyncService? _caldavSync;
+  final CalDavSyncPort? _caldavSync;
 
   // ==================== CREATE ====================
 
   /// Creates a category when [title] is unique; returns `null` if the title exists.
-  Future<Category?> createTask({
+  Future<Category?> createCategory({
     required String title,
     required String description,
     required int colorArgb,
@@ -67,7 +67,7 @@ class TaskService {
   // ==================== UPDATE ====================
 
   /// Updates category fields and syncs category-habit dues on eligible children.
-  Future<void> updateTask({
+  Future<void> updateCategory({
     required Category category,
     required String title,
     required String description,
@@ -136,7 +136,7 @@ class TaskService {
   }
 
   /// Archives [categories], cancels their item reminders, and persists state.
-  Future<void> archiveTasks(List<Category> categories) async {
+  Future<void> archiveCategories(List<Category> categories) async {
     if (categories.isEmpty) return;
 
     final categoriesCopy = List<Category>.from(categories);
@@ -150,7 +150,7 @@ class TaskService {
   }
 
   /// Unarchives [categories], reschedules item reminders, and persists state.
-  Future<void> unarchiveTasks(List<Category> categories) async {
+  Future<void> unarchiveCategories(List<Category> categories) async {
     if (categories.isEmpty) return;
 
     final categoriesCopy = List<Category>.from(categories);
@@ -176,7 +176,7 @@ class TaskService {
   // ==================== DELETE ====================
 
   /// Deletes [categories], their items, and associated notifications.
-  Future<void> deleteTasks(List<Category> categories) async {
+  Future<void> deleteCategories(List<Category> categories) async {
     if (categories.isEmpty) return;
 
     final categoriesCopy = List<Category>.from(categories);
@@ -234,32 +234,32 @@ class TaskService {
   // ==================== REORDER ====================
 
   /// Reorders [allTasks] to match the order of [filteredTasks].
-  Future<void> reorderTasks({
-    required List<Category> allTasks,
-    required List<Category> filteredTasks,
+  Future<void> reorderCategories({
+    required List<Category> allCategories,
+    required List<Category> filteredCategories,
   }) async {
-    if (filteredTasks.isEmpty) return;
+    if (filteredCategories.isEmpty) return;
 
     reorderFilteredInPlace(
-      all: allTasks,
-      filtered: filteredTasks,
+      all: allCategories,
+      filtered: filteredCategories,
       idOf: (t) => t.id,
       assignIndex: (_, _) {},
     );
-    await _categoryRepo.updateIndexes(allTasks);
+    await _categoryRepo.updateIndexes(allCategories);
   }
 
   // ==================== FILTERS ====================
 
   /// Filters [tasks] by archive state and optional [searchQuery].
-  List<Category> filterTasks({
-    required List<Category> tasks,
+  List<Category> filterCategories({
+    required List<Category> categories,
     required bool archived,
     String searchQuery = '',
   }) {
     final query = searchQuery.trim().toLowerCase();
 
-    return tasks.where((task) {
+    return categories.where((task) {
       if (task.archive != archived) return false;
       if (query.isEmpty) return true;
 

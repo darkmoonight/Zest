@@ -8,7 +8,7 @@ import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/features/todos/presentation/view/all_todos.dart';
 import 'package:zest/features/todos/presentation/view/calendar_todos.dart';
-import 'package:zest/features/tasks/presentation/widgets/tasks_action.dart';
+import 'package:zest/features/categories/presentation/widgets/categories_action.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_action.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:zest/platform/platform_features.dart'
@@ -143,7 +143,7 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
         popToHomeRoot(ctx);
         homeScreenKey.currentState?.changeTabIndex(categoriesTabIndex);
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showCreateSheet(ctx, TasksAction(text: 'create'.tr, edit: false));
+          _showCreateSheet(ctx, CategoriesAction(text: 'create'.tr, edit: false));
         });
         break;
       case 'action_new_todo':

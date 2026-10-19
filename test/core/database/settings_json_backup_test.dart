@@ -42,7 +42,8 @@ void main() {
     expect(raw.containsKey('caldavLastError'), isFalse);
     expect(raw.containsKey('caldavPendingDeletes'), isFalse);
     expect(raw['caldavEnabled'], isTrue);
-    expect(raw['caldavCalendarHref'], '/calendars/alice/tasks/');
+    expect(raw.containsKey('caldavCalendarHref'), isFalse);
+    expect(raw.containsKey('caldavCalendarName'), isFalse);
     expect(raw['caldavAllowInsecure'], isTrue);
   });
 
@@ -56,6 +57,7 @@ void main() {
         'caldavCtag': 'old',
         'caldavLastError': 'err',
         'caldavPendingDeletes': '["x"]',
+        'caldavCalendarHref': '/calendars/legacy/',
         'caldavCalendarName': 'Legacy',
       }),
     );
@@ -68,6 +70,7 @@ void main() {
     expect(loaded.caldavCtag, isNull);
     expect(loaded.caldavLastError, isNull);
     expect(loaded.caldavPendingDeletes, '[]');
-    expect(loaded.caldavCalendarName, 'Legacy');
+    expect(loaded.caldavCalendarHref, isNull);
+    expect(loaded.caldavCalendarName, isNull);
   });
 }

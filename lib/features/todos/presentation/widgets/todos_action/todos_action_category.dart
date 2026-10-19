@@ -75,7 +75,7 @@ mixin _TodosActionCategory
     TextEditingValue textEditingValue,
   ) async {
     final categories = await ref
-        .read(tasksNotifierProvider.notifier)
+        .read(categoriesNotifierProvider.notifier)
         .getActiveSorted();
 
     final query = textEditingValue.text.toLowerCase();

@@ -16,6 +16,7 @@ import 'package:zest/core/utils/default_category.dart';
 import 'package:zest/data/repositories/category_repository.dart';
 import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/ports/caldav_sync_port.dart';
 import 'package:zest/domain/repositories/todo_repository.dart';
 
 /// Result of a [CalDavSyncService.syncNow] pass.
@@ -50,7 +51,7 @@ typedef CalDavRemoteFactory = Future<CalDavRemote> Function({
 });
 
 /// Two-way CalDAV VTODO sync against one selected calendar.
-class CalDavSyncService {
+class CalDavSyncService implements CalDavSyncPort {
   /// Creates a sync service.
   CalDavSyncService({
     required this.isar,
@@ -102,6 +103,7 @@ class CalDavSyncService {
   }
 
   /// Marks [todo] dirty and schedules a push, skipping nested subtasks.
+  @override
   Future<void> markDirty(Todo todo) async {
     if (!getSettings().caldavEnabled) return;
     if (todo.parentId != null) return;
@@ -114,6 +116,7 @@ class CalDavSyncService {
   }
 
   /// Queues a remote DELETE for [todo] after the local row is gone.
+  @override
   Future<void> enqueueDelete(Todo todo) async {
     if (!getSettings().caldavEnabled) return;
     final href = todo.caldavHref;
@@ -133,6 +136,7 @@ class CalDavSyncService {
   }
 
   /// Debounces [syncNow] after local edits.
+  @override
   void scheduleSync() {
     if (!isConfigured) return;
     _debounce?.cancel();

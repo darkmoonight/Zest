@@ -11,7 +11,7 @@ import 'package:zest/domain/entities/entities.dart';
 import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/features/todos/presentation/utils/priority_colors.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
-import 'package:zest/features/tasks/application/tasks_notifier.dart';
+import 'package:zest/features/categories/application/categories_notifier.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
 import 'package:zest/features/todos/presentation/view/todo_todos.dart';
 import 'package:zest/core/utils/responsive_utils.dart';

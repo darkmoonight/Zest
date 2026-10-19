@@ -13,11 +13,11 @@ import '../../helpers/noop_repositories.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('TaskService.filterTasks', () {
-    late TaskService service;
+  group('CategoryService.filterCategories', () {
+    late CategoryService service;
 
     setUp(() {
-      service = TaskService(
+      service = CategoryService(
         categoryRepo: NoopCategoryRepository(),
         todoRepo: NoopTodoRepository(),
         notificationService: NotificationService(
@@ -39,16 +39,16 @@ void main() {
     ];
 
     test('filters archived flag', () {
-      final active = service.filterTasks(tasks: tasks, archived: false);
+      final active = service.filterCategories(categories: tasks, archived: false);
       expect(active.map((t) => t.id), [1, 3]);
 
-      final archived = service.filterTasks(tasks: tasks, archived: true);
+      final archived = service.filterCategories(categories: tasks, archived: true);
       expect(archived.map((t) => t.id), [2]);
     });
 
     test('matches title and description case-insensitively', () {
-      final filtered = service.filterTasks(
-        tasks: tasks,
+      final filtered = service.filterCategories(
+        categories: tasks,
         archived: false,
         searchQuery: 'PERSONAL',
       );
@@ -56,9 +56,9 @@ void main() {
     });
   });
 
-  group('TaskService.reorderTasks', () {
+  group('CategoryService.reorderCategories', () {
     late Isar isar;
-    late TaskService service;
+    late CategoryService service;
     late CategoryRepository categoryRepo;
     var isarReady = false;
 
@@ -71,7 +71,7 @@ void main() {
         return;
       }
       categoryRepo = CategoryRepository(isar);
-      service = TaskService(
+      service = CategoryService(
         categoryRepo: categoryRepo,
         todoRepo: TodoRepository(isar),
         notificationService: NotificationService(
@@ -114,7 +114,7 @@ void main() {
       final allTasks = await categoryRepo.getAll();
       final filtered = [taskC, taskA];
 
-      await service.reorderTasks(allTasks: allTasks, filteredTasks: filtered);
+      await service.reorderCategories(allCategories: allTasks, filteredCategories: filtered);
 
       final reloaded = await categoryRepo.getAll();
       expect(reloaded.map((t) => t.title), ['C', 'B', 'A']);

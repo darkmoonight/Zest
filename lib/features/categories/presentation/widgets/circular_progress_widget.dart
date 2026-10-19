@@ -40,7 +40,7 @@ class CircularProgressWidget extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     final calculatedSize =
-        size ?? ResponsiveUtils.getTaskCardCircularSliderSize(context);
+        size ?? ResponsiveUtils.getCategoryCardCircularSliderSize(context);
     final isMobile = ResponsiveUtils.isMobile(context);
     final isDesktop = ResponsiveUtils.isDesktop(context);
     final progress = ProgressCalculator(total: total, completed: completed);

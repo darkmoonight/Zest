@@ -26,11 +26,11 @@ mixin _TodosTransferFormState
   }
 
   void _onTaskTextChanged() {
-    final selected = _selectedTask;
+    final selected = _selectedCategories;
     if (selected == null) return;
     if (_taskController.text == selected.title) return;
     setState(() {
-      _selectedTask = null;
+      _selectedCategories = null;
       _editingController.setTask(null);
     });
   }

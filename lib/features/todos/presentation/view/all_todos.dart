@@ -54,7 +54,9 @@ class _AllTodosState extends ConsumerState<AllTodos>
   }
 
   Widget _buildBody(BuildContext context, TodosState todosState) {
-    final showArchived = ref.watch(settingsProvider).showArchivedInAllTodos;
+    final showArchived = ref.watch(
+      settingsProvider.select((s) => s.showArchivedInAllTodos),
+    );
     final excludeArchived = !showArchived;
 
     return Stack(

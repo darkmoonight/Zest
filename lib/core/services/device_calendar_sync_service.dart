@@ -4,6 +4,7 @@ import 'package:zest/core/utils/iterable_extensions.dart';
 import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/domain/entities/todo.dart';
 import 'package:zest/domain/enums/enums.dart';
+import 'package:zest/domain/ports/device_calendar_sync_port.dart';
 import 'package:zest/domain/repositories/todo_repository.dart';
 import 'package:zest/platform/platform_features.dart'
     if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
@@ -115,7 +116,7 @@ class DeviceCalendarClient implements DeviceCalendarGateway {
 }
 
 /// One-way export of Zest items with deadlines to the device calendar.
-class DeviceCalendarSyncService {
+class DeviceCalendarSyncService implements DeviceCalendarSyncPort {
   /// Creates a sync service reading live [getSettings] and persisting via [todoRepo].
   DeviceCalendarSyncService({
     required this._getSettings,
@@ -279,6 +280,7 @@ class DeviceCalendarSyncService {
   }
 
   /// Creates, updates, or removes the device-calendar event for [item].
+  @override
   Future<void> ensureSynced(Todo todo) async {
     if (!_isAndroid) return;
 
@@ -363,6 +365,7 @@ class DeviceCalendarSyncService {
   }
 
   /// Deletes the linked event for [item] if any (e.g. before hard delete).
+  @override
   Future<void> removeSynced(Todo todo) async {
     if (!_isAndroid) return;
     try {

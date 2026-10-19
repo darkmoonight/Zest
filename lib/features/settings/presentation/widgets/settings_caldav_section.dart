@@ -10,7 +10,6 @@ import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/show_snack_bar.dart';
-import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/features/settings/presentation/widgets/selection_dialog.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_list_dialog_shell.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section.dart';
@@ -36,7 +35,23 @@ class _SettingsCalDavSectionState
 
   @override
   Widget build(BuildContext context) {
-    final settings = ref.watch(settingsProvider);
+    // Watch only CalDAV-related fields (plus language for date formatting).
+    final settings = ref.watch(
+      settingsProvider.select(
+        (s) => (
+          caldavEnabled: s.caldavEnabled,
+          caldavUrl: s.caldavUrl,
+          caldavUsername: s.caldavUsername,
+          caldavCalendarHref: s.caldavCalendarHref,
+          caldavCalendarName: s.caldavCalendarName,
+          caldavAllowInsecure: s.caldavAllowInsecure,
+          caldavLastSyncTime: s.caldavLastSyncTime,
+          caldavLastError: s.caldavLastError,
+          language: s.language,
+          hasCalDavAccount: s.hasCalDavAccount,
+        ),
+      ),
+    );
     final timeformat = ref.watch(
       appSettingsProvider.select((s) => s.timeformat),
     );
@@ -91,24 +106,32 @@ class _SettingsCalDavSectionState
         SettingsTile(
           leading: const Icon(IconsaxPlusLinear.refresh),
           title: 'caldavSyncNow',
-          subtitleText: _statusText(settings, timeformat),
+          subtitleText: _statusText(
+            lastError: settings.caldavLastError,
+            lastSyncTime: settings.caldavLastSyncTime,
+            language: settings.language,
+            timeformat: timeformat,
+          ),
           onTap: _busy ? null : _syncNow,
         ),
       ],
     );
   }
 
-  String _statusText(AppSettings settings, String timeformat) {
-    final error = settings.caldavLastError;
-    if (error != null && error.isNotEmpty) {
-      return CalDavError.displayMessage(error);
+  String _statusText({
+    required String? lastError,
+    required DateTime? lastSyncTime,
+    required String? language,
+    required String timeformat,
+  }) {
+    if (lastError != null && lastError.isNotEmpty) {
+      return CalDavError.displayMessage(lastError);
     }
-    final last = settings.caldavLastSyncTime;
-    if (last == null) return 'caldavNeverSynced'.tr;
+    if (lastSyncTime == null) return 'caldavNeverSynced'.tr;
     final formatted = DateTimeFormatHelper.formatDateTime(
-      last,
+      lastSyncTime,
       timeformat: timeformat,
-      languageCode: languageCodeFromSettings(settings.language),
+      languageCode: languageCodeFromSettings(language),
     );
     return 'caldavLastSync'.trFormat({'time': formatted});
   }

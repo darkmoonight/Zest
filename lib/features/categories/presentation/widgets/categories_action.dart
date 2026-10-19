@@ -26,23 +26,23 @@ import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/utils/text_utils.dart';
 import 'package:zest/core/services/recurrence_service.dart';
-import 'package:zest/features/tasks/presentation/widgets/task_sheet_option_card.dart';
+import 'package:zest/features/categories/presentation/widgets/category_sheet_option_card.dart';
 import 'package:zest/features/todos/presentation/widgets/recurrence_picker.dart';
 
 /// Bottom sheet form for creating or editing a task.
-part 'tasks_action/tasks_action_fields.dart';
-part 'tasks_action/tasks_action_form_state.dart';
-part 'tasks_action/tasks_action_save.dart';
-part 'tasks_action/tasks_action_color_picker.dart';
+part 'categories_action/categories_action_fields.dart';
+part 'categories_action/categories_action_form_state.dart';
+part 'categories_action/categories_action_save.dart';
+part 'categories_action/categories_action_color_picker.dart';
 
-class TasksAction extends ConsumerStatefulWidget {
-  /// Creates a [TasksAction].
-  const TasksAction({
+class CategoriesAction extends ConsumerStatefulWidget {
+  /// Creates a [CategoriesAction].
+  const CategoriesAction({
     super.key,
     required this.text,
     required this.edit,
     this.task,
-    this.updateTaskName,
+    this.updateCategoryName,
   });
 
   /// Sheet title shown in the modal header.
@@ -55,20 +55,20 @@ class TasksAction extends ConsumerStatefulWidget {
   final Category? task;
 
   /// Optional callback after the task title is saved (e.g. refresh parent UI).
-  final VoidCallback? updateTaskName;
+  final VoidCallback? updateCategoryName;
 
   @override
   /// Creates the state for this widget.
-  ConsumerState<TasksAction> createState() => _TasksActionState();
+  ConsumerState<CategoriesAction> createState() => _CategoriesActionState();
 }
 
-class _TasksActionState extends ConsumerState<TasksAction>
+class _CategoriesActionState extends ConsumerState<CategoriesAction>
     with
         SingleTickerProviderStateMixin,
         ModalSheetAnimationMixin,
-        _TasksActionFields,
-        _TasksActionFormState,
-        _TasksActionSave {
+        _CategoriesActionFields,
+        _CategoriesActionFormState,
+        _CategoriesActionSave {
   @override
   /// Builds the widget subtree.
   Widget build(BuildContext context) {

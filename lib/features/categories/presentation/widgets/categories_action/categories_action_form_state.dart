@@ -1,11 +1,11 @@
-part of '../tasks_action.dart';
+part of '../categories_action.dart';
 
-mixin _TasksActionFormState
+mixin _CategoriesActionFormState
     on
-        ConsumerState<TasksAction>,
-        SingleTickerProviderStateMixin<TasksAction>,
-        ModalSheetAnimationMixin<TasksAction>,
-        _TasksActionFields {
+        ConsumerState<CategoriesAction>,
+        SingleTickerProviderStateMixin<CategoriesAction>,
+        ModalSheetAnimationMixin<CategoriesAction>,
+        _CategoriesActionFields {
   @override
   /// Initializes state when the widget is first inserted.
   void initState() {

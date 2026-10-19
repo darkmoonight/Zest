@@ -85,29 +85,34 @@ final settingsRepositoryProvider = Provider<SettingsRepositoryPort>(
 );
 
 /// Provides the local notification scheduling service.
+///
+/// Settings are read lazily so preference saves do not recreate this service.
 final notificationServiceProvider = Provider<NotificationService>(
   (ref) => NotificationService(
-    settings: ref.watch(settingsProvider),
+    settingsReader: () => ref.read(settingsProvider),
     categoryRepo: ref.watch(categoryRepositoryProvider),
   ),
 );
 
 /// Item CRUD / status / move service (rebuilds when clock/locale prefs change).
 final todoServiceProvider = Provider<TodoService>((ref) {
-  final settings = ref.watch(settingsProvider);
+  final timeformat = ref.watch(
+    settingsProvider.select((s) => s.timeformat),
+  );
+  final language = ref.watch(settingsProvider.select((s) => s.language));
   return TodoService(
     todoRepo: ref.watch(todoRepositoryProvider),
     notificationService: ref.watch(notificationServiceProvider),
     calendarSync: ref.watch(deviceCalendarSyncServiceProvider),
     caldavSync: ref.watch(calDavSyncServiceProvider),
-    timeformat: settings.timeformat,
-    languageCode: languageCodeFromSettings(settings.language),
+    timeformat: timeformat,
+    languageCode: languageCodeFromSettings(language),
   );
 });
 
 /// Category (task list) CRUD service.
-final taskServiceProvider = Provider<TaskService>(
-  (ref) => TaskService(
+final categoryServiceProvider = Provider<CategoryService>(
+  (ref) => CategoryService(
     categoryRepo: ref.watch(categoryRepositoryProvider),
     todoRepo: ref.watch(todoRepositoryProvider),
     notificationService: ref.watch(notificationServiceProvider),

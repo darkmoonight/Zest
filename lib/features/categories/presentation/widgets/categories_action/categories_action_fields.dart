@@ -1,6 +1,6 @@
-part of '../tasks_action.dart';
+part of '../categories_action.dart';
 
-mixin _TasksActionFields on ConsumerState<TasksAction> {
+mixin _CategoriesActionFields on ConsumerState<CategoriesAction> {
   /// Form key.
   final _formKey = GlobalKey<FormState>();
 
@@ -76,7 +76,7 @@ mixin _TasksActionFields on ConsumerState<TasksAction> {
       ref.watch(appSettingsProvider.select((s) => s.timeformat)),
     );
 
-    return TaskSheetOptionCard(
+    return CategorySheetOptionCard(
       leading: TaskSheetOptionIconPreview(
         active: active,
         icon: IconsaxPlusLinear.repeat,
@@ -125,7 +125,7 @@ mixin _TasksActionFields on ConsumerState<TasksAction> {
     return ValueListenableBuilder<bool>(
       valueListenable: _isDefaultNotifier,
       builder: (context, isDefault, _) {
-        return TaskSheetOptionCard(
+        return CategorySheetOptionCard(
           leading: TaskSheetOptionIconPreview(
             active: isDefault,
             icon: IconsaxPlusLinear.star,
@@ -155,7 +155,7 @@ mixin _TasksActionFields on ConsumerState<TasksAction> {
       valueListenable: _colorNotifier,
       builder: (context, color, child) {
         final colorScheme = Theme.of(context).colorScheme;
-        return TaskSheetOptionCard(
+        return CategorySheetOptionCard(
           leading: _buildColorPreview(color, colorScheme),
           titleKey: 'selectedColor',
           subtitle: color.toHexString(),

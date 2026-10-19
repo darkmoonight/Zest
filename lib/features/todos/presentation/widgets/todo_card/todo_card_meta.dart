@@ -4,7 +4,10 @@ mixin _TodoCardMeta on ConsumerState<TodoCard>, _TodoCardStatus {
   Category? get _todoCategory {
     final categoryId = widget.todo.categoryId;
     if (categoryId == null) return null;
-    for (final category in ref.watch(tasksNotifierProvider).tasks) {
+    final tasks = ref.watch(
+      categoriesNotifierProvider.select((s) => s.categories),
+    );
+    for (final category in tasks) {
       if (category.id == categoryId) return category;
     }
     return null;

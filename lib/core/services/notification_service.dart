@@ -6,28 +6,36 @@ import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/domain/entities/category.dart';
 import 'package:zest/domain/entities/todo.dart';
 import 'package:zest/domain/enums/enums.dart';
+import 'package:zest/domain/ports/notification_scheduler_port.dart';
 import 'package:zest/domain/repositories/category_repository.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Schedules, snoozes, and cancels local item reminder notifications.
-class NotificationService {
+class NotificationService implements NotificationSchedulerPort {
   /// Creates a service with an optional custom [NotificationShow] delegate.
   NotificationService({
     NotificationShow? notificationShow,
     this._settings,
+    this._settingsReader,
     this._categoryRepo,
   }) : _notificationShow = notificationShow ?? NotificationShow();
 
   /// Platform wrapper that shows and cancels local notifications.
   final NotificationShow _notificationShow;
 
-  /// Default snooze/action labels source when callers omit [settings].
+  /// Optional static settings snapshot (tests / one-off isolates).
   final AppSettings? _settings;
+
+  /// Live settings reader so the provider need not rebuild on every save.
+  final AppSettings Function()? _settingsReader;
 
   /// Optional category lookup for habit-based past-due scheduling.
   final CategoryRepositoryPort? _categoryRepo;
 
+  AppSettings? get _effectiveSettings => _settings ?? _settingsReader?.call();
+
   /// Schedules a reminder at [todo.dueAt] for active items only.
+  @override
   Future<bool> scheduleForTodo(
     Todo todo, {
     AppSettings? settings,
@@ -62,7 +70,7 @@ class NotificationService {
         todo.name,
         todo.description,
         effectiveTime,
-        settings: settings ?? _settings,
+        settings: settings ?? _effectiveSettings,
         priority: todo.priority,
       );
       return true;
@@ -116,6 +124,7 @@ class NotificationService {
   }
 
   /// Schedules reminders for every item in [todos] that has a due time.
+  @override
   Future<void> scheduleForTask(List<Todo> todos) async {
     if (todos.isEmpty) return;
 
@@ -129,6 +138,7 @@ class NotificationService {
   }
 
   /// Cancels the notification for [todoId].
+  @override
   Future<void> cancel(int todoId) async {
     try {
       await _notificationShow.cancelNotification(todoId);
@@ -138,6 +148,7 @@ class NotificationService {
   }
 
   /// Cancels reminders for items in [todos] that have a due time.
+  @override
   Future<void> cancelForTask(List<Todo> todos) async {
     for (final todo in todos) {
       if (todo.dueAt != null) {
@@ -147,6 +158,7 @@ class NotificationService {
   }
 
   /// Cancels notifications for each id in [todoIds].
+  @override
   Future<void> cancelBatch(List<int> todoIds) async {
     for (final id in todoIds) {
       await cancel(id);
@@ -163,6 +175,7 @@ class NotificationService {
   }
 
   /// Replaces the existing reminder with an updated schedule.
+  @override
   Future<bool> reschedule(
     Todo todo, {
     AppSettings? settings,
@@ -197,6 +210,7 @@ class NotificationService {
   }
 
   /// Delays [todo]'s reminder by [settings.snoozeDuration] minutes.
+  @override
   Future<void> snooze(Todo todo, AppSettings settings) async {
     final snoozeText = snoozeActionLabel(settings.snoozeDuration);
 

@@ -20,7 +20,7 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
   TransferMode _mode = TransferMode.category;
 
   /// The selected category.
-  Category? _selectedTask;
+  Category? _selectedCategories;
 
   /// The selected item.
   Todo? _selectedTodo;
@@ -38,7 +38,7 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
   /// Categories matching the autocomplete query.
   Future<Iterable<Category>> _getAvailableTasks(String pattern) async {
     final tasks = await ref
-        .read(tasksNotifierProvider.notifier)
+        .read(categoriesNotifierProvider.notifier)
         .getActiveSorted();
 
     final query = pattern.toLowerCase();
@@ -67,7 +67,7 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
   Category? _categoryForTodo(Todo todo) {
     final categoryId = todo.categoryId;
     if (categoryId == null) return null;
-    for (final category in ref.read(tasksNotifierProvider).tasks) {
+    for (final category in ref.read(categoriesNotifierProvider).categories) {
       if (category.id == categoryId) return category;
     }
     return null;
@@ -202,7 +202,7 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
         onClear: () {
           setState(() {
             controller.clear();
-            _selectedTask = null;
+            _selectedCategories = null;
             _editingController.setTask(null);
           });
         },
@@ -211,7 +211,7 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
         if (value == null || value.isEmpty) {
           return 'selectCategory'.tr;
         }
-        if (_selectedTask == null) {
+        if (_selectedCategories == null) {
           return 'transfer_todo_hint'.tr;
         }
         return null;
@@ -398,7 +398,7 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
   void _onTaskSelected(Category selection) {
     setState(() {
       _taskController.text = selection.title;
-      _selectedTask = selection;
+      _selectedCategories = selection;
       _editingController.setTask(selection);
     });
     _taskFocusNode.unfocus();
@@ -427,7 +427,7 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
         _editingController.setTodo(null);
         _todoFocusNode.unfocus();
       } else {
-        _selectedTask = null;
+        _selectedCategories = null;
         _taskController.clear();
         _editingController.setTask(null);
         _taskFocusNode.unfocus();

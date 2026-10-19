@@ -39,13 +39,15 @@ Remove the compatibility bridge only after those packages migrate to `material_u
 
 | Layer | Path | Rules |
 |-------|------|--------|
-| Domain | `lib/domain/` | Entities, enums, repository ports, usecases. No `isar_community`, no `data/models/db.dart`, no `material_ui`. |
+| Domain | `lib/domain/` | Entities, enums, repository/side-effect ports, usecases. No `isar_community`, no `data/models/db.dart`, no `material_ui`, no `features/`. |
 | Data | `lib/data/` | Isar collections (`db.dart`), mappers, repository implementations. |
 | Features | `lib/features/` | UI + Riverpod notifiers. Import domain entities/enums; do not import `db.dart`. |
-| Core | `lib/core/` | Bootstrap, adapters (CalDAV, notifications, backup), DI. May touch Isar at the edge via mappers. |
+| Core | `lib/core/` | Bootstrap, adapters (CalDAV, notifications, device calendar, backup), DI. May touch Isar at the edge via mappers. |
 
 - Prefer `categoryId` / `parentId` on domain `Todo` over Isar links in UI/application code.
 - Mutate live preferences through `liveSettingsProvider` + `writeLiveSettings`; read UI snapshots from `settingsProvider` (`AppSettings`).
+- Usecases depend on ports in `lib/domain/ports/` and `lib/domain/repositories/`. Concrete adapters (`NotificationService`, `CalDavSyncService`, `DeviceCalendarSyncService`, repositories) live in `lib/core/` / `lib/data/` and are wired in DI (`provider_refs.dart`).
+- Production API uses Category naming (`CategoryService`, `categoriesNotifierProvider`, `lib/features/categories/`). Isar collection/property/link names stay `Tasks` / `taskColor` / `task` (schema lock); only mappers/repos touch those.
 
 ## Coding Standards
 

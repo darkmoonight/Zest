@@ -9,8 +9,8 @@ import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/features/settings/presentation/view/settings.dart';
 import 'package:zest/features/statistics/presentation/view/statistics.dart';
-import 'package:zest/features/tasks/presentation/view/all_tasks.dart';
-import 'package:zest/features/tasks/presentation/widgets/tasks_action.dart';
+import 'package:zest/features/categories/presentation/view/all_categories.dart';
+import 'package:zest/features/categories/presentation/widgets/categories_action.dart';
 import 'package:zest/features/todos/presentation/view/all_todos.dart';
 import 'package:zest/features/todos/presentation/view/calendar_todos.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_action.dart';
@@ -38,7 +38,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   int _tabIndex = 0;
 
   static const List<Widget> _pages = [
-    AllTasks(),
+    AllCategories(),
     AllTodos(),
     CalendarTodos(),
     StatisticsPage(),
@@ -281,7 +281,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     NavigationHelper.showFormModal(
       context: context,
       child: _tabIndex == 0
-          ? TasksAction(text: 'create'.tr, edit: false)
+          ? CategoriesAction(text: 'create'.tr, edit: false)
           : TodosAction(text: 'create'.tr, edit: false, showCategory: true),
     );
   }

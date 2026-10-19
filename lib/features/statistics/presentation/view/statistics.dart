@@ -5,7 +5,7 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/widgets/list_empty.dart';
 import 'package:zest/features/statistics/application/statistics_provider.dart';
-import 'package:zest/features/statistics/presentation/models/statistics_data.dart';
+import 'package:zest/domain/models/statistics_data.dart';
 import 'package:zest/features/statistics/presentation/widgets/completion_heatmap.dart';
 import 'package:zest/features/statistics/presentation/widgets/hourly_progress_chart.dart';
 import 'package:zest/features/statistics/presentation/widgets/stats_card.dart';
@@ -27,6 +27,7 @@ class StatisticsPage extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: statisticsAsync.when(
+          skipLoadingOnReload: true,
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, _) => _buildErrorState(context, ref),
           data: (data) {

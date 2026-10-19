@@ -5,6 +5,7 @@ import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/notifications/notification_channels.dart';
 import 'package:zest/core/notifications/notification_i18n.dart';
 import 'package:zest/core/services/notification_plugin.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/domain/enums/priority.dart' as zest;
 import 'package:zest/i18n/tr.dart';
@@ -44,7 +45,7 @@ class NotificationShow {
     zest.Priority priority = zest.Priority.none,
   }) async {
     if (_plugin == null) {
-      debugPrint('Notifications not supported on this platform');
+      AppLog.d('Notifications not supported on this platform');
       return;
     }
 
@@ -75,7 +76,7 @@ class NotificationShow {
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
     } catch (e) {
-      debugPrint('Exact alarm schedule failed, falling back to inexact: $e');
+      AppLog.d('Exact alarm schedule failed, falling back to inexact: $e');
       try {
         await _zonedSchedule(
           id: id,
@@ -86,7 +87,7 @@ class NotificationShow {
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         );
       } catch (fallbackError) {
-        debugPrint('Error scheduling notification: $fallbackError');
+        AppLog.d('Error scheduling notification: $fallbackError');
       }
     }
   }
@@ -125,7 +126,7 @@ class NotificationShow {
         await platform.requestExactAlarmsPermission();
         await platform.requestNotificationsPermission();
       } catch (e) {
-        debugPrint('Error requesting permissions: $e');
+        AppLog.d('Error requesting permissions: $e');
       }
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       final platform = _plugin!
@@ -226,7 +227,7 @@ class NotificationShow {
     try {
       return tz.TZDateTime.from(date, tz.local);
     } catch (e) {
-      debugPrint('Error converting to TZDateTime: $e');
+      AppLog.d('Error converting to TZDateTime: $e');
       return null;
     }
   }
@@ -264,7 +265,7 @@ class NotificationShow {
         priority: priority,
       );
     } catch (e) {
-      debugPrint('Error snoozing notification: $e');
+      AppLog.d('Error snoozing notification: $e');
     }
   }
 
@@ -275,7 +276,7 @@ class NotificationShow {
     try {
       await _plugin!.cancel(id: id);
     } catch (e) {
-      debugPrint('Error canceling notification: $e');
+      AppLog.d('Error canceling notification: $e');
     }
   }
 
@@ -286,7 +287,7 @@ class NotificationShow {
     try {
       await _plugin!.cancelAll();
     } catch (e) {
-      debugPrint('Error canceling all notifications: $e');
+      AppLog.d('Error canceling all notifications: $e');
     }
   }
 }

@@ -1,7 +1,7 @@
-part of '../tasks_action.dart';
+part of '../categories_action.dart';
 
-mixin _TasksActionSave
-    on ConsumerState<TasksAction>, _TasksActionFields, _TasksActionFormState {
+mixin _CategoriesActionSave
+    on ConsumerState<CategoriesAction>, _CategoriesActionFields, _CategoriesActionFormState {
   /// On save pressed.
   Future<void> _onSavePressed() async {
     if (!_formKey.currentState!.validate()) return;
@@ -9,16 +9,16 @@ mixin _TasksActionSave
     TextUtils.trimController(_titleController);
     TextUtils.trimController(_descController);
 
-    final saved = widget.edit ? await _updateTask() : await _addTask();
+    final saved = widget.edit ? await _updateCategory() : await _addTask();
     if (!saved || !mounted) return;
     NavigationHelper.back(context);
   }
 
   /// Update task.
-  Future<bool> _updateTask() async {
+  Future<bool> _updateCategory() async {
     await ref
-        .read(tasksNotifierProvider.notifier)
-        .updateTask(
+        .read(categoriesNotifierProvider.notifier)
+        .updateCategory(
           widget.task!,
           _titleController.text,
           _descController.text,
@@ -30,14 +30,14 @@ mixin _TasksActionSave
         );
     showSnackBar('editCategory'.tr);
     await _applyDefaultPreference(widget.task!);
-    widget.updateTaskName?.call();
+    widget.updateCategoryName?.call();
     return true;
   }
 
   /// Add task.
   Future<bool> _addTask() async {
     final created = await ref
-        .read(tasksNotifierProvider.notifier)
+        .read(categoriesNotifierProvider.notifier)
         .addTask(
           _titleController.text,
           _descController.text,

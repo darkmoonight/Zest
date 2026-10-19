@@ -38,7 +38,7 @@ class _NotificationSyncListenerState
     super.dispose();
   }
 
-  Future<void> _reloadFromDatabase() => reloadTodosAndTasks(ref);
+  Future<void> _reloadFromDatabase() => reloadTodosAndCategories(ref);
 
   @override
   Widget build(BuildContext context) => widget.child;

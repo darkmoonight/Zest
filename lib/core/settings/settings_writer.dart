@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:zest/core/di/settings_revision.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/data/mappers/settings_mapper.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/domain/repositories/settings_repository.dart';
@@ -99,7 +99,9 @@ abstract final class SettingsWriter {
       );
     });
     // Keep the chain alive even if one persist fails.
-    _persistChain = next.catchError((_) {});
+    _persistChain = next.catchError((Object e, StackTrace st) {
+      AppLog.d('Settings persist chain error: $e\n$st');
+    });
     return next;
   }
 
@@ -127,7 +129,7 @@ abstract final class SettingsWriter {
         settings.copyValuesFrom(rollback);
         revision.bump();
       }
-      debugPrint('Failed to save settings: $e\n$stackTrace');
+      AppLog.d('Failed to save settings: $e\n$stackTrace');
     }
   }
 }

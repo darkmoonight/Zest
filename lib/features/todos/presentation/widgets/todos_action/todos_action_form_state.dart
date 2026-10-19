@@ -75,7 +75,7 @@ mixin _TodosActionFormState
   /// Finds [categoryId] in the live categories list.
   Category? _findCategoryById(int? categoryId) {
     if (categoryId == null) return null;
-    for (final category in ref.read(tasksNotifierProvider).tasks) {
+    for (final category in ref.read(categoriesNotifierProvider).categories) {
       if (category.id == categoryId) return category;
     }
     return null;

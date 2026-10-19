@@ -61,7 +61,7 @@ class ResponsiveUtils {
       : AppConstants.emptyStateTopOffsetWide;
 
   /// Default circular progress diameter for task cards.
-  static double getTaskCardCircularSliderSize(BuildContext context) {
+  static double getCategoryCardCircularSliderSize(BuildContext context) {
     if (isMobile(context)) return AppConstants.circularProgressSizeMobile;
     if (isTablet(context)) return AppConstants.circularProgressSizeTablet;
     return AppConstants.circularProgressSizeDesktop;

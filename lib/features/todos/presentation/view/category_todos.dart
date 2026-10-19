@@ -5,7 +5,7 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/providers.dart';
 import 'package:zest/domain/entities/entities.dart';
-import 'package:zest/features/tasks/presentation/widgets/tasks_action.dart';
+import 'package:zest/features/categories/presentation/widgets/categories_action.dart';
 import 'package:zest/features/todos/presentation/view/todos_list_screen.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_action.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_tab_views.dart';
@@ -14,18 +14,18 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/app_back_button.dart';
 
 /// Items list for a task category.
-class TaskTodos extends ConsumerStatefulWidget {
-  /// Creates a [TaskTodos].
-  const TaskTodos({super.key, required this.task});
+class CategoryTodos extends ConsumerStatefulWidget {
+  /// Creates a [CategoryTodos].
+  const CategoryTodos({super.key, required this.task});
 
   /// Task category whose items are listed.
   final Category task;
 
   @override
-  ConsumerState<TaskTodos> createState() => _TaskTodosState();
+  ConsumerState<CategoryTodos> createState() => _CategoryTodosState();
 }
 
-class _TaskTodosState extends ConsumerState<TaskTodos> {
+class _CategoryTodosState extends ConsumerState<CategoryTodos> {
   @override
   Widget build(BuildContext context) {
     return TodosListScreen(
@@ -33,8 +33,8 @@ class _TaskTodosState extends ConsumerState<TaskTodos> {
         initialSortOption: widget.task.sortOption,
         onSortPersist: (option) async {
           await ref
-              .read(tasksNotifierProvider.notifier)
-              .persistTaskSort(widget.task, option);
+              .read(categoriesNotifierProvider.notifier)
+              .persistCategorySort(widget.task, option);
         },
         buildAppBar: (context, todosState) => _buildAppBar(context, todosState),
         buildTabViewsConfig: (tabController, searchFilter, sortOption) =>
@@ -103,7 +103,7 @@ class _TaskTodosState extends ConsumerState<TaskTodos> {
       actions: [
         if (todosState.selectedTodo.isEmpty)
           IconButton(
-            onPressed: () => _showTasksActionBottomSheet(context),
+            onPressed: () => _showCategoriesActionBottomSheet(context),
             icon: Icon(
               IconsaxPlusLinear.edit,
               size: AppConstants.iconSizeAppBarAction,
@@ -115,15 +115,15 @@ class _TaskTodosState extends ConsumerState<TaskTodos> {
     );
   }
 
-  void _showTasksActionBottomSheet(BuildContext context) {
+  void _showCategoriesActionBottomSheet(BuildContext context) {
     NavigationHelper.showFormModal(
       context: context,
       enableDrag: false,
-      child: TasksAction(
+      child: CategoriesAction(
         text: 'editing'.tr,
         edit: true,
         task: widget.task,
-        updateTaskName: () => setState(() {}),
+        updateCategoryName: () => setState(() {}),
       ),
     );
   }

@@ -5,9 +5,9 @@ import 'package:zest/i18n/tr.dart';
 
 /// Shared bordered row used by color / default / recurrence controls on the
 /// task sheet.
-class TaskSheetOptionCard extends StatelessWidget {
+class CategorySheetOptionCard extends StatelessWidget {
   /// Creates a card with [leading], title/subtitle column, and [action].
-  const TaskSheetOptionCard({
+  const CategorySheetOptionCard({
     super.key,
     required this.leading,
     required this.titleKey,

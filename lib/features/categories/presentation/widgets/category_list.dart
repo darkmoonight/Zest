@@ -9,16 +9,16 @@ import 'package:zest/core/utils/progress_calculator.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/list_empty.dart';
 import 'package:zest/domain/entities/entities.dart';
-import 'package:zest/features/tasks/application/tasks_notifier.dart';
-import 'package:zest/features/tasks/presentation/widgets/task_card.dart';
+import 'package:zest/features/categories/application/categories_notifier.dart';
+import 'package:zest/features/categories/presentation/widgets/category_card.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
-import 'package:zest/features/todos/presentation/view/task_todos.dart';
+import 'package:zest/features/todos/presentation/view/category_todos.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Scrollable list of task categories.
-class TasksList extends ConsumerStatefulWidget {
+class CategoryList extends ConsumerStatefulWidget {
   /// Creates a [TasksList].
-  const TasksList({
+  const CategoryList({
     super.key,
     required this.archived,
     required this.searchTask,
@@ -32,10 +32,10 @@ class TasksList extends ConsumerStatefulWidget {
 
   @override
   /// Creates the state for this widget.
-  ConsumerState<TasksList> createState() => _TasksListState();
+  ConsumerState<CategoryList> createState() => _CategoryListState();
 }
 
-class _TasksListState extends ConsumerState<TasksList>
+class _CategoryListState extends ConsumerState<CategoryList>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
@@ -47,10 +47,10 @@ class _TasksListState extends ConsumerState<TasksList>
 
     final isMobile = ResponsiveUtils.isMobile(context);
     final topPadding = MediaQuery.of(context).padding.top;
-    final tasksNotifier = ref.read(tasksNotifierProvider.notifier);
+    final tasksNotifier = ref.read(categoriesNotifierProvider.notifier);
     final todosNotifier = ref.read(todosNotifierProvider.notifier);
-    final tasksState = ref.watch(tasksNotifierProvider);
-    // Progress badges need todo changes even though TasksNotifier only watches
+    final tasksState = ref.watch(categoriesNotifierProvider);
+    // Progress badges need todo changes even though CategoriesNotifier only watches
     // the tasks collection after the single-watch split.
     ref.watch(todosNotifierProvider.select((s) => s.todos));
     final isImage = ref.watch(appSettingsProvider.select((s) => s.isImage));
@@ -107,14 +107,14 @@ class _TasksListState extends ConsumerState<TasksList>
   /// Builds the reorderable list widget.
   Widget _buildReorderableList(
     List<Category> tasks,
-    TasksNotifier tasksNotifier,
-    TasksState tasksState,
+    CategoriesNotifier tasksNotifier,
+    CategoriesState tasksState,
     Map<int, (int, int)> taskCounts,
   ) {
     return ReorderableSliverList(
       delegate: ReorderableSliverChildBuilderDelegate(
         (context, index) =>
-            _buildTaskCard(tasks[index], tasksNotifier, tasksState, taskCounts),
+            _buildCategoryCard(tasks[index], tasksNotifier, tasksState, taskCounts),
         childCount: tasks.length,
       ),
       onReorder: (oldIndex, newIndex) =>
@@ -123,24 +123,24 @@ class _TasksListState extends ConsumerState<TasksList>
   }
 
   /// Builds the task card widget.
-  Widget _buildTaskCard(
+  Widget _buildCategoryCard(
     Category task,
-    TasksNotifier tasksNotifier,
-    TasksState tasksState,
+    CategoriesNotifier tasksNotifier,
+    CategoriesState tasksState,
     Map<int, (int, int)> taskCounts,
   ) {
     final counts = taskCounts[task.id] ?? (0, 0);
     final progress = ProgressCalculator(total: counts.$1, completed: counts.$2);
 
-    return TaskCard(
+    return CategoryCard(
       key: ValueKey(task.id),
-      task: task,
+      category: task,
       createdTodos: progress.total,
       completedTodos: progress.completed,
       percent: progress.percentageString,
       isSelected:
-          tasksState.isMultiSelectionTask &&
-          tasksState.selectedTaskIds.contains(task.id),
+          tasksState.isMultiSelectionCategory &&
+          tasksState.selectedCategoryIds.contains(task.id),
       onTap: () => _handleTaskTap(task, tasksNotifier, tasksState),
       onDoubleTap: () => _handleTaskDoubleTap(task, tasksNotifier, tasksState),
     );
@@ -151,14 +151,14 @@ class _TasksListState extends ConsumerState<TasksList>
     List<Category> tasks,
     int oldIndex,
     int newIndex,
-    TasksNotifier tasksNotifier,
+    CategoriesNotifier tasksNotifier,
   ) async {
     if (oldIndex == newIndex) return;
 
     final element = tasks.removeAt(oldIndex);
     tasks.insert(newIndex, element);
 
-    await tasksNotifier.reorderTasks(
+    await tasksNotifier.reorderCategories(
       filteredTasks: tasks,
       archived: widget.archived,
     );
@@ -167,25 +167,25 @@ class _TasksListState extends ConsumerState<TasksList>
   /// Handle task tap.
   void _handleTaskTap(
     Category task,
-    TasksNotifier tasksNotifier,
-    TasksState tasksState,
+    CategoriesNotifier tasksNotifier,
+    CategoriesState tasksState,
   ) {
-    if (tasksState.isMultiSelectionTask) {
-      tasksNotifier.doMultiSelectionTask(task);
+    if (tasksState.isMultiSelectionCategory) {
+      tasksNotifier.doMultiSelectionCategory(task);
     } else {
-      NavigationHelper.toDownToUp(context, () => TaskTodos(task: task));
+      NavigationHelper.toDownToUp(context, () => CategoryTodos(task: task));
     }
   }
 
   /// Handle task double tap.
   void _handleTaskDoubleTap(
     Category task,
-    TasksNotifier tasksNotifier,
-    TasksState tasksState,
+    CategoriesNotifier tasksNotifier,
+    CategoriesState tasksState,
   ) {
-    if (!tasksState.isMultiSelectionTask) {
-      tasksNotifier.toggleMultiSelectionTask();
+    if (!tasksState.isMultiSelectionCategory) {
+      tasksNotifier.toggleMultiSelectionCategory();
     }
-    tasksNotifier.doMultiSelectionTask(task);
+    tasksNotifier.doMultiSelectionCategory(task);
   }
 }
