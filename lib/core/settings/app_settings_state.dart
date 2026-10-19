@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/constants/app_constants.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/i18n/locale_utils.dart';
 import 'package:zest/i18n/strings.g.dart';
 
@@ -63,8 +63,8 @@ class AppSettingsState {
     locale: locale ?? this.locale,
   );
 
-  /// Maps persisted [Settings] into an [AppSettingsState] snapshot.
-  factory AppSettingsState.fromSettings(Settings settings) {
+  /// Maps domain [AppSettings] into an [AppSettingsState] snapshot.
+  factory AppSettingsState.fromSettings(AppSettings settings) {
     final locale = appLocaleFromLanguageCode(settings.language).flutterLocale;
     return AppSettingsState(
       amoledTheme: settings.amoledTheme,

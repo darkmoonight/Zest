@@ -1,7 +1,8 @@
 import 'package:zest/core/caldav/vtodo_record.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/enums/enums.dart';
 
-/// Maps Zest [Todos] to and from CalDAV [VtodoRecord] snapshots.
+/// Maps Zest [Todo] to and from CalDAV [VtodoRecord] snapshots.
 abstract final class VtodoMapper {
   static const _xRecMode = 'X-ZEST-REC-MODE';
   static const _xRecMinute = 'X-ZEST-REC-MINUTE';
@@ -59,7 +60,7 @@ abstract final class VtodoMapper {
   }
 
   /// Builds an RRULE body from Zest recurrence fields (null when none).
-  static String? rruleFromTodo(Todos todo) {
+  static String? rruleFromTodo(Todo todo) {
     return switch (todo.recurrence) {
       RecurrenceFrequency.none => null,
       RecurrenceFrequency.daily => 'FREQ=DAILY',
@@ -77,12 +78,12 @@ abstract final class VtodoMapper {
     return 'FREQ=WEEKLY;BYDAY=${days.join(',')}';
   }
 
-  /// Parses [rrule] into frequency + weekdays on [todo].
-  static void applyRrule(Todos todo, String? rrule) {
+  /// Parses [rrule] into frequency + weekdays.
+  static ({RecurrenceFrequency recurrence, List<int> weekdays}) parseRrule(
+    String? rrule,
+  ) {
     if (rrule == null || rrule.trim().isEmpty) {
-      todo.recurrence = RecurrenceFrequency.none;
-      todo.recurrenceWeekdays = [];
-      return;
+      return (recurrence: RecurrenceFrequency.none, weekdays: const []);
     }
 
     final parts = <String, String>{};
@@ -95,7 +96,7 @@ abstract final class VtodoMapper {
     }
 
     final freq = parts['FREQ']?.toUpperCase();
-    todo.recurrence = switch (freq) {
+    final recurrence = switch (freq) {
       'DAILY' => RecurrenceFrequency.daily,
       'WEEKLY' => RecurrenceFrequency.weekly,
       'MONTHLY' => RecurrenceFrequency.monthly,
@@ -104,17 +105,16 @@ abstract final class VtodoMapper {
 
     final byDay = parts['BYDAY'];
     if (byDay == null || byDay.isEmpty) {
-      todo.recurrenceWeekdays = [];
-      return;
+      return (recurrence: recurrence, weekdays: const []);
     }
-    todo.recurrenceWeekdays = byDay
+    final weekdays = byDay
         .split(',')
         .map((part) => part.trim().toUpperCase())
-        // Strip optional ordinal prefixes like `1MO` / `-1FR`.
         .map((part) => part.replaceAll(RegExp(r'^[+-]?\d+'), ''))
         .map((code) => _byDayToWeekday[code])
         .whereType<int>()
         .toList();
+    return (recurrence: recurrence, weekdays: weekdays);
   }
 
   /// Serializes [RecurrenceMode] for `X-ZEST-REC-MODE`.
@@ -132,7 +132,7 @@ abstract final class VtodoMapper {
   }
 
   /// Builds a VTODO snapshot from [todo]. [todo.caldavUid] must be set.
-  static VtodoRecord toRecord(Todos todo) {
+  static VtodoRecord toRecord(Todo todo) {
     final uid = todo.caldavUid;
     if (uid == null || uid.isEmpty) {
       throw StateError('CalDAV UID is required before mapping to VTODO');
@@ -158,41 +158,54 @@ abstract final class VtodoMapper {
   }
 
   /// Copies VTODO fields from [remote] onto [todo] (does not persist).
-  static void applyToTodo(Todos todo, VtodoRecord remote) {
-    todo.caldavUid = remote.uid;
-    todo.caldavHref = remote.href;
-    todo.caldavEtag = remote.etag;
-    todo.name = remote.summary;
-    todo.description = remote.description;
-    todo.dueAt = remote.due;
-    todo.completedAt = remote.completed;
-    todo.priority = priorityFromIcal(remote.priority);
-    todo.status = statusFromIcal(remote.status);
-    todo.tags = List<String>.from(remote.categories);
-
+  static Todo applyToTodo(Todo todo, VtodoRecord remote) {
     final rrule = remote.rrule ?? rruleFromIcs(remote.rawIcalendar);
-    applyRrule(todo, rrule);
+    final parsed = parseRrule(rrule);
 
     final modeRaw =
         remote.recurrenceMode ?? icsProperty(remote.rawIcalendar, _xRecMode);
+    final RecurrenceMode recurrenceMode;
+    final int? recurrenceMinuteOfDay;
     if (rrule != null && rrule.isNotEmpty) {
-      todo.recurrenceMode = recurrenceModeFromIcal(modeRaw);
+      recurrenceMode = recurrenceModeFromIcal(modeRaw);
       final minuteRaw =
           remote.recurrenceMinuteOfDay?.toString() ??
           icsProperty(remote.rawIcalendar, _xRecMinute);
-      todo.recurrenceMinuteOfDay = int.tryParse(minuteRaw ?? '');
+      recurrenceMinuteOfDay = int.tryParse(minuteRaw ?? '');
     } else {
-      todo.recurrenceMode = RecurrenceMode.clone;
-      todo.recurrenceMinuteOfDay = null;
+      recurrenceMode = RecurrenceMode.clone;
+      recurrenceMinuteOfDay = null;
     }
 
-    if (todo.status.isCompleted && todo.completedAt == null) {
-      todo.completedAt = DateTime.now();
+    var status = statusFromIcal(remote.status);
+    DateTime? completedAt = remote.completed;
+    if (status.isCompleted && completedAt == null) {
+      completedAt = DateTime.now();
     }
-    if (!todo.status.isCompleted) {
-      todo.completedAt = null;
+    if (!status.isCompleted) {
+      completedAt = null;
     }
-    todo.caldavDirty = false;
+
+    return todo.copyWith(
+      caldavUid: remote.uid,
+      caldavHref: remote.href,
+      caldavEtag: remote.etag,
+      name: remote.summary,
+      description: remote.description,
+      dueAt: remote.due,
+      clearDueAt: remote.due == null,
+      completedAt: completedAt,
+      clearCompletedAt: completedAt == null,
+      priority: priorityFromIcal(remote.priority),
+      status: status,
+      tags: List<String>.from(remote.categories),
+      recurrence: parsed.recurrence,
+      recurrenceWeekdays: parsed.weekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
+      clearRecurrenceMinuteOfDay: recurrenceMinuteOfDay == null,
+      caldavDirty: false,
+    );
   }
 
   /// Parses `CATEGORIES` from raw ICS, ignoring folded-line edge cases.
@@ -217,7 +230,6 @@ abstract final class VtodoMapper {
       final line = rawLine.trim();
       final upper = line.toUpperCase();
       if (!upper.startsWith(needle)) continue;
-      // Allow `NAME;PARAM=...:value` and `NAME:value`.
       final afterName = upper.length > needle.length
           ? upper[needle.length]
           : '';
@@ -232,9 +244,9 @@ abstract final class VtodoMapper {
   }
 
   /// Stable UID assigned on first push.
-  static String allocateUid(Todos todo) {
+  static String allocateUid(Todo todo) {
     final existing = todo.caldavUid;
     if (existing != null && existing.isNotEmpty) return existing;
-    return 'zest-${todo.id}-${todo.createdTime.millisecondsSinceEpoch}';
+    return 'zest-${todo.id}-${todo.createdAt.millisecondsSinceEpoch}';
   }
 }

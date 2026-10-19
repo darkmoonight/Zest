@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
+import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/defer_until_route_transition.dart';
@@ -12,7 +13,6 @@ import 'package:zest/features/settings/presentation/widgets/app_license_page_shi
 import 'package:zest/features/settings/presentation/widgets/settings_card_shape.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_list_dialog_shell.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_secondary_app_bar.dart';
-import 'package:zest/features/settings/presentation/widgets/settings_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_tile.dart';
 import 'package:zest/i18n/tr.dart';
 
@@ -55,7 +55,7 @@ class AppLicensePage extends ConsumerWidget {
   }
 }
 
-class _LicensePackageList extends StatelessWidget {
+class _LicensePackageList extends ConsumerWidget {
   /// Creates a [_LicensePackageList].
   const _LicensePackageList({
     required this.licenses,
@@ -74,23 +74,92 @@ class _LicensePackageList extends StatelessWidget {
 
   @override
   /// Builds the widget subtree.
-  Widget build(BuildContext context) {
-    return ListView(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final amoledTheme = ref.watch(
+      appSettingsProvider.select((s) => s.amoledTheme),
+    );
+    // Header + section title occupy the first two slots; tiles follow.
+    const headerCount = 2;
+
+    return ListView.builder(
       padding: const EdgeInsets.symmetric(
         horizontal: AppConstants.spacingL,
         vertical: AppConstants.spacingM,
       ),
-      children: [
-        _LicenseAppHeader(
-          appVersion: appVersion,
-          packageCount: licenses.length,
-        ),
-        SettingsSection(
-          title: 'licenseDependencies',
-          icon: IconsaxPlusBold.document_text,
+      itemCount: licenses.length + headerCount,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return _LicenseAppHeader(
+            appVersion: appVersion,
+            packageCount: licenses.length,
+          );
+        }
+        if (index == 1) {
+          return Padding(
+            padding: const EdgeInsets.only(
+              left: AppConstants.spacingL,
+              bottom: AppConstants.spacingM,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  IconsaxPlusBold.document_text,
+                  size: 20,
+                  color: colorScheme.primary,
+                ),
+                const SizedBox(width: AppConstants.spacingS),
+                Text(
+                  'licenseDependencies'.tr,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: ResponsiveUtils.getResponsiveFontSize(
+                      context,
+                      14,
+                    ),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final licenseIndex = index - headerCount;
+        final license = licenses[licenseIndex];
+        final isFirst = licenseIndex == 0;
+        final isLast = licenseIndex == licenses.length - 1;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            for (final license in licenses)
-              SettingsTile(
+            if (!isFirst)
+              Divider(
+                height: 1,
+                color: SettingsCardShape.settingsDividerColor(colorScheme),
+              ),
+            Card(
+              margin: EdgeInsets.zero,
+              shape:
+                  SettingsCardShape.cardShape(
+                    amoledTheme: amoledTheme,
+                    colorScheme: colorScheme,
+                  ) ??
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: isFirst
+                          ? const Radius.circular(
+                              AppConstants.borderRadiusXLarge,
+                            )
+                          : Radius.zero,
+                      bottom: isLast
+                          ? const Radius.circular(
+                              AppConstants.borderRadiusXLarge,
+                            )
+                          : Radius.zero,
+                    ),
+                  ),
+              child: SettingsTile(
                 leading: const Icon(IconsaxPlusLinear.document),
                 titleText: license.packageName,
                 value: license.paragraphCount == 1
@@ -98,9 +167,10 @@ class _LicensePackageList extends StatelessWidget {
                     : '${license.paragraphCount}',
                 onTap: () => onLicenseTap(license),
               ),
+            ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/providers.dart';
 import 'package:zest/core/utils/progress_calculator.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
+import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/core/widgets/multi_select_action_bar.dart';
 import 'package:zest/core/widgets/scroll_fab_listener.dart';
 import 'package:zest/core/widgets/confirmation_dialog.dart';
@@ -308,9 +309,10 @@ class _AllTasksState extends ConsumerState<AllTasks>
       context: context,
       title: 'deleteCategory',
       message: 'deleteCategoryQuery',
-      onConfirm: () {
-        tasksNotifier.deleteTask(selected);
+      onConfirm: () async {
+        await tasksNotifier.deleteTask(selected);
         tasksNotifier.doMultiSelectionTaskClear();
+        showSnackBar('categoryDelete'.tr);
       },
     );
   }
@@ -328,11 +330,13 @@ class _AllTasksState extends ConsumerState<AllTasks>
           ? 'noArchiveCategoryQuery'
           : 'archiveCategoryQuery',
       isUnarchive: _isArchiveTab,
-      onConfirm: () {
+      onConfirm: () async {
         if (_isArchiveTab) {
-          tasksNotifier.noArchiveTask(selected);
+          await tasksNotifier.noArchiveTask(selected);
+          showSnackBar('noCategoryArchive'.tr);
         } else {
-          tasksNotifier.archiveTask(selected);
+          await tasksNotifier.archiveTask(selected);
+          showSnackBar('categoryArchive'.tr);
         }
         tasksNotifier.doMultiSelectionTaskClear();
       },

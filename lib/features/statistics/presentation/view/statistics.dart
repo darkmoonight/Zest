@@ -42,7 +42,7 @@ class StatisticsPage extends ConsumerWidget {
 
   /// Builds the empty state widget.
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
-    final isImage = ref.watch(appSettingsProvider).isImage;
+    final isImage = ref.watch(appSettingsProvider.select((s) => s.isImage));
 
     return ListEmpty(
       img: AppConstants.emptyStateTaskImage,
@@ -54,7 +54,7 @@ class StatisticsPage extends ConsumerWidget {
 
   /// Builds the error state widget.
   Widget _buildErrorState(BuildContext context, WidgetRef ref) {
-    final isImage = ref.watch(appSettingsProvider).isImage;
+    final isImage = ref.watch(appSettingsProvider.select((s) => s.isImage));
 
     return ListEmpty(
       img: AppConstants.emptyStateTaskImage,

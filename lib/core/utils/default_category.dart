@@ -3,6 +3,9 @@ import 'package:isar_community/isar.dart';
 import 'package:zest/core/database/settings_persist.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/repositories/category_repository.dart';
 
 /// Fixed title for the one-time seeded Default category.
 const String kDefaultCategoryTitle = 'Default';
@@ -58,20 +61,22 @@ Future<void> seedDefaultCategoryOnce(Isar isar, Settings settings) async {
   await persistSettings(isar, settings);
 }
 
-/// Whether [task] is the user's selected default category.
+/// Whether [category] is the user's selected default category.
 ///
 /// When no preference is stored yet, the system Default is treated as default
 /// so the edit UI matches [getFallbackCategory] behavior.
-bool isSelectedDefaultCategory(Settings settings, Tasks task) {
-  if (settings.defaultCategoryId == task.id) return true;
-  return settings.defaultCategoryId == null && task.isSystem;
+bool isSelectedDefaultCategory(AppSettings settings, Category category) {
+  if (settings.defaultCategoryId == category.id) return true;
+  return settings.defaultCategoryId == null && category.isSystem;
 }
 
 /// Persists the user-selected default category.
 ///
-/// Pass `null` [task] to clear the preference.
-Future<void> setDefaultCategory(WidgetRef ref, {Tasks? task}) async {
-  await ref.writeLiveSettings(mutate: (s) => s.defaultCategoryId = task?.id);
+/// Pass `null` [category] to clear the preference.
+Future<void> setDefaultCategory(WidgetRef ref, {Category? category}) async {
+  await ref.writeLiveSettings(
+    mutate: (s) => s.defaultCategoryId = category?.id,
+  );
 }
 
 /// Returns the user-selected default category if it still exists and is active.
@@ -101,4 +106,28 @@ Future<Tasks?> getFallbackCategory(Isar isar, Settings settings) async {
   final systemDefault = await getDefaultCategory(isar);
   if (systemDefault != null) return systemDefault;
   return isar.tasks.filter().archiveEqualTo(false).findFirst();
+}
+
+/// Same as [getFallbackCategory] via [CategoryRepositoryPort] (no Isar in callers).
+Future<Category?> getFallbackCategoryViaRepo(
+  CategoryRepositoryPort categories,
+  AppSettings settings,
+) async {
+  final id = settings.defaultCategoryId;
+  if (id != null) {
+    final userDefault = await categories.getById(id);
+    if (userDefault != null && !userDefault.archive) return userDefault;
+  }
+  final all = await categories.getAll();
+  Category? systemDefault;
+  Category? firstActive;
+  for (final category in all) {
+    if (category.archive) continue;
+    firstActive ??= category;
+    if (category.isSystem) {
+      systemDefault = category;
+      break;
+    }
+  }
+  return systemDefault ?? firstActive;
 }

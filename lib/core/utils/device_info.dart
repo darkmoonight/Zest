@@ -22,7 +22,7 @@ class DeviceFeature {
           _androidDeviceInfo != null && _androidDeviceInfo!.version.sdkInt > 28;
     } catch (e) {
       if (kDebugMode) {
-        print('Error initializing device info: $e');
+        debugPrint('Error initializing device info: $e');
       }
       _isEdgeToEdgeAvailableCache = false;
     }

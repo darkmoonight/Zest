@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/utils/scroll_fab_handler.dart';
 
 /// Listens to scroll events and toggles FAB visibility via [ScrollFabHandler].
-class ScrollFabListener extends StatelessWidget {
+class ScrollFabListener extends StatefulWidget {
   /// Creates a scroll listener that controls FAB visibility.
   const ScrollFabListener({
     super.key,
@@ -25,21 +25,31 @@ class ScrollFabListener extends StatelessWidget {
   final bool disabled;
 
   @override
-  /// Builds a [NotificationListener] that delegates to [ScrollFabHandler].
+  State<ScrollFabListener> createState() => _ScrollFabListenerState();
+}
+
+class _ScrollFabListenerState extends State<ScrollFabListener> {
+  @override
+  void dispose() {
+    ScrollFabHandler.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
-        if (disabled) {
+        if (widget.disabled) {
           return true;
         }
 
         return ScrollFabHandler.handleScrollFabVisibility(
           notification: notification,
-          tabController: tabController,
-          setFabVisibility: setFabVisibility,
+          tabController: widget.tabController,
+          setFabVisibility: widget.setFabVisibility,
         );
       },
-      child: child,
+      child: widget.child,
     );
   }
 }

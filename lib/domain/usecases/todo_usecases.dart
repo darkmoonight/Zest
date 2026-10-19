@@ -1,10 +1,13 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/core/utils/reorder_filtered.dart';
-import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/enums/enums.dart';
+import 'package:zest/domain/repositories/todo_repository.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/recurrence_service.dart';
@@ -22,7 +25,7 @@ class TodoService {
   });
 
   /// Persistence layer for item entities.
-  final TodoRepository _todoRepo;
+  final TodoRepositoryPort _todoRepo;
 
   /// Schedules and cancels item reminder notifications.
   final NotificationService _notificationService;
@@ -41,9 +44,9 @@ class TodoService {
 
   // ==================== CREATE ====================
 
-  /// Creates a list item under [task] and schedules a reminder when a due time is set.
-  Future<Todos> createTodo({
-    required Tasks task,
+  /// Creates a list item under [category] and schedules a reminder when due.
+  Future<Todo> createTodo({
+    required Category category,
     required String title,
     required String description,
     required String timeString,
@@ -51,7 +54,7 @@ class TodoService {
     required Priority priority,
     required List<String> tags,
     required int currentTodoCount,
-    Todos? parent,
+    Todo? parent,
     RecurrenceFrequency recurrence = RecurrenceFrequency.none,
     List<int> recurrenceWeekdays = const [],
     RecurrenceMode recurrenceMode = RecurrenceMode.clone,
@@ -59,7 +62,7 @@ class TodoService {
   }) async {
     final date = _resolveDueDate(
       timeString: timeString,
-      task: task,
+      category: category,
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
@@ -73,8 +76,8 @@ class TodoService {
       priority: priority,
       tags: tags,
       index: currentTodoCount,
-      task: task,
-      parent: parent,
+      categoryId: category.id,
+      parentId: parent?.id,
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
       recurrenceMode: recurrenceMode,
@@ -82,7 +85,7 @@ class TodoService {
     );
 
     if (date != null) {
-      await _notificationService.scheduleForTodo(todo);
+      await _notificationService.scheduleForTodo(todo, category: category);
     }
     await _calendarSync?.ensureSynced(todo);
     await _caldavSync?.markDirty(todo);
@@ -94,8 +97,8 @@ class TodoService {
 
   /// Updates item fields and reschedules or cancels its reminder.
   Future<void> updateTodo({
-    required Todos todo,
-    required Tasks task,
+    required Todo todo,
+    required Category category,
     required String title,
     required String description,
     required String timeString,
@@ -110,7 +113,7 @@ class TodoService {
     final date = _resolveDueDatePreservingOnParseFailure(
       todo: todo,
       timeString: timeString,
-      task: task,
+      category: category,
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
@@ -124,30 +127,43 @@ class TodoService {
       fix: pinned,
       priority: priority,
       tags: tags,
-      task: task,
+      categoryId: category.id,
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
 
+    final updated = todo.copyWith(
+      name: title,
+      description: description,
+      dueAt: date,
+      clearDueAt: date == null,
+      fix: pinned,
+      priority: priority,
+      tags: tags,
+      categoryId: category.id,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
+      clearRecurrenceMinuteOfDay: recurrenceMinuteOfDay == null,
+    );
+
     if (date != null) {
-      await _notificationService.reschedule(todo);
+      await _notificationService.reschedule(updated, category: category);
     } else {
       await _notificationService.cancel(todo.id);
     }
-    await _calendarSync?.ensureSynced(todo);
-    await _caldavSync?.markDirty(todo);
+    await _calendarSync?.ensureSynced(updated);
+    await _caldavSync?.markDirty(updated);
   }
 
-  /// Persists [item] status and syncs its notification schedule.
-  ///
-  /// Recurring clones / reopens happen at local midnight via
-  /// [RecurrenceCoordinator.runMidnightRollover], not on mark-done.
-  Future<void> updateTodoStatus(Todos todo) async {
+  /// Persists [todo] status and syncs its notification schedule.
+  Future<void> updateTodoStatus(Todo todo) async {
     await _todoRepo.update(todo);
 
-    final completedTime = todo.todoCompletedTime;
+    final completedTime = todo.dueAt;
 
     if (todo.status == TodoStatus.done || todo.status == TodoStatus.cancelled) {
       await _notificationService.cancel(todo.id);
@@ -160,32 +176,32 @@ class TodoService {
     await _caldavSync?.markDirty(todo);
   }
 
-  /// Marks [item] done and cancels its reminder (notification action / handler).
-  Future<void> markTodoAsDone(Todos todo) async {
+  /// Marks [todo] done and cancels its reminder.
+  Future<void> markTodoAsDone(Todo todo) async {
     if (todo.status == TodoStatus.done) return;
 
-    todo.status = TodoStatus.done;
-    todo.todoCompletionTime = DateTime.now();
-    await updateTodoStatus(todo);
+    await updateTodoStatus(
+      todo.copyWith(status: TodoStatus.done, completedAt: DateTime.now()),
+    );
   }
 
-  /// Snoozes [item] by [settings.snoozeDuration] and reschedules its reminder.
-  Future<void> snoozeTodo(Todos todo, Settings settings) async {
+  /// Snoozes [todo] by [settings.snoozeDuration] and reschedules its reminder.
+  Future<void> snoozeTodo(Todo todo, AppSettings settings) async {
     final newTime = DateTime.now().add(
       Duration(minutes: settings.snoozeDuration),
     );
-    todo.todoCompletedTime = newTime;
-    await _todoRepo.update(todo);
-    await _notificationService.snooze(todo, settings);
-    await _calendarSync?.ensureSynced(todo);
-    await _caldavSync?.markDirty(todo);
+    final updated = todo.copyWith(dueAt: newTime);
+    await _todoRepo.update(updated);
+    await _notificationService.snooze(updated, settings);
+    await _calendarSync?.ensureSynced(updated);
+    await _caldavSync?.markDirty(updated);
   }
 
-  /// Sets [item] and all subtasks to [status] and updates notifications.
-  Future<void> updateStatusWithSubtasks(Todos todo, TodoStatus status) async {
-    await _todoRepo.updateStatusWithSubtasks(parentTodo: todo, status: status);
+  /// Sets [todo] and all subtasks to [status] and updates notifications.
+  Future<void> updateStatusWithSubtasks(Todo todo, TodoStatus status) async {
+    await _todoRepo.updateStatusWithSubtasks(parentId: todo.id, status: status);
 
-    final allIds = await _collectSubtreeIds(todo);
+    final allIds = await collectSubtreeIds(todo);
 
     if (status.isCompleted) {
       await _notificationService.cancelBatch(allIds.toList());
@@ -199,7 +215,7 @@ class TodoService {
     } else {
       for (final id in allIds) {
         final todoItem = await _todoRepo.getById(id);
-        if (todoItem != null && todoItem.todoCompletedTime != null) {
+        if (todoItem != null && todoItem.dueAt != null) {
           await _notificationService.scheduleForTodo(todoItem);
         }
         if (todoItem != null) {
@@ -212,45 +228,40 @@ class TodoService {
 
   // ==================== MOVE ====================
 
-  /// Moves [items] and their subtrees to [task].
+  /// Moves [todos] and their subtrees to [category].
   Future<void> moveTodos({
-    required List<Todos> todos,
-    required Tasks task,
+    required List<Todo> todos,
+    required Category category,
   }) async {
     if (todos.isEmpty) return;
 
-    final todosCopy = List<Todos>.from(todos);
+    final todosCopy = List<Todo>.from(todos);
     final allIds = <int>{};
 
     for (final root in todosCopy) {
-      final subtreeIds = await _collectSubtreeIds(root);
+      final subtreeIds = await collectSubtreeIds(root);
       allIds.addAll(subtreeIds);
     }
 
     if (allIds.isEmpty) return;
 
-    await _todoRepo.moveToTask(todoIds: allIds, task: task);
+    await _todoRepo.moveToCategory(todoIds: allIds, categoryId: category.id);
     await _syncCalDavAfterHierarchyChange(allIds);
   }
 
   /// Reparents [rootTodos] under [newParent], preserving nested subtrees.
-  ///
-  /// Only selected roots (not their descendants) are linked to [newParent].
-  /// Descendant parent links inside each moved tree are kept. Rejects moves
-  /// that would create a cycle ([newParent] inside a moved subtree).
   Future<void> moveTodosToParent({
-    required List<Todos> rootTodos,
-    required Todos? newParent,
+    required List<Todo> rootTodos,
+    required Todo? newParent,
   }) async {
     if (rootTodos.isEmpty) return;
 
-    final rootTodosCopy = List<Todos>.from(rootTodos);
+    final rootTodosCopy = List<Todo>.from(rootTodos);
     final subtreeByRoot = <int, Set<int>>{};
     for (final root in rootTodosCopy) {
-      subtreeByRoot[root.id] = await _collectSubtreeIds(root);
+      subtreeByRoot[root.id] = await collectSubtreeIds(root);
     }
 
-    // If both an ancestor and descendant are selected, only move the ancestor.
     final effectiveRoots = rootTodosCopy.where((root) {
       return !rootTodosCopy.any(
         (other) =>
@@ -278,14 +289,12 @@ class TodoService {
     await _todoRepo.moveToParent(
       rootIds: rootIds,
       subtreeIds: allIds,
-      newParent: newParent,
-      newTask: newParent?.task.value,
+      newParentId: newParent?.id,
+      newCategoryId: newParent?.categoryId,
     );
     await _syncCalDavAfterHierarchyChange(allIds);
   }
 
-  /// After reparent/move: push roots, remote-delete former synced roots that
-  /// became nested subtasks (CalDAV only syncs root items).
   Future<void> _syncCalDavAfterHierarchyChange(Set<int> todoIds) async {
     final caldav = _caldavSync;
     if (caldav == null) return;
@@ -293,14 +302,16 @@ class TodoService {
     for (final id in todoIds) {
       final todo = await _todoRepo.getById(id);
       if (todo == null) continue;
-      await todo.parent.load();
-      if (todo.parent.value != null) {
+      if (todo.parentId != null) {
         await caldav.enqueueDelete(todo);
-        todo.caldavUid = null;
-        todo.caldavHref = null;
-        todo.caldavEtag = null;
-        todo.caldavDirty = false;
-        await _todoRepo.update(todo);
+        await _todoRepo.update(
+          todo.copyWith(
+            clearCaldavUid: true,
+            clearCaldavHref: true,
+            clearCaldavEtag: true,
+            caldavDirty: false,
+          ),
+        );
       } else {
         await caldav.markDirty(todo);
       }
@@ -309,15 +320,15 @@ class TodoService {
 
   // ==================== DELETE ====================
 
-  /// Deletes [items], their subtrees, and associated notifications.
-  Future<void> deleteTodos(List<Todos> todos) async {
+  /// Deletes [todos], their subtrees, and associated notifications.
+  Future<void> deleteTodos(List<Todo> todos) async {
     if (todos.isEmpty) return;
 
-    final todosCopy = List<Todos>.from(todos);
+    final todosCopy = List<Todo>.from(todos);
     final allIds = <int>{};
 
     for (final root in todosCopy) {
-      final subtreeIds = await _collectSubtreeIds(root);
+      final subtreeIds = await collectSubtreeIds(root);
       allIds.addAll(subtreeIds);
     }
 
@@ -338,8 +349,8 @@ class TodoService {
 
   /// Reorders [allTodos] so filtered positions match [filteredTodos] order.
   Future<void> reorderTodos({
-    required List<Todos> allTodos,
-    required List<Todos> filteredTodos,
+    required List<Todo> allTodos,
+    required List<Todo> filteredTodos,
   }) async {
     if (filteredTodos.isEmpty) return;
 
@@ -347,28 +358,24 @@ class TodoService {
       all: allTodos,
       filtered: filteredTodos,
       idOf: (t) => t.id,
-      assignIndex: (t, i) => t.index = i,
+      assignIndex: (_, _) {},
     );
     await _todoRepo.updateIndexes(allTodos);
   }
 
   // ==================== HELPERS ====================
 
-  /// Resolves due from [timeString], item recurrence, or category habit reminder.
-  ///
-  /// Past recurring reminder times advance to the next valid occurrence
-  /// instead of firing immediately.
   DateTime? _resolveDueDate({
     required String timeString,
-    required Tasks task,
+    required Category category,
     required RecurrenceFrequency recurrence,
     required List<int> recurrenceWeekdays,
     required int? recurrenceMinuteOfDay,
   }) {
     final parsed = _parseDate(timeString);
-    return RecurrenceService.resolveDueForTodoInTask(
+    return RecurrenceService.resolveDueForTodoInCategory(
       now: DateTime.now(),
-      task: task,
+      category: category,
       todoRecurrence: recurrence,
       todoWeekdays: recurrenceWeekdays,
       todoMinuteOfDay: recurrenceMinuteOfDay,
@@ -377,29 +384,26 @@ class TodoService {
     );
   }
 
-  /// Like [_resolveDueDate], but keeps the existing due when [timeString] is
-  /// non-empty and fails to parse (e.g. locale/format changed mid-edit).
   DateTime? _resolveDueDatePreservingOnParseFailure({
-    required Todos todo,
+    required Todo todo,
     required String timeString,
-    required Tasks task,
+    required Category category,
     required RecurrenceFrequency recurrence,
     required List<int> recurrenceWeekdays,
     required int? recurrenceMinuteOfDay,
   }) {
     if (timeString.isNotEmpty && _parseDate(timeString) == null) {
-      return todo.todoCompletedTime;
+      return todo.dueAt;
     }
     return _resolveDueDate(
       timeString: timeString,
-      task: task,
+      category: category,
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
   }
 
-  /// Parses [timeString] using the configured format and language.
   DateTime? _parseDate(String timeString) => DateTimeFormatHelper.parseDateTime(
     timeString,
     timeformat: _timeformat,
@@ -407,9 +411,9 @@ class TodoService {
   );
 
   /// Collects ids for [root] and every descendant item.
-  Future<Set<int>> _collectSubtreeIds(Todos root) async {
+  Future<Set<int>> collectSubtreeIds(Todo root) async {
     final ids = <int>{};
-    final stack = <Todos>[root];
+    final stack = <Todo>[root];
 
     while (stack.isNotEmpty) {
       final node = stack.removeLast();
@@ -426,7 +430,15 @@ class TodoService {
     return ids;
   }
 
-  /// Returns whether [date1] and [date2] fall on the same calendar day.
+  /// Collects ids for every root in [roots] and their descendants.
+  Future<Set<int>> collectSubtreeIdsForRoots(Iterable<Todo> roots) async {
+    final ids = <int>{};
+    for (final root in roots) {
+      ids.addAll(await collectSubtreeIds(root));
+    }
+    return ids;
+  }
+
   bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
@@ -435,40 +447,49 @@ class TodoService {
 
   // ==================== COUNTERS ====================
 
-  /// Counts root-level items belonging to [task].
-  int countForTask(Tasks task, List<Todos> allTodos) {
+  /// Counts root-level items belonging to [category].
+  int countForCategory(Category category, List<Todo> allTodos) {
     return allTodos
-        .where((t) => t.task.value?.id == task.id && t.parent.value == null)
+        .where((t) => t.categoryId == category.id && t.parentId == null)
         .length;
   }
 
-  /// Counts completed root-level items belonging to [task].
-  int countCompletedForTask(Tasks task, List<Todos> allTodos) {
+  /// Counts completed root-level items belonging to [category].
+  int countCompletedForCategory(Category category, List<Todo> allTodos) {
     return allTodos
         .where(
           (t) =>
-              t.task.value?.id == task.id &&
+              t.categoryId == category.id &&
               t.status.isCompleted &&
-              t.parent.value == null,
+              t.parentId == null,
         )
         .length;
   }
 
-  /// Counts root-level items in non-archived tasks.
-  int countAll(List<Todos> allTodos) {
-    return allTodos
-        .where((t) => t.task.value?.archive == false && t.parent.value == null)
-        .length;
-  }
-
-  /// Counts completed root-level items in non-archived tasks.
-  int countAllCompleted(List<Todos> allTodos) {
+  /// Counts root-level items in non-archived categories.
+  int countAll(List<Todo> allTodos, {Set<int> archivedCategoryIds = const {}}) {
     return allTodos
         .where(
           (t) =>
-              t.task.value?.archive == false &&
-              t.status.isCompleted &&
-              t.parent.value == null,
+              t.parentId == null &&
+              t.categoryId != null &&
+              !archivedCategoryIds.contains(t.categoryId),
+        )
+        .length;
+  }
+
+  /// Counts completed root-level items in non-archived categories.
+  int countAllCompleted(
+    List<Todo> allTodos, {
+    Set<int> archivedCategoryIds = const {},
+  }) {
+    return allTodos
+        .where(
+          (t) =>
+              t.parentId == null &&
+              t.categoryId != null &&
+              !archivedCategoryIds.contains(t.categoryId) &&
+              t.status.isCompleted,
         )
         .length;
   }
@@ -476,54 +497,58 @@ class TodoService {
   /// Counts active root items due on [date].
   int countForCalendar(
     DateTime date,
-    List<Todos> allTodos, {
+    List<Todo> allTodos, {
     bool excludeArchivedCategories = true,
+    Set<int> archivedCategoryIds = const {},
   }) {
     return allTodos.where((todo) {
-      final completedTime = todo.todoCompletedTime;
-      if (excludeArchivedCategories && todo.task.value?.archive != false) {
+      final completedTime = todo.dueAt;
+      if (excludeArchivedCategories &&
+          (todo.categoryId == null ||
+              archivedCategoryIds.contains(todo.categoryId))) {
         return false;
       }
       return todo.status == TodoStatus.active &&
           completedTime != null &&
-          todo.parent.value == null &&
+          todo.parentId == null &&
           _isSameDay(date, completedTime);
     }).length;
   }
 
   /// Counts direct child items of [parent].
-  int countForParent(Todos parent, List<Todos> allTodos) {
-    return allTodos.where((t) => t.parent.value?.id == parent.id).length;
+  int countForParent(Todo parent, List<Todo> allTodos) {
+    return allTodos.where((t) => t.parentId == parent.id).length;
   }
 
   /// Counts completed direct child items of [parent].
-  int countCompletedForParent(Todos parent, List<Todos> allTodos) {
+  int countCompletedForParent(Todo parent, List<Todo> allTodos) {
     return allTodos
-        .where((t) => t.parent.value?.id == parent.id && t.status.isCompleted)
+        .where((t) => t.parentId == parent.id && t.status.isCompleted)
         .length;
   }
 
   // ==================== FILTERS ====================
 
   /// Filters [allTodos] by status, search, and a single context scope.
-  List<Todos> filterTodos({
-    required List<Todos> allTodos,
+  List<Todo> filterTodos({
+    required List<Todo> allTodos,
     required TodoStatus? statusFilter,
     String searchQuery = '',
     DateTime? selectedDay,
-    Tasks? task,
-    Todos? parent,
+    Category? category,
+    Todo? parent,
     bool excludeArchivedCategories = false,
+    Set<int> archivedCategoryIds = const {},
   }) {
     final contextCount = [
       selectedDay,
-      task,
+      category,
       parent,
     ].where((c) => c != null).length;
 
     if (contextCount > 1) {
       throw ArgumentError(
-        'Specify only one context: selectedDay, task, or parent.',
+        'Specify only one context: selectedDay, category, or parent.',
       );
     }
 
@@ -546,23 +571,26 @@ class TodoService {
       }
 
       if (isRootMode) {
-        if (excludeArchivedCategories && todo.task.value?.archive != false) {
+        if (excludeArchivedCategories &&
+            (todo.categoryId == null ||
+                archivedCategoryIds.contains(todo.categoryId))) {
           return false;
         }
-        return todo.parent.value == null;
+        return todo.parentId == null;
       } else if (selectedDay != null) {
-        final time = todo.todoCompletedTime;
-        if (excludeArchivedCategories && todo.task.value?.archive != false) {
+        final time = todo.dueAt;
+        if (excludeArchivedCategories &&
+            (todo.categoryId == null ||
+                archivedCategoryIds.contains(todo.categoryId))) {
           return false;
         }
-        // Match [countForCalendar]: root items only, inclusive calendar day.
-        if (todo.parent.value != null) return false;
+        if (todo.parentId != null) return false;
         if (time == null) return false;
         return _isSameDay(selectedDay, time);
-      } else if (task != null) {
-        return todo.task.value?.id == task.id && todo.parent.value == null;
+      } else if (category != null) {
+        return todo.categoryId == category.id && todo.parentId == null;
       } else if (parent != null) {
-        return todo.parent.value?.id == parent.id;
+        return todo.parentId == parent.id;
       }
 
       return false;

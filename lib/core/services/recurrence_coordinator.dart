@@ -1,46 +1,47 @@
-import 'package:flutter/foundation.dart';
-import 'package:isar_community/isar.dart';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/recurrence_service.dart';
-import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/enums/enums.dart';
+import 'package:zest/domain/repositories/category_repository.dart';
+import 'package:zest/domain/repositories/todo_repository.dart';
 
 /// Midnight rollover and reopen for recurring items / habit categories.
-///
-/// Day model: reminder time drives notifications; local midnight creates the
-/// next clone or reopens a habit. Category habits apply only to items with
-/// [RecurrenceFrequency.none]. Catch-up is safe on app open / resume / Workmanager.
 class RecurrenceCoordinator {
-  /// Creates a coordinator using [todoRepo] and optional notification/calendar.
+  /// Creates a coordinator using repositories and optional side-effect services.
   RecurrenceCoordinator({
     required this._todoRepo,
-    required this._isar,
+    required this._categoryRepo,
     this._notificationService,
     this._calendarSync,
     this._caldavSync,
   });
 
-  final TodoRepository _todoRepo;
-  final Isar _isar;
+  final TodoRepositoryPort _todoRepo;
+  final CategoryRepositoryPort _categoryRepo;
   final NotificationService? _notificationService;
   final DeviceCalendarSyncService? _calendarSync;
   final CalDavSyncService? _caldavSync;
 
   /// Runs midnight rollover (clone ensure + reopen) and returns changed count.
-  ///
-  /// Safe to call on app open / resume as catch-up when the background job
-  /// missed local midnight.
   Future<int> runMidnightRollover({DateTime? now}) async {
     final today = RecurrenceService.calendarDay(now ?? DateTime.now());
     final todos = await _todoRepo.getAll();
+    final categories = await _categoryRepo.getAll();
+    final categoriesById = {for (final c in categories) c.id: c};
+    final archivedIds = {
+      for (final c in categories)
+        if (c.archive) c.id,
+    };
 
     var count = 0;
-    count += await _bumpStaleActiveClones(today, todos);
-    count += await _spawnCloneOccurrences(today, todos);
-    count += await _processCategoryHabits(today);
-    count += await _resetTodoReopenHabits(today, todos);
+    count += await _bumpStaleActiveClones(today, todos, archivedIds);
+    count += await _spawnCloneOccurrences(today, todos, categoriesById);
+    count += await _processCategoryHabits(today, categories);
+    count += await _resetTodoReopenHabits(today, todos, archivedIds);
 
     if (count > 0) {
       debugPrint('Recurrence midnight rollover changed $count todo(s)');
@@ -48,43 +49,55 @@ class RecurrenceCoordinator {
     return count;
   }
 
-  Future<int> _bumpStaleActiveClones(DateTime today, List<Todos> todos) async {
+  Future<int> _bumpStaleActiveClones(
+    DateTime today,
+    List<Todo> todos,
+    Set<int> archivedIds,
+  ) async {
     var count = 0;
     for (final todo in todos) {
-      await todo.task.load();
-      if (todo.task.value?.archive == true) continue;
+      if (todo.categoryId != null && archivedIds.contains(todo.categoryId)) {
+        continue;
+      }
       if (!RecurrenceService.shouldBumpActiveCloneDue(
         todo: todo,
         today: today,
       )) {
         continue;
       }
-      todo.todoCompletedTime = RecurrenceService.dueForOccurrenceDay(
-        today,
-        todo.recurrenceMinuteOfDay,
-        fallbackTime: todo.todoCompletedTime,
+      final updated = todo.copyWith(
+        dueAt: RecurrenceService.dueForOccurrenceDay(
+          today,
+          todo.recurrenceMinuteOfDay,
+          fallbackTime: todo.dueAt,
+        ),
       );
-      await _persistScheduled(todo);
+      await _persistScheduled(updated);
       count++;
     }
     return count;
   }
 
-  Future<int> _spawnCloneOccurrences(DateTime today, List<Todos> todos) async {
+  Future<int> _spawnCloneOccurrences(
+    DateTime today,
+    List<Todo> todos,
+    Map<int, Category> categoriesById,
+  ) async {
     final activeFingerprints = <String>{};
     for (final todo in todos) {
       if (todo.status != TodoStatus.active) continue;
       if (!RecurrenceService.isRecurring(todo.recurrence)) continue;
       if (todo.recurrenceMode != RecurrenceMode.clone) continue;
-      await todo.task.load();
-      if (todo.task.value?.archive == true) continue;
-      final taskId = todo.task.value?.id;
-      if (taskId == null) continue;
-      activeFingerprints.add(RecurrenceService.cloneSiblingKey(taskId, todo));
+      final categoryId = todo.categoryId;
+      if (categoryId == null) continue;
+      final category = categoriesById[categoryId];
+      if (category == null || category.archive) continue;
+      activeFingerprints.add(
+        RecurrenceService.cloneSiblingKey(categoryId, todo),
+      );
     }
 
-    // Prefer the most recently completed done clone per fingerprint.
-    final candidates = <String, Todos>{};
+    final candidates = <String, Todo>{};
     for (final todo in todos) {
       if (!RecurrenceService.shouldSpawnCloneForToday(
         todo: todo,
@@ -92,17 +105,17 @@ class RecurrenceCoordinator {
       )) {
         continue;
       }
-      await todo.parent.load();
-      if (todo.parent.value != null) continue;
-      await todo.task.load();
-      final task = todo.task.value;
-      if (task == null || task.archive) continue;
-      final key = RecurrenceService.cloneSiblingKey(task.id, todo);
+      if (todo.parentId != null) continue;
+      final categoryId = todo.categoryId;
+      if (categoryId == null) continue;
+      final category = categoriesById[categoryId];
+      if (category == null || category.archive) continue;
+      final key = RecurrenceService.cloneSiblingKey(categoryId, todo);
       if (activeFingerprints.contains(key)) continue;
       final existing = candidates[key];
       if (existing == null ||
-          (todo.todoCompletionTime ?? todo.createdTime).isAfter(
-            existing.todoCompletionTime ?? existing.createdTime,
+          (todo.completedAt ?? todo.createdAt).isAfter(
+            existing.completedAt ?? existing.createdAt,
           )) {
         candidates[key] = todo;
       }
@@ -111,9 +124,8 @@ class RecurrenceCoordinator {
     var count = 0;
     var nextIndex = await _todoRepo.nextIndex();
     for (final todo in candidates.values) {
-      await todo.task.load();
-      final task = todo.task.value;
-      if (task == null) continue;
+      final categoryId = todo.categoryId;
+      if (categoryId == null) continue;
 
       final clone = RecurrenceService.buildNextClone(
         todo,
@@ -123,12 +135,12 @@ class RecurrenceCoordinator {
       final created = await _todoRepo.create(
         name: clone.name,
         description: clone.description,
-        completedTime: clone.todoCompletedTime,
+        completedTime: clone.dueAt,
         fix: clone.fix,
         priority: clone.priority,
         tags: clone.tags,
         index: nextIndex++,
-        task: task,
+        categoryId: categoryId,
         recurrence: clone.recurrence,
         recurrenceWeekdays: clone.recurrenceWeekdays,
         recurrenceMode: clone.recurrenceMode,
@@ -142,42 +154,45 @@ class RecurrenceCoordinator {
     return count;
   }
 
-  /// Ensures dues for active category habits and reopens stale done ones.
-  Future<int> _processCategoryHabits(DateTime today) async {
-    final tasks = await _isar.tasks.where().findAll();
+  Future<int> _processCategoryHabits(
+    DateTime today,
+    List<Category> categories,
+  ) async {
     var count = 0;
 
-    for (final task in tasks) {
-      if (task.archive) continue;
-      if (!RecurrenceService.isRecurring(task.recurrence)) continue;
+    for (final category in categories) {
+      if (category.archive) continue;
+      if (!RecurrenceService.isRecurring(category.recurrence)) continue;
 
-      final habitTodos = await _todoRepo.getByTaskId(task.id);
+      final habitTodos = await _todoRepo.getByCategoryId(category.id);
       for (final todo in habitTodos) {
         if (RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          task: task,
+          category: category,
           today: today,
         )) {
-          todo.todoCompletedTime = RecurrenceService.resolveActiveReminderDue(
-            now: today,
-            frequency: task.recurrence,
-            weekdays: task.recurrenceWeekdays,
-            minuteOfDay: task.recurrenceMinuteOfDay,
-            fallbackTime: todo.todoCompletedTime ?? todo.createdTime,
+          final updated = todo.copyWith(
+            dueAt: RecurrenceService.resolveActiveReminderDue(
+              now: today,
+              frequency: category.recurrence,
+              weekdays: category.recurrenceWeekdays,
+              minuteOfDay: category.recurrenceMinuteOfDay,
+              fallbackTime: todo.dueAt ?? todo.createdAt,
+            ),
           );
-          await _persistScheduled(todo);
+          await _persistScheduled(updated);
           count++;
           continue;
         }
 
         if (RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          task: task,
+          category: category,
           today: today,
         )) {
           await _reopenTodo(
             todo,
-            minuteOfDay: task.recurrenceMinuteOfDay,
+            minuteOfDay: category.recurrenceMinuteOfDay,
             today: today,
           );
           count++;
@@ -187,12 +202,17 @@ class RecurrenceCoordinator {
     return count;
   }
 
-  Future<int> _resetTodoReopenHabits(DateTime today, List<Todos> todos) async {
+  Future<int> _resetTodoReopenHabits(
+    DateTime today,
+    List<Todo> todos,
+    Set<int> archivedIds,
+  ) async {
     var count = 0;
 
     for (final todo in todos) {
-      await todo.task.load();
-      if (todo.task.value?.archive == true) continue;
+      if (todo.categoryId != null && archivedIds.contains(todo.categoryId)) {
+        continue;
+      }
       if (!RecurrenceService.shouldResetTodoHabit(todo: todo, today: today)) {
         continue;
       }
@@ -208,30 +228,32 @@ class RecurrenceCoordinator {
   }
 
   Future<void> _reopenTodo(
-    Todos todo, {
+    Todo todo, {
     required int? minuteOfDay,
     required DateTime today,
   }) async {
-    final previousDue = todo.todoCompletedTime;
-    todo.status = TodoStatus.active;
-    todo.todoCompletionTime = null;
-    todo.todoCompletedTime = RecurrenceService.dueForOccurrenceDay(
-      today,
-      minuteOfDay,
-      fallbackTime: previousDue,
+    final previousDue = todo.dueAt;
+    final updated = todo.copyWith(
+      status: TodoStatus.active,
+      clearCompletedAt: true,
+      dueAt: RecurrenceService.dueForOccurrenceDay(
+        today,
+        minuteOfDay,
+        fallbackTime: previousDue,
+      ),
     );
-    await _persistScheduled(todo);
+    await _persistScheduled(updated);
   }
 
-  Future<void> _persistScheduled(Todos todo) async {
+  Future<void> _persistScheduled(Todo todo) async {
     await _todoRepo.update(todo);
     await _scheduleOrCancel(todo);
     await _calendarSync?.ensureSynced(todo);
     await _caldavSync?.markDirty(todo);
   }
 
-  Future<void> _scheduleOrCancel(Todos todo) async {
-    if (todo.todoCompletedTime != null) {
+  Future<void> _scheduleOrCancel(Todo todo) async {
+    if (todo.dueAt != null) {
       await _notificationService?.scheduleForTodo(todo);
     } else {
       await _notificationService?.cancel(todo.id);

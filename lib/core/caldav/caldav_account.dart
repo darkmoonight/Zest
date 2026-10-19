@@ -1,6 +1,7 @@
 import 'package:zest/core/caldav/caldav_client.dart';
 import 'package:zest/core/caldav/caldav_remote.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
 
 /// CalDAV sign-in fields used by settings and discovery.
 class CalDavAccount {
@@ -41,7 +42,7 @@ class CalDavAccount {
   }
 }
 
-/// CalDAV-related [Settings] fields shared by sync and the settings UI.
+/// CalDAV-related [Settings] fields shared by the settings UI (live Isar row).
 extension CalDavSettings on Settings {
   /// Whether URL and username are set (password is checked separately).
   bool get hasCalDavAccount =>
@@ -58,6 +59,18 @@ extension CalDavSettings on Settings {
     caldavCalendarName = calendar?.displayName;
     caldavCtag = null;
   }
+}
+
+/// CalDAV-related [AppSettings] fields shared by sync services.
+extension CalDavAppSettings on AppSettings {
+  /// Whether URL and username are set (password is checked separately).
+  bool get hasCalDavAccount =>
+      (caldavUrl?.trim().isNotEmpty ?? false) &&
+      (caldavUsername?.trim().isNotEmpty ?? false);
+
+  /// Whether sync can run: account fields and a calendar href are set.
+  bool get hasCalDavSyncTarget =>
+      hasCalDavAccount && (caldavCalendarHref?.trim().isNotEmpty ?? false);
 }
 
 /// Connects with [account], lists VTODO calendars, and closes the session.

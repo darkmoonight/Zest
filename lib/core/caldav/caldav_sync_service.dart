@@ -1,19 +1,22 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/caldav/caldav_account.dart';
 import 'package:zest/core/caldav/caldav_client.dart';
 import 'package:zest/core/caldav/caldav_credentials.dart';
+import 'package:zest/core/caldav/caldav_error.dart';
 import 'package:zest/core/caldav/caldav_pending_delete.dart';
 import 'package:zest/core/caldav/caldav_remote.dart';
 import 'package:zest/core/caldav/vtodo_mapper.dart';
 import 'package:zest/core/caldav/vtodo_record.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/core/utils/default_category.dart';
-import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/data/repositories/category_repository.dart';
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/repositories/todo_repository.dart';
 
 /// Result of a [CalDavSyncService.syncNow] pass.
 class CalDavSyncResult {
@@ -65,13 +68,13 @@ class CalDavSyncService {
   final Isar isar;
 
   /// Live settings accessor.
-  final Settings Function() getSettings;
+  final AppSettings Function() getSettings;
 
   /// Item repository.
-  final TodoRepository todoRepo;
+  final TodoRepositoryPort todoRepo;
 
   /// Persists settings (CTag, last sync, pending deletes, errors).
-  final Future<void> Function(Settings settings) saveSettings;
+  final Future<void> Function(AppSettings settings) saveSettings;
 
   /// Password store.
   final CalDavCredentialsStore credentials;
@@ -99,18 +102,19 @@ class CalDavSyncService {
   }
 
   /// Marks [todo] dirty and schedules a push, skipping nested subtasks.
-  Future<void> markDirty(Todos todo) async {
+  Future<void> markDirty(Todo todo) async {
     if (!getSettings().caldavEnabled) return;
-    await todo.parent.load();
-    if (todo.parent.value != null) return;
-    todo.caldavUid = VtodoMapper.allocateUid(todo);
-    todo.caldavDirty = true;
-    await todoRepo.update(todo);
+    if (todo.parentId != null) return;
+    final updated = todo.copyWith(
+      caldavUid: VtodoMapper.allocateUid(todo),
+      caldavDirty: true,
+    );
+    await todoRepo.update(updated);
     scheduleSync();
   }
 
   /// Queues a remote DELETE for [todo] after the local row is gone.
-  Future<void> enqueueDelete(Todos todo) async {
+  Future<void> enqueueDelete(Todo todo) async {
     if (!getSettings().caldavEnabled) return;
     final href = todo.caldavHref;
     final uid = todo.caldavUid;
@@ -120,8 +124,11 @@ class CalDavSyncService {
     pending.add(
       CalDavPendingDelete(uid: uid, href: href, etag: todo.caldavEtag),
     );
-    settings.caldavPendingDeletes = CalDavPendingDelete.encode(pending);
-    await saveSettings(settings);
+    await saveSettings(
+      settings.copyWith(
+        caldavPendingDeletes: CalDavPendingDelete.encode(pending),
+      ),
+    );
     scheduleSync();
   }
 
@@ -130,7 +137,12 @@ class CalDavSyncService {
     if (!isConfigured) return;
     _debounce?.cancel();
     _debounce = Timer(debounce, () {
-      unawaited(syncNow());
+      unawaited(
+        syncNow().catchError((Object e, StackTrace stack) {
+          AppLog.d('CalDAV scheduled sync failed: $e\n$stack');
+          return CalDavSyncResult(error: CalDavError.codeFor(e));
+        }),
+      );
     });
   }
 
@@ -169,7 +181,7 @@ class CalDavSyncService {
   }
 
   Future<CalDavSyncResult> _syncOnce(String password) async {
-    final settings = getSettings();
+    var settings = getSettings();
     CalDavRemote? remote;
     try {
       remote = await connect(
@@ -186,6 +198,7 @@ class CalDavSyncService {
       }
 
       var pushed = await _flushPendingDeletes(remote, settings);
+      settings = getSettings();
       final push = await _pushDirty(remote, calendar);
       pushed = push.changed || pushed;
       final ctagUnchanged =
@@ -201,21 +214,21 @@ class CalDavSyncService {
         );
       }
 
-      settings.caldavCtag = calendar.ctag;
-      settings.caldavLastSyncTime = DateTime.now();
-      if (push.conflicts > 0) {
-        settings.caldavLastError =
-            'Server copy kept for ${push.conflicts} conflicting item(s)';
-      } else {
-        settings.caldavLastError = null;
-      }
+      settings = getSettings().copyWith(
+        caldavCtag: calendar.ctag,
+        caldavLastSyncTime: DateTime.now(),
+        caldavLastError: push.conflicts > 0
+            ? CalDavError.conflictCode(push.conflicts)
+            : null,
+        clearCaldavLastError: push.conflicts == 0,
+      );
       await saveSettings(settings);
       return CalDavSyncResult(success: true, conflicts: push.conflicts);
     } catch (e, stack) {
-      debugPrint('CalDAV sync failed: $e\n$stack');
-      settings.caldavLastError = '$e';
-      await saveSettings(settings);
-      return CalDavSyncResult(error: '$e');
+      AppLog.d('CalDAV sync failed: $e\n$stack');
+      final code = CalDavError.codeFor(e);
+      await saveSettings(getSettings().copyWith(caldavLastError: code));
+      return CalDavSyncResult(error: code);
     } finally {
       remote?.close();
     }
@@ -223,7 +236,7 @@ class CalDavSyncService {
 
   Future<bool> _flushPendingDeletes(
     CalDavRemote remote,
-    Settings settings,
+    AppSettings settings,
   ) async {
     final pending = CalDavPendingDelete.decode(settings.caldavPendingDeletes);
     if (pending.isEmpty) return false;
@@ -241,13 +254,16 @@ class CalDavSyncService {
         );
         changed = true;
       } catch (e) {
-        debugPrint('CalDAV pending delete failed for ${item.uid}: $e');
+        AppLog.d('CalDAV pending delete failed for ${item.uid}: $e');
         remaining.add(item);
       }
     }
     if (remaining.length != pending.length) {
-      settings.caldavPendingDeletes = CalDavPendingDelete.encode(remaining);
-      await saveSettings(settings);
+      await saveSettings(
+        settings.copyWith(
+          caldavPendingDeletes: CalDavPendingDelete.encode(remaining),
+        ),
+      );
     }
     return changed;
   }
@@ -259,23 +275,24 @@ class CalDavSyncService {
     final dirty = await todoRepo.getDirtyCalDav();
     var changed = false;
     var conflicts = 0;
-    for (final todo in dirty) {
-      await todo.parent.load();
-      if (todo.parent.value != null) {
-        todo.caldavDirty = false;
-        await todoRepo.update(todo);
+    for (var todo in dirty) {
+      if (todo.parentId != null) {
+        await todoRepo.update(todo.copyWith(caldavDirty: false));
         continue;
       }
-      todo.caldavUid = VtodoMapper.allocateUid(todo);
+      todo = todo.copyWith(caldavUid: VtodoMapper.allocateUid(todo));
       final record = VtodoMapper.toRecord(todo);
       try {
         final saved = record.href == null || record.href!.isEmpty
             ? await remote.createTodo(calendar, record)
             : await remote.updateTodo(calendar, record);
-        todo.caldavHref = saved.href;
-        todo.caldavEtag = saved.etag;
-        todo.caldavDirty = false;
-        await todoRepo.update(todo);
+        await todoRepo.update(
+          todo.copyWith(
+            caldavHref: saved.href,
+            caldavEtag: saved.etag,
+            caldavDirty: false,
+          ),
+        );
         changed = true;
       } on CalDavConflict {
         await _applyServerCopy(remote, calendar, todo);
@@ -289,7 +306,7 @@ class CalDavSyncService {
   Future<void> _applyServerCopy(
     CalDavRemote remote,
     CalDavCalendarInfo calendar,
-    Todos todo,
+    Todo todo,
   ) async {
     final uid = todo.caldavUid;
     if (uid == null) return;
@@ -298,20 +315,23 @@ class CalDavSyncService {
       await _deleteLocal(todo);
       return;
     }
-    VtodoMapper.applyToTodo(todo, remoteTodo);
-    await todoRepo.update(todo);
-    await _refreshSideEffects(todo);
+    final applied = VtodoMapper.applyToTodo(todo, remoteTodo);
+    await todoRepo.update(applied);
+    await _refreshSideEffects(applied);
   }
 
   Future<void> _pull(
     CalDavRemote remote,
     CalDavCalendarInfo calendar,
-    Settings settings, {
+    AppSettings settings, {
     String? previousCtag,
   }) async {
     final remotes = await remote.getTodos(calendar);
     final remoteByUid = {for (final item in remotes) item.uid: item};
-    final category = await getFallbackCategory(isar, settings);
+    final category = await getFallbackCategoryViaRepo(
+      CategoryRepository(isar),
+      settings,
+    );
 
     for (final remoteTodo in remotes) {
       final existing = await todoRepo.getByCalDavUid(remoteTodo.uid);
@@ -325,25 +345,22 @@ class CalDavSyncService {
           priority: VtodoMapper.priorityFromIcal(remoteTodo.priority),
           tags: remoteTodo.categories,
           index: await todoRepo.nextIndex(),
-          task: category,
+          categoryId: category.id,
         );
-        VtodoMapper.applyToTodo(created, remoteTodo);
-        await todoRepo.update(created);
-        await _refreshSideEffects(created);
+        final applied = VtodoMapper.applyToTodo(created, remoteTodo);
+        await todoRepo.update(applied);
+        await _refreshSideEffects(applied);
         continue;
       }
       if (existing.caldavDirty) continue;
-      VtodoMapper.applyToTodo(existing, remoteTodo);
-      await todoRepo.update(existing);
-      await _refreshSideEffects(existing);
+      final applied = VtodoMapper.applyToTodo(existing, remoteTodo);
+      await todoRepo.update(applied);
+      await _refreshSideEffects(applied);
     }
 
     final locals = await todoRepo.getWithCalDavUid();
-    // Empty remote listing: only tombstone when we previously knew a ctag
-    // (calendar was synced before). Avoid wiping locals on a suspicious
-    // empty first listing / partial failure that returned [].
     if (remotes.isEmpty && locals.isNotEmpty && previousCtag == null) {
-      debugPrint('CalDAV pull: skipping empty-list tombstones (no prior ctag)');
+      AppLog.d('CalDAV pull: skipping empty-list tombstones (no prior ctag)');
       return;
     }
 
@@ -355,13 +372,13 @@ class CalDavSyncService {
     }
   }
 
-  Future<void> _deleteLocal(Todos todo) async {
+  Future<void> _deleteLocal(Todo todo) async {
     await notifications?.cancel(todo.id);
     await calendarSync?.removeSynced(todo);
     await todoRepo.delete(todo.id);
   }
 
-  Future<void> _refreshSideEffects(Todos todo) async {
+  Future<void> _refreshSideEffects(Todo todo) async {
     if (todo.status.isCompleted || todo.dueAt == null) {
       await notifications?.cancel(todo.id);
     } else {

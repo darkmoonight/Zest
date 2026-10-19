@@ -14,7 +14,7 @@ final appSettingsProvider =
 
 /// Provides the current UI [Locale] from [appSettingsProvider].
 final localeProvider = Provider<Locale>(
-  (ref) => ref.watch(appSettingsProvider).locale,
+  (ref) => ref.watch(appSettingsProvider.select((s) => s.locale)),
 );
 
 /// Syncs persisted [Settings] into [AppSettingsState] and applies UI updates.

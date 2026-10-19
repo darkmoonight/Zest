@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
-import 'package:zest/core/services/todo_service.dart';
-import 'package:zest/core/utils/show_snack_bar.dart';
-import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/task_repository.dart';
-import 'package:zest/data/repositories/todo_repository.dart';
-import 'package:zest/i18n/tr.dart';
+import 'package:zest/domain/usecases/todo_usecases.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/enums/enums.dart';
+import 'package:zest/domain/repositories/category_repository.dart';
+import 'package:zest/domain/repositories/todo_repository.dart';
+import 'package:zest/features/tasks/application/tasks_notifier.dart';
 
 /// Riverpod state for the items tab: list, filters, and multi-selection.
 class TodosState {
@@ -19,13 +20,15 @@ class TodosState {
     this.selectedTodoIds = const {},
     this.isMultiSelectionTodo = false,
     this.isPop = true,
+    this.todosRevision = 0,
+    this.childCountsByParentId = const {},
   });
 
   /// Loaded items shown in list screens.
-  final List<Todos> todos;
+  final List<Todo> todos;
 
   /// Selected items kept in sync with [selectedTodoIds] for UI actions.
-  final List<Todos> selectedTodo;
+  final List<Todo> selectedTodo;
 
   /// Stable id set for multi-select; survives list reloads.
   final Set<int> selectedTodoIds;
@@ -36,29 +39,50 @@ class TodosState {
   /// Whether [PopScope] should allow popping (false during multi-select).
   final bool isPop;
 
+  /// Increments whenever [todos] is replaced — list widgets use this for memo keys.
+  final int todosRevision;
+
+  /// Precomputed `(created, completed)` child counts keyed by parent id.
+  final Map<int, (int, int)> childCountsByParentId;
+
   /// Returns a copy with the given fields replaced.
+  ///
+  /// When [todos] is provided, [childCountsByParentId] and [todosRevision] are
+  /// refreshed unless overridden explicitly.
   TodosState copyWith({
-    List<Todos>? todos,
-    List<Todos>? selectedTodo,
+    List<Todo>? todos,
+    List<Todo>? selectedTodo,
     Set<int>? selectedTodoIds,
     bool? isMultiSelectionTodo,
     bool? isPop,
+    int? todosRevision,
+    Map<int, (int, int)>? childCountsByParentId,
   }) {
+    final nextTodos = todos ?? this.todos;
+    final todosChanged = todos != null;
     return TodosState(
-      todos: todos ?? this.todos,
+      todos: nextTodos,
       selectedTodo: selectedTodo ?? this.selectedTodo,
       selectedTodoIds: selectedTodoIds ?? this.selectedTodoIds,
       isMultiSelectionTodo: isMultiSelectionTodo ?? this.isMultiSelectionTodo,
       isPop: isPop ?? this.isPop,
+      todosRevision:
+          todosRevision ??
+          (todosChanged ? this.todosRevision + 1 : this.todosRevision),
+      childCountsByParentId:
+          childCountsByParentId ??
+          (todosChanged
+              ? TodosNotifier.computeChildCountsByParentId(nextTodos)
+              : this.childCountsByParentId),
     );
   }
 }
 
 /// Loads and mutates items; subscribes to Isar watch streams for live updates.
 class TodosNotifier extends Notifier<TodosState> {
-  TaskRepository? _taskRepo;
+  CategoryRepositoryPort? _taskRepo;
 
-  TodoRepository? _todoRepo;
+  TodoRepositoryPort? _todoRepo;
 
   /// Debounce timer for coalescing database reload requests.
   Timer? _loadDebounce;
@@ -66,15 +90,15 @@ class TodosNotifier extends Notifier<TodosState> {
   /// Monotonic token so stale [getAll] results cannot overwrite newer loads.
   int _loadGeneration = 0;
 
-  TaskRepository get taskRepo {
+  CategoryRepositoryPort get taskRepo {
     final cached = _taskRepo;
     if (cached != null) return cached;
-    final created = ref.read(taskRepositoryProvider);
+    final created = ref.read(categoryRepositoryProvider);
     _taskRepo = created;
     return created;
   }
 
-  TodoRepository get todoRepo {
+  TodoRepositoryPort get todoRepo {
     final cached = _todoRepo;
     if (cached != null) return cached;
     final created = ref.read(todoRepositoryProvider);
@@ -115,7 +139,7 @@ class TodosNotifier extends Notifier<TodosState> {
   Future<void> _loadTodos() async {
     final generation = ++_loadGeneration;
     final preservedSelectedIds = state.selectedTodoIds.toSet();
-    final newTodos = await todoRepo.getAllWithLinks();
+    final newTodos = await todoRepo.getAll();
     if (generation != _loadGeneration) return;
     state = state.copyWith(
       todos: newTodos,
@@ -128,22 +152,22 @@ class TodosNotifier extends Notifier<TodosState> {
   Future<void> reloadTodos() => _loadTodos();
 
   /// Creates a list item and returns the persisted record.
-  Future<Todos> addTodo({
-    required Tasks task,
+  Future<Todo> addTodo({
+    required Category category,
     required String title,
     required String description,
     required String time,
     required bool pinned,
     required Priority priority,
     required List<String> tags,
-    Todos? parent,
+    Todo? parent,
     RecurrenceFrequency recurrence = RecurrenceFrequency.none,
     List<int> recurrenceWeekdays = const [],
     RecurrenceMode recurrenceMode = RecurrenceMode.clone,
     int? recurrenceMinuteOfDay,
   }) async {
     final todo = await todoService.createTodo(
-      task: task,
+      category: category,
       title: title,
       description: description,
       timeString: time,
@@ -157,14 +181,13 @@ class TodosNotifier extends Notifier<TodosState> {
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
-    showSnackBar('todoCreate'.tr);
     return todo;
   }
 
   /// Persists edits to an existing item.
   Future<void> updateTodo({
-    required Todos todo,
-    required Tasks task,
+    required Todo todo,
+    required Category category,
     required String title,
     required String description,
     required String time,
@@ -178,7 +201,7 @@ class TodosNotifier extends Notifier<TodosState> {
   }) async {
     await todoService.updateTodo(
       todo: todo,
-      task: task,
+      category: category,
       title: title,
       description: description,
       timeString: time,
@@ -190,11 +213,10 @@ class TodosNotifier extends Notifier<TodosState> {
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
-    showSnackBar('updateTodo'.tr);
   }
 
   /// Updates item status and resyncs the current multi-selection.
-  Future<void> updateTodoStatus(Todos todo) async {
+  Future<void> updateTodoStatus(Todo todo) async {
     await todoService.updateTodoStatus(todo);
     await _loadTodos();
     _resyncSelectedTodoFromIds();
@@ -202,7 +224,7 @@ class TodosNotifier extends Notifier<TodosState> {
 
   /// Sets status on [item] and its subtasks, then resyncs selection.
   Future<void> updateTodoStatusWithSubtasks(
-    Todos todo,
+    Todo todo,
     TodoStatus status,
   ) async {
     await todoService.updateStatusWithSubtasks(todo, status);
@@ -211,16 +233,15 @@ class TodosNotifier extends Notifier<TodosState> {
   }
 
   /// Moves [todoList] to [task] and reloads items.
-  Future<void> moveTodos(List<Todos> todoList, Tasks task) async {
+  Future<void> moveTodos(List<Todo> todoList, Category category) async {
     if (todoList.isEmpty) return;
 
-    await todoService.moveTodos(todos: todoList, task: task);
+    await todoService.moveTodos(todos: todoList, category: category);
     await _loadTodos();
-    showSnackBar('updateTodo'.tr);
   }
 
   /// Reparents [rootList] under [newParent] and reloads items.
-  Future<void> moveTodosToParent(List<Todos> rootList, Todos? newParent) async {
+  Future<void> moveTodosToParent(List<Todo> rootList, Todo? newParent) async {
     if (rootList.isEmpty) return;
 
     await todoService.moveTodosToParent(
@@ -228,16 +249,15 @@ class TodosNotifier extends Notifier<TodosState> {
       newParent: newParent,
     );
     await _loadTodos();
-    showSnackBar('updateTodo'.tr);
   }
 
   /// Deletes [todoList], updates selection, and reindexes remaining items.
-  Future<void> deleteTodo(List<Todos> todoList) async {
+  Future<void> deleteTodo(List<Todo> todoList) async {
     if (todoList.isEmpty) return;
 
     _loadDebounce?.cancel();
 
-    final todoListCopy = List<Todos>.from(todoList);
+    final todoListCopy = List<Todo>.from(todoList);
 
     await todoService.deleteTodos(todoListCopy);
 
@@ -251,22 +271,16 @@ class TodosNotifier extends Notifier<TodosState> {
     );
     _resyncSelectedTodoFromIds();
     await _reindexTodos();
-    showSnackBar('todoDelete'.tr);
   }
 
   Future<void> _reindexTodos() async {
     final all = state.todos.toList();
-
-    for (int i = 0; i < all.length; i++) {
-      all[i].index = i;
-    }
-
     await todoRepo.updateIndexes(all);
-    state = state.copyWith(todos: all);
+    state = state.copyWith(todos: await todoRepo.getAll());
   }
 
   /// Persists a new order for [filteredTodos] within the full item list.
-  Future<void> reorderTodos({required List<Todos> filteredTodos}) async {
+  Future<void> reorderTodos({required List<Todo> filteredTodos}) async {
     if (filteredTodos.isEmpty) return;
 
     final allTodos = state.todos.toList();
@@ -280,18 +294,33 @@ class TodosNotifier extends Notifier<TodosState> {
   // ==================== Counters ====================
 
   /// Count of root items across non-archived categories.
-  int createdAllTodos() => todoService.countAll(state.todos);
+  Set<int> _archivedCategoryIds() {
+    final tasks = ref.read(tasksNotifierProvider).tasks;
+    return {
+      for (final t in tasks)
+        if (t.archive) t.id,
+    };
+  }
+
+  /// Count of root items across non-archived categories.
+  int createdAllTodos() => todoService.countAll(
+    state.todos,
+    archivedCategoryIds: _archivedCategoryIds(),
+  );
 
   /// Count of completed root items across non-archived categories.
-  int completedAllTodos() => todoService.countAllCompleted(state.todos);
+  int completedAllTodos() => todoService.countAllCompleted(
+    state.todos,
+    archivedCategoryIds: _archivedCategoryIds(),
+  );
 
   /// Count of root items in [task].
-  int createdAllTodosTask(Tasks task) =>
-      todoService.countForTask(task, state.todos);
+  int createdAllTodosTask(Category category) =>
+      todoService.countForCategory(category, state.todos);
 
   /// Count of completed root items in [task].
-  int completedAllTodosTask(Tasks task) =>
-      todoService.countCompletedForTask(task, state.todos);
+  int completedAllTodosTask(Category category) =>
+      todoService.countCompletedForCategory(category, state.todos);
 
   /// Count of active root items due on [date] for calendar markers.
   int countTotalTodosCalendar(
@@ -301,21 +330,27 @@ class TodosNotifier extends Notifier<TodosState> {
     date,
     state.todos,
     excludeArchivedCategories: excludeArchivedCategories,
+    archivedCategoryIds: _archivedCategoryIds(),
   );
 
   /// Count of direct children under [parent].
-  int createdAllTodosTodo(Todos parent) =>
+  int createdAllTodosTodo(Todo parent) =>
       todoService.countForParent(parent, state.todos);
 
   /// Count of completed direct children under [parent].
-  int completedAllTodosTodo(Todos parent) =>
+  int completedAllTodosTodo(Todo parent) =>
       todoService.countCompletedForParent(parent, state.todos);
 
   /// One-pass child counts keyed by parent id: `(created, completed)`.
-  Map<int, (int, int)> childCountsByParentId() {
+  ///
+  /// Prefer [TodosState.childCountsByParentId] in UI hot paths (already cached).
+  Map<int, (int, int)> childCountsByParentId() => state.childCountsByParentId;
+
+  /// Computes child counts for [todos] (used when building [TodosState]).
+  static Map<int, (int, int)> computeChildCountsByParentId(List<Todo> todos) {
     final counts = <int, (int, int)>{};
-    for (final todo in state.todos) {
-      final parentId = todo.parent.value?.id;
+    for (final todo in todos) {
+      final parentId = todo.parentId;
       if (parentId == null) continue;
       final prev = counts[parentId] ?? (0, 0);
       counts[parentId] = (
@@ -330,8 +365,8 @@ class TodosNotifier extends Notifier<TodosState> {
   Map<int, (int, int)> rootCountsByTaskId() {
     final counts = <int, (int, int)>{};
     for (final todo in state.todos) {
-      if (todo.parent.value != null) continue;
-      final taskId = todo.task.value?.id;
+      if (todo.parentId != null) continue;
+      final taskId = todo.categoryId;
       if (taskId == null) continue;
       final prev = counts[taskId] ?? (0, 0);
       counts[taskId] = (
@@ -348,12 +383,13 @@ class TodosNotifier extends Notifier<TodosState> {
   }) {
     final counts = <DateTime, int>{};
     for (final todo in state.todos) {
-      if (excludeArchivedCategories && todo.task.value?.archive != false) {
+      if (excludeArchivedCategories && todo.categoryId == null ||
+          _archivedCategoryIds().contains(todo.categoryId)) {
         continue;
       }
-      if (todo.parent.value != null) continue;
+      if (todo.parentId != null) continue;
       if (todo.status != TodoStatus.active) continue;
-      final due = todo.todoCompletedTime;
+      final due = todo.dueAt;
       if (due == null) continue;
       final day = DateTime(due.year, due.month, due.day);
       counts[day] = (counts[day] ?? 0) + 1;
@@ -364,12 +400,12 @@ class TodosNotifier extends Notifier<TodosState> {
   // ==================== Filters ====================
 
   /// Returns items matching status, search, date, task, and parent filters.
-  List<Todos> getFilteredTodos({
+  List<Todo> getFilteredTodos({
     required TodoStatus? statusFilter,
     String searchQuery = '',
     DateTime? selectedDay,
-    Tasks? task,
-    Todos? parent,
+    Category? task,
+    Todo? parent,
     bool excludeArchivedCategories = false,
   }) {
     return todoService.filterTodos(
@@ -377,16 +413,17 @@ class TodosNotifier extends Notifier<TodosState> {
       statusFilter: statusFilter,
       searchQuery: searchQuery,
       selectedDay: selectedDay,
-      task: task,
+      category: task,
       parent: parent,
       excludeArchivedCategories: excludeArchivedCategories,
+      archivedCategoryIds: _archivedCategoryIds(),
     );
   }
 
   // ==================== Multi-Selection Items ====================
 
   /// Toggles the given entry in the multi-select id set.
-  void doMultiSelectionTodo(Todos todo) {
+  void doMultiSelectionTodo(Todo todo) {
     if (!state.isMultiSelectionTodo) return;
 
     final updatedIds = Set<int>.from(state.selectedTodoIds);
@@ -436,7 +473,7 @@ class TodosNotifier extends Notifier<TodosState> {
     final todosMap = {for (final todo in state.todos) todo.id: todo};
     final updated = state.selectedTodoIds
         .map((id) => todosMap[id])
-        .whereType<Todos>()
+        .whereType<Todo>()
         .toList();
 
     if (updated.isEmpty) {
@@ -456,8 +493,8 @@ class TodosNotifier extends Notifier<TodosState> {
     required TodoStatus? statusFilter,
     String searchQuery = '',
     DateTime? selectedDay,
-    Tasks? task,
-    Todos? parent,
+    Category? task,
+    Todo? parent,
     bool excludeArchivedCategories = false,
   }) {
     final filtered = getFilteredTodos(
@@ -479,8 +516,8 @@ class TodosNotifier extends Notifier<TodosState> {
     required TodoStatus? statusFilter,
     String searchQuery = '',
     DateTime? selectedDay,
-    Tasks? task,
-    Todos? parent,
+    Category? task,
+    Todo? parent,
     bool excludeArchivedCategories = false,
   }) {
     final filtered = getFilteredTodos(
@@ -519,6 +556,14 @@ class TodosNotifier extends Notifier<TodosState> {
 
     _resyncSelectedTodoFromIds();
   }
+
+  /// Persists [todo.childrenSortOption] after the user changes list sort.
+  Future<void> persistChildrenSort(Todo todo, SortOption option) async {
+    await todoRepo.update(todo.copyWith(childrenSortOption: option));
+  }
+
+  /// Unique tags from the repository (for form autocomplete).
+  Future<List<String>> collectUniqueTags() => todoRepo.collectUniqueTags();
 }
 
 /// Items notifier provider.

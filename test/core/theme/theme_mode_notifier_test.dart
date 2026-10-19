@@ -21,6 +21,7 @@ void main() {
   });
 
   tearDown(() async {
+    if (isarCoreUnavailable) return;
     container.dispose();
     await closeTestIsar(isar);
   });

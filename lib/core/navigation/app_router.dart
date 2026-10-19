@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/navigation/app_routes.dart';
 import 'package:zest/core/navigation/route_transitions.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:zest/core/navigation/home_screen_key.dart';
 import 'package:zest/features/shell/presentation/home_screen.dart';
@@ -43,7 +43,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 });
 
 /// Returns a redirect when onboarding is incomplete or should be skipped.
-String? resolveAppRedirect(Settings settings, String path) {
+String? resolveAppRedirect(AppSettings settings, String path) {
   if (!settings.onboard) {
     return path == AppRoutes.onboarding ? null : AppRoutes.onboarding;
   }

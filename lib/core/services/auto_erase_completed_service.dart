@@ -7,6 +7,7 @@ import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/utils/calendar_date.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/domain/entities/todo.dart';
 
 /// Deletes old completed items on a schedule (Settings → Data).
 class AutoEraseCompletedService {
@@ -53,9 +54,9 @@ class AutoEraseCompletedService {
   }
 
   /// Whether [item] is eligible for erase given [cutoff] (calendar day).
-  static bool isEligible(Todos todo, DateTime cutoff) {
+  static bool isEligible(Todo todo, DateTime cutoff) {
     if (todo.status != TodoStatus.done) return false;
-    final completed = todo.todoCompletionTime ?? todo.createdTime;
+    final completed = todo.completedAt ?? todo.createdAt;
     final completedDay = CalendarDate.day(completed);
     return !completedDay.isAfter(CalendarDate.day(cutoff));
   }

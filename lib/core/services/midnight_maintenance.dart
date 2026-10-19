@@ -4,8 +4,11 @@ import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/recurrence_background_scheduler.dart';
 import 'package:zest/core/services/recurrence_coordinator.dart';
+import 'package:zest/data/mappers/settings_mapper.dart';
 import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/data/repositories/category_repository.dart';
+import 'package:zest/domain/repositories/category_repository.dart';
+import 'package:zest/domain/repositories/todo_repository.dart';
 
 /// Midnight rollover + reminder reschedule for resume and Workmanager.
 ///
@@ -15,7 +18,8 @@ import 'package:zest/data/repositories/todo_repository.dart';
 Future<void> runMidnightMaintenance({
   required Isar isar,
   required Settings settings,
-  required TodoRepository todoRepo,
+  required TodoRepositoryPort todoRepo,
+  CategoryRepositoryPort? categoryRepo,
   required NotificationService notificationService,
   DeviceCalendarSyncService? calendarSync,
   CalDavSyncService? caldavSync,
@@ -25,7 +29,7 @@ Future<void> runMidnightMaintenance({
 }) async {
   await RecurrenceCoordinator(
     todoRepo: todoRepo,
-    isar: isar,
+    categoryRepo: categoryRepo ?? CategoryRepository(isar),
     notificationService: notificationService,
     calendarSync: calendarSync,
     caldavSync: caldavSync,
@@ -34,7 +38,7 @@ Future<void> runMidnightMaintenance({
   final todos = await todoRepo.getAll();
   await notificationService.rescheduleActiveReminders(
     todos,
-    settings: settings,
+    settings: SettingsMapper.toDomain(settings),
     firePastDueImmediately: firePastDueImmediately,
   );
 

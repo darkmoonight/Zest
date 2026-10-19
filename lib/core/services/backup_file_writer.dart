@@ -64,7 +64,14 @@ class BackupFileWriter {
       await backupFile.delete();
     }
 
-    await isar.copyToFile(backupFile.path);
+    // Strip CalDAV identity / sync runtime from the on-disk copy so backups
+    // do not leak server URL or username. Live settings are restored after.
+    final caldavSnapshot = await _redactCaldavIdentity(isar);
+    try {
+      await isar.copyToFile(backupFile.path);
+    } finally {
+      await _restoreCaldavIdentity(isar, caldavSnapshot);
+    }
 
     final compressedFileName = '$backupFileName$compressedExtension';
     final compressedFile = File(p.join(outputDirectory, compressedFileName));
@@ -207,4 +214,66 @@ class BackupFileWriter {
       if (await file.exists()) await file.delete();
     } catch (_) {}
   }
+
+  /// Snapshot of CalDAV fields temporarily cleared before [Isar.copyToFile].
+  static Future<_CaldavBackupSnapshot?> _redactCaldavIdentity(Isar isar) async {
+    final settings = await isar.settings.where().findFirst();
+    if (settings == null) return null;
+
+    final snapshot = _CaldavBackupSnapshot(
+      url: settings.caldavUrl,
+      username: settings.caldavUsername,
+      ctag: settings.caldavCtag,
+      lastError: settings.caldavLastError,
+      pendingDeletes: settings.caldavPendingDeletes,
+    );
+
+    await isar.writeTxn(() async {
+      settings.caldavUrl = null;
+      settings.caldavUsername = null;
+      settings.caldavCtag = null;
+      settings.caldavLastError = null;
+      settings.caldavPendingDeletes = '[]';
+      await isar.settings.put(settings);
+    });
+
+    return snapshot;
+  }
+
+  /// Restores CalDAV fields cleared by [_redactCaldavIdentity].
+  static Future<void> _restoreCaldavIdentity(
+    Isar isar,
+    _CaldavBackupSnapshot? snapshot,
+  ) async {
+    if (snapshot == null) return;
+
+    final settings = await isar.settings.where().findFirst();
+    if (settings == null) return;
+
+    await isar.writeTxn(() async {
+      settings.caldavUrl = snapshot.url;
+      settings.caldavUsername = snapshot.username;
+      settings.caldavCtag = snapshot.ctag;
+      settings.caldavLastError = snapshot.lastError;
+      settings.caldavPendingDeletes = snapshot.pendingDeletes;
+      await isar.settings.put(settings);
+    });
+  }
+}
+
+/// In-memory CalDAV fields held across a backup [Isar.copyToFile].
+class _CaldavBackupSnapshot {
+  const _CaldavBackupSnapshot({
+    required this.url,
+    required this.username,
+    required this.ctag,
+    required this.lastError,
+    required this.pendingDeletes,
+  });
+
+  final String? url;
+  final String? username;
+  final String? ctag;
+  final String? lastError;
+  final String pendingDeletes;
 }

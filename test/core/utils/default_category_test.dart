@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/utils/default_category.dart';
+import 'package:zest/data/mappers/settings_mapper.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/category.dart';
 
 import '../../helpers/isar_test_helper.dart';
 
@@ -82,16 +84,23 @@ void main() {
   );
 
   test('isSelectedDefaultCategory treats system Default when id unset', () {
-    final system = Tasks(
+    const system = Category(
+      id: 1,
       title: kDefaultCategoryTitle,
-      taskColor: kDefaultCategoryColor,
+      colorArgb: kDefaultCategoryColor,
       index: 0,
       isSystem: true,
     );
-    expect(isSelectedDefaultCategory(settings, system), isTrue);
+    expect(
+      isSelectedDefaultCategory(SettingsMapper.toDomain(settings), system),
+      isTrue,
+    );
 
     settings.defaultCategoryId = 42;
-    expect(isSelectedDefaultCategory(settings, system), isFalse);
+    expect(
+      isSelectedDefaultCategory(SettingsMapper.toDomain(settings), system),
+      isFalse,
+    );
   });
 
   test('getFallbackCategory prefers user default over system', () async {

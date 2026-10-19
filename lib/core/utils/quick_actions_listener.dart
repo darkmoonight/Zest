@@ -152,7 +152,7 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _showCreateSheet(
             ctx,
-            TodosAction(text: 'create'.tr, edit: false, category: true),
+            TodosAction(text: 'create'.tr, edit: false, showCategory: true),
           );
         });
         break;

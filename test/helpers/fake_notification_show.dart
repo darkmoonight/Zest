@@ -1,5 +1,6 @@
 import 'package:zest/core/utils/notification.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/enums/priority.dart';
 
 class RecordedNotification {
   const RecordedNotification({
@@ -32,7 +33,7 @@ class RecordedSnooze {
 /// Test double for [NotificationShow] that records calls.
 class FakeNotificationShow extends NotificationShow {
   final List<RecordedNotification> shown = [];
-  final List<Settings> shownSettings = [];
+  final List<AppSettings> shownSettings = [];
   final List<int> cancelled = [];
   final List<RecordedSnooze> snoozed = [];
   bool cancelAllCalled = false;
@@ -49,7 +50,7 @@ class FakeNotificationShow extends NotificationShow {
     bool requestPermission = false,
     String? markDoneActionText,
     String? snoozeActionText,
-    Settings? settings,
+    AppSettings? settings,
     Priority priority = Priority.none,
   }) async {
     if (throwOnShow) {
@@ -87,7 +88,7 @@ class FakeNotificationShow extends NotificationShow {
     String? markDoneActionText,
     String? snoozeActionText,
     int? snoozeMinutes,
-    Settings? settings,
+    AppSettings? settings,
     Priority priority = Priority.none,
   }) async {
     snoozed.add(

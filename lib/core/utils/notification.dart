@@ -5,7 +5,8 @@ import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/notifications/notification_channels.dart';
 import 'package:zest/core/notifications/notification_i18n.dart';
 import 'package:zest/core/services/notification_plugin.dart';
-import 'package:zest/data/models/db.dart' as db;
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/enums/priority.dart' as zest;
 import 'package:zest/i18n/tr.dart';
 
 /// Schedules, snoozes, and cancels local item reminder notifications.
@@ -39,8 +40,8 @@ class NotificationShow {
     bool requestPermission = false,
     String? markDoneActionText,
     String? snoozeActionText,
-    db.Settings? settings,
-    db.Priority priority = db.Priority.none,
+    AppSettings? settings,
+    zest.Priority priority = zest.Priority.none,
   }) async {
     if (_plugin == null) {
       debugPrint('Notifications not supported on this platform');
@@ -145,10 +146,10 @@ class NotificationShow {
   NotificationDetails _buildNotificationDetails(
     String title,
     String body, {
-    required db.Priority priority,
+    required zest.Priority priority,
     String? markDoneActionText,
     String? snoozeActionText,
-    db.Settings? settings,
+    AppSettings? settings,
   }) {
     final markText = markDoneActionText ?? 'markAsDone'.tr;
     final snoozeMinutes =
@@ -238,8 +239,8 @@ class NotificationShow {
     String? markDoneActionText,
     String? snoozeActionText,
     int? snoozeMinutes,
-    db.Settings? settings,
-    db.Priority priority = db.Priority.none,
+    AppSettings? settings,
+    zest.Priority priority = zest.Priority.none,
   }) async {
     if (_plugin == null) return;
 

@@ -21,7 +21,7 @@ class HourlyProgressChart extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final periodData = _groupByPeriod();
     final is12Hour = DateTimeFormatHelper.is12HourFormat(
-      ref.watch(appSettingsProvider).timeformat,
+      ref.watch(appSettingsProvider.select((s) => s.timeformat)),
     );
     final periodLabels = ChartLabels.timePeriods();
     final axisLabels = is12Hour

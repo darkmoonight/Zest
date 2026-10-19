@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Provides the persisted theme mode preference as [ThemeMode].
@@ -16,12 +16,12 @@ String themePreferenceLabel(String? themeKey) =>
 
 /// Persists and exposes theme mode; also saves AMOLED and Material You toggles.
 class ThemeModeNotifier extends Notifier<ThemeMode> {
-  /// Initializes theme mode from persisted [Settings].
+  /// Initializes theme mode from persisted [AppSettings].
   @override
   ThemeMode build() => _fromSettings(ref.watch(settingsProvider));
 
   /// Maps stored theme string to [ThemeMode].
-  ThemeMode _fromSettings(Settings settings) {
+  ThemeMode _fromSettings(AppSettings settings) {
     switch (settings.theme) {
       case AppConstants.themeDark:
         return ThemeMode.dark;
@@ -32,23 +32,19 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
     }
   }
 
-  Future<void> _write(void Function(Settings) mutate) {
-    return ref.writeLiveSettings(mutate: mutate);
-  }
-
   /// Persists the selected theme mode string and refreshes state.
   Future<void> setTheme(String themeMode) async {
-    await _write((s) => s.theme = themeMode);
-    state = _fromSettings(ref.read(liveSettingsProvider));
+    await ref.writeLiveSettings(mutate: (s) => s.theme = themeMode);
+    state = _fromSettings(ref.read(settingsProvider));
   }
 
   /// Persists the AMOLED (pure black) theme toggle.
   Future<void> saveOledTheme(bool isOled) async {
-    await _write((s) => s.amoledTheme = isOled);
+    await ref.writeLiveSettings(mutate: (s) => s.amoledTheme = isOled);
   }
 
   /// Persists the Material You dynamic color toggle.
   Future<void> saveMaterialTheme(bool isMaterial) async {
-    await _write((s) => s.materialColor = isMaterial);
+    await ref.writeLiveSettings(mutate: (s) => s.materialColor = isMaterial);
   }
 }

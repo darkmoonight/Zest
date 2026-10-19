@@ -1,47 +1,44 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:isar_community/isar.dart';
 import 'package:zest/core/services/notification_service.dart';
-import 'package:zest/core/services/todo_service.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/usecases/todo_usecases.dart';
 import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/todo_repository.dart';
 
 import '../../helpers/fake_notification_show.dart';
 import '../../helpers/isar_test_helper.dart';
+import '../../helpers/noop_repositories.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late Isar isar;
   late TodoService service;
 
-  setUp(() async {
-    isar = await openTestIsar();
+  setUp(() {
     service = TodoService(
-      todoRepo: TodoRepository(isar),
+      todoRepo: NoopTodoRepository(),
       notificationService: NotificationService(
         notificationShow: FakeNotificationShow(),
       ),
     );
   });
 
-  tearDown(() async {
-    await closeTestIsar(isar);
-  });
-
   group('TodoService.filterTodos', () {
-    late Tasks task;
-    late Tasks archivedTask;
-    late Todos parent;
-    late List<Todos> allTodos;
+    late Category task;
+    late Category archivedTask;
+    late Todo parent;
+    late List<Todo> allTodos;
+    late Set<int> archivedCategoryIds;
 
     setUp(() {
-      task = Tasks(id: 1, title: 'Work', taskColor: 0xFF0000FF);
-      archivedTask = Tasks(
+      task = const Category(id: 1, title: 'Work', colorArgb: 0xFF0000FF);
+      archivedTask = const Category(
         id: 2,
         title: 'Archive',
-        taskColor: 0xFFFF0000,
+        colorArgb: 0xFFFF0000,
         archive: true,
       );
+      archivedCategoryIds = {archivedTask.id};
       parent = buildTodo(id: 10, task: task, name: 'Parent');
       allTodos = [
         buildTodo(id: 1, task: task, name: 'Root active', tags: ['focus']),
@@ -72,7 +69,7 @@ void main() {
         () => service.filterTodos(
           allTodos: allTodos,
           statusFilter: null,
-          task: task,
+          category: task,
           selectedDay: DateTime(2026, 6, 23),
         ),
         throwsArgumentError,
@@ -92,6 +89,7 @@ void main() {
         allTodos: allTodos,
         statusFilter: null,
         excludeArchivedCategories: true,
+        archivedCategoryIds: archivedCategoryIds,
       );
       expect(filtered.map((t) => t.id), [1, 2, 5]);
     });
@@ -105,11 +103,11 @@ void main() {
       expect(filtered.map((t) => t.id), [1, 2, 4, 5]);
     });
 
-    test('filters by task', () {
+    test('filters by category', () {
       final filtered = service.filterTodos(
         allTodos: allTodos,
         statusFilter: null,
-        task: task,
+        category: task,
       );
       expect(filtered.map((t) => t.id), [1, 2, 5]);
     });
@@ -129,6 +127,7 @@ void main() {
         statusFilter: null,
         selectedDay: DateTime(2026, 6, 23),
         excludeArchivedCategories: true,
+        archivedCategoryIds: archivedCategoryIds,
       );
       expect(filtered.map((t) => t.id), [5]);
     });
@@ -162,6 +161,7 @@ void main() {
         statusFilter: null,
         selectedDay: DateTime(2026, 6, 23),
         excludeArchivedCategories: true,
+        archivedCategoryIds: archivedCategoryIds,
       );
       expect(filtered.map((t) => t.id), [5, 6]);
     });
@@ -177,19 +177,21 @@ void main() {
   });
 
   group('TodoService counters', () {
-    late Tasks task;
-    late Tasks archivedTask;
-    late Todos parent;
-    late List<Todos> allTodos;
+    late Category task;
+    late Category archivedTask;
+    late Todo parent;
+    late List<Todo> allTodos;
+    late Set<int> archivedCategoryIds;
 
     setUp(() {
-      task = Tasks(id: 1, title: 'Work', taskColor: 0xFF0000FF);
-      archivedTask = Tasks(
+      task = const Category(id: 1, title: 'Work', colorArgb: 0xFF0000FF);
+      archivedTask = const Category(
         id: 2,
         title: 'Archive',
-        taskColor: 0xFFFF0000,
+        colorArgb: 0xFFFF0000,
         archive: true,
       );
+      archivedCategoryIds = {archivedTask.id};
       parent = buildTodo(id: 10, task: task, name: 'Parent');
       allTodos = [
         buildTodo(id: 1, task: task, name: 'Root'),
@@ -217,14 +219,23 @@ void main() {
       ];
     });
 
-    test('countForTask counts root todos in task', () {
-      expect(service.countForTask(task, allTodos), 3);
-      expect(service.countCompletedForTask(task, allTodos), 1);
+    test('countForCategory counts root todos in category', () {
+      expect(service.countForCategory(task, allTodos), 3);
+      expect(service.countCompletedForCategory(task, allTodos), 1);
     });
 
     test('countAll ignores archived tasks and subtasks', () {
-      expect(service.countAll(allTodos), 3);
-      expect(service.countAllCompleted(allTodos), 1);
+      expect(
+        service.countAll(allTodos, archivedCategoryIds: archivedCategoryIds),
+        3,
+      );
+      expect(
+        service.countAllCompleted(
+          allTodos,
+          archivedCategoryIds: archivedCategoryIds,
+        ),
+        1,
+      );
     });
 
     test('countForCalendar counts active todos on date', () {
@@ -236,7 +247,14 @@ void main() {
       );
       final withArchived = [...allTodos, archivedActive];
 
-      expect(service.countForCalendar(DateTime(2026, 6, 23), withArchived), 1);
+      expect(
+        service.countForCalendar(
+          DateTime(2026, 6, 23),
+          withArchived,
+          archivedCategoryIds: archivedCategoryIds,
+        ),
+        1,
+      );
       expect(
         service.countForCalendar(
           DateTime(2026, 6, 23),

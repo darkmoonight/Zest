@@ -5,7 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:zest/core/bootstrap/background_isar_context.dart';
 import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
 import 'package:zest/core/utils/notification.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/data/mappers/settings_mapper.dart';
 
 /// Background isolate entry point for notification taps and actions.
 ///
@@ -66,13 +66,16 @@ Future<void> markTodoAsDone(int itemId) async {
 }
 
 Future<void> _snoozeItem(BackgroundIsarContext ctx, int itemId) async {
-  final item = await ctx.isar.todos.get(itemId);
+  final item = await ctx.todoRepo.getById(itemId);
   if (item == null) return;
-  await ctx.todoService().snoozeTodo(item, ctx.settings);
+  await ctx.todoService().snoozeTodo(
+    item,
+    SettingsMapper.toDomain(ctx.settings),
+  );
 }
 
 Future<void> _markItemDone(BackgroundIsarContext ctx, int itemId) async {
-  final item = await ctx.isar.todos.get(itemId);
+  final item = await ctx.todoRepo.getById(itemId);
   if (item == null) return;
   await ctx.todoService().markTodoAsDone(item);
 }

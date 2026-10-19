@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zest/core/services/auto_erase_completed_service.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/todo.dart';
 
 void main() {
   group('AutoEraseCompletedService.shouldErase', () {
@@ -75,43 +76,47 @@ void main() {
     final cutoff = DateTime(2026, 7, 8);
 
     test('keeps recent completed todos', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 1,
         name: 'Recent',
         description: '',
-        createdTime: DateTime(2026, 7, 10),
+        createdAt: DateTime(2026, 7, 10),
         status: TodoStatus.done,
-        todoCompletionTime: DateTime(2026, 7, 12, 9),
+        completedAt: DateTime(2026, 7, 12, 9),
       );
       expect(AutoEraseCompletedService.isEligible(todo, cutoff), isFalse);
     });
 
     test('erases completed todos on or before cutoff', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 2,
         name: 'Old',
         description: '',
-        createdTime: DateTime(2026, 6, 1),
+        createdAt: DateTime(2026, 6, 1),
         status: TodoStatus.done,
-        todoCompletionTime: DateTime(2026, 7, 1, 9),
+        completedAt: DateTime(2026, 7, 1, 9),
       );
       expect(AutoEraseCompletedService.isEligible(todo, cutoff), isTrue);
     });
 
     test('never erases active todos', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 3,
         name: 'Active',
         description: '',
-        createdTime: DateTime(2026, 6, 1),
+        createdAt: DateTime(2026, 6, 1),
         status: TodoStatus.active,
-        todoCompletionTime: DateTime(2026, 6, 1),
+        completedAt: DateTime(2026, 6, 1),
       );
       expect(AutoEraseCompletedService.isEligible(todo, cutoff), isFalse);
     });
 
-    test('falls back to createdTime when completion time is missing', () {
-      final todo = Todos(
+    test('falls back to createdAt when completion time is missing', () {
+      final todo = Todo(
+        id: 4,
         name: 'Legacy',
         description: '',
-        createdTime: DateTime(2026, 6, 1),
+        createdAt: DateTime(2026, 6, 1),
         status: TodoStatus.done,
       );
       expect(AutoEraseCompletedService.isEligible(todo, cutoff), isTrue);

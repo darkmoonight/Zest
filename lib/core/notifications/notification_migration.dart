@@ -16,8 +16,7 @@ Future<void> migrateNotificationChannelsIfNeeded({
   final service = notificationService ?? NotificationService();
   final todos = await TodoRepository(isar).getAll();
   final toMigrate = todos.where(
-    (todo) =>
-        todo.todoCompletedTime != null && todo.status == TodoStatus.active,
+    (todo) => todo.dueAt != null && todo.status == TodoStatus.active,
   );
 
   var failed = false;

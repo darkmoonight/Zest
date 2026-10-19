@@ -3,7 +3,9 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/services/notification_service.dart';
-import 'package:zest/core/services/todo_service.dart';
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/usecases/todo_usecases.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 
@@ -17,7 +19,7 @@ void main() {
   late FakeNotificationShow fakeNotifications;
   late TodoRepository todoRepo;
   late TodoService service;
-  late Tasks task;
+  late Category task;
 
   setUpAll(() async {
     await initializeDateFormatting('en');
@@ -39,6 +41,7 @@ void main() {
   });
 
   tearDown(() async {
+    if (isarCoreUnavailable) return;
     await closeTestIsar(isar);
   });
 
@@ -47,7 +50,7 @@ void main() {
     final formatted = DateFormat.yMMMEd('en').add_Hm().format(due);
 
     final todo = await service.createTodo(
-      task: task,
+      category: task,
       title: 'New todo',
       description: 'Details',
       timeString: formatted,
@@ -73,7 +76,7 @@ void main() {
 
     await service.updateTodo(
       todo: todo,
-      task: task,
+      category: task,
       title: 'Scheduled',
       description: '',
       timeString: '',
@@ -97,7 +100,8 @@ void main() {
 
     await service.markTodoAsDone(todo);
 
-    expect(todo.status, TodoStatus.done);
+    final reloaded = await todoRepo.getById(todo.id);
+    expect(reloaded?.status, TodoStatus.done);
     expect(fakeNotifications.cancelled, contains(todo.id));
   });
 
@@ -108,12 +112,13 @@ void main() {
       name: 'Snooze',
       completedTime: DateTime.now().add(const Duration(hours: 1)),
     );
-    final settings = Settings()..snoozeDuration = 20;
+    const settings = AppSettings(snoozeDuration: 20);
     fakeNotifications.clear();
 
     await service.snoozeTodo(todo, settings);
 
-    expect(todo.todoCompletedTime, isNotNull);
+    final reloaded = await todoRepo.getById(todo.id);
+    expect(reloaded?.dueAt, isNotNull);
     expect(fakeNotifications.snoozed, hasLength(1));
     expect(fakeNotifications.snoozed.first.snoozeMinutes, 20);
   });
@@ -192,11 +197,10 @@ void main() {
     final otherTask = await createTestTask(isar, title: 'Personal');
     final todo = await createTestTodo(isar, task: task, name: 'Move me');
 
-    await service.moveTodos(todos: [todo], task: otherTask);
+    await service.moveTodos(todos: [todo], category: otherTask);
 
     final reloaded = (await todoRepo.getById(todo.id))!;
-    await reloaded.task.load();
-    expect(reloaded.task.value?.id, otherTask.id);
+    expect(reloaded.categoryId, otherTask.id);
   });
 
   test('moveTodosToParent nests todo under new parent', () async {
@@ -206,7 +210,6 @@ void main() {
     await service.moveTodosToParent(rootTodos: [child], newParent: parent);
 
     final reloaded = (await todoRepo.getById(child.id))!;
-    await reloaded.parent.load();
-    expect(reloaded.parent.value?.id, parent.id);
+    expect(reloaded.parentId, parent.id);
   });
 }

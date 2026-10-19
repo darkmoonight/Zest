@@ -1,23 +1,33 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
-import 'package:zest/core/services/statistics_service.dart';
+import 'package:zest/domain/usecases/statistics_usecases.dart';
+import 'package:zest/data/repositories/category_repository.dart';
+import 'package:zest/data/repositories/todo_repository.dart';
 import 'package:zest/data/models/db.dart';
 
 import '../../helpers/isar_test_helper.dart';
 
 void main() {
   late Isar isar;
+  late TodoRepository todoRepo;
+  late CategoryRepository categoryRepo;
 
   setUp(() async {
     isar = await openTestIsar();
+    todoRepo = TodoRepository(isar);
+    categoryRepo = CategoryRepository(isar);
   });
 
   tearDown(() async {
+    if (isarCoreUnavailable) return;
     await closeTestIsar(isar);
   });
 
   test('empty database returns zeroed statistics', () async {
-    final stats = await StatisticsService.calculateStatistics(isar);
+    final stats = await StatisticsService.calculateStatistics(
+      todoRepo,
+      categoryRepo: categoryRepo,
+    );
 
     expect(stats.totalTodos, 0);
     expect(stats.completedTodos, 0);
@@ -48,7 +58,10 @@ void main() {
       completionTime: now.subtract(const Duration(days: 1)),
     );
 
-    final stats = await StatisticsService.calculateStatistics(isar);
+    final stats = await StatisticsService.calculateStatistics(
+      todoRepo,
+      categoryRepo: categoryRepo,
+    );
 
     expect(stats.totalTodos, 3);
     expect(stats.completedTodos, 2);
@@ -75,7 +88,10 @@ void main() {
       );
     }
 
-    final stats = await StatisticsService.calculateStatistics(isar);
+    final stats = await StatisticsService.calculateStatistics(
+      todoRepo,
+      categoryRepo: categoryRepo,
+    );
 
     expect(stats.currentStreak, greaterThanOrEqualTo(1));
     expect(stats.longestStreak, greaterThanOrEqualTo(3));
@@ -94,7 +110,10 @@ void main() {
       completionTime: completionTime,
     );
 
-    final stats = await StatisticsService.calculateStatistics(isar);
+    final stats = await StatisticsService.calculateStatistics(
+      todoRepo,
+      categoryRepo: categoryRepo,
+    );
 
     expect(
       stats.weeklyProgress[completionTime.weekday],
@@ -115,7 +134,10 @@ void main() {
       completionTime: old,
     );
 
-    final stats = await StatisticsService.calculateStatistics(isar);
+    final stats = await StatisticsService.calculateStatistics(
+      todoRepo,
+      categoryRepo: categoryRepo,
+    );
 
     expect(stats.weeklyProgress.values.every((count) => count == 0), isTrue);
     expect(stats.hourlyProgress[old.hour], greaterThanOrEqualTo(1));
@@ -144,7 +166,10 @@ void main() {
       ).subtract(const Duration(days: 3)),
     );
 
-    final stats = await StatisticsService.calculateStatistics(isar);
+    final stats = await StatisticsService.calculateStatistics(
+      todoRepo,
+      categoryRepo: categoryRepo,
+    );
 
     expect(stats.longestStreak, 1);
     expect(stats.currentStreak, lessThanOrEqualTo(1));
@@ -181,7 +206,10 @@ void main() {
         completionTime: today,
       );
 
-      final stats = await StatisticsService.calculateStatistics(isar);
+      final stats = await StatisticsService.calculateStatistics(
+        todoRepo,
+        categoryRepo: categoryRepo,
+      );
 
       expect(stats.longestStreak, 5);
       expect(stats.currentStreak, 1);
@@ -205,7 +233,10 @@ void main() {
     await createTestTodo(isar, task: active, name: 'Keep');
     await createTestTodo(isar, task: archived, name: 'Skip');
 
-    final stats = await StatisticsService.calculateStatistics(isar);
+    final stats = await StatisticsService.calculateStatistics(
+      todoRepo,
+      categoryRepo: categoryRepo,
+    );
 
     expect(stats.totalTodos, 1);
   });
@@ -222,7 +253,8 @@ void main() {
     await createTestTodo(isar, task: archived, name: 'Include');
 
     final stats = await StatisticsService.calculateStatistics(
-      isar,
+      todoRepo,
+      categoryRepo: categoryRepo,
       includeArchivedCategories: true,
     );
 

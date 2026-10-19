@@ -150,8 +150,23 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// en-US: 'CalDAV sync'
 	String get caldav_enabled => 'CalDAV sync';
 
-	/// en-US: 'Use an app password. HTTP is only for local servers.'
-	String get caldav_insecure_hint => 'Use an app password. HTTP is only for local servers.';
+	/// en-US: 'Invalid username or password'
+	String get caldav_error_auth => 'Invalid username or password';
+
+	/// en-US: 'Conflict with server'
+	String get caldav_error_conflict => 'Conflict with server';
+
+	/// en-US: 'Something went wrong'
+	String get caldav_error_generic => 'Something went wrong';
+
+	/// en-US: 'Network or TLS error'
+	String get caldav_error_network => 'Network or TLS error';
+
+	/// en-US: 'Calendar not found'
+	String get caldav_error_not_found => 'Calendar not found';
+
+	/// en-US: 'Use an app password. HTTP is only for local servers (localhost / LAN). Remote servers require HTTPS.'
+	String get caldav_insecure_hint => 'Use an app password. HTTP is only for local servers (localhost / LAN). Remote servers require HTTPS.';
 
 	/// en-US: 'Last sync: {time}'
 	String get caldav_last_sync => 'Last sync: {time}';
@@ -1242,7 +1257,12 @@ extension on Translations {
 			'caldav_connection_ok' => 'Connected to CalDAV server',
 			'caldav_conflict_server_wins' => 'Server version kept for {count} conflicting item(s)',
 			'caldav_enabled' => 'CalDAV sync',
-			'caldav_insecure_hint' => 'Use an app password. HTTP is only for local servers.',
+			'caldav_error_auth' => 'Invalid username or password',
+			'caldav_error_conflict' => 'Conflict with server',
+			'caldav_error_generic' => 'Something went wrong',
+			'caldav_error_network' => 'Network or TLS error',
+			'caldav_error_not_found' => 'Calendar not found',
+			'caldav_insecure_hint' => 'Use an app password. HTTP is only for local servers (localhost / LAN). Remote servers require HTTPS.',
 			'caldav_last_sync' => 'Last sync: {time}',
 			'caldav_never_synced' => 'Not synced yet',
 			'caldav_no_calendars' => 'No writable task lists found',

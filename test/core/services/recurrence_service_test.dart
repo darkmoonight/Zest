@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zest/core/services/recurrence_background_scheduler.dart';
 import 'package:zest/core/services/recurrence_service.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/enums/enums.dart';
 
 void main() {
   group('RecurrenceService.nextOccurrence', () {
@@ -147,13 +149,14 @@ void main() {
     });
   });
 
-  group('RecurrenceService.resolveDueForTodoInTask', () {
-    Tasks habitTask({
+  group('RecurrenceService.resolveDueForTodoInCategory', () {
+    Category habitTask({
       RecurrenceFrequency frequency = RecurrenceFrequency.daily,
       int? minuteOfDay = 18 * 60 + 37,
-    }) => Tasks(
+    }) => Category(
+      id: 1,
       title: 'Habits',
-      taskColor: 0xFF00FF00,
+      colorArgb: 0xFF00FF00,
       recurrence: frequency,
       recurrenceMode: RecurrenceMode.reopen,
       recurrenceMinuteOfDay: minuteOfDay,
@@ -161,9 +164,9 @@ void main() {
 
     test('uses category reminder when todo has no own recurrence', () {
       expect(
-        RecurrenceService.resolveDueForTodoInTask(
+        RecurrenceService.resolveDueForTodoInCategory(
           now: DateTime(2026, 7, 15, 10),
-          task: habitTask(),
+          category: habitTask(),
           todoRecurrence: RecurrenceFrequency.none,
           todoWeekdays: const [],
           todoMinuteOfDay: null,
@@ -175,9 +178,9 @@ void main() {
     test('keeps explicit fallback due over category minute', () {
       final fallback = DateTime(2026, 7, 20, 9);
       expect(
-        RecurrenceService.resolveDueForTodoInTask(
+        RecurrenceService.resolveDueForTodoInCategory(
           now: DateTime(2026, 7, 15, 10),
-          task: habitTask(),
+          category: habitTask(),
           todoRecurrence: RecurrenceFrequency.none,
           todoWeekdays: const [],
           todoMinuteOfDay: null,
@@ -189,9 +192,9 @@ void main() {
 
     test('own todo recurrence wins over category', () {
       expect(
-        RecurrenceService.resolveDueForTodoInTask(
+        RecurrenceService.resolveDueForTodoInCategory(
           now: DateTime(2026, 7, 15, 6),
-          task: habitTask(),
+          category: habitTask(),
           todoRecurrence: RecurrenceFrequency.daily,
           todoWeekdays: const [],
           todoMinuteOfDay: 7 * 60,
@@ -203,23 +206,25 @@ void main() {
 
   group('RecurrenceService.shouldEnsureCategoryHabitDue', () {
     test('true when active habit child has null due', () {
-      final task = Tasks(
+      final task = Category(
+        id: 1,
         title: 'Habits',
-        taskColor: 0xFF00FF00,
+        colorArgb: 0xFF00FF00,
         recurrence: RecurrenceFrequency.daily,
         recurrenceMode: RecurrenceMode.reopen,
         recurrenceMinuteOfDay: 18 * 60,
       );
-      final todo = Todos(
+      final todo = Todo(
+        id: 101,
         name: 'Stretch',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         status: TodoStatus.active,
       );
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 15),
         ),
         isTrue,
@@ -227,23 +232,25 @@ void main() {
     });
 
     test('false when todo has its own recurrence', () {
-      final task = Tasks(
+      final task = Category(
+        id: 1,
         title: 'Habits',
-        taskColor: 0xFF00FF00,
+        colorArgb: 0xFF00FF00,
         recurrence: RecurrenceFrequency.daily,
         recurrenceMinuteOfDay: 18 * 60,
       );
-      final todo = Todos(
+      final todo = Todo(
+        id: 102,
         name: 'Stretch',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         status: TodoStatus.active,
         recurrence: RecurrenceFrequency.daily,
       );
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 15),
         ),
         isFalse,
@@ -251,25 +258,27 @@ void main() {
     });
 
     test('weekly empty does not restamp stale due off the due weekday', () {
-      final task = Tasks(
+      final task = Category(
+        id: 1,
         title: 'Habits',
-        taskColor: 0xFF00FF00,
+        colorArgb: 0xFF00FF00,
         recurrence: RecurrenceFrequency.weekly,
         recurrenceWeekdays: const [],
         recurrenceMode: RecurrenceMode.reopen,
         recurrenceMinuteOfDay: 18 * 60,
       );
-      final todo = Todos(
+      final todo = Todo(
+        id: 103,
         name: 'Stretch',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         status: TodoStatus.active,
-        todoCompletedTime: DateTime(2026, 7, 13, 18), // Monday
+        dueAt: DateTime(2026, 7, 13, 18), // Monday
       );
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 15), // Wednesday
         ),
         isFalse,
@@ -277,7 +286,7 @@ void main() {
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 20), // next Monday
         ),
         isTrue,
@@ -285,24 +294,26 @@ void main() {
     });
 
     test('monthly does not restamp stale due off the due day-of-month', () {
-      final task = Tasks(
+      final task = Category(
+        id: 1,
         title: 'Habits',
-        taskColor: 0xFF00FF00,
+        colorArgb: 0xFF00FF00,
         recurrence: RecurrenceFrequency.monthly,
         recurrenceMode: RecurrenceMode.reopen,
         recurrenceMinuteOfDay: 9 * 60,
       );
-      final todo = Todos(
+      final todo = Todo(
+        id: 104,
         name: 'Rent',
         description: '',
-        createdTime: DateTime(2026, 6, 1),
+        createdAt: DateTime(2026, 6, 1),
         status: TodoStatus.active,
-        todoCompletedTime: DateTime(2026, 7, 1, 9),
+        dueAt: DateTime(2026, 7, 1, 9),
       );
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 15),
         ),
         isFalse,
@@ -310,7 +321,7 @@ void main() {
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 8, 1),
         ),
         isTrue,
@@ -427,12 +438,13 @@ void main() {
 
   group('RecurrenceService.shouldSpawnCloneForToday', () {
     test('spawns daily clone when done yesterday and no active today', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 105,
         name: 'Water',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         status: TodoStatus.done,
-        todoCompletionTime: DateTime(2026, 7, 14, 20),
+        completedAt: DateTime(2026, 7, 14, 20),
         recurrence: RecurrenceFrequency.daily,
         recurrenceMode: RecurrenceMode.clone,
         recurrenceMinuteOfDay: 18 * 60 + 37,
@@ -447,12 +459,13 @@ void main() {
     });
 
     test('does not spawn when completed today', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 106,
         name: 'Water',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         status: TodoStatus.done,
-        todoCompletionTime: DateTime(2026, 7, 15, 8),
+        completedAt: DateTime(2026, 7, 15, 8),
         recurrence: RecurrenceFrequency.daily,
         recurrenceMode: RecurrenceMode.clone,
       );
@@ -466,13 +479,14 @@ void main() {
     });
 
     test('weekly with empty weekdays uses due weekday, not every day', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 107,
         name: 'Weekly',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         status: TodoStatus.done,
-        todoCompletedTime: DateTime(2026, 7, 15, 10), // Wednesday
-        todoCompletionTime: DateTime(2026, 7, 16, 9),
+        dueAt: DateTime(2026, 7, 15, 10), // Wednesday
+        completedAt: DateTime(2026, 7, 16, 9),
         recurrence: RecurrenceFrequency.weekly,
         recurrenceWeekdays: const [],
         recurrenceMode: RecurrenceMode.clone,
@@ -494,13 +508,14 @@ void main() {
     });
 
     test('monthly spawn uses due day-of-month, not completion day', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 108,
         name: 'Rent',
         description: '',
-        createdTime: DateTime(2026, 6, 1),
+        createdAt: DateTime(2026, 6, 1),
         status: TodoStatus.done,
-        todoCompletedTime: DateTime(2026, 7, 1, 9),
-        todoCompletionTime: DateTime(2026, 7, 15, 12),
+        dueAt: DateTime(2026, 7, 1, 9),
+        completedAt: DateTime(2026, 7, 15, 12),
         recurrence: RecurrenceFrequency.monthly,
         recurrenceMode: RecurrenceMode.clone,
       );
@@ -523,12 +538,13 @@ void main() {
 
   group('RecurrenceService.shouldBumpActiveCloneDue', () {
     test('bumps active clone with yesterday due on occurrence day', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 109,
         name: 'Water',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         status: TodoStatus.active,
-        todoCompletedTime: DateTime(2026, 7, 14, 18, 37),
+        dueAt: DateTime(2026, 7, 14, 18, 37),
         recurrence: RecurrenceFrequency.daily,
         recurrenceMode: RecurrenceMode.clone,
         recurrenceMinuteOfDay: 18 * 60 + 37,
@@ -543,12 +559,13 @@ void main() {
     });
 
     test('does not bump when due is already today', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 110,
         name: 'Water',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         status: TodoStatus.active,
-        todoCompletedTime: DateTime(2026, 7, 15, 18, 37),
+        dueAt: DateTime(2026, 7, 15, 18, 37),
         recurrence: RecurrenceFrequency.daily,
         recurrenceMode: RecurrenceMode.clone,
         recurrenceMinuteOfDay: 18 * 60 + 37,
@@ -565,11 +582,12 @@ void main() {
 
   group('RecurrenceService.buildNextClone', () {
     test('copies fields and advances due time', () {
-      final source = Todos(
+      final source = Todo(
+        id: 111,
         name: 'Water plants',
         description: 'Balcony',
-        todoCompletedTime: DateTime(2026, 7, 15, 8),
-        createdTime: DateTime(2026, 7, 1),
+        dueAt: DateTime(2026, 7, 15, 8),
+        createdAt: DateTime(2026, 7, 1),
         fix: true,
         priority: Priority.high,
         tags: const ['home'],
@@ -577,7 +595,7 @@ void main() {
         recurrenceMode: RecurrenceMode.clone,
         recurrenceMinuteOfDay: 7 * 60,
         status: TodoStatus.done,
-        todoCompletionTime: DateTime(2026, 7, 15, 9),
+        completedAt: DateTime(2026, 7, 15, 9),
       );
 
       final clone = RecurrenceService.buildNextClone(
@@ -595,19 +613,20 @@ void main() {
       expect(clone.recurrenceMode, RecurrenceMode.clone);
       expect(clone.recurrenceMinuteOfDay, 7 * 60);
       expect(clone.status, TodoStatus.active);
-      expect(clone.todoCompletedTime, DateTime(2026, 7, 15, 7));
-      expect(clone.todoCompletionTime, isNull);
-      expect(clone.createdTime, DateTime(2026, 7, 15, 9, 5));
+      expect(clone.dueAt, DateTime(2026, 7, 15, 7));
+      expect(clone.completedAt, isNull);
+      expect(clone.createdAt, DateTime(2026, 7, 15, 9, 5));
     });
 
     test('clones habit without due time as active without schedule', () {
-      final source = Todos(
+      final source = Todo(
+        id: 112,
         name: 'Skincare',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         recurrence: RecurrenceFrequency.daily,
         status: TodoStatus.done,
-        todoCompletionTime: DateTime(2026, 7, 15),
+        completedAt: DateTime(2026, 7, 15),
       );
 
       final clone = RecurrenceService.buildNextClone(
@@ -617,7 +636,7 @@ void main() {
       );
 
       expect(clone.status, TodoStatus.active);
-      expect(clone.todoCompletedTime, isNull);
+      expect(clone.dueAt, isNull);
     });
   });
 
@@ -644,16 +663,17 @@ void main() {
   // Keep legacy nextOccurrence-based clone coverage
   group('RecurrenceService.buildNextClone (next day default)', () {
     test('without occurrenceDay advances via nextOccurrence', () {
-      final source = Todos(
+      final source = Todo(
+        id: 113,
         name: 'Water plants',
         description: 'Balcony',
-        todoCompletedTime: DateTime(2026, 7, 15, 8),
-        createdTime: DateTime(2026, 7, 1),
+        dueAt: DateTime(2026, 7, 15, 8),
+        createdAt: DateTime(2026, 7, 1),
         recurrence: RecurrenceFrequency.daily,
         recurrenceMode: RecurrenceMode.clone,
         recurrenceMinuteOfDay: 7 * 60,
         status: TodoStatus.done,
-        todoCompletionTime: DateTime(2026, 7, 15, 9),
+        completedAt: DateTime(2026, 7, 15, 9),
       );
 
       final clone = RecurrenceService.buildNextClone(
@@ -661,33 +681,35 @@ void main() {
         now: DateTime(2026, 7, 15, 9, 5),
       );
 
-      expect(clone.todoCompletedTime, DateTime(2026, 7, 16, 7));
+      expect(clone.dueAt, DateTime(2026, 7, 16, 7));
     });
   });
 
   group('RecurrenceService.shouldResetCategoryHabit', () {
-    Tasks habitTask({
+    Category habitTask({
       RecurrenceFrequency frequency = RecurrenceFrequency.daily,
       List<int> weekdays = const [],
       RecurrenceMode mode = RecurrenceMode.reopen,
-    }) => Tasks(
+    }) => Category(
+      id: 1,
       title: 'Habits',
-      taskColor: 0xFF00FF00,
+      colorArgb: 0xFF00FF00,
       recurrence: frequency,
       recurrenceWeekdays: weekdays,
       recurrenceMode: mode,
     );
 
-    Todos doneTodo({
+    Todo doneTodo({
       required DateTime completed,
       RecurrenceFrequency recurrence = RecurrenceFrequency.none,
       RecurrenceMode mode = RecurrenceMode.clone,
-    }) => Todos(
+    }) => Todo(
+      id: 1,
       name: 'AM',
       description: '',
-      createdTime: completed,
+      createdAt: completed,
       status: TodoStatus.done,
-      todoCompletionTime: completed,
+      completedAt: completed,
       recurrence: recurrence,
       recurrenceMode: mode,
     );
@@ -698,7 +720,7 @@ void main() {
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 15, 8),
         ),
         isTrue,
@@ -711,7 +733,7 @@ void main() {
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 15, 8),
         ),
         isTrue,
@@ -728,7 +750,7 @@ void main() {
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 15, 8),
         ),
         isFalse,
@@ -741,7 +763,7 @@ void main() {
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 15, 20),
         ),
         isFalse,
@@ -759,7 +781,7 @@ void main() {
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 14),
         ),
         isFalse,
@@ -768,7 +790,7 @@ void main() {
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 15),
         ),
         isTrue,
@@ -776,28 +798,29 @@ void main() {
     });
 
     test('ignores non-recurring categories and active todos', () {
-      final task = Tasks(title: 'One-off', taskColor: 0xFF0000FF);
+      final task = Category(id: 1, title: 'One-off', colorArgb: 0xFF0000FF);
       final done = doneTodo(completed: DateTime(2026, 7, 14));
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: done,
-          task: task,
+          category: task,
           today: DateTime(2026, 7, 15),
         ),
         isFalse,
       );
 
       final habit = habitTask();
-      final active = Todos(
+      final active = Todo(
+        id: 114,
         name: 'AM',
         description: '',
-        createdTime: DateTime(2026, 7, 14),
+        createdAt: DateTime(2026, 7, 14),
         status: TodoStatus.active,
       );
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: active,
-          task: habit,
+          category: habit,
           today: DateTime(2026, 7, 15),
         ),
         isFalse,
@@ -807,12 +830,13 @@ void main() {
 
   group('RecurrenceService.shouldResetTodoHabit', () {
     test('reopens stale done todos with reopen mode', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 115,
         name: 'Stretch',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         status: TodoStatus.done,
-        todoCompletionTime: DateTime(2026, 7, 14),
+        completedAt: DateTime(2026, 7, 14),
         recurrence: RecurrenceFrequency.daily,
         recurrenceMode: RecurrenceMode.reopen,
       );
@@ -826,12 +850,13 @@ void main() {
     });
 
     test('does not reopen clone-mode todos', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 116,
         name: 'Stretch',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         status: TodoStatus.done,
-        todoCompletionTime: DateTime(2026, 7, 14),
+        completedAt: DateTime(2026, 7, 14),
         recurrence: RecurrenceFrequency.daily,
         recurrenceMode: RecurrenceMode.clone,
       );
@@ -845,13 +870,14 @@ void main() {
     });
 
     test('weekly with empty weekdays reopens on due weekday only', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 117,
         name: 'Weekly',
         description: '',
-        createdTime: DateTime(2026, 7, 1),
+        createdAt: DateTime(2026, 7, 1),
         status: TodoStatus.done,
-        todoCompletedTime: DateTime(2026, 7, 15, 10), // Wednesday
-        todoCompletionTime: DateTime(2026, 7, 16, 9),
+        dueAt: DateTime(2026, 7, 15, 10), // Wednesday
+        completedAt: DateTime(2026, 7, 16, 9),
         recurrence: RecurrenceFrequency.weekly,
         recurrenceWeekdays: const [],
         recurrenceMode: RecurrenceMode.reopen,
@@ -873,13 +899,14 @@ void main() {
     });
 
     test('monthly reopen uses due day-of-month, not completion day', () {
-      final todo = Todos(
+      final todo = Todo(
+        id: 118,
         name: 'Rent',
         description: '',
-        createdTime: DateTime(2026, 6, 1),
+        createdAt: DateTime(2026, 6, 1),
         status: TodoStatus.done,
-        todoCompletedTime: DateTime(2026, 7, 1, 9),
-        todoCompletionTime: DateTime(2026, 7, 15, 12),
+        dueAt: DateTime(2026, 7, 1, 9),
+        completedAt: DateTime(2026, 7, 15, 12),
         recurrence: RecurrenceFrequency.monthly,
         recurrenceMode: RecurrenceMode.reopen,
       );

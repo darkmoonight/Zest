@@ -1,38 +1,40 @@
-import 'package:flutter/foundation.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/core/notifications/notification_i18n.dart';
 import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/core/utils/notification.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/enums/enums.dart';
+import 'package:zest/domain/repositories/category_repository.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Schedules, snoozes, and cancels local item reminder notifications.
 class NotificationService {
   /// Creates a service with an optional custom [NotificationShow] delegate.
-  NotificationService({NotificationShow? notificationShow, this._settings})
-    : _notificationShow = notificationShow ?? NotificationShow();
+  NotificationService({
+    NotificationShow? notificationShow,
+    this._settings,
+    this._categoryRepo,
+  }) : _notificationShow = notificationShow ?? NotificationShow();
 
   /// Platform wrapper that shows and cancels local notifications.
   final NotificationShow _notificationShow;
 
   /// Default snooze/action labels source when callers omit [settings].
-  final Settings? _settings;
+  final AppSettings? _settings;
 
-  /// Schedules a reminder at [item.todoCompletedTime] for active items only.
-  ///
-  /// For recurring items (and category-habit children), a past due is moved to
-  /// the next reminder instant via [RecurrenceService.nextReminderAfter]
-  /// instead of firing immediately (`now + 1s`).
-  ///
-  /// Non-recurring past dues use `now + 1s` when [firePastDueImmediately] is
-  /// true (single-item UX). Bulk paths pass false to skip and avoid floods.
-  ///
-  /// Returns false when scheduling throws; intentional skips return true.
+  /// Optional category lookup for habit-based past-due scheduling.
+  final CategoryRepositoryPort? _categoryRepo;
+
+  /// Schedules a reminder at [todo.dueAt] for active items only.
   Future<bool> scheduleForTodo(
-    Todos todo, {
-    Settings? settings,
+    Todo todo, {
+    AppSettings? settings,
+    Category? category,
     bool firePastDueImmediately = true,
   }) async {
-    final completedTime = todo.todoCompletedTime;
+    final completedTime = todo.dueAt;
 
     if (completedTime == null || todo.status != TodoStatus.active) {
       return true;
@@ -47,6 +49,7 @@ class NotificationService {
       } else {
         effectiveTime = await _resolvePastDueSchedule(
           todo: todo,
+          category: category,
           completedTime: completedTime,
           now: now,
           firePastDueImmediately: firePastDueImmediately,
@@ -64,14 +67,15 @@ class NotificationService {
       );
       return true;
     } catch (e) {
-      debugPrint('Error scheduling notification for todo ${todo.id}: $e');
+      AppLog.d('Error scheduling notification for todo ${todo.id}: $e');
       return false;
     }
   }
 
   /// Next fire time for a past-due active item, or null to skip scheduling.
   Future<DateTime?> _resolvePastDueSchedule({
-    required Todos todo,
+    required Todo todo,
+    required Category? category,
     required DateTime completedTime,
     required DateTime now,
     required bool firePastDueImmediately,
@@ -86,22 +90,21 @@ class NotificationService {
       );
     }
 
-    if (todo.task.value == null) {
-      try {
-        await todo.task.load();
-      } catch (e) {
-        debugPrint('task.load failed for todo ${todo.id}: $e');
-      }
+    var resolvedCategory = category;
+    if (resolvedCategory == null && todo.categoryId != null) {
+      resolvedCategory = await _categoryRepo?.getById(todo.categoryId!);
     }
-    final task = todo.task.value;
-    if (task != null &&
-        RecurrenceService.isCategoryHabitChild(todo: todo, task: task) &&
-        task.recurrenceMinuteOfDay != null) {
+    if (resolvedCategory != null &&
+        RecurrenceService.isCategoryHabitChild(
+          todo: todo,
+          category: resolvedCategory,
+        ) &&
+        resolvedCategory.recurrenceMinuteOfDay != null) {
       return RecurrenceService.nextReminderAfter(
         now: now,
-        frequency: task.recurrence,
-        weekdays: task.recurrenceWeekdays,
-        minuteOfDay: task.recurrenceMinuteOfDay,
+        frequency: resolvedCategory.recurrence,
+        weekdays: resolvedCategory.recurrenceWeekdays,
+        minuteOfDay: resolvedCategory.recurrenceMinuteOfDay,
         fallbackTime: completedTime,
       );
     }
@@ -112,12 +115,12 @@ class NotificationService {
     return null;
   }
 
-  /// Schedules reminders for every item in [items] that has a due time.
-  Future<void> scheduleForTask(List<Todos> todos) async {
+  /// Schedules reminders for every item in [todos] that has a due time.
+  Future<void> scheduleForTask(List<Todo> todos) async {
     if (todos.isEmpty) return;
 
     final todosToSchedule = todos.where((todo) {
-      return todo.todoCompletedTime != null;
+      return todo.dueAt != null;
     }).toList();
 
     for (final todo in todosToSchedule) {
@@ -130,14 +133,14 @@ class NotificationService {
     try {
       await _notificationShow.cancelNotification(todoId);
     } catch (e) {
-      debugPrint('Error canceling notification for todo $todoId: $e');
+      AppLog.d('Error canceling notification for todo $todoId: $e');
     }
   }
 
-  /// Cancels reminders for items in [items] that have a due time.
-  Future<void> cancelForTask(List<Todos> todos) async {
+  /// Cancels reminders for items in [todos] that have a due time.
+  Future<void> cancelForTask(List<Todo> todos) async {
     for (final todo in todos) {
-      if (todo.todoCompletedTime != null) {
+      if (todo.dueAt != null) {
         await cancel(todo.id);
       }
     }
@@ -155,36 +158,34 @@ class NotificationService {
     try {
       await _notificationShow.cancelAllNotifications();
     } catch (e) {
-      debugPrint('Error canceling all notifications: $e');
+      AppLog.d('Error canceling all notifications: $e');
     }
   }
 
   /// Replaces the existing reminder with an updated schedule.
-  ///
-  /// Returns false when scheduling fails after cancel.
   Future<bool> reschedule(
-    Todos todo, {
-    Settings? settings,
+    Todo todo, {
+    AppSettings? settings,
+    Category? category,
     bool firePastDueImmediately = true,
   }) async {
     await cancel(todo.id);
     return scheduleForTodo(
       todo,
       settings: settings,
+      category: category,
       firePastDueImmediately: firePastDueImmediately,
     );
   }
 
   /// Re-schedules active reminders so action labels pick up current [settings].
-  ///
-  /// Bulk path: skips non-recurring past dues ([firePastDueImmediately] false).
   Future<void> rescheduleActiveReminders(
-    Iterable<Todos> todos, {
-    Settings? settings,
+    Iterable<Todo> todos, {
+    AppSettings? settings,
     bool firePastDueImmediately = false,
   }) async {
     for (final todo in todos) {
-      if (todo.todoCompletedTime == null || todo.status != TodoStatus.active) {
+      if (todo.dueAt == null || todo.status != TodoStatus.active) {
         continue;
       }
       await reschedule(
@@ -195,8 +196,8 @@ class NotificationService {
     }
   }
 
-  /// Delays [item]'s reminder by [settings.snoozeDuration] minutes.
-  Future<void> snooze(Todos todo, Settings settings) async {
+  /// Delays [todo]'s reminder by [settings.snoozeDuration] minutes.
+  Future<void> snooze(Todo todo, AppSettings settings) async {
     final snoozeText = snoozeActionLabel(settings.snoozeDuration);
 
     await _notificationShow.snoozeNotification(
@@ -206,7 +207,7 @@ class NotificationService {
       snoozeActionText: snoozeText,
       markDoneActionText: 'markAsDone'.tr,
       snoozeMinutes: settings.snoozeDuration,
-      settings: settings,
+      settings: null,
       priority: todo.priority,
     );
   }

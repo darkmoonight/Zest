@@ -93,7 +93,7 @@ class _ListEmptyState extends ConsumerState<ListEmpty>
   Widget build(BuildContext context) {
     final padding = ResponsiveUtils.getResponsivePadding(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final isImage = ref.watch(appSettingsProvider).isImage;
+    final isImage = ref.watch(appSettingsProvider.select((s) => s.isImage));
 
     return Center(
       child: SingleChildScrollView(

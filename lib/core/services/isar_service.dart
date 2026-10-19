@@ -8,9 +8,11 @@ import 'package:isar_community/isar.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:zest/core/caldav/caldav_credentials.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/services/backup_constants.dart';
 import 'package:zest/core/services/backup_file_writer.dart';
+import 'package:zest/data/models/db.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Result of a manual backup or restore attempt.
@@ -141,6 +143,10 @@ class IsarService {
       if (!_isar.isOpen) unawaited(_scheduleRestart());
       return outcome;
     }
+
+    // Password is never in the backup archive; drop any leftover secure entry
+    // so a restore cannot keep credentials that no longer match settings.
+    await CalDavCredentialsStore().clear();
 
     _hideLoadingDialog();
     unawaited(_scheduleRestart());
@@ -310,5 +316,14 @@ class IsarService {
     if (Navigator.of(_context).canPop()) {
       Navigator.of(_context).pop();
     }
+  }
+
+  /// Clears all todos and tasks (destructive wipe).
+  Future<void> clearAllData() async {
+    await _isar.writeTxn(() async {
+      await _isar.todos.clear();
+      await _isar.tasks.clear();
+    });
+    await CalDavCredentialsStore().clear();
   }
 }

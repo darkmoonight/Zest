@@ -1,8 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:zest/core/settings/settings_writer.dart';
 import 'package:zest/core/theme/app_font.dart';
 import 'package:zest/core/theme/color_palette.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
 
 /// Catalog-driven appearance picker saved via settings repository.
 class SettingAppearancePickerDefinition {
@@ -27,10 +28,10 @@ class SettingAppearancePickerDefinition {
   /// Selectable values shown in the picker.
   final List<String> items;
 
-  /// Reads the current value from persisted [Settings].
-  final String Function(Settings settings) read;
+  /// Reads the current value from domain [AppSettings].
+  final String Function(AppSettings settings) read;
 
-  /// Writes the selected value to [Settings].
+  /// Writes the selected value to live Isar [Settings].
   final void Function(Settings settings, String value) write;
 
   /// Builds the localized label for a picker item.
@@ -66,13 +67,14 @@ final settingAppearanceCatalogPickers = [
 ];
 
 /// Reads the persisted color palette id from [s].
-String _readColorPalette(Settings s) => AppColorPalette.resolve(s.colorPalette);
+String _readColorPalette(AppSettings s) =>
+    AppColorPalette.resolve(s.colorPalette);
 
 /// Writes [v] as the color palette id on [s].
 void _writeColorPalette(Settings s, String v) => s.colorPalette = v;
 
 /// Reads the persisted app font id from [s].
-String _readAppFont(Settings s) => AppFont.resolve(s.appFont);
+String _readAppFont(AppSettings s) => AppFont.resolve(s.appFont);
 
 /// Writes [v] as the app font id on [s].
 void _writeAppFont(Settings s, String v) => s.appFont = v;

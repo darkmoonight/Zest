@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zest/core/navigation/app_router.dart';
 import 'package:zest/core/navigation/app_routes.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
 
 void main() {
   group('resolveAppRedirect', () {
     test('redirects to onboarding when not completed', () {
-      final settings = Settings()..onboard = false;
+      const settings = AppSettings(onboard: false);
 
       expect(
         resolveAppRedirect(settings, AppRoutes.home),
@@ -16,7 +16,7 @@ void main() {
     });
 
     test('redirects away from onboarding when already completed', () {
-      final settings = Settings()..onboard = true;
+      const settings = AppSettings(onboard: true);
 
       expect(
         resolveAppRedirect(settings, AppRoutes.onboarding),

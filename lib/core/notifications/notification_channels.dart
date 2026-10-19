@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:zest/core/services/notification_plugin.dart';
-import 'package:zest/data/models/db.dart' as db;
+import 'package:zest/domain/enums/priority.dart' as zest;
 import 'package:zest/i18n/tr.dart';
 
-/// Stable Android notification channel ids for each [db.Priority].
+/// Stable Android notification channel ids for each [zest.Priority].
 abstract final class NotificationChannelIds {
   /// Channel id prefix shared by all priority channels.
   static const String prefix = 'zest_priority_';
@@ -22,15 +22,15 @@ abstract final class NotificationChannelIds {
   static const String none = '${prefix}none';
 
   /// Channel id for [priority], matching [high]/[medium]/[low]/[none].
-  static String idFor(db.Priority priority) => switch (priority) {
-    db.Priority.high => high,
-    db.Priority.medium => medium,
-    db.Priority.low => low,
-    db.Priority.none => none,
+  static String idFor(zest.Priority priority) => switch (priority) {
+    zest.Priority.high => high,
+    zest.Priority.medium => medium,
+    zest.Priority.low => low,
+    zest.Priority.none => none,
   };
 }
 
-/// Android notification channel metadata for a list item [db.Priority].
+/// Android notification channel metadata for a list item [zest.Priority].
 ///
 /// Sound, vibration, and importance can only be changed in system Settings
 /// after a channel is created.
@@ -49,7 +49,7 @@ class NotificationChannelConfig {
   final String id;
 
   /// Item priority this channel is bound to.
-  final db.Priority priority;
+  final zest.Priority priority;
 
   /// Default importance before user overrides in system settings.
   final Importance importance;
@@ -95,7 +95,7 @@ class NotificationChannelConfig {
 }
 
 NotificationChannelConfig _channel(
-  db.Priority priority, {
+  zest.Priority priority, {
   required Importance importance,
   bool enableVibration = true,
   bool playSound = true,
@@ -114,25 +114,27 @@ NotificationChannelConfig _channel(
 }
 
 /// Returns the Android channel config for [priority].
-NotificationChannelConfig notificationChannelForPriority(db.Priority priority) {
+NotificationChannelConfig notificationChannelForPriority(
+  zest.Priority priority,
+) {
   return switch (priority) {
-    db.Priority.high => _channel(
-      db.Priority.high,
+    zest.Priority.high => _channel(
+      zest.Priority.high,
       importance: Importance.max,
       vibrationPattern: const [0, 400, 200, 400],
     ),
-    db.Priority.medium => _channel(
-      db.Priority.medium,
+    zest.Priority.medium => _channel(
+      zest.Priority.medium,
       importance: Importance.defaultImportance,
       vibrationPattern: const [0, 250, 150, 250],
     ),
-    db.Priority.low => _channel(
-      db.Priority.low,
+    zest.Priority.low => _channel(
+      zest.Priority.low,
       importance: Importance.low,
       vibrationPattern: const [0, 100],
     ),
-    db.Priority.none => _channel(
-      db.Priority.none,
+    zest.Priority.none => _channel(
+      zest.Priority.none,
       importance: Importance.min,
       enableVibration: false,
       playSound: false,
@@ -140,9 +142,9 @@ NotificationChannelConfig notificationChannelForPriority(db.Priority priority) {
   };
 }
 
-/// All priority channel configs in [db.Priority] declaration order.
+/// All priority channel configs in [zest.Priority] declaration order.
 List<NotificationChannelConfig> get allNotificationChannelConfigs =>
-    db.Priority.values.map(notificationChannelForPriority).toList();
+    zest.Priority.values.map(notificationChannelForPriority).toList();
 
 /// Registers Android notification channels for each item priority.
 ///

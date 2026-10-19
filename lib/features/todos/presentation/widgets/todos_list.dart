@@ -9,7 +9,8 @@ import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/list_empty.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/entities.dart';
+import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
 import 'package:zest/features/todos/presentation/widgets/todo_card.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_action.dart';
@@ -34,11 +35,11 @@ class TodosList extends ConsumerStatefulWidget {
   /// The status filter.
   final TodoStatus? statusFilter;
 
-  /// The task.
-  final Tasks? task;
+  /// The category filter.
+  final Category? task;
 
-  /// The item.
-  final Todos? todo;
+  /// The parent item filter.
+  final Todo? todo;
 
   /// The all items.
   final bool allTodos;
@@ -69,6 +70,12 @@ class _TodosListState extends ConsumerState<TodosList>
   /// The random scores.
   late Map<int, double> _randomScores;
 
+  /// Memo key for [_cachedFilteredTodos] (todos revision + filter/sort inputs).
+  Object? _listCacheKey;
+
+  /// Last filtered/sorted snapshot for the current [_listCacheKey].
+  List<Todo>? _cachedFilteredTodos;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -90,6 +97,19 @@ class _TodosListState extends ConsumerState<TodosList>
     }
   }
 
+  Object _listMemoKey(int todosRevision) => (
+    todosRevision,
+    widget.statusFilter,
+    widget.task?.id,
+    widget.todo?.id,
+    widget.allTodos,
+    widget.calendar,
+    widget.selectedDay?.millisecondsSinceEpoch,
+    widget.searchTodo,
+    widget.sortOption,
+    widget.excludeArchivedCategories,
+  );
+
   @override
   /// Builds the widget subtree.
   Widget build(BuildContext context) {
@@ -99,10 +119,17 @@ class _TodosListState extends ConsumerState<TodosList>
     final topPadding = MediaQuery.of(context).padding.top;
     final todosState = ref.watch(todosNotifierProvider);
     final todosNotifier = ref.read(todosNotifierProvider.notifier);
-    final isImage = ref.watch(appSettingsProvider).isImage;
+    final isImage = ref.watch(
+      appSettingsProvider.select((settings) => settings.isImage),
+    );
 
-    final todos = _getFilteredAndSortedTodos(todosNotifier);
-    final childCounts = todosNotifier.childCountsByParentId();
+    final memoKey = _listMemoKey(todosState.todosRevision);
+    if (_listCacheKey != memoKey || _cachedFilteredTodos == null) {
+      _listCacheKey = memoKey;
+      _cachedFilteredTodos = _getFilteredAndSortedTodos(todosNotifier);
+    }
+    final todos = _cachedFilteredTodos!;
+    final childCounts = todosState.childCountsByParentId;
 
     if (todos.isEmpty) {
       return _buildEmptyState(context, isMobile, topPadding, isImage);
@@ -158,14 +185,14 @@ class _TodosListState extends ConsumerState<TodosList>
   }
 
   /// Items.
-  List<Todos> _getFilteredAndSortedTodos(TodosNotifier todosNotifier) {
+  List<Todo> _getFilteredAndSortedTodos(TodosNotifier todosNotifier) {
     final filteredList = _filterTodos(todosNotifier);
     _sortTodos(filteredList);
     return filteredList;
   }
 
   /// Items.
-  List<Todos> _filterTodos(TodosNotifier todosNotifier) {
+  List<Todo> _filterTodos(TodosNotifier todosNotifier) {
     if (widget.task != null) {
       return todosNotifier.getFilteredTodos(
         statusFilter: widget.statusFilter,
@@ -202,7 +229,7 @@ class _TodosListState extends ConsumerState<TodosList>
   }
 
   /// Sort items.
-  void _sortTodos(List<Todos> todos) {
+  void _sortTodos(List<Todo> todos) {
     final opt = widget.sortOption ?? SortOption.none;
 
     if (opt == SortOption.random) {
@@ -242,23 +269,23 @@ class _TodosListState extends ConsumerState<TodosList>
   }
 
   /// Compare priority.
-  int _comparePriority(Todos a, Todos b) =>
+  int _comparePriority(Todo a, Todo b) =>
       a.priority.index.compareTo(b.priority.index);
 
   /// Compare name.
-  int _compareName(Todos a, Todos b) =>
+  int _compareName(Todo a, Todo b) =>
       a.name.toLowerCase().compareTo(b.name.toLowerCase());
 
   /// Compare date.
-  int _compareDate(Todos a, Todos b, {bool ascending = true}) {
-    final cmp = a.createdTime.compareTo(b.createdTime);
+  int _compareDate(Todo a, Todo b, {bool ascending = true}) {
+    final cmp = a.createdAt.compareTo(b.createdAt);
     return ascending ? cmp : -cmp;
   }
 
   /// Compare date notif.
-  int _compareDateNotif(Todos a, Todos b, {bool ascending = true}) {
-    final da = a.todoCompletedTime;
-    final db = b.todoCompletedTime;
+  int _compareDateNotif(Todo a, Todo b, {bool ascending = true}) {
+    final da = a.dueAt;
+    final db = b.dueAt;
 
     if (da == null && db == null) return 0;
     if (da == null) return 1;
@@ -270,7 +297,7 @@ class _TodosListState extends ConsumerState<TodosList>
 
   /// Builds the reorderable list widget.
   Widget _buildReorderableList(
-    List<Todos> todos,
+    List<Todo> todos,
     TodosNotifier todosNotifier,
     TodosState todosState,
     Map<int, (int, int)> childCounts,
@@ -292,7 +319,7 @@ class _TodosListState extends ConsumerState<TodosList>
 
   /// Builds the item card widget.
   Widget _buildTodoCard(
-    Todos todo,
+    Todo todo,
     TodosNotifier todosNotifier,
     TodosState todosState,
     Map<int, (int, int)> childCounts,
@@ -315,7 +342,7 @@ class _TodosListState extends ConsumerState<TodosList>
 
   /// Void.
   Future<void> _handleReorder(
-    List<Todos> todos,
+    List<Todo> todos,
     int oldIndex,
     int newIndex,
     TodosNotifier todosNotifier,
@@ -330,7 +357,7 @@ class _TodosListState extends ConsumerState<TodosList>
 
   /// Handle item tap.
   void _handleTodoTap(
-    Todos todo,
+    Todo todo,
     TodosNotifier todosNotifier,
     TodosState todosState,
   ) {
@@ -343,7 +370,7 @@ class _TodosListState extends ConsumerState<TodosList>
 
   /// Handle item double tap.
   void _handleTodoDoubleTap(
-    Todos todo,
+    Todo todo,
     TodosNotifier todosNotifier,
     TodosState todosState,
   ) {
@@ -354,14 +381,14 @@ class _TodosListState extends ConsumerState<TodosList>
   }
 
   /// Show item action bottom sheet.
-  void _showTodoActionBottomSheet(Todos todo) {
+  void _showTodoActionBottomSheet(Todo todo) {
     NavigationHelper.showFormModal(
       context: context,
       child: TodosAction(
         text: 'editing'.tr,
         edit: true,
         todo: todo,
-        category: true,
+        showCategory: true,
       ),
       enableDrag: false,
     );

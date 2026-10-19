@@ -6,9 +6,11 @@ import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/database/settings_persist.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
-import 'package:zest/core/services/todo_service.dart';
+import 'package:zest/domain/usecases/todo_usecases.dart';
+import 'package:zest/data/mappers/settings_mapper.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/domain/repositories/todo_repository.dart';
 import 'package:zest/i18n/locale_utils.dart';
 
 /// Shared Isar + services for background notification / Workmanager isolates.
@@ -33,7 +35,7 @@ class BackgroundIsarContext {
   final Settings settings;
 
   /// Item repository bound to [isar].
-  final TodoRepository todoRepo;
+  final TodoRepositoryPort todoRepo;
 
   /// Notification service using [settings].
   final NotificationService notifications;
@@ -60,20 +62,24 @@ class BackgroundIsarContext {
     );
 
     final todoRepo = TodoRepository(isarInstance);
-    final notifications = NotificationService(settings: settings);
+    final notifications = NotificationService(
+      settings: SettingsMapper.toDomain(settings),
+    );
     final calendarSync = DeviceCalendarSyncService(
-      getSettings: () => settings,
+      getSettings: () => SettingsMapper.toDomain(settings),
       todoRepo: todoRepo,
       saveSettings: (updated) async {
-        await persistSettings(isarInstance, updated);
+        SettingsMapper.applyDomain(settings, updated);
+        await persistSettings(isarInstance, settings);
       },
     );
     final caldavSync = CalDavSyncService(
       isar: isarInstance,
-      getSettings: () => settings,
+      getSettings: () => SettingsMapper.toDomain(settings),
       todoRepo: todoRepo,
       saveSettings: (updated) async {
-        await persistSettings(isarInstance, updated);
+        SettingsMapper.applyDomain(settings, updated);
+        await persistSettings(isarInstance, settings);
       },
       credentials: CalDavCredentialsStore(),
       notifications: notifications,

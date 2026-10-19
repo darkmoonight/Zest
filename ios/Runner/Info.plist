@@ -50,6 +50,9 @@
     <key>NSAppTransportSecurity</key>
     <dict>
       <key>NSAllowsArbitraryLoads</key>
+      <false/>
+      <!-- Local CalDAV over HTTP (LAN / .local); remote hosts still require HTTPS -->
+      <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
   </dict>

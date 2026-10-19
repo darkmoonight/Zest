@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
+import 'package:zest/data/mappers/settings_mapper.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/settings_repository.dart';
 
@@ -17,6 +18,7 @@ void main() {
   });
 
   tearDown(() async {
+    if (isarCoreUnavailable) return;
     await closeTestIsar(isar);
   });
 
@@ -29,10 +31,12 @@ void main() {
   });
 
   test('save persists settings and invokes callback', () async {
-    final settings = Settings()
-      ..theme = 'dark'
-      ..snoozeDuration = 25
-      ..language = 'ru';
+    final settings = SettingsMapper.toDomain(
+      Settings()
+        ..theme = 'dark'
+        ..snoozeDuration = 25
+        ..language = 'ru',
+    );
 
     await repo.save(settings);
 
@@ -45,9 +49,9 @@ void main() {
 
   test('save updates existing settings row', () async {
     final settings = await repo.getSettings();
-    settings.autoBackupEnabled = true;
-    settings.maxAutoBackups = 7;
-    await repo.save(settings);
+    await repo.save(
+      settings.copyWith(autoBackupEnabled: true, maxAutoBackups: 7),
+    );
 
     final loaded = await repo.getSettings();
     expect(loaded.autoBackupEnabled, isTrue);

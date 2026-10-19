@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/caldav/caldav_account.dart';
+import 'package:zest/core/caldav/caldav_error.dart';
 import 'package:zest/core/caldav/caldav_remote.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
@@ -9,7 +10,7 @@ import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/show_snack_bar.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/features/settings/presentation/widgets/selection_dialog.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_list_dialog_shell.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section.dart';
@@ -97,18 +98,10 @@ class _SettingsCalDavSectionState
     );
   }
 
-  String _statusText(Settings settings, String timeformat) {
+  String _statusText(AppSettings settings, String timeformat) {
     final error = settings.caldavLastError;
     if (error != null && error.isNotEmpty) {
-      final conflictMatch = RegExp(
-        r'Server copy kept for (\d+) conflicting item',
-      ).firstMatch(error);
-      if (conflictMatch != null) {
-        return 'caldavConflictServerWins'.trFormat({
-          'count': conflictMatch.group(1)!,
-        });
-      }
-      return 'caldavSyncFailed'.trFormat({'error': error});
+      return CalDavError.displayMessage(error);
     }
     final last = settings.caldavLastSyncTime;
     if (last == null) return 'caldavNeverSynced'.tr;
@@ -186,10 +179,7 @@ class _SettingsCalDavSectionState
           },
         );
       } catch (e) {
-        showSnackBar(
-          'caldavConnectionFailed'.trFormat({'error': '$e'}),
-          isError: true,
-        );
+        showSnackBar(CalDavError.connectionFailedMessage(e), isError: true);
       }
     });
   }
@@ -213,10 +203,7 @@ class _SettingsCalDavSectionState
           showSnackBar('caldavSyncSuccess'.tr);
         }
       } else {
-        showSnackBar(
-          'caldavSyncFailed'.trFormat({'error': result.error ?? ''}),
-          isError: true,
-        );
+        showSnackBar(CalDavError.displayMessage(result.error), isError: true);
       }
     });
   }
@@ -375,10 +362,7 @@ class _CalDavAccountDialogState extends State<_CalDavAccountDialog> {
       showSnackBar('caldavConnectionOk'.tr);
       NavigationHelper.back(context);
     } catch (e) {
-      showSnackBar(
-        'caldavConnectionFailed'.trFormat({'error': '$e'}),
-        isError: true,
-      );
+      showSnackBar(CalDavError.connectionFailedMessage(e), isError: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

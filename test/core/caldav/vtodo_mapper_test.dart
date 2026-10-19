@@ -2,7 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:zest/core/caldav/caldav_pending_delete.dart';
 import 'package:zest/core/caldav/vtodo_mapper.dart';
 import 'package:zest/core/caldav/vtodo_record.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/enums/enums.dart';
 
 void main() {
   group('VtodoMapper', () {
@@ -33,17 +34,18 @@ void main() {
     test('toRecord and applyToTodo round-trip due, tags, and completion', () {
       final due = DateTime.utc(2026, 8, 18, 12, 0);
       final completed = DateTime.utc(2026, 8, 18, 13, 0);
-      final todo = Todos(
+      final todo = Todo(
         id: 7,
         name: 'Buy milk',
         description: '2%',
-        createdTime: DateTime.utc(2026, 1, 1),
-        todoCompletedTime: due,
-        todoCompletionTime: completed,
+        createdAt: DateTime.utc(2026, 1, 1),
+        dueAt: due,
+        completedAt: completed,
         priority: Priority.high,
         status: TodoStatus.done,
         tags: const ['groceries', 'home'],
-      )..caldavUid = 'uid-1';
+        caldavUid: 'uid-1',
+      );
 
       final record = VtodoMapper.toRecord(todo);
       expect(record.uid, 'uid-1');
@@ -56,67 +58,68 @@ void main() {
       expect(record.categories, ['groceries', 'home']);
       expect(record.rrule, isNull);
 
-      final other = Todos(
+      final other = Todo(
         id: 8,
         name: 'old',
-        createdTime: DateTime.utc(2026, 1, 2),
+        createdAt: DateTime.utc(2026, 1, 2),
       );
-      VtodoMapper.applyToTodo(other, record);
-      expect(other.name, 'Buy milk');
-      expect(other.description, '2%');
-      expect(other.dueAt, due);
-      expect(other.completedAt, completed);
-      expect(other.priority, Priority.high);
-      expect(other.status, TodoStatus.done);
-      expect(other.tags, ['groceries', 'home']);
-      expect(other.caldavDirty, isFalse);
-      expect(other.recurrence, RecurrenceFrequency.none);
+      final applied = VtodoMapper.applyToTodo(other, record);
+      expect(applied.name, 'Buy milk');
+      expect(applied.description, '2%');
+      expect(applied.dueAt, due);
+      expect(applied.completedAt, completed);
+      expect(applied.priority, Priority.high);
+      expect(applied.status, TodoStatus.done);
+      expect(applied.tags, ['groceries', 'home']);
+      expect(applied.caldavDirty, isFalse);
+      expect(applied.recurrence, RecurrenceFrequency.none);
     });
 
     test('round-trips weekly recurrence, mode, and minute of day', () {
-      final todo = Todos(
+      final todo = Todo(
         id: 9,
         name: 'Gym',
-        createdTime: DateTime.utc(2026, 1, 1),
+        createdAt: DateTime.utc(2026, 1, 1),
         recurrence: RecurrenceFrequency.weekly,
         recurrenceWeekdays: const [DateTime.monday, DateTime.wednesday],
         recurrenceMode: RecurrenceMode.reopen,
         recurrenceMinuteOfDay: 7 * 60 + 30,
-      )..caldavUid = 'uid-rec';
+        caldavUid: 'uid-rec',
+      );
 
       final record = VtodoMapper.toRecord(todo);
       expect(record.rrule, 'FREQ=WEEKLY;BYDAY=MO,WE');
       expect(record.recurrenceMode, 'REOPEN');
       expect(record.recurrenceMinuteOfDay, 450);
 
-      final other = Todos(
+      final other = Todo(
         id: 10,
         name: 'x',
-        createdTime: DateTime.utc(2026, 1, 2),
+        createdAt: DateTime.utc(2026, 1, 2),
       );
-      VtodoMapper.applyToTodo(other, record);
-      expect(other.recurrence, RecurrenceFrequency.weekly);
-      expect(other.recurrenceWeekdays, [DateTime.monday, DateTime.wednesday]);
-      expect(other.recurrenceMode, RecurrenceMode.reopen);
-      expect(other.recurrenceMinuteOfDay, 450);
+      final applied = VtodoMapper.applyToTodo(other, record);
+      expect(applied.recurrence, RecurrenceFrequency.weekly);
+      expect(applied.recurrenceWeekdays, [DateTime.monday, DateTime.wednesday]);
+      expect(applied.recurrenceMode, RecurrenceMode.reopen);
+      expect(applied.recurrenceMinuteOfDay, 450);
     });
 
     test('applyRrule parses RRULE from raw ICS extras', () {
       const ics =
           'BEGIN:VTODO\nSUMMARY:X\nRRULE:FREQ=DAILY\n'
           'X-ZEST-REC-MODE:CLONE\nX-ZEST-REC-MINUTE:600\nEND:VTODO';
-      final todo = Todos(
+      final todo = Todo(
         id: 11,
         name: 'old',
-        createdTime: DateTime.utc(2026, 1, 1),
+        createdAt: DateTime.utc(2026, 1, 1),
       );
-      VtodoMapper.applyToTodo(
+      final applied = VtodoMapper.applyToTodo(
         todo,
         const VtodoRecord(uid: 'u', summary: 'X', rawIcalendar: ics),
       );
-      expect(todo.recurrence, RecurrenceFrequency.daily);
-      expect(todo.recurrenceMode, RecurrenceMode.clone);
-      expect(todo.recurrenceMinuteOfDay, 600);
+      expect(applied.recurrence, RecurrenceFrequency.daily);
+      expect(applied.recurrenceMode, RecurrenceMode.clone);
+      expect(applied.recurrenceMinuteOfDay, 600);
     });
 
     test('categoriesFromIcs reads CATEGORIES', () {
@@ -126,13 +129,9 @@ void main() {
     });
 
     test('allocateUid is stable once set', () {
-      final todo = Todos(
-        id: 3,
-        name: 'n',
-        createdTime: DateTime.utc(2020, 1, 1),
-      );
+      var todo = Todo(id: 3, name: 'n', createdAt: DateTime.utc(2020, 1, 1));
       final first = VtodoMapper.allocateUid(todo);
-      todo.caldavUid = first;
+      todo = todo.copyWith(caldavUid: first);
       expect(VtodoMapper.allocateUid(todo), first);
       expect(first, startsWith('zest-3-'));
     });

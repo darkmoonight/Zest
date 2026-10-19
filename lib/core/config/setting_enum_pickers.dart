@@ -2,7 +2,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/navigation/home_tabs.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/core/settings/settings_writer.dart';
+import 'package:zest/domain/entities/app_settings.dart';
 
 /// Definition for a settings picker backed by a list of enum-like string values.
 class SettingEnumPickerDefinition<T> {
@@ -25,10 +26,10 @@ class SettingEnumPickerDefinition<T> {
   /// Selectable values shown in the picker.
   final List<T> items;
 
-  /// Reads the current value from persisted [Settings].
-  final T Function(Settings settings) read;
+  /// Reads the current value from domain [AppSettings].
+  final T Function(AppSettings settings) read;
 
-  /// Writes the selected value to [Settings].
+  /// Writes the selected value to live Isar [Settings].
   final void Function(Settings settings, T value) write;
 
   /// Optional label builder; defaults to `.tr` on string values.
@@ -90,37 +91,37 @@ const settingDefaultScreenPicker = SettingEnumPickerDefinition<String>(
 );
 
 /// Reads the persisted clock format from [s].
-String _readTimeformat(Settings s) => s.timeformat;
+String _readTimeformat(AppSettings s) => s.timeformat;
 
 /// Writes [v] as the clock format on [s].
 void _writeTimeformat(Settings s, String v) => s.timeformat = v;
 
 /// Reads the persisted first day of week from [s].
-String _readFirstDay(Settings s) => s.firstDay;
+String _readFirstDay(AppSettings s) => s.firstDay;
 
 /// Writes [v] as the first day of week on [s].
 void _writeFirstDay(Settings s, String v) => s.firstDay = v;
 
 /// Reads the persisted notification snooze duration from [s].
-int _readSnoozeDuration(Settings s) => s.snoozeDuration;
+int _readSnoozeDuration(AppSettings s) => s.snoozeDuration;
 
 /// Writes [v] as the snooze duration on [s].
 void _writeSnoozeDuration(Settings s, int v) => s.snoozeDuration = v;
 
 /// Reads the persisted theme mode from [s].
-String _readTheme(Settings s) => s.theme ?? AppConstants.defaultTheme;
+String _readTheme(AppSettings s) => s.theme ?? AppConstants.defaultTheme;
 
 /// Writes [v] as the theme mode on [s].
 void _writeTheme(Settings s, String v) => s.theme = v;
 
 /// Reads the persisted max auto-backup count from [s].
-int _readMaxAutoBackups(Settings s) => s.maxAutoBackups;
+int _readMaxAutoBackups(AppSettings s) => s.maxAutoBackups;
 
 /// Writes [v] as the max auto-backup count on [s].
 void _writeMaxAutoBackups(Settings s, int v) => s.maxAutoBackups = v;
 
 /// Reads the persisted default home tab from [s].
-String _readDefaultScreen(Settings s) =>
+String _readDefaultScreen(AppSettings s) =>
     s.defaultScreen.isNotEmpty ? s.defaultScreen : AppConstants.defaultScreen;
 
 /// Writes [v] as the default home tab on [s].

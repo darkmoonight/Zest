@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/widgets/my_delegate.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/features/todos/presentation/widgets/sort_menu.dart';
 import 'package:zest/i18n/tr.dart';
 

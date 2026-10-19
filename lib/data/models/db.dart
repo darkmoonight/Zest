@@ -1,6 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/domain/enums/enums.dart';
+
+export 'package:zest/domain/enums/enums.dart';
 
 part 'db.g.dart';
 
@@ -209,84 +211,6 @@ class Settings {
   }
 }
 
-/// Item list sort options stored in settings and task/item records.
-enum SortOption {
-  /// No custom sort applied.
-  none,
-
-  /// Alphabetical ascending.
-  alphaAsc,
-
-  /// Alphabetical descending.
-  alphaDesc,
-
-  /// Due date ascending.
-  dateAsc,
-
-  /// Due date descending.
-  dateDesc,
-
-  /// Notification date ascending.
-  dateNotifAsc,
-
-  /// Notification date descending.
-  dateNotifDesc,
-
-  /// Priority ascending.
-  priorityAsc,
-
-  /// Priority descending.
-  priorityDesc,
-
-  /// Random order.
-  random,
-}
-
-/// Auto-backup schedule frequency.
-enum AutoBackupFrequency {
-  /// Backup once per day.
-  daily,
-
-  /// Backup once per week.
-  weekly,
-
-  /// Backup once per month.
-  monthly,
-}
-
-/// How often completed items are auto-erased.
-enum AutoEraseCompletedFrequency {
-  /// Erase completed items older than about one week.
-  weekly,
-
-  /// Erase completed items older than about one month.
-  monthly,
-}
-
-/// How often a list item or category habit repeats.
-enum RecurrenceFrequency {
-  /// No recurrence.
-  none,
-
-  /// Every day.
-  daily,
-
-  /// On selected weekdays (or same weekday as due date).
-  weekly,
-
-  /// Same day of month (clamped).
-  monthly,
-}
-
-/// What happens when a recurring item is completed.
-enum RecurrenceMode {
-  /// Keep the completed item and create a new active copy.
-  clone,
-
-  /// Keep the same item and reopen it on the next occurrence.
-  reopen,
-}
-
 /// Category that groups list items.
 ///
 /// UI and docs call these **categories**; the Isar collection and type name
@@ -465,51 +389,4 @@ class Todos {
     this.recurrenceMode = RecurrenceMode.clone,
     this.recurrenceMinuteOfDay,
   });
-}
-
-/// Item priority levels with display labels and colors.
-enum Priority {
-  /// High priority.
-  high(name: 'highPriority', color: Colors.red),
-
-  /// Medium priority.
-  medium(name: 'mediumPriority', color: Colors.orange),
-
-  /// Low priority.
-  low(name: 'lowPriority', color: Colors.green),
-
-  /// No priority set.
-  none(name: 'noPriority');
-
-  /// Creates a priority with slang [name] and optional [color].
-  const Priority({required this.name, this.color});
-
-  /// Slang translation key for the priority label.
-  final String name;
-
-  /// Optional chip color for this priority.
-  final Color? color;
-}
-
-/// Item lifecycle status.
-enum TodoStatus {
-  /// Open and not completed.
-  active,
-
-  /// Completed successfully.
-  done,
-
-  /// Cancelled without completion.
-  cancelled;
-
-  /// Whether this status counts as finished.
-  bool get isCompleted =>
-      this == TodoStatus.done || this == TodoStatus.cancelled;
-
-  /// Maps a status tab index to the corresponding [TodoStatus].
-  static TodoStatus fromTabIndex(int index) => switch (index) {
-    0 => TodoStatus.active,
-    1 => TodoStatus.done,
-    _ => TodoStatus.cancelled,
-  };
 }

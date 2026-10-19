@@ -18,7 +18,12 @@ class CompletionHeatmap extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final appSettings = ref.watch(appSettingsProvider);
+    final timeformat = ref.watch(
+      appSettingsProvider.select((s) => s.timeformat),
+    );
+    final languageCode = ref.watch(
+      appSettingsProvider.select((s) => s.locale.languageCode),
+    );
 
     return Card(
       elevation: AppConstants.elevationLow,
@@ -54,8 +59,8 @@ class CompletionHeatmap extends ConsumerWidget {
                 if (count > 0) {
                   final formattedDate = DateTimeFormatHelper.formatDateTime(
                     value,
-                    timeformat: appSettings.timeformat,
-                    languageCode: appSettings.locale.languageCode,
+                    timeformat: timeformat,
+                    languageCode: languageCode,
                   );
                   showSnackBar(
                     'heatmapTooltip'.trFormat({

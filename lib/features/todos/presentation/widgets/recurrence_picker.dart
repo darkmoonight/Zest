@@ -5,7 +5,7 @@ import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/services/recurrence_service.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/features/settings/presentation/widgets/selection_dialog.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_list_dialog_shell.dart';
 import 'package:zest/i18n/tr.dart';

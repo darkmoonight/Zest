@@ -1,5 +1,7 @@
 import 'package:zest/core/utils/calendar_date.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/enums/enums.dart';
 
 /// Pure recurrence math and clone helpers for items / categories.
 ///
@@ -124,9 +126,9 @@ class RecurrenceService {
   /// - Own recurring item → [todoMinuteOfDay] / weekdays.
   /// - Otherwise category habit (`todoRecurrence == none`) → [task] reminder.
   /// - Explicit [fallbackTime] (parsed due) wins over a missing category minute.
-  static DateTime? resolveDueForTodoInTask({
+  static DateTime? resolveDueForTodoInCategory({
     required DateTime now,
-    required Tasks task,
+    required Category category,
     required RecurrenceFrequency todoRecurrence,
     required List<int> todoWeekdays,
     required int? todoMinuteOfDay,
@@ -148,24 +150,24 @@ class RecurrenceService {
 
     return resolveActiveReminderDue(
       now: now,
-      frequency: task.recurrence,
-      weekdays: task.recurrenceWeekdays,
-      minuteOfDay: task.recurrenceMinuteOfDay,
+      frequency: category.recurrence,
+      weekdays: category.recurrenceWeekdays,
+      minuteOfDay: category.recurrenceMinuteOfDay,
       baseDay: baseDay,
       fallbackTime: fallbackTime,
     );
   }
 
-  /// Convenience wrapper around [resolveDueForTodoInTask] using [item] fields.
+  /// Convenience wrapper around [resolveDueForTodoInCategory] using [item] fields.
   static DateTime? resolveDueForTodo({
-    required Todos todo,
-    required Tasks task,
+    required Todo todo,
+    required Category category,
     required DateTime now,
     DateTime? baseDay,
     DateTime? fallbackTime,
-  }) => resolveDueForTodoInTask(
+  }) => resolveDueForTodoInCategory(
     now: now,
-    task: task,
+    category: category,
     todoRecurrence: todo.recurrence,
     todoWeekdays: todo.recurrenceWeekdays,
     todoMinuteOfDay: todo.recurrenceMinuteOfDay,
@@ -175,35 +177,35 @@ class RecurrenceService {
 
   /// Whether [item] is an active child governed by [task]'s habit (no own repeat).
   static bool isCategoryHabitChild({
-    required Todos todo,
-    required Tasks task,
+    required Todo todo,
+    required Category category,
   }) =>
       todo.status == TodoStatus.active &&
       !isRecurring(todo.recurrence) &&
-      isRecurring(task.recurrence);
+      isRecurring(category.recurrence);
 
   /// Whether an active category-habit item needs due stamped from [task].
   ///
   /// Null due always stamps. Stale due restamps only on an occurrence day
-  /// (weekly/monthly use [Todos.todoCompletedTime] as the schedule anchor).
+  /// (weekly/monthly use [Todo.todoCompletedTime] as the schedule anchor).
   static bool shouldEnsureCategoryHabitDue({
-    required Todos todo,
-    required Tasks task,
+    required Todo todo,
+    required Category category,
     DateTime? today,
   }) {
-    if (!isCategoryHabitChild(todo: todo, task: task)) return false;
-    if (task.recurrenceMinuteOfDay == null) return false;
+    if (!isCategoryHabitChild(todo: todo, category: category)) return false;
+    if (category.recurrenceMinuteOfDay == null) return false;
 
     final todayDate = calendarDay(today ?? DateTime.now());
-    final due = todo.todoCompletedTime;
+    final due = todo.dueAt;
     if (due == null) return true;
     if (!calendarDay(due).isBefore(todayDate)) return false;
 
-    final anchor = _scheduleAnchor(due: due, created: todo.createdTime);
+    final anchor = _scheduleAnchor(due: due, created: todo.createdAt);
     return _isOccurrenceDay(
       todayDate,
-      task.recurrence,
-      task.recurrenceWeekdays,
+      category.recurrence,
+      category.recurrenceWeekdays,
       monthlyDayOfMonth: anchor.day,
       fallbackWeekday: anchor.weekday,
     );
@@ -265,7 +267,7 @@ class RecurrenceService {
   );
 
   /// Fingerprint for matching clone-mode siblings in the same category.
-  static String cloneFingerprint(Todos todo) {
+  static String cloneFingerprint(Todo todo) {
     final days = List<int>.from(todo.recurrenceWeekdays)..sort();
     return [
       todo.name,
@@ -277,7 +279,7 @@ class RecurrenceService {
   }
 
   /// Stable key for a clone sibling group within [taskId].
-  static String cloneSiblingKey(int taskId, Todos todo) =>
+  static String cloneSiblingKey(int taskId, Todo todo) =>
       '$taskId|${cloneFingerprint(todo)}';
 
   /// Next occurrence after [from] for [frequency] / [weekdays].
@@ -310,32 +312,32 @@ class RecurrenceService {
   /// Category habits only support reopen; legacy [RecurrenceMode.clone] on a
   /// category is treated as reopen (clone spawning is item-level only).
   static bool shouldResetCategoryHabit({
-    required Todos todo,
-    required Tasks task,
+    required Todo todo,
+    required Category category,
     DateTime? today,
   }) {
-    if (!isRecurring(task.recurrence)) return false;
+    if (!isRecurring(category.recurrence)) return false;
     if (isRecurring(todo.recurrence)) return false;
     return _shouldReopenCompleted(
       status: todo.status,
-      due: todo.todoCompletedTime,
-      completed: todo.todoCompletionTime,
-      created: todo.createdTime,
-      frequency: task.recurrence,
-      weekdays: task.recurrenceWeekdays,
+      due: todo.dueAt,
+      completed: todo.completedAt,
+      created: todo.createdAt,
+      frequency: category.recurrence,
+      weekdays: category.recurrenceWeekdays,
       today: today,
     );
   }
 
   /// Whether a list item with its own reopen recurrence should become active again.
-  static bool shouldResetTodoHabit({required Todos todo, DateTime? today}) {
+  static bool shouldResetTodoHabit({required Todo todo, DateTime? today}) {
     if (todo.recurrenceMode != RecurrenceMode.reopen) return false;
     if (!isRecurring(todo.recurrence)) return false;
     return _shouldReopenCompleted(
       status: todo.status,
-      due: todo.todoCompletedTime,
-      completed: todo.todoCompletionTime,
-      created: todo.createdTime,
+      due: todo.dueAt,
+      completed: todo.completedAt,
+      created: todo.createdAt,
       frequency: todo.recurrence,
       weekdays: todo.recurrenceWeekdays,
       today: today,
@@ -343,20 +345,20 @@ class RecurrenceService {
   }
 
   /// Whether a done clone-mode item should spawn an active sibling for [today].
-  static bool shouldSpawnCloneForToday({required Todos todo, DateTime? today}) {
+  static bool shouldSpawnCloneForToday({required Todo todo, DateTime? today}) {
     if (todo.recurrenceMode != RecurrenceMode.clone) return false;
     if (!isRecurring(todo.recurrence)) return false;
     if (todo.status != TodoStatus.done) return false;
-    final completed = todo.todoCompletionTime;
+    final completed = todo.completedAt;
     if (completed == null) return false;
 
     final todayDate = calendarDay(today ?? DateTime.now());
     if (!_isCompletedBefore(completed, todayDate)) return false;
 
     final anchor = _scheduleAnchor(
-      due: todo.todoCompletedTime,
+      due: todo.dueAt,
       completed: completed,
-      created: todo.createdTime,
+      created: todo.createdAt,
     );
     return _isOccurrenceDay(
       todayDate,
@@ -368,16 +370,16 @@ class RecurrenceService {
   }
 
   /// Whether an active clone-mode item's due should be bumped to [today].
-  static bool shouldBumpActiveCloneDue({required Todos todo, DateTime? today}) {
+  static bool shouldBumpActiveCloneDue({required Todo todo, DateTime? today}) {
     if (todo.recurrenceMode != RecurrenceMode.clone) return false;
     if (!isRecurring(todo.recurrence)) return false;
     if (todo.status != TodoStatus.active) return false;
 
     final todayDate = calendarDay(today ?? DateTime.now());
-    final due = todo.todoCompletedTime;
+    final due = todo.dueAt;
     if (due != null && !calendarDay(due).isBefore(todayDate)) return false;
 
-    final anchor = _scheduleAnchor(due: due, created: todo.createdTime);
+    final anchor = _scheduleAnchor(due: due, created: todo.createdAt);
     return _isOccurrenceDay(
       todayDate,
       todo.recurrence,
@@ -388,8 +390,8 @@ class RecurrenceService {
   }
 
   /// Builds an unsaved clone of [source] for [occurrenceDay] (default: tomorrow).
-  static Todos buildNextClone(
-    Todos source, {
+  static Todo buildNextClone(
+    Todo source, {
     DateTime? now,
     DateTime? occurrenceDay,
   }) {
@@ -398,21 +400,22 @@ class RecurrenceService {
         ? dueForOccurrenceDay(
             day,
             source.recurrenceMinuteOfDay,
-            fallbackTime: source.todoCompletedTime,
+            fallbackTime: source.dueAt,
           )
         : nextOccurrence(
             frequency: source.recurrence,
             weekdays: source.recurrenceWeekdays,
-            from: source.todoCompletedTime,
+            from: source.dueAt,
             now: now,
             minuteOfDay: source.recurrenceMinuteOfDay,
           );
 
-    return Todos(
+    return Todo(
+      id: 0,
       name: source.name,
       description: source.description,
-      todoCompletedTime: nextDue,
-      createdTime: now ?? DateTime.now(),
+      dueAt: nextDue,
+      createdAt: now ?? DateTime.now(),
       fix: source.fix,
       priority: source.priority,
       tags: List<String>.from(source.tags),
@@ -421,6 +424,7 @@ class RecurrenceService {
       recurrenceMode: source.recurrenceMode,
       recurrenceMinuteOfDay: source.recurrenceMinuteOfDay,
       status: TodoStatus.active,
+      categoryId: source.categoryId,
     );
   }
 

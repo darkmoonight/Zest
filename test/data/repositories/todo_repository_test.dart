@@ -15,11 +15,12 @@ void main() {
   });
 
   tearDown(() async {
+    if (isarCoreUnavailable) return;
     await closeTestIsar(isar);
   });
 
-  test('create links task and parent', () async {
-    final task = await createTestTask(isar);
+  test('create links category and parent', () async {
+    final category = await createTestTask(isar);
     final parent = await repo.create(
       name: 'Parent',
       description: '',
@@ -28,7 +29,7 @@ void main() {
       priority: Priority.none,
       tags: const [],
       index: 0,
-      task: task,
+      categoryId: category.id,
     );
     final child = await repo.create(
       name: 'Child',
@@ -38,19 +39,16 @@ void main() {
       priority: Priority.none,
       tags: const [],
       index: 1,
-      task: task,
-      parent: parent,
+      categoryId: category.id,
+      parentId: parent.id,
     );
 
-    await child.parent.load();
-    await child.task.load();
-
-    expect(child.parent.value?.id, parent.id);
-    expect(child.task.value?.id, task.id);
+    expect(child.parentId, parent.id);
+    expect(child.categoryId, category.id);
   });
 
   test('getAll returns todos sorted by index', () async {
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     await repo.create(
       name: 'Second',
       description: '',
@@ -59,7 +57,7 @@ void main() {
       priority: Priority.none,
       tags: const [],
       index: 1,
-      task: task,
+      categoryId: category.id,
     );
     await repo.create(
       name: 'First',
@@ -69,7 +67,7 @@ void main() {
       priority: Priority.none,
       tags: const [],
       index: 0,
-      task: task,
+      categoryId: category.id,
     );
 
     final todos = await repo.getAll();
@@ -77,17 +75,17 @@ void main() {
   });
 
   test('updateStatusWithSubtasks updates entire subtree', () async {
-    final task = await createTestTask(isar);
-    final parent = await createTestTodo(isar, task: task, name: 'Parent');
+    final category = await createTestTask(isar);
+    final parent = await createTestTodo(isar, task: category, name: 'Parent');
     final child = await createTestTodo(
       isar,
-      task: task,
+      task: category,
       parent: parent,
       name: 'Child',
     );
 
     await repo.updateStatusWithSubtasks(
-      parentTodo: parent,
+      parentId: parent.id,
       status: TodoStatus.done,
     );
 
@@ -95,87 +93,88 @@ void main() {
     final reloadedChild = await repo.getById(child.id);
 
     expect(reloadedParent?.status, TodoStatus.done);
-    expect(reloadedParent?.todoCompletionTime, isNotNull);
+    expect(reloadedParent?.completedAt, isNotNull);
     expect(reloadedChild?.status, TodoStatus.done);
   });
 
-  test('moveToTask detaches parent when parent is outside moved set', () async {
-    final taskA = await createTestTask(isar, title: 'A');
-    final taskB = await createTestTask(isar, title: 'B');
-    final parent = await createTestTodo(isar, task: taskA, name: 'Parent');
-    final child = await createTestTodo(
-      isar,
-      task: taskA,
-      parent: parent,
-      name: 'Child',
-    );
+  test(
+    'moveToCategory detaches parent when parent is outside moved set',
+    () async {
+      final categoryA = await createTestTask(isar, title: 'A');
+      final categoryB = await createTestTask(isar, title: 'B');
+      final parent = await createTestTodo(
+        isar,
+        task: categoryA,
+        name: 'Parent',
+      );
+      final child = await createTestTodo(
+        isar,
+        task: categoryA,
+        parent: parent,
+        name: 'Child',
+      );
 
-    await repo.moveToTask(todoIds: {child.id}, task: taskB);
+      await repo.moveToCategory(todoIds: {child.id}, categoryId: categoryB.id);
 
-    final reloaded = (await repo.getById(child.id))!;
-    await reloaded.task.load();
-    await reloaded.parent.load();
+      final reloaded = (await repo.getById(child.id))!;
 
-    expect(reloaded.task.value?.id, taskB.id);
-    expect(reloaded.parent.value, isNull);
-  });
+      expect(reloaded.categoryId, categoryB.id);
+      expect(reloaded.parentId, isNull);
+    },
+  );
 
-  test('moveToParent updates parent and optional task', () async {
-    final taskA = await createTestTask(isar, title: 'A');
-    final taskB = await createTestTask(isar, title: 'B');
-    final parent = await createTestTodo(isar, task: taskA, name: 'Parent');
-    final child = await createTestTodo(isar, task: taskA, name: 'Child');
+  test('moveToParent updates parent and optional category', () async {
+    final categoryA = await createTestTask(isar, title: 'A');
+    final categoryB = await createTestTask(isar, title: 'B');
+    final parent = await createTestTodo(isar, task: categoryA, name: 'Parent');
+    final child = await createTestTodo(isar, task: categoryA, name: 'Child');
 
     await repo.moveToParent(
       rootIds: {child.id},
       subtreeIds: {child.id},
-      newParent: parent,
-      newTask: taskB,
+      newParentId: parent.id,
+      newCategoryId: categoryB.id,
     );
 
     final reloaded = (await repo.getById(child.id))!;
-    await reloaded.parent.load();
-    await reloaded.task.load();
 
-    expect(reloaded.parent.value?.id, parent.id);
-    expect(reloaded.task.value?.id, taskB.id);
+    expect(reloaded.parentId, parent.id);
+    expect(reloaded.categoryId, categoryB.id);
   });
 
   test('moveToParent preserves nested links inside subtree', () async {
-    final task = await createTestTask(isar, title: 'A');
+    final category = await createTestTask(isar, title: 'A');
     final newParent = await createTestTodo(
       isar,
-      task: task,
+      task: category,
       name: 'New parent',
     );
-    final root = await createTestTodo(isar, task: task, name: 'Root');
-    final mid = await createTestTodo(isar, task: task, name: 'Mid');
-    mid.parent.value = root;
-    await isar.writeTxn(() async {
-      await isar.todos.put(mid);
-      await mid.parent.save();
-    });
+    final root = await createTestTodo(isar, task: category, name: 'Root');
+    final mid = await createTestTodo(
+      isar,
+      task: category,
+      name: 'Mid',
+      parent: root,
+    );
 
     await repo.moveToParent(
       rootIds: {root.id},
       subtreeIds: {root.id, mid.id},
-      newParent: newParent,
-      newTask: null,
+      newParentId: newParent.id,
+      newCategoryId: null,
     );
 
     final reloadedRoot = (await repo.getById(root.id))!;
     final reloadedMid = (await repo.getById(mid.id))!;
-    await reloadedRoot.parent.load();
-    await reloadedMid.parent.load();
 
-    expect(reloadedRoot.parent.value?.id, newParent.id);
-    expect(reloadedMid.parent.value?.id, root.id);
+    expect(reloadedRoot.parentId, newParent.id);
+    expect(reloadedMid.parentId, root.id);
   });
 
   test('deleteBatch removes todos', () async {
-    final task = await createTestTask(isar);
-    final first = await createTestTodo(isar, task: task, name: 'One');
-    final second = await createTestTodo(isar, task: task, name: 'Two');
+    final category = await createTestTask(isar);
+    final first = await createTestTodo(isar, task: category, name: 'One');
+    final second = await createTestTodo(isar, task: category, name: 'Two');
 
     await repo.deleteBatch({first.id, second.id});
 

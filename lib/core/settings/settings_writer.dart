@@ -2,8 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:zest/core/di/settings_revision.dart';
+import 'package:zest/data/mappers/settings_mapper.dart';
 import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/settings_repository.dart';
+import 'package:zest/domain/repositories/settings_repository.dart';
+
+export 'package:zest/data/models/db.dart' show Settings;
+
+/// Callback that mutates the live Isar [Settings] singleton.
+typedef LiveSettingsMutate = void Function(Settings settings);
 
 /// Single write path for live [Settings]: mutate → revision bump → persist.
 ///
@@ -20,8 +26,8 @@ abstract final class SettingsWriter {
   static void writeOptimistic({
     required Settings settings,
     required SettingsRevisionNotifier revision,
-    required SettingsRepository repository,
-    required void Function(Settings settings) mutate,
+    required SettingsRepositoryPort repository,
+    required LiveSettingsMutate mutate,
     Future<void> Function()? afterSave,
     bool backgroundAfterSave = false,
   }) {
@@ -44,8 +50,8 @@ abstract final class SettingsWriter {
   static Future<void> write({
     required Settings settings,
     required SettingsRevisionNotifier revision,
-    required SettingsRepository repository,
-    required void Function(Settings settings) mutate,
+    required SettingsRepositoryPort repository,
+    required LiveSettingsMutate mutate,
     Future<void> Function()? afterSave,
   }) {
     final rollback = _applyMutation(settings, revision, mutate);
@@ -63,7 +69,7 @@ abstract final class SettingsWriter {
   static Settings _applyMutation(
     Settings settings,
     SettingsRevisionNotifier revision,
-    void Function(Settings settings) mutate,
+    LiveSettingsMutate mutate,
   ) {
     final rollback = settings.clone();
     mutate(settings);
@@ -77,7 +83,7 @@ abstract final class SettingsWriter {
     required Settings rollback,
     required int epoch,
     required SettingsRevisionNotifier revision,
-    required SettingsRepository repository,
+    required SettingsRepositoryPort repository,
     Future<void> Function()? afterSave,
     bool backgroundAfterSave = false,
   }) {
@@ -102,12 +108,12 @@ abstract final class SettingsWriter {
     required Settings rollback,
     required int epoch,
     required SettingsRevisionNotifier revision,
-    required SettingsRepository repository,
+    required SettingsRepositoryPort repository,
     Future<void> Function()? afterSave,
     bool backgroundAfterSave = false,
   }) async {
     try {
-      await repository.save(settings);
+      await repository.save(SettingsMapper.toDomain(settings));
       if (afterSave != null) {
         if (backgroundAfterSave) {
           unawaited(afterSave());

@@ -75,16 +75,14 @@ class SettingsJsonBackup {
     'autoEraseCompletedFrequency': s.autoEraseCompletedFrequency.index,
     'lastAutoEraseCompletedTime': s.lastAutoEraseCompletedTime
         ?.toIso8601String(),
+    // CalDAV identity + sync runtime stay out of the portable sidecar.
+    // Password is never here (FlutterSecureStorage). URL/username must be
+    // re-entered after restore; ctag/errors/pending deletes are ephemeral.
     'caldavEnabled': s.caldavEnabled,
-    'caldavUrl': s.caldavUrl,
-    'caldavUsername': s.caldavUsername,
     'caldavCalendarHref': s.caldavCalendarHref,
     'caldavCalendarName': s.caldavCalendarName,
-    'caldavCtag': s.caldavCtag,
     'caldavAllowInsecure': s.caldavAllowInsecure,
     'caldavLastSyncTime': s.caldavLastSyncTime?.toIso8601String(),
-    'caldavLastError': s.caldavLastError,
-    'caldavPendingDeletes': s.caldavPendingDeletes,
     'todoCardLayout': s.todoCardLayout,
     'settingsSchemaVersion': s.settingsSchemaVersion,
   };
@@ -151,20 +149,21 @@ class SettingsJsonBackup {
         ? null
         : DateTime.tryParse(lastErase);
     settings.caldavEnabled = json['caldavEnabled'] as bool? ?? false;
-    settings.caldavUrl = json['caldavUrl'] as String?;
-    settings.caldavUsername = json['caldavUsername'] as String?;
+    // Intentionally ignore legacy caldavUrl / caldavUsername / ctag /
+    // lastError / pendingDeletes keys if present in older sidecars.
+    settings.caldavUrl = null;
+    settings.caldavUsername = null;
     settings.caldavCalendarHref = json['caldavCalendarHref'] as String?;
     settings.caldavCalendarName = json['caldavCalendarName'] as String?;
-    settings.caldavCtag = json['caldavCtag'] as String?;
+    settings.caldavCtag = null;
     settings.caldavAllowInsecure =
         json['caldavAllowInsecure'] as bool? ?? false;
     final lastCaldav = json['caldavLastSyncTime'] as String?;
     settings.caldavLastSyncTime = lastCaldav == null
         ? null
         : DateTime.tryParse(lastCaldav);
-    settings.caldavLastError = json['caldavLastError'] as String?;
-    settings.caldavPendingDeletes =
-        json['caldavPendingDeletes'] as String? ?? '[]';
+    settings.caldavLastError = null;
+    settings.caldavPendingDeletes = '[]';
     settings.todoCardLayout = json['todoCardLayout'] as String? ?? '';
     settings.settingsSchemaVersion = json['settingsSchemaVersion'] as int? ?? 0;
     return settings;

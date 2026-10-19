@@ -17,6 +17,7 @@ void main() {
   });
 
   tearDown(() async {
+    if (isarCoreUnavailable) return;
     await closeTestIsar(isar);
   });
 

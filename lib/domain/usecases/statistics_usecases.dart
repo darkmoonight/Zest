@@ -1,21 +1,34 @@
-import 'package:isar_community/isar.dart';
 import 'package:zest/core/utils/calendar_date.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/repositories/category_repository.dart';
+import 'package:zest/domain/repositories/todo_repository.dart';
 import 'package:zest/features/statistics/presentation/models/statistics_data.dart';
 
-/// Aggregates completion metrics, streaks, and chart data from Isar items.
+/// Aggregates completion metrics, streaks, and chart data from items.
 class StatisticsService {
   /// Loads items and computes dashboard statistics.
   ///
   /// When [includeArchivedCategories] is false, items whose category is
   /// archived (or has no linked category) are excluded.
   static Future<StatisticsData> calculateStatistics(
-    Isar isar, {
+    TodoRepositoryPort todoRepo, {
+    CategoryRepositoryPort? categoryRepo,
     bool includeArchivedCategories = false,
   }) async {
-    var todos = await isar.todos.where().findAll();
+    var todos = await todoRepo.getAll();
     if (!includeArchivedCategories) {
-      todos = todos.where((todo) => todo.task.value?.archive == false).toList();
+      final categories = await categoryRepo?.getAll() ?? const [];
+      final archivedIds = {
+        for (final c in categories)
+          if (c.archive) c.id,
+      };
+      todos = todos
+          .where(
+            (todo) =>
+                todo.categoryId != null &&
+                !archivedIds.contains(todo.categoryId),
+          )
+          .toList();
     }
     final today = CalendarDate.day(DateTime.now());
     final weekStart = CalendarDate.addDays(today, 1 - CalendarDate.weeklyDays);
@@ -53,13 +66,13 @@ class StatisticsService {
     );
   }
 
-  static DateTime? _completionDay(Todos todo) {
-    final time = todo.todoCompletionTime;
+  static DateTime? _completionDay(Todo todo) {
+    final time = todo.completedAt;
     return time == null ? null : CalendarDate.day(time);
   }
 
   /// All-time daily completion counts (used for streaks).
-  static Map<DateTime, int> _completionDayCounts(List<Todos> completedTodos) {
+  static Map<DateTime, int> _completionDayCounts(List<Todo> completedTodos) {
     final counts = <DateTime, int>{};
     for (final todo in completedTodos) {
       final date = _completionDay(todo);
@@ -116,7 +129,7 @@ class StatisticsService {
 
   /// Completions by weekday within the current weekly window.
   static Map<int, int> _calculateWeeklyProgress(
-    List<Todos> completedTodos,
+    List<Todo> completedTodos,
     DateTime weekStart,
   ) {
     final weeklyData = <int, int>{
@@ -126,7 +139,7 @@ class StatisticsService {
     for (final todo in completedTodos) {
       final date = _completionDay(todo);
       if (date == null || date.isBefore(weekStart)) continue;
-      final weekday = todo.todoCompletionTime!.weekday;
+      final weekday = todo.completedAt!.weekday;
       weeklyData[weekday] = (weeklyData[weekday] ?? 0) + 1;
     }
 
@@ -134,11 +147,11 @@ class StatisticsService {
   }
 
   /// Completions by hour of day (0–23).
-  static Map<int, int> _calculateHourlyProgress(List<Todos> completedTodos) {
+  static Map<int, int> _calculateHourlyProgress(List<Todo> completedTodos) {
     final hourlyData = {for (var i = 0; i < 24; i++) i: 0};
 
     for (final todo in completedTodos) {
-      final time = todo.todoCompletionTime;
+      final time = todo.completedAt;
       if (time == null) continue;
       hourlyData[time.hour] = (hourlyData[time.hour] ?? 0) + 1;
     }

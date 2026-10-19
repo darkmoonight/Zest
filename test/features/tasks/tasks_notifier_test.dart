@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/di/provider_refs.dart';
-import 'package:zest/data/repositories/task_repository.dart';
+import 'package:zest/data/repositories/category_repository.dart';
 import 'package:zest/features/tasks/application/tasks_notifier.dart';
 
 import '../../helpers/fake_notification_show.dart';
@@ -14,12 +14,12 @@ void main() {
 
   late Isar isar;
   late ProviderContainer container;
-  late TaskRepository taskRepo;
+  late CategoryRepository categoryRepo;
   late FakeNotificationShow fakeNotifications;
 
   setUp(() async {
     isar = await openTestIsar();
-    taskRepo = TaskRepository(isar);
+    categoryRepo = CategoryRepository(isar);
     fakeNotifications = FakeNotificationShow();
     container = createTestContainer(
       isar: isar,
@@ -29,6 +29,7 @@ void main() {
   });
 
   tearDown(() async {
+    if (isarCoreUnavailable) return;
     container.dispose();
     await closeTestIsar(isar);
   });
@@ -143,30 +144,28 @@ void main() {
         .toList();
     expect(titles, ['B']);
     expect(container.read(tasksNotifierProvider).tasks.first.index, 0);
-    expect(await taskRepo.getById(second.id), isNotNull);
+    expect(await categoryRepo.getById(second.id), isNotNull);
   });
 
   test('archiveTask clears defaultCategoryId when archived', () async {
     final task = await createTestTask(isar, title: 'Default Inbox');
-    final settings = container.read(settingsProvider);
-    settings.defaultCategoryId = task.id;
-    await container.read(settingsRepositoryProvider).save(settings);
+    final live = container.read(liveSettingsProvider);
+    live.defaultCategoryId = task.id;
 
     final tasksNotifier = await notifier();
     await tasksNotifier.archiveTask([task]);
 
-    expect(container.read(settingsProvider).defaultCategoryId, isNull);
+    expect(container.read(liveSettingsProvider).defaultCategoryId, isNull);
   });
 
   test('deleteTask clears defaultCategoryId when deleted', () async {
     final task = await createTestTask(isar, title: 'Default Inbox');
-    final settings = container.read(settingsProvider);
-    settings.defaultCategoryId = task.id;
-    await container.read(settingsRepositoryProvider).save(settings);
+    final live = container.read(liveSettingsProvider);
+    live.defaultCategoryId = task.id;
 
     final tasksNotifier = await notifier();
     await tasksNotifier.deleteTask([task]);
 
-    expect(container.read(settingsProvider).defaultCategoryId, isNull);
+    expect(container.read(liveSettingsProvider).defaultCategoryId, isNull);
   });
 }

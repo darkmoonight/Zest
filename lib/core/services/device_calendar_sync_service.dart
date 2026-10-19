@@ -1,8 +1,10 @@
 import 'package:device_calendar_plus/device_calendar_plus.dart';
-import 'package:flutter/foundation.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/core/utils/iterable_extensions.dart';
-import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/enums/enums.dart';
+import 'package:zest/domain/repositories/todo_repository.dart';
 import 'package:zest/platform/platform_features.dart'
     if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
 
@@ -20,7 +22,8 @@ abstract class DeviceCalendarGateway {
   Future<String> createCalendar({
     required String name,
     String? colorHex,
-    CreateCalendarPlatformOptions? platformOptions,
+    CalendarOptionsAndroid? android,
+    CalendarOptionsIos? ios,
   });
 
   /// Creates an event and returns its platform id.
@@ -65,11 +68,13 @@ class DeviceCalendarClient implements DeviceCalendarGateway {
   Future<String> createCalendar({
     required String name,
     String? colorHex,
-    CreateCalendarPlatformOptions? platformOptions,
+    CalendarOptionsAndroid? android,
+    CalendarOptionsIos? ios,
   }) => _plugin.createCalendar(
     name: name,
     colorHex: colorHex,
-    platformOptions: platformOptions,
+    android: android,
+    ios: ios,
   );
 
   @override
@@ -122,10 +127,10 @@ class DeviceCalendarSyncService {
        _isAndroid = isAndroid ?? PlatformFeatures.isAndroid;
 
   /// Live settings reader.
-  final Settings Function() _getSettings;
+  final AppSettings Function() _getSettings;
 
   /// Persists linked event ids on items.
-  final TodoRepository _todoRepo;
+  final TodoRepositoryPort _todoRepo;
 
   /// Platform calendar API.
   final DeviceCalendarGateway _client;
@@ -134,7 +139,7 @@ class DeviceCalendarSyncService {
   final bool _isAndroid;
 
   /// Optional persistence for [Settings.deviceCalendarId] changes.
-  final Future<void> Function(Settings settings)? _saveSettings;
+  final Future<void> Function(AppSettings settings)? _saveSettings;
 
   /// Default event duration when mapping a list item deadline to a timed event.
   static const eventDuration = Duration(hours: 1);
@@ -152,9 +157,9 @@ class DeviceCalendarSyncService {
   static const zestCalendarColorHex = '#2196F3';
 
   /// Whether [item] should currently have a linked device-calendar event.
-  static bool shouldSyncTodo(Todos todo, Settings settings) {
+  static bool shouldSyncTodo(Todo todo, AppSettings settings) {
     return settings.deviceCalendarSyncEnabled &&
-        todo.todoCompletedTime != null &&
+        todo.dueAt != null &&
         todo.status == TodoStatus.active;
   }
 
@@ -184,7 +189,7 @@ class DeviceCalendarSyncService {
       final calendars = await _client.listCalendars();
       return calendars.where((c) => !c.readOnly && !c.hidden).toList();
     } catch (e, stackTrace) {
-      debugPrint('listWritableCalendars failed: $e\n$stackTrace');
+      AppLog.d('listWritableCalendars failed: $e\n$stackTrace');
       return const [];
     }
   }
@@ -218,14 +223,14 @@ class DeviceCalendarSyncService {
           final google = _preferredGoogleCalendar(writable);
           if (google != null) {
             await _persistCalendarId(settings, google.id);
-            debugPrint(
+            AppLog.d(
               'Device calendar migrated local Zest → Google '
               '"${google.name}" (${google.id})',
             );
             return google.id;
           }
         }
-        debugPrint(
+        AppLog.d(
           'Device calendar using saved "${matched.name}" '
           '(${matched.id}, ${matched.accountType})',
         );
@@ -236,7 +241,7 @@ class DeviceCalendarSyncService {
     final google = _preferredGoogleCalendar(writable);
     if (google != null) {
       await _persistCalendarId(settings, google.id);
-      debugPrint(
+      AppLog.d(
         'Device calendar auto-selected Google "${google.name}" (${google.id})',
       );
       return google.id;
@@ -260,71 +265,64 @@ class DeviceCalendarSyncService {
       final createdId = await _client.createCalendar(
         name: zestCalendarName,
         colorHex: zestCalendarColorHex,
-        platformOptions: const CreateCalendarOptionsAndroid(
-          accountName: zestCalendarName,
-        ),
+        android: const CalendarOptionsAndroid(accountName: zestCalendarName),
       );
       await _persistCalendarId(settings, createdId);
-      debugPrint(
+      AppLog.d(
         'Device calendar created local "$zestCalendarName" ($createdId)',
       );
       return createdId;
     } catch (e, stackTrace) {
-      debugPrint('createCalendar failed: $e\n$stackTrace');
+      AppLog.d('createCalendar failed: $e\n$stackTrace');
       return null;
     }
   }
 
   /// Creates, updates, or removes the device-calendar event for [item].
-  Future<void> ensureSynced(Todos todo) async {
+  Future<void> ensureSynced(Todo todo) async {
     if (!_isAndroid) return;
 
     final settings = _getSettings();
     try {
-      final latest = await _todoRepo.getById(todo.id) ?? todo;
-      _applyLatestToCaller(todo, latest);
+      var latest = await _todoRepo.getById(todo.id) ?? todo;
 
       if (!shouldSyncTodo(latest, settings)) {
         await _removeLinkedEvent(latest, persist: true);
-        todo.deviceCalendarEventId = latest.deviceCalendarEventId;
         return;
       }
 
       final previousCalendarId = settings.deviceCalendarId;
       final calendarId = await ensureWritableCalendarId();
       if (calendarId == null) {
-        debugPrint(
+        AppLog.d(
           'Device calendar sync skipped for todo ${latest.id}: no writable calendar',
         );
         return;
       }
 
-      final start = latest.todoCompletedTime!;
+      final start = latest.dueAt!;
       final end = eventEnd(start);
       final description = latest.description.isEmpty
           ? null
           : latest.description;
       var existingId = latest.deviceCalendarEventId;
 
-      // Target calendar changed (e.g. local Zest → Google): delete the old
-      // event before recreate so we don't orphan it on the previous calendar.
       if (existingId != null &&
           existingId.isNotEmpty &&
           previousCalendarId != null &&
           previousCalendarId != calendarId) {
-        debugPrint(
+        AppLog.d(
           'Device calendar target changed ($previousCalendarId → $calendarId); '
           'recreating event for todo ${latest.id}',
         );
         await _removeLinkedEvent(latest, persist: true);
-        todo.deviceCalendarEventId = null;
+        latest = latest.copyWith(clearDeviceCalendarEventId: true);
         existingId = null;
       }
 
       if (existingId == null || existingId.isEmpty) {
         await _createAndPersistEvent(
           todo: latest,
-          callerTodo: todo,
           calendarId: calendarId,
           start: start,
           end: end,
@@ -341,18 +339,16 @@ class DeviceCalendarSyncService {
           endDate: end,
           description: description,
         );
-        debugPrint(
+        AppLog.d(
           'Device calendar updated event $existingId for todo ${latest.id}',
         );
       } catch (e, stackTrace) {
-        debugPrint(
+        AppLog.d(
           'Device calendar update failed for $existingId, recreating: $e\n$stackTrace',
         );
         await _removeLinkedEvent(latest, persist: true);
-        todo.deviceCalendarEventId = null;
         await _createAndPersistEvent(
-          todo: latest,
-          callerTodo: todo,
+          todo: latest.copyWith(clearDeviceCalendarEventId: true),
           calendarId: calendarId,
           start: start,
           end: end,
@@ -360,26 +356,23 @@ class DeviceCalendarSyncService {
         );
       }
     } catch (e, stackTrace) {
-      debugPrint(
+      AppLog.d(
         'Device calendar sync failed for todo ${todo.id}: $e\n$stackTrace',
       );
     }
   }
 
   /// Deletes the linked event for [item] if any (e.g. before hard delete).
-  Future<void> removeSynced(Todos todo) async {
+  Future<void> removeSynced(Todo todo) async {
     if (!_isAndroid) return;
     try {
       final latest = await _todoRepo.getById(todo.id) ?? todo;
-      todo.deviceCalendarEventId = latest.deviceCalendarEventId;
       await _removeLinkedEvent(latest, persist: true);
-      todo.deviceCalendarEventId = null;
-      debugPrint('Device calendar removed event for todo ${todo.id}');
+      AppLog.d('Device calendar removed event for todo ${todo.id}');
     } catch (e, stackTrace) {
-      debugPrint(
+      AppLog.d(
         'Device calendar remove failed for todo ${todo.id}: $e\n$stackTrace',
       );
-      todo.deviceCalendarEventId = null;
     }
   }
 
@@ -423,19 +416,9 @@ class DeviceCalendarSyncService {
         writable.firstWhereOrNull(isGoogleCalendar);
   }
 
-  /// Copies sync-relevant fields from [latest] onto the caller-visible [item].
-  void _applyLatestToCaller(Todos todo, Todos latest) {
-    todo.deviceCalendarEventId = latest.deviceCalendarEventId;
-    todo.name = latest.name;
-    todo.description = latest.description;
-    todo.todoCompletedTime = latest.todoCompletedTime;
-    todo.status = latest.status;
-  }
-
-  /// Creates a calendar event and stores its id on [item] and [callerTodo].
+  /// Creates a calendar event and stores its id on [todo].
   Future<void> _createAndPersistEvent({
-    required Todos todo,
-    required Todos callerTodo,
+    required Todo todo,
     required String calendarId,
     required DateTime start,
     required DateTime end,
@@ -448,42 +431,40 @@ class DeviceCalendarSyncService {
       endDate: end,
       description: description,
     );
-    todo.deviceCalendarEventId = eventId;
-    callerTodo.deviceCalendarEventId = eventId;
-    await _todoRepo.update(todo);
-    debugPrint(
+    await _todoRepo.update(todo.copyWith(deviceCalendarEventId: eventId));
+    AppLog.d(
       'Device calendar created event $eventId on $calendarId for todo ${todo.id}',
     );
   }
 
   /// Persists [calendarId] on [settings] when it changed.
-  Future<void> _persistCalendarId(Settings settings, String calendarId) async {
+  Future<void> _persistCalendarId(
+    AppSettings settings,
+    String calendarId,
+  ) async {
     if (settings.deviceCalendarId == calendarId) return;
-    settings.deviceCalendarId = calendarId;
     final save = _saveSettings;
     if (save != null) {
-      await save(settings);
+      await save(settings.copyWith(deviceCalendarId: calendarId));
     }
   }
 
-  /// Deletes the linked device event for [item], optionally persisting a null id.
-  Future<void> _removeLinkedEvent(Todos todo, {bool persist = true}) async {
+  /// Deletes the linked device event for [todo], optionally persisting a null id.
+  Future<void> _removeLinkedEvent(Todo todo, {bool persist = true}) async {
     final eventId = todo.deviceCalendarEventId;
     if (eventId == null || eventId.isEmpty) return;
 
     try {
       await _client.deleteEvent(eventId: eventId);
-      debugPrint('Device calendar deleted event $eventId');
+      AppLog.d('Device calendar deleted event $eventId');
     } catch (e, stackTrace) {
-      // Event may already be gone from the device calendar.
-      debugPrint(
+      AppLog.d(
         'Device calendar deleteEvent failed for $eventId: $e\n$stackTrace',
       );
     }
 
-    todo.deviceCalendarEventId = null;
     if (persist) {
-      await _todoRepo.update(todo);
+      await _todoRepo.update(todo.copyWith(clearDeviceCalendarEventId: true));
     }
   }
 }

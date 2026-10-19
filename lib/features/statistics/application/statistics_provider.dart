@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/di/provider_refs.dart';
-import 'package:zest/core/services/statistics_service.dart';
+import 'package:zest/domain/usecases/statistics_usecases.dart';
 import 'package:zest/features/statistics/presentation/models/statistics_data.dart';
 import 'package:zest/features/tasks/application/tasks_notifier.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
@@ -13,9 +13,11 @@ final statisticsProvider = FutureProvider<StatisticsData>((ref) async {
     settingsProvider.select((s) => s.showArchivedInStatistics),
   );
 
-  final isar = ref.watch(isarProvider);
+  final todoRepo = ref.watch(todoRepositoryProvider);
+  final categoryRepo = ref.watch(categoryRepositoryProvider);
   return StatisticsService.calculateStatistics(
-    isar,
+    todoRepo,
+    categoryRepo: categoryRepo,
     includeArchivedCategories: includeArchived,
   );
 });

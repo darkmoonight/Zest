@@ -1,12 +1,12 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/config/setting_enum_pickers.dart';
 import 'package:zest/core/services/backup_constants.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/features/settings/presentation/widgets/selection_dialog.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Human-readable label for the configured auto-backup path.
-String formatAutoBackupPathDisplay(Settings settings) {
+String formatAutoBackupPathDisplay(AppSettings settings) {
   final path = settings.autoBackupPath;
 
   if (path == null || path.isEmpty) {

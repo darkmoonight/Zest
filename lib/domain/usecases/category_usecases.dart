@@ -1,29 +1,30 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/utils/reorder_filtered.dart';
-import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/task_repository.dart';
-import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/enums/enums.dart';
+import 'package:zest/domain/repositories/category_repository.dart';
+import 'package:zest/domain/repositories/todo_repository.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/services/recurrence_service.dart';
 
 /// Category (task list) CRUD, archive, and notification cleanup.
 class TaskService {
-  /// Creates a service with task/item repositories and notifications.
+  /// Creates a service with category/item repositories and notifications.
   TaskService({
-    required this._taskRepo,
+    required this._categoryRepo,
     required this._todoRepo,
     required this._notificationService,
     this._calendarSync,
     this._caldavSync,
   });
 
-  /// Persistence layer for task (category) entities.
-  final TaskRepository _taskRepo;
+  /// Persistence layer for category entities.
+  final CategoryRepositoryPort _categoryRepo;
 
   /// Persistence layer for item entities.
-  final TodoRepository _todoRepo;
+  final TodoRepositoryPort _todoRepo;
 
   /// Schedules and cancels item reminder notifications.
   final NotificationService _notificationService;
@@ -36,25 +37,25 @@ class TaskService {
 
   // ==================== CREATE ====================
 
-  /// Creates a task when [title] is unique; returns `null` if the title exists.
-  Future<Tasks?> createTask({
+  /// Creates a category when [title] is unique; returns `null` if the title exists.
+  Future<Category?> createTask({
     required String title,
     required String description,
-    required Color color,
+    required int colorArgb,
     required int currentTaskCount,
     RecurrenceFrequency recurrence = RecurrenceFrequency.none,
     List<int> recurrenceWeekdays = const [],
     RecurrenceMode recurrenceMode = RecurrenceMode.reopen,
     int? recurrenceMinuteOfDay,
   }) async {
-    if (await _taskRepo.existsByTitle(title)) {
+    if (await _categoryRepo.existsByTitle(title)) {
       return null;
     }
 
-    return _taskRepo.create(
+    return _categoryRepo.create(
       title: title,
       description: description,
-      color: color,
+      colorArgb: colorArgb,
       index: currentTaskCount,
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
@@ -65,127 +66,133 @@ class TaskService {
 
   // ==================== UPDATE ====================
 
-  /// Updates task fields and syncs category-habit dues on eligible children.
-  ///
-  /// Active items without their own recurrence get [Tasks.recurrenceMinuteOfDay]
-  /// written to [Items.todoCompletedTime] and are rescheduled (or cancelled).
+  /// Updates category fields and syncs category-habit dues on eligible children.
   Future<void> updateTask({
-    required Tasks task,
+    required Category category,
     required String title,
     required String description,
-    required Color color,
+    required int colorArgb,
     RecurrenceFrequency recurrence = RecurrenceFrequency.none,
     List<int> recurrenceWeekdays = const [],
     RecurrenceMode recurrenceMode = RecurrenceMode.reopen,
     int? recurrenceMinuteOfDay,
   }) async {
-    await _taskRepo.updateFields(
-      task: task,
+    await _categoryRepo.updateFields(
+      category: category,
       title: title,
       description: description,
-      color: color,
+      colorArgb: colorArgb,
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
 
-    // Refresh in-memory fields used by due resolution below.
-    task.recurrence = recurrence;
-    task.recurrenceWeekdays = recurrenceWeekdays;
-    task.recurrenceMode = recurrenceMode;
-    task.recurrenceMinuteOfDay = recurrenceMinuteOfDay;
+    final updated = category.copyWith(
+      title: title,
+      description: description,
+      colorArgb: colorArgb,
+      recurrence: recurrence,
+      recurrenceWeekdays: recurrenceWeekdays,
+      recurrenceMode: recurrenceMode,
+      recurrenceMinuteOfDay: recurrenceMinuteOfDay,
+      clearRecurrenceMinuteOfDay: recurrenceMinuteOfDay == null,
+    );
 
-    await _syncCategoryHabitDues(task);
+    await _syncCategoryHabitDues(updated);
   }
 
   /// Stamps due + notifications for active children without their own recurrence.
-  Future<void> _syncCategoryHabitDues(Tasks task) async {
-    if (!RecurrenceService.isRecurring(task.recurrence)) return;
+  Future<void> _syncCategoryHabitDues(Category category) async {
+    if (!RecurrenceService.isRecurring(category.recurrence)) return;
 
-    final todos = await _todoRepo.getByTaskId(task.id);
+    final todos = await _todoRepo.getByCategoryId(category.id);
     final now = DateTime.now();
 
     for (final todo in todos) {
-      if (!RecurrenceService.isCategoryHabitChild(todo: todo, task: task)) {
+      if (!RecurrenceService.isCategoryHabitChild(
+        todo: todo,
+        category: category,
+      )) {
         continue;
       }
 
       final due = RecurrenceService.resolveDueForTodo(
         todo: todo,
-        task: task,
+        category: category,
         now: now,
       );
 
-      todo.todoCompletedTime = due;
-      await _todoRepo.update(todo);
+      final updated = todo.copyWith(dueAt: due, clearDueAt: due == null);
+      await _todoRepo.update(updated);
 
       if (due != null) {
-        await _notificationService.reschedule(todo);
+        await _notificationService.reschedule(updated, category: category);
       } else {
         await _notificationService.cancel(todo.id);
       }
-      await _calendarSync?.ensureSynced(todo);
+      await _calendarSync?.ensureSynced(updated);
     }
   }
 
-  /// Archives [tasks], cancels their item reminders, and persists archive state.
-  Future<void> archiveTasks(List<Tasks> tasks) async {
-    if (tasks.isEmpty) return;
+  /// Archives [categories], cancels their item reminders, and persists state.
+  Future<void> archiveTasks(List<Category> categories) async {
+    if (categories.isEmpty) return;
 
-    final tasksCopy = List<Tasks>.from(tasks);
-    final allTodos = await _collectTodosForTasks(tasksCopy);
+    final categoriesCopy = List<Category>.from(categories);
+    final allTodos = await _collectTodosForCategories(categoriesCopy);
 
     await _notificationService.cancelForTask(allTodos);
     for (final todo in allTodos) {
       await _calendarSync?.removeSynced(todo);
     }
-    await _taskRepo.updateArchiveStatusBatch(tasksCopy, true);
+    await _categoryRepo.updateArchiveStatusBatch(categoriesCopy, true);
   }
 
-  /// Unarchives [tasks], reschedules item reminders, and persists state.
-  Future<void> unarchiveTasks(List<Tasks> tasks) async {
-    if (tasks.isEmpty) return;
+  /// Unarchives [categories], reschedules item reminders, and persists state.
+  Future<void> unarchiveTasks(List<Category> categories) async {
+    if (categories.isEmpty) return;
 
-    final tasksCopy = List<Tasks>.from(tasks);
-    final allTodos = await _collectTodosForTasks(tasksCopy);
+    final categoriesCopy = List<Category>.from(categories);
+    final allTodos = await _collectTodosForCategories(categoriesCopy);
 
     await _notificationService.scheduleForTask(allTodos);
-    await _taskRepo.updateArchiveStatusBatch(tasksCopy, false);
+    await _categoryRepo.updateArchiveStatusBatch(categoriesCopy, false);
     for (final todo in allTodos) {
       await _calendarSync?.ensureSynced(todo);
     }
   }
 
-  Future<List<Todos>> _collectTodosForTasks(List<Tasks> tasks) async {
-    final allTodos = <Todos>[];
-    for (final task in tasks) {
-      allTodos.addAll(await _todoRepo.getByTaskId(task.id));
+  Future<List<Todo>> _collectTodosForCategories(
+    List<Category> categories,
+  ) async {
+    final allTodos = <Todo>[];
+    for (final category in categories) {
+      allTodos.addAll(await _todoRepo.getByCategoryId(category.id));
     }
     return allTodos;
   }
 
   // ==================== DELETE ====================
 
-  /// Deletes [tasks], their items, and associated notifications.
-  Future<void> deleteTasks(List<Tasks> tasks) async {
-    if (tasks.isEmpty) return;
+  /// Deletes [categories], their items, and associated notifications.
+  Future<void> deleteTasks(List<Category> categories) async {
+    if (categories.isEmpty) return;
 
-    final tasksCopy = List<Tasks>.from(tasks);
+    final categoriesCopy = List<Category>.from(categories);
 
-    for (final task in tasksCopy) {
-      final todos = await _todoRepo.getByTaskId(task.id);
+    for (final category in categoriesCopy) {
+      final todos = await _todoRepo.getByCategoryId(category.id);
       await _notificationService.cancelForTask(todos);
-      await _deleteAllTodosForTask(todos);
-      await _taskRepo.delete(task);
+      await _deleteAllTodosForCategory(todos);
+      await _categoryRepo.delete(category);
     }
   }
 
-  /// Deletes every item in [items] including descendant subtrees.
-  Future<void> _deleteAllTodosForTask(List<Todos> todos) async {
+  Future<void> _deleteAllTodosForCategory(List<Todo> todos) async {
     if (todos.isEmpty) return;
 
-    final todosCopy = List<Todos>.from(todos);
+    final todosCopy = List<Todo>.from(todos);
     final allIds = <int>{};
 
     for (final root in todosCopy) {
@@ -205,10 +212,9 @@ class TaskService {
     }
   }
 
-  /// Collects ids for [root] and every descendant item.
-  Future<Set<int>> _collectSubtreeIds(Todos root) async {
+  Future<Set<int>> _collectSubtreeIds(Todo root) async {
     final ids = <int>{};
-    final stack = <Todos>[root];
+    final stack = <Todo>[root];
 
     while (stack.isNotEmpty) {
       final node = stack.removeLast();
@@ -229,8 +235,8 @@ class TaskService {
 
   /// Reorders [allTasks] to match the order of [filteredTasks].
   Future<void> reorderTasks({
-    required List<Tasks> allTasks,
-    required List<Tasks> filteredTasks,
+    required List<Category> allTasks,
+    required List<Category> filteredTasks,
   }) async {
     if (filteredTasks.isEmpty) return;
 
@@ -238,16 +244,16 @@ class TaskService {
       all: allTasks,
       filtered: filteredTasks,
       idOf: (t) => t.id,
-      assignIndex: (t, i) => t.index = i,
+      assignIndex: (_, _) {},
     );
-    await _taskRepo.updateIndexes(allTasks);
+    await _categoryRepo.updateIndexes(allTasks);
   }
 
   // ==================== FILTERS ====================
 
   /// Filters [tasks] by archive state and optional [searchQuery].
-  List<Tasks> filterTasks({
-    required List<Tasks> tasks,
+  List<Category> filterTasks({
+    required List<Category> tasks,
     required bool archived,
     String searchQuery = '',
   }) {

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/todo.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
 
 import '../../helpers/isar_test_helper.dart';
@@ -14,9 +14,14 @@ void main() {
   setUp(() async {
     isar = await openTestIsar();
     container = createTestContainer(isar: isar);
+    await readTodosNotifier(container);
+    await readTasksNotifier(container);
   });
 
   tearDown(() async {
+    if (isarCoreUnavailable) return;
+    // Let pending TasksNotifier microtask reloads finish before dispose.
+    await Future<void>.delayed(Duration.zero);
     container.dispose();
     await closeTestIsar(isar);
   });
@@ -93,7 +98,7 @@ void main() {
     todosNotifier.toggleMultiSelectionTodo();
     todosNotifier.doMultiSelectionTodo(todo);
     todosNotifier.doMultiSelectionTodo(
-      Todos(id: 99999, name: 'ghost', createdTime: DateTime.now()),
+      Todo(id: 99999, name: 'ghost', createdAt: DateTime.now()),
     );
 
     await todosNotifier.reloadTodos();
@@ -115,7 +120,6 @@ void main() {
         .read(todosNotifierProvider)
         .todos
         .firstWhere((item) => item.id == todo.id);
-    await moved.task.load();
-    expect(moved.task.value?.id, target.id);
+    expect(moved.categoryId, target.id);
   });
 }

@@ -4,12 +4,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
-import 'package:zest/core/services/task_service.dart';
-import 'package:zest/core/utils/show_snack_bar.dart';
-import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/task_repository.dart';
+import 'package:zest/domain/usecases/category_usecases.dart';
+import 'package:zest/core/utils/app_log.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/enums/enums.dart';
+import 'package:zest/domain/repositories/category_repository.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
-import 'package:zest/i18n/tr.dart';
 
 /// Riverpod state and notifier for task categories.
 class TasksState {
@@ -23,10 +23,10 @@ class TasksState {
   });
 
   /// Loaded task categories for the home list.
-  final List<Tasks> tasks;
+  final List<Category> tasks;
 
   /// Selected categories during multi-select mode (resolved from ids).
-  final List<Tasks> selectedTask;
+  final List<Category> selectedTask;
 
   /// Selected category ids; survives list reloads.
   final Set<int> selectedTaskIds;
@@ -39,8 +39,8 @@ class TasksState {
 
   /// Returns a copy with the given fields replaced.
   TasksState copyWith({
-    List<Tasks>? tasks,
-    List<Tasks>? selectedTask,
+    List<Category>? tasks,
+    List<Category>? selectedTask,
     Set<int>? selectedTaskIds,
     bool? isMultiSelectionTask,
     bool? isPop,
@@ -57,17 +57,17 @@ class TasksState {
 
 /// Loads and mutates task categories; watches Isar for live list updates.
 class TasksNotifier extends Notifier<TasksState> {
-  TaskRepository? _taskRepo;
+  CategoryRepositoryPort? _taskRepo;
 
   Timer? _loadDebounce;
 
   /// Monotonic token so stale [getAll] results cannot overwrite newer loads.
   int _loadGeneration = 0;
 
-  TaskRepository get taskRepo {
+  CategoryRepositoryPort get taskRepo {
     final cached = _taskRepo;
     if (cached != null) return cached;
-    final created = ref.read(taskRepositoryProvider);
+    final created = ref.read(categoryRepositoryProvider);
     _taskRepo = created;
     return created;
   }
@@ -107,7 +107,7 @@ class TasksNotifier extends Notifier<TasksState> {
     final generation = ++_loadGeneration;
     final preservedSelectedIds = state.selectedTaskIds.toSet();
     final newTasks = await taskRepo.getAll();
-    if (generation != _loadGeneration) return;
+    if (generation != _loadGeneration || !ref.mounted) return;
     state = state.copyWith(tasks: newTasks);
     _restoreSelectedTasks(preservedSelectedIds);
   }
@@ -123,7 +123,7 @@ class TasksNotifier extends Notifier<TasksState> {
     final tasksMap = {for (final task in state.tasks) task.id: task};
     final restored = preservedIds
         .map((id) => tasksMap[id])
-        .whereType<Tasks>()
+        .whereType<Category>()
         .toList();
 
     if (restored.isEmpty) {
@@ -149,7 +149,7 @@ class TasksNotifier extends Notifier<TasksState> {
     final tasksMap = {for (final task in state.tasks) task.id: task};
     final updated = state.selectedTaskIds
         .map((id) => tasksMap[id])
-        .whereType<Tasks>()
+        .whereType<Category>()
         .toList();
 
     state = state.copyWith(
@@ -158,10 +158,10 @@ class TasksNotifier extends Notifier<TasksState> {
     );
   }
 
-  // ==================== Tasks CRUD ====================
+  // ==================== Category CRUD ====================
 
   /// Creates a task category with the given title, description, and color.
-  Future<Tasks?> addTask(
+  Future<Category?> addTask(
     String title,
     String description,
     Color color, {
@@ -173,24 +173,19 @@ class TasksNotifier extends Notifier<TasksState> {
     final task = await taskService.createTask(
       title: title,
       description: description,
-      color: color,
+      colorArgb: color.toARGB32(),
       currentTaskCount: state.tasks.length,
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
-    if (task == null) {
-      showSnackBar('duplicateCategory'.tr, isError: true);
-      return null;
-    }
-    showSnackBar('createCategory'.tr);
     return task;
   }
 
   /// Persists edits to an existing task category.
   Future<void> updateTask(
-    Tasks task,
+    Category category,
     String title,
     String description,
     Color color, {
@@ -200,20 +195,19 @@ class TasksNotifier extends Notifier<TasksState> {
     int? recurrenceMinuteOfDay,
   }) async {
     await taskService.updateTask(
-      task: task,
+      category: category,
       title: title,
       description: description,
-      color: color,
+      colorArgb: color.toARGB32(),
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
-    showSnackBar('editCategory'.tr);
   }
 
   /// Deletes [taskList] and reindexes remaining categories.
-  Future<void> deleteTask(List<Tasks> taskList) async {
+  Future<void> deleteTask(List<Category> taskList) async {
     if (taskList.isEmpty) return;
 
     _loadDebounce?.cancel();
@@ -224,12 +218,11 @@ class TasksNotifier extends Notifier<TasksState> {
     state = state.copyWith(tasks: await taskRepo.getAll());
     await _reindexTasks();
     // Archive flags live on linked tasks; refresh todos for filters/counts.
-    unawaited(ref.read(todosNotifierProvider.notifier).reloadTodos());
-    showSnackBar('categoryDelete'.tr);
+    unawaited(_reloadTodosSafely());
   }
 
   /// Archives [taskList] and clears selection.
-  Future<void> archiveTask(List<Tasks> taskList) async {
+  Future<void> archiveTask(List<Category> taskList) async {
     if (taskList.isEmpty) return;
 
     _loadDebounce?.cancel();
@@ -237,25 +230,31 @@ class TasksNotifier extends Notifier<TasksState> {
     await _clearDefaultCategoryIfNeeded(taskList);
     state = state.copyWith(tasks: await taskRepo.getAll());
     doMultiSelectionTaskClear();
-    unawaited(ref.read(todosNotifierProvider.notifier).reloadTodos());
-    showSnackBar('categoryArchive'.tr);
+    unawaited(_reloadTodosSafely());
   }
 
   /// Restores [taskList] from archive and clears selection.
-  Future<void> noArchiveTask(List<Tasks> taskList) async {
+  Future<void> noArchiveTask(List<Category> taskList) async {
     if (taskList.isEmpty) return;
 
     _loadDebounce?.cancel();
     await taskService.unarchiveTasks(taskList);
     state = state.copyWith(tasks: await taskRepo.getAll());
     doMultiSelectionTaskClear();
-    unawaited(ref.read(todosNotifierProvider.notifier).reloadTodos());
-    showSnackBar('noCategoryArchive'.tr);
+    unawaited(_reloadTodosSafely());
+  }
+
+  Future<void> _reloadTodosSafely() async {
+    try {
+      await ref.read(todosNotifierProvider.notifier).reloadTodos();
+    } catch (e, stack) {
+      AppLog.d('reloadTodos after category change failed: $e\n$stack');
+    }
   }
 
   /// Persists a new order for [filteredTasks] within the full task list.
   Future<void> reorderTasks({
-    required List<Tasks> filteredTasks,
+    required List<Category> filteredTasks,
     required bool archived,
   }) async {
     if (filteredTasks.isEmpty) return;
@@ -269,7 +268,7 @@ class TasksNotifier extends Notifier<TasksState> {
   }
 
   /// Clears the user default category when it was archived or deleted.
-  Future<void> _clearDefaultCategoryIfNeeded(List<Tasks> tasks) async {
+  Future<void> _clearDefaultCategoryIfNeeded(List<Category> tasks) async {
     final settings = ref.read(liveSettingsProvider);
     final defaultId = settings.defaultCategoryId;
     if (defaultId == null) return;
@@ -280,19 +279,22 @@ class TasksNotifier extends Notifier<TasksState> {
 
   Future<void> _reindexTasks() async {
     final all = state.tasks.toList();
-
-    for (int i = 0; i < all.length; i++) {
-      all[i].index = i;
-    }
-
     await taskRepo.updateIndexes(all);
-    state = state.copyWith(tasks: all);
+    state = state.copyWith(tasks: await taskRepo.getAll());
   }
+
+  /// Persists [task.sortOption] after the user changes list sort.
+  Future<void> persistTaskSort(Category task, SortOption option) async {
+    await taskRepo.update(task.copyWith(sortOption: option));
+  }
+
+  /// Active categories sorted by index (for pickers / transfer).
+  Future<List<Category>> getActiveSorted() => taskRepo.getActiveSorted();
 
   // ==================== Filters ====================
 
   /// Returns task categories filtered by archive state and search query.
-  List<Tasks> getFilteredTasks({
+  List<Category> getFilteredTasks({
     required bool archived,
     String searchQuery = '',
   }) {
@@ -303,10 +305,10 @@ class TasksNotifier extends Notifier<TasksState> {
     );
   }
 
-  // ==================== Multi-Selection Tasks ====================
+  // ==================== Multi-Selection Category ====================
 
   /// Toggles [task] in the multi-select id set.
-  void doMultiSelectionTask(Tasks task) {
+  void doMultiSelectionTask(Category task) {
     if (!state.isMultiSelectionTask) return;
 
     final updatedIds = Set<int>.from(state.selectedTaskIds);
@@ -406,7 +408,7 @@ class TasksNotifier extends Notifier<TasksState> {
   }
 }
 
-/// Tasks notifier provider.
+/// Category notifier provider.
 final tasksNotifierProvider = NotifierProvider<TasksNotifier, TasksState>(
   TasksNotifier.new,
 );

@@ -92,9 +92,6 @@ class _NotificationNavigationListenerState
     final todo = await ref.read(todoRepositoryProvider).getById(todoId);
     if (todo == null || !ctx.mounted) return;
 
-    await todo.task.load();
-    if (!ctx.mounted) return;
-
     popToHomeRoot(ctx);
     homeScreenKey.currentState?.changeTabIndex(allTodosTabIndex);
 
@@ -108,7 +105,7 @@ class _NotificationNavigationListenerState
           text: 'editing'.tr,
           edit: true,
           todo: todo,
-          category: true,
+          showCategory: true,
         ),
         enableDrag: false,
       );

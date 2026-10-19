@@ -282,7 +282,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       context: context,
       child: _tabIndex == 0
           ? TasksAction(text: 'create'.tr, edit: false)
-          : TodosAction(text: 'create'.tr, edit: false, category: true),
+          : TodosAction(text: 'create'.tr, edit: false, showCategory: true),
     );
   }
 }

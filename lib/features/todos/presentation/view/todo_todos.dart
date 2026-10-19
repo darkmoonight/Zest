@@ -4,7 +4,7 @@ import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/providers.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/entities.dart';
 import 'package:zest/features/todos/presentation/view/todos_list_screen.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_action.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_tab_views.dart';
@@ -18,7 +18,7 @@ class TodosTodo extends ConsumerStatefulWidget {
   const TodosTodo({super.key, required this.todo});
 
   /// Parent item whose children are listed.
-  final Todos todo;
+  final Todo todo;
 
   @override
   ConsumerState<TodosTodo> createState() => _TodosTodoState();
@@ -31,10 +31,9 @@ class _TodosTodoState extends ConsumerState<TodosTodo> {
       config: TodosListScreenConfig(
         initialSortOption: widget.todo.childrenSortOption,
         onSortPersist: (option) async {
-          widget.todo.childrenSortOption = option;
           await ref
-              .read(isarProvider)
-              .writeTxn(() => ref.read(isarProvider).todos.put(widget.todo));
+              .read(todosNotifierProvider.notifier)
+              .persistChildrenSort(widget.todo, option);
         },
         buildAppBar: (context, todosState) => _buildAppBar(context),
         buildTabViewsConfig: (tabController, searchFilter, sortOption) =>
@@ -119,7 +118,7 @@ class _TodosTodoState extends ConsumerState<TodosTodo> {
         text: 'editing'.tr,
         edit: true,
         todo: widget.todo,
-        category: true,
+        showCategory: true,
       ),
     );
   }
@@ -132,7 +131,7 @@ class _TodosTodoState extends ConsumerState<TodosTodo> {
         text: 'create'.tr,
         edit: false,
         todo: widget.todo,
-        category: false,
+        showCategory: false,
       ),
     );
   }

@@ -35,6 +35,18 @@ The app targets `package:material_ui` (Flutter 3.47+). A deprecated `MaterialUiC
 
 Remove the compatibility bridge only after those packages migrate to `material_ui` or are replaced.
 
+## Architecture layers
+
+| Layer | Path | Rules |
+|-------|------|--------|
+| Domain | `lib/domain/` | Entities, enums, repository ports, usecases. No `isar_community`, no `data/models/db.dart`, no `material_ui`. |
+| Data | `lib/data/` | Isar collections (`db.dart`), mappers, repository implementations. |
+| Features | `lib/features/` | UI + Riverpod notifiers. Import domain entities/enums; do not import `db.dart`. |
+| Core | `lib/core/` | Bootstrap, adapters (CalDAV, notifications, backup), DI. May touch Isar at the edge via mappers. |
+
+- Prefer `categoryId` / `parentId` on domain `Todo` over Isar links in UI/application code.
+- Mutate live preferences through `liveSettingsProvider` + `writeLiveSettings`; read UI snapshots from `settingsProvider` (`AppSettings`).
+
 ## Coding Standards
 
 - Follow existing patterns: Riverpod notifiers, feature folders, Rain-style settings sections.

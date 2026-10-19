@@ -6,7 +6,7 @@ import 'package:zest/core/di/providers.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_screen_mixin.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_status_tab_bar.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_tab_views.dart';
@@ -191,7 +191,9 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
             calendarFormat: _getCalendarFormat(),
             startingDayOfWeek: _getFirstDayOfWeek(),
             weekendDays: const [DateTime.sunday],
-            locale: ref.watch(appSettingsProvider).locale.languageCode,
+            locale: ref.watch(
+              appSettingsProvider.select((s) => s.locale.languageCode),
+            ),
             availableCalendarFormats: {
               CalendarFormat.month: 'month'.tr,
               CalendarFormat.twoWeeks: 'two_week'.tr,

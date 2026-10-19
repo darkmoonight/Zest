@@ -7,7 +7,7 @@ import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/theme/color_palette.dart';
 import 'package:zest/core/theme/theme_mode_notifier.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/features/settings/presentation/widgets/selection_dialog.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section_state.dart';
@@ -95,7 +95,7 @@ class _SettingsAppearanceSectionState
   /// Builds the color palette tile widget.
   SettingsTile _buildColorPaletteTile(
     BuildContext context,
-    Settings settings,
+    AppSettings settings,
     bool materialColor,
     String colorPalette,
   ) {
@@ -125,7 +125,7 @@ class _SettingsAppearanceSectionState
   /// Builds the catalog tile widget.
   SettingsTile _buildCatalogTile(
     BuildContext context,
-    Settings settings,
+    AppSettings settings,
     SettingAppearancePickerDefinition def,
     String appFont,
   ) {
@@ -161,7 +161,7 @@ class _SettingsAppearanceSectionState
   void _showCatalogDialog(
     BuildContext context,
     SettingAppearancePickerDefinition def,
-    Settings settings,
+    AppSettings settings,
   ) {
     showSelectionDialog<String>(
       context: context,

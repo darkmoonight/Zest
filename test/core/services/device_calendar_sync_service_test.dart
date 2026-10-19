@@ -2,8 +2,10 @@ import 'package:device_calendar_plus/device_calendar_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
-import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/enums/enums.dart';
 
 import '../../helpers/isar_test_helper.dart';
 
@@ -40,28 +42,32 @@ Calendar _localPhone({String id = 'existing-local', String name = 'Phone'}) {
 
 void main() {
   group('DeviceCalendarSyncService.shouldSyncTodo', () {
-    late Tasks task;
+    late Category task;
 
     setUp(() {
-      task = Tasks(id: 1, title: 'T', taskColor: 1);
+      task = const Category(id: 1, title: 'T', colorArgb: 1);
     });
 
     test('true only when enabled, has deadline, and active', () {
-      final settings = Settings()..deviceCalendarSyncEnabled = true;
-      final todo = buildTodo(id: 1, task: task, priority: Priority.high)
-        ..todoCompletedTime = DateTime(2026, 8, 9, 12);
+      var settings = const AppSettings(deviceCalendarSyncEnabled: true);
+      var todo = buildTodo(
+        id: 1,
+        task: task,
+        priority: Priority.high,
+        todoCompletedTime: DateTime(2026, 8, 9, 12),
+      );
 
       expect(DeviceCalendarSyncService.shouldSyncTodo(todo, settings), isTrue);
 
-      settings.deviceCalendarSyncEnabled = false;
+      settings = settings.copyWith(deviceCalendarSyncEnabled: false);
       expect(DeviceCalendarSyncService.shouldSyncTodo(todo, settings), isFalse);
 
-      settings.deviceCalendarSyncEnabled = true;
-      todo.todoCompletedTime = null;
+      settings = settings.copyWith(deviceCalendarSyncEnabled: true);
+      todo = todo.copyWith(clearDueAt: true);
       expect(DeviceCalendarSyncService.shouldSyncTodo(todo, settings), isFalse);
 
-      todo.todoCompletedTime = DateTime(2026, 8, 9, 12);
-      todo.status = TodoStatus.done;
+      todo = todo.copyWith(dueAt: DateTime(2026, 8, 9, 12));
+      todo = todo.copyWith(status: TodoStatus.done);
       expect(DeviceCalendarSyncService.shouldSyncTodo(todo, settings), isFalse);
     });
 
@@ -93,26 +99,30 @@ void main() {
   group('DeviceCalendarSyncService.ensureSynced', () {
     late Isar isar;
     late TodoRepository todoRepo;
-    late Settings settings;
+    late AppSettings settings;
     late FakeDeviceCalendarGateway gateway;
     late DeviceCalendarSyncService sync;
-    late Tasks task;
+    late Category task;
 
     setUp(() async {
       isar = await openTestIsar();
       todoRepo = TodoRepository(isar);
-      settings = Settings()..deviceCalendarSyncEnabled = true;
+      settings = const AppSettings(deviceCalendarSyncEnabled: true);
       gateway = FakeDeviceCalendarGateway();
       sync = DeviceCalendarSyncService(
         getSettings: () => settings,
         todoRepo: todoRepo,
         client: gateway,
         isAndroid: true,
+        saveSettings: (updated) async {
+          settings = updated;
+        },
       );
       task = await createTestTask(isar);
     });
 
     tearDown(() async {
+      if (isarCoreUnavailable) return;
       await closeTestIsar(isar);
     });
 
@@ -134,7 +144,6 @@ void main() {
       expect(gateway.created.single.title, 'Meeting');
       expect(gateway.created.single.startDate, DateTime(2026, 8, 10, 15));
       expect(gateway.created.single.endDate, DateTime(2026, 8, 10, 16));
-      expect(todo.deviceCalendarEventId, 'evt-1');
       expect(settings.deviceCalendarId, 'cal-1');
 
       final reloaded = await todoRepo.getById(todo.id);
@@ -158,27 +167,28 @@ void main() {
     });
 
     test('migrates leftover local Zest id to Google when available', () async {
-      settings.deviceCalendarId = 'local-zest';
+      settings = settings.copyWith(deviceCalendarId: 'local-zest');
       gateway.calendars = [_googlePrimary(), _localZest()];
-      final todo = await createTestTodo(
+      var todo = await createTestTodo(
         isar,
         task: task,
         name: 'Migrate',
         completedTime: DateTime(2026, 8, 10, 15),
       );
-      todo.deviceCalendarEventId = 'old-zest-evt';
+      todo = todo.copyWith(deviceCalendarEventId: 'old-zest-evt');
       await todoRepo.update(todo);
 
       await sync.ensureSynced(todo);
 
       expect(gateway.created.single.calendarId, 'google-primary');
       expect(gateway.created.single.title, 'Migrate');
-      expect(todo.deviceCalendarEventId, 'evt-1');
       expect(settings.deviceCalendarId, 'google-primary');
+      final reloaded = await todoRepo.getById(todo.id);
+      expect(reloaded?.deviceCalendarEventId, 'evt-1');
     });
 
     test('keeps non-Zest local calendar when explicitly saved', () async {
-      settings.deviceCalendarId = 'existing-local';
+      settings = settings.copyWith(deviceCalendarId: 'existing-local');
       gateway.calendars = [_googlePrimary(), _localPhone()];
       final todo = await createTestTodo(
         isar,
@@ -212,17 +222,17 @@ void main() {
 
     test('updates existing event when already linked', () async {
       gateway.calendars = [_localZest(id: 'local-1')];
-      settings.deviceCalendarId = 'local-1';
-      final todo = await createTestTodo(
+      settings = settings.copyWith(deviceCalendarId: 'local-1');
+      var todo = await createTestTodo(
         isar,
         task: task,
         name: 'Old',
         completedTime: DateTime(2026, 8, 10, 15),
       );
-      todo.deviceCalendarEventId = 'evt-9';
+      todo = todo.copyWith(deviceCalendarEventId: 'evt-9');
       await todoRepo.update(todo);
 
-      todo.name = 'New';
+      todo = todo.copyWith(name: 'New');
       await todoRepo.update(todo);
       await sync.ensureSynced(todo);
 
@@ -234,60 +244,63 @@ void main() {
 
     test('recreates event when update fails', () async {
       gateway.calendars = [_localZest(id: 'local-1')];
-      settings.deviceCalendarId = 'local-1';
+      settings = settings.copyWith(deviceCalendarId: 'local-1');
       gateway.failUpdateForIds.add('missing-evt');
-      final todo = await createTestTodo(
+      var todo = await createTestTodo(
         isar,
         task: task,
         name: 'Recover',
         completedTime: DateTime(2026, 8, 10, 15),
       );
-      todo.deviceCalendarEventId = 'missing-evt';
+      todo = todo.copyWith(deviceCalendarEventId: 'missing-evt');
       await todoRepo.update(todo);
 
       await sync.ensureSynced(todo);
 
       expect(gateway.updated, isEmpty);
       expect(gateway.created.length, 1);
-      expect(todo.deviceCalendarEventId, 'evt-1');
       final reloaded = await todoRepo.getById(todo.id);
       expect(reloaded?.deviceCalendarEventId, 'evt-1');
     });
 
     test('removes linked event when sync should stop', () async {
-      final todo = await createTestTodo(
+      var todo = await createTestTodo(
         isar,
         task: task,
         name: 'Done soon',
         completedTime: DateTime(2026, 8, 10, 15),
       );
-      todo.deviceCalendarEventId = 'evt-3';
+      todo = todo.copyWith(deviceCalendarEventId: 'evt-3');
       await todoRepo.update(todo);
 
-      settings.deviceCalendarSyncEnabled = false;
+      settings = settings.copyWith(deviceCalendarSyncEnabled: false);
       await sync.ensureSynced(todo);
 
       expect(gateway.deleted, ['evt-3']);
-      expect(todo.deviceCalendarEventId, isNull);
+      final reloaded = await todoRepo.getById(todo.id);
+      expect(reloaded?.deviceCalendarEventId, isNull);
     });
 
     test('removeSynced deletes by stored id from DB', () async {
-      final todo = await createTestTodo(
+      var todo = await createTestTodo(
         isar,
         task: task,
         name: 'Delete me',
         completedTime: DateTime(2026, 8, 10, 15),
       );
-      todo.deviceCalendarEventId = 'evt-del';
+      todo = todo.copyWith(deviceCalendarEventId: 'evt-del');
       await todoRepo.update(todo);
 
       final stale = await todoRepo.getById(todo.id);
-      stale!.deviceCalendarEventId = null;
+      expect(stale, isNotNull);
 
-      await sync.removeSynced(stale);
+      await sync.removeSynced(
+        stale!.copyWith(clearDeviceCalendarEventId: true),
+      );
 
       expect(gateway.deleted, ['evt-del']);
-      expect(stale.deviceCalendarEventId, isNull);
+      final reloaded = await todoRepo.getById(todo.id);
+      expect(reloaded?.deviceCalendarEventId, isNull);
     });
 
     test('no-ops when not Android', () async {
@@ -307,7 +320,8 @@ void main() {
       await offline.ensureSynced(todo);
 
       expect(gateway.created, isEmpty);
-      expect(todo.deviceCalendarEventId, isNull);
+      final reloaded = await todoRepo.getById(todo.id);
+      expect(reloaded?.deviceCalendarEventId, isNull);
     });
   });
 }
@@ -352,7 +366,8 @@ class FakeDeviceCalendarGateway implements DeviceCalendarGateway {
   Future<String> createCalendar({
     required String name,
     String? colorHex,
-    CreateCalendarPlatformOptions? platformOptions,
+    CalendarOptionsAndroid? android,
+    CalendarOptionsIos? ios,
   }) async {
     final id = 'cal-${_nextCalendarId++}';
     createdCalendars.add(name);

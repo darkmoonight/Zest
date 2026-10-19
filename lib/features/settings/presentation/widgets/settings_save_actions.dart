@@ -6,9 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/bootstrap/notification_callback_wiring.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/notifications/notification_channels.dart';
-import 'package:zest/core/services/auto_backup_service.dart';
 import 'package:zest/core/services/notification_plugin.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/core/settings/settings_writer.dart';
 import 'package:zest/i18n/locale_utils.dart';
 import 'package:zest/platform/platform_features.dart'
     if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
@@ -21,12 +20,9 @@ class SettingsSaveActions {
   /// Riverpod ref used to read settings and repositories.
   final WidgetRef ref;
 
-  /// Live mutable [Settings] from [liveSettingsProvider] (writes go here).
-  Settings get settings => ref.read(liveSettingsProvider);
-
   /// Applies [mutate] immediately and persists in the background.
   void saveSettingsOptimistic({
-    required void Function(Settings settings) mutate,
+    required LiveSettingsMutate mutate,
     Future<void> Function()? afterSave,
     bool backgroundAfterSave = false,
   }) {
@@ -80,7 +76,7 @@ class SettingsSaveActions {
       afterSave: () => refreshActiveReminderLabels(
         todoRepo: ref.read(todoRepositoryProvider),
         notificationService: ref.read(notificationServiceProvider),
-        settings: settings,
+        settings: ref.read(settingsProvider),
       ),
       backgroundAfterSave: true,
     );
@@ -88,6 +84,6 @@ class SettingsSaveActions {
 
   /// Triggers an immediate auto-backup and returns whether it succeeded.
   Future<bool> createAutoBackupNow() async {
-    return AutoBackupService.performManualAutoBackup(ref.read(isarProvider));
+    return performManualAutoBackup(ref);
   }
 }

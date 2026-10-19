@@ -7,7 +7,8 @@ import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/services/isar_service.dart';
 import 'package:zest/core/utils/show_snack_bar.dart';
 import 'package:zest/core/widgets/confirmation_dialog.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_selection.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section_state.dart';
@@ -48,8 +49,7 @@ class _SettingsDataSectionState
       ),
     );
     final settings = ref.read(settingsProvider);
-    final isar = ref.read(isarProvider);
-    final isarService = IsarService(isar, context);
+    final isarService = createIsarService(ref, context);
 
     return SettingsSection(
       title: 'dataManagement',
@@ -128,7 +128,7 @@ class _SettingsDataSectionState
   }
 
   /// Show auto backup frequency dialog.
-  void _showAutoBackupFrequencyDialog(Settings settings) {
+  void _showAutoBackupFrequencyDialog(AppSettings settings) {
     showSettingsSelection<AutoBackupFrequency>(
       context: context,
       title: 'autoBackupFrequency',
@@ -145,7 +145,7 @@ class _SettingsDataSectionState
   }
 
   /// Show auto-erase frequency dialog.
-  void _showAutoEraseFrequencyDialog(Settings settings) {
+  void _showAutoEraseFrequencyDialog(AppSettings settings) {
     showSettingsSelection<AutoEraseCompletedFrequency>(
       context: context,
       title: 'autoEraseCompletedFrequency',
@@ -162,7 +162,7 @@ class _SettingsDataSectionState
   }
 
   /// Show max backups dialog.
-  void _showMaxBackupsDialog(Settings settings) {
+  void _showMaxBackupsDialog(AppSettings settings) {
     final picker = settingMaxAutoBackupsPicker;
     showSettingsPicker(
       context: context,
@@ -215,8 +215,8 @@ class _SettingsDataSectionState
   /// Opens the directory picker and saves the chosen auto-backup path.
   Future<void> _selectAutoBackupPath() async {
     try {
-      final path = await IsarService(
-        ref.read(isarProvider),
+      final path = await createIsarService(
+        ref,
         context,
       ).pickAutoBackupDirectory();
       if (path == null) return;
@@ -273,11 +273,7 @@ class _SettingsDataSectionState
       isDestructive: true,
       confirmText: 'delete',
       onConfirm: () async {
-        final isar = ref.read(isarProvider);
-        await isar.writeTxn(() async {
-          await isar.todos.clear();
-          await isar.tasks.clear();
-        });
+        await createIsarService(ref, context).clearAllData();
         await reloadTodosAndTasks(ref);
         showSnackBar('deleteAll'.tr);
       },

@@ -4,7 +4,7 @@ import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/providers.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/entities.dart';
 import 'package:zest/features/tasks/presentation/widgets/tasks_action.dart';
 import 'package:zest/features/todos/presentation/view/todos_list_screen.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_action.dart';
@@ -19,7 +19,7 @@ class TaskTodos extends ConsumerStatefulWidget {
   const TaskTodos({super.key, required this.task});
 
   /// Task category whose items are listed.
-  final Tasks task;
+  final Category task;
 
   @override
   ConsumerState<TaskTodos> createState() => _TaskTodosState();
@@ -32,10 +32,9 @@ class _TaskTodosState extends ConsumerState<TaskTodos> {
       config: TodosListScreenConfig(
         initialSortOption: widget.task.sortOption,
         onSortPersist: (option) async {
-          widget.task.sortOption = option;
           await ref
-              .read(isarProvider)
-              .writeTxn(() => ref.read(isarProvider).tasks.put(widget.task));
+              .read(tasksNotifierProvider.notifier)
+              .persistTaskSort(widget.task, option);
         },
         buildAppBar: (context, todosState) => _buildAppBar(context, todosState),
         buildTabViewsConfig: (tabController, searchFilter, sortOption) =>
@@ -136,8 +135,8 @@ class _TaskTodosState extends ConsumerState<TaskTodos> {
       child: TodosAction(
         text: 'create'.tr,
         edit: false,
-        task: widget.task,
-        category: false,
+        category: widget.task,
+        showCategory: false,
       ),
     );
   }

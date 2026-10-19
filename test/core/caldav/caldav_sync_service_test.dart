@@ -4,8 +4,12 @@ import 'package:zest/core/caldav/caldav_credentials.dart';
 import 'package:zest/core/caldav/caldav_remote.dart';
 import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/caldav/vtodo_record.dart';
+import 'package:zest/data/mappers/settings_mapper.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/entities/todo.dart';
 
 import '../../helpers/isar_test_helper.dart';
 
@@ -76,16 +80,26 @@ class _FakeRemote implements CalDavRemote {
   void close() {}
 }
 
+Future<void> _persistSettings(Isar isar, AppSettings settings) async {
+  await isar.writeTxn(() async {
+    final row = settings.id != null
+        ? (await isar.settings.get(settings.id!) ?? Settings())
+        : Settings();
+    SettingsMapper.applyDomain(row, settings);
+    await isar.settings.put(row);
+  });
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late Isar isar;
-  late Settings settings;
+  late AppSettings settings;
   late TodoRepository todoRepo;
   late CalDavCredentialsStore credentials;
   late _FakeRemote remote;
   late CalDavSyncService sync;
-  late Tasks category;
+  late Category category;
 
   const calendar = CalDavCalendarInfo(
     href: 'https://cal.example/tasks/',
@@ -96,31 +110,44 @@ void main() {
 
   setUp(() async {
     isar = await openTestIsar();
-    settings = Settings()
-      ..caldavEnabled = true
-      ..caldavUrl = 'https://cal.example'
-      ..caldavUsername = 'user'
-      ..caldavCalendarHref = calendar.href
-      ..caldavAllowInsecure = false;
-    await isar.writeTxn(() => isar.settings.put(settings));
+    settings = AppSettings(
+      caldavEnabled: true,
+      caldavUrl: 'https://cal.example',
+      caldavUsername: 'user',
+      caldavCalendarHref: calendar.href,
+      caldavAllowInsecure: false,
+    );
+    await isar.writeTxn(() async {
+      final row = SettingsMapper.toIsar(settings);
+      await isar.settings.put(row);
+      settings = SettingsMapper.toDomain(row);
+    });
 
     todoRepo = TodoRepository(isar);
     credentials = CalDavCredentialsStore.memory();
     await credentials.savePassword('secret');
     remote = _FakeRemote(calendar: calendar);
     category = await createTestTask(isar, title: 'Default');
-    category.isSystem = true;
-    await isar.writeTxn(() => isar.tasks.put(category));
-    settings.defaultCategoryId = category.id;
-    await isar.writeTxn(() => isar.settings.put(settings));
+    await isar.writeTxn(() async {
+      final row = await isar.tasks.get(category.id);
+      row!.isSystem = true;
+      await isar.tasks.put(row);
+    });
+    category = category.copyWith(isSystem: true);
+    settings = settings.copyWith(defaultCategoryId: category.id);
+    await _persistSettings(isar, settings);
+    final reloaded = await isar.settings.get(settings.id!);
+    settings = SettingsMapper.toDomain(reloaded!);
 
     sync = CalDavSyncService(
       isar: isar,
       getSettings: () => settings,
       todoRepo: todoRepo,
       saveSettings: (updated) async {
-        settings.copyValuesFrom(updated, includeId: true);
-        await isar.writeTxn(() => isar.settings.put(settings));
+        settings = updated;
+        await _persistSettings(isar, settings);
+        final row = await isar.settings.get(settings.id!);
+        settings = SettingsMapper.toDomain(row!);
       },
       credentials: credentials,
       connect: ({
@@ -174,20 +201,17 @@ void main() {
     expect(imported.description, 'desc');
     expect(imported.priority, Priority.high);
     expect(imported.tags, ['tag']);
-    await imported.task.load();
-    expect(imported.task.value?.id, category.id);
+    expect(imported.categoryId, category.id);
   });
 
   test('server wins on 412 conflict', () async {
-    final todo = await createTestTodo(
-      isar,
-      task: category,
-      name: 'Local title',
+    var todo = await createTestTodo(isar, task: category, name: 'Local title');
+    todo = todo.copyWith(
+      caldavUid: 'uid-conflict',
+      caldavHref: 'https://cal.example/tasks/uid-conflict.ics',
+      caldavEtag: 'old',
+      caldavDirty: true,
     );
-    todo.caldavUid = 'uid-conflict';
-    todo.caldavHref = 'https://cal.example/tasks/uid-conflict.ics';
-    todo.caldavEtag = 'old';
-    todo.caldavDirty = true;
     await todoRepo.update(todo);
 
     remote.todos['uid-conflict'] = const VtodoRecord(
@@ -212,16 +236,20 @@ void main() {
   test(
     'deletes local item when it disappeared remotely and is not dirty',
     () async {
-      final todo = await createTestTodo(isar, task: category, name: 'Gone');
-      todo.caldavUid = 'gone';
-      todo.caldavHref = 'https://cal.example/tasks/gone.ics';
-      todo.caldavEtag = 'e';
-      todo.caldavDirty = false;
+      var todo = await createTestTodo(isar, task: category, name: 'Gone');
+      todo = todo.copyWith(
+        caldavUid: 'gone',
+        caldavHref: 'https://cal.example/tasks/gone.ics',
+        caldavEtag: 'e',
+        caldavDirty: false,
+      );
       await todoRepo.update(todo);
 
       // Prior successful sync (known ctag) required for empty-list tombstones.
-      settings.caldavCtag = 'previous-ctag';
-      await isar.writeTxn(() => isar.settings.put(settings));
+      settings = settings.copyWith(caldavCtag: 'previous-ctag');
+      await _persistSettings(isar, settings);
+      final row = await isar.settings.get(settings.id!);
+      settings = SettingsMapper.toDomain(row!);
 
       final result = await sync.syncNow();
       expect(result.success, isTrue);
@@ -230,9 +258,11 @@ void main() {
   );
 
   test('local delete is pushed as remote DELETE', () async {
-    final todo = await createTestTodo(isar, task: category, name: 'Remove me');
-    todo.caldavUid = 'del-1';
-    todo.caldavHref = 'https://cal.example/tasks/del-1.ics';
+    var todo = await createTestTodo(isar, task: category, name: 'Remove me');
+    todo = todo.copyWith(
+      caldavUid: 'del-1',
+      caldavHref: 'https://cal.example/tasks/del-1.ics',
+    );
     await todoRepo.update(todo);
     remote.todos['del-1'] = _recordOf(todo);
 
@@ -247,7 +277,7 @@ void main() {
   });
 }
 
-VtodoRecord _recordOf(Todos todo) {
+VtodoRecord _recordOf(Todo todo) {
   return VtodoRecord(
     uid: todo.caldavUid!,
     href: todo.caldavHref,

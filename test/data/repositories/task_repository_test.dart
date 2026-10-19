@@ -1,20 +1,21 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
-import 'package:zest/data/repositories/task_repository.dart';
+import 'package:zest/data/repositories/category_repository.dart';
 
 import '../../helpers/isar_test_helper.dart';
 
 void main() {
   late Isar isar;
-  late TaskRepository repo;
+  late CategoryRepository repo;
 
   setUp(() async {
     isar = await openTestIsar();
-    repo = TaskRepository(isar);
+    repo = CategoryRepository(isar);
   });
 
   tearDown(() async {
+    if (isarCoreUnavailable) return;
     await closeTestIsar(isar);
   });
 
@@ -22,7 +23,7 @@ void main() {
     await repo.create(
       title: 'Unique',
       description: '',
-      color: Colors.blue,
+      colorArgb: Colors.blue.toARGB32(),
       index: 0,
     );
 
@@ -30,55 +31,55 @@ void main() {
     expect(await repo.existsByTitle('Missing'), isFalse);
   });
 
-  test('getAll returns tasks sorted by index', () async {
+  test('getAll returns categories sorted by index', () async {
     await repo.create(
       title: 'Second',
       description: '',
-      color: Colors.blue,
+      colorArgb: Colors.blue.toARGB32(),
       index: 1,
     );
     await repo.create(
       title: 'First',
       description: '',
-      color: Colors.red,
+      colorArgb: Colors.red.toARGB32(),
       index: 0,
     );
 
-    final tasks = await repo.getAll();
-    expect(tasks.map((t) => t.title), ['First', 'Second']);
+    final categories = await repo.getAll();
+    expect(categories.map((t) => t.title), ['First', 'Second']);
   });
 
-  test('updateArchiveStatusBatch archives all tasks', () async {
+  test('updateArchiveStatusBatch archives all categories', () async {
     final first = await repo.create(
       title: 'A',
       description: '',
-      color: Colors.blue,
+      colorArgb: Colors.blue.toARGB32(),
       index: 0,
     );
     final second = await repo.create(
       title: 'B',
       description: '',
-      color: Colors.green,
+      colorArgb: Colors.green.toARGB32(),
       index: 1,
     );
 
     await repo.updateArchiveStatusBatch([first, second], true);
 
     final reloaded = await repo.getAll();
-    expect(reloaded.every((task) => task.archive), isTrue);
+    expect(reloaded.every((category) => category.archive), isTrue);
   });
 
   test('updateIndexes persists order', () async {
     final first = await repo.create(
       title: 'A',
       description: '',
-      color: Colors.blue,
+      colorArgb: Colors.blue.toARGB32(),
       index: 0,
     );
     final second = await repo.create(
       title: 'B',
       description: '',
-      color: Colors.green,
+      colorArgb: Colors.green.toARGB32(),
       index: 1,
     );
 
@@ -88,16 +89,16 @@ void main() {
     expect(reloaded.map((t) => t.title), ['B', 'A']);
   });
 
-  test('delete removes task', () async {
-    final task = await repo.create(
+  test('delete removes category', () async {
+    final category = await repo.create(
       title: 'Delete',
       description: '',
-      color: Colors.blue,
+      colorArgb: Colors.blue.toARGB32(),
       index: 0,
     );
 
-    await repo.delete(task);
+    await repo.delete(category);
 
-    expect(await repo.getById(task.id), isNull);
+    expect(await repo.getById(category.id), isNull);
   });
 }

@@ -1,7 +1,10 @@
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/database/settings_json_backup.dart';
 import 'package:zest/core/database/settings_persist.dart';
+import 'package:zest/data/mappers/settings_mapper.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/app_settings.dart';
+import 'package:zest/domain/repositories/settings_repository.dart';
 
 /// Reads and writes app settings from Isar.
 ///
@@ -11,7 +14,7 @@ import 'package:zest/data/models/db.dart';
 ///
 /// Cold-start recovery (JSON sidecar) lives in `IsarBootstrap`; this
 /// repository only falls back to the JSON sidecar if a later read fails.
-class SettingsRepository {
+class SettingsRepository implements SettingsRepositoryPort {
   /// Creates a repository backed by [isar].
   SettingsRepository(this._isar, {this.onSaved});
 
@@ -21,25 +24,30 @@ class SettingsRepository {
   /// Optional callback invoked after a successful [save].
   final void Function()? onSaved;
 
-  /// Loads settings from Isar, or default [Settings] when none exist.
+  @override
+  /// Loads settings from Isar, or default [AppSettings] when none exist.
   ///
   /// On deserialize failure, restores from the JSON sidecar when available.
-  Future<Settings> getSettings() async {
+  Future<AppSettings> getSettings() async {
     try {
-      return await _isar.settings.where().findFirst() ?? Settings();
+      final row = await _isar.settings.where().findFirst() ?? Settings();
+      return SettingsMapper.toDomain(row);
     } catch (e) {
       final directory = _isar.directory;
       if (directory != null) {
         final backup = await SettingsJsonBackup.load(directory);
-        if (backup != null) return backup;
+        if (backup != null) return SettingsMapper.toDomain(backup);
       }
       rethrow;
     }
   }
 
+  @override
   /// Persists [settings] to Isar and the JSON sidecar, then invokes [onSaved].
-  Future<void> save(Settings settings) async {
-    await persistSettings(_isar, settings);
+  Future<void> save(AppSettings settings) async {
+    final row = await _isar.settings.where().findFirst() ?? Settings();
+    SettingsMapper.applyDomain(row, settings);
+    await persistSettings(_isar, row);
     onSaved?.call();
   }
 }

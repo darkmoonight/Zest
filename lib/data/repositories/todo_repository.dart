@@ -1,8 +1,11 @@
 import 'package:isar_community/isar.dart';
+import 'package:zest/data/mappers/todo_mapper.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/todo.dart';
+import 'package:zest/domain/repositories/todo_repository.dart';
 
 /// Isar-backed CRUD and queries for ⟦Items⟧.
-class TodoRepository {
+class TodoRepository implements TodoRepositoryPort {
   /// Creates a repository backed by [isar].
   TodoRepository(this._isar);
 
@@ -11,8 +14,8 @@ class TodoRepository {
 
   // ==================== CREATE ====================
 
-  /// Creates a list item linked to [task] and optional [parent].
-  Future<Todos> create({
+  @override
+  Future<Todo> create({
     required String name,
     required String description,
     required DateTime? completedTime,
@@ -20,13 +23,26 @@ class TodoRepository {
     required Priority priority,
     required List<String> tags,
     required int index,
-    required Tasks task,
-    Todos? parent,
+    required int categoryId,
+    int? parentId,
     RecurrenceFrequency recurrence = RecurrenceFrequency.none,
     List<int> recurrenceWeekdays = const [],
     RecurrenceMode recurrenceMode = RecurrenceMode.clone,
     int? recurrenceMinuteOfDay,
   }) async {
+    final task = await _isar.tasks.get(categoryId);
+    if (task == null) {
+      throw StateError('Category $categoryId not found');
+    }
+
+    Todos? parent;
+    if (parentId != null) {
+      parent = await _isar.todos.get(parentId);
+      if (parent == null) {
+        throw StateError('Parent todo $parentId not found');
+      }
+    }
+
     final todo = Todos(
       name: name,
       description: description,
@@ -54,66 +70,80 @@ class TodoRepository {
       }
     });
 
-    return todo;
+    return TodoMapper.toDomain(todo);
   }
 
   // ==================== READ ====================
 
-  /// Returns all items sorted by [Items.index].
-  Future<List<Todos>> getAll() async {
-    return await _isar.todos.where().sortByIndex().findAll();
-  }
-
-  /// [getAll] with `task` and `parent` links loaded (avoids UI-thread loadSync).
-  Future<List<Todos>> getAllWithLinks() async {
-    final todos = await getAll();
-    await prefetchLinks(todos);
-    return todos;
+  @override
+  Future<List<Todo>> getAll() async {
+    final rows = await _isar.todos.where().sortByIndex().findAll();
+    await _prefetchLinks(rows);
+    return TodoMapper.toDomainList(rows);
   }
 
   /// Loads [task] and [parent] links for [todos] concurrently.
-  Future<void> prefetchLinks(List<Todos> todos) async {
+  Future<void> _prefetchLinks(List<Todos> todos) async {
     if (todos.isEmpty) return;
     await Future.wait([
       for (final todo in todos) ...[todo.task.load(), todo.parent.load()],
     ]);
   }
 
-  /// Returns the item with [id], or null when missing.
-  Future<Todos?> getById(int id) async {
-    return await _isar.todos.get(id);
+  Future<Todo?> _toDomainOrNull(Todos? row) async {
+    if (row == null) return null;
+    await _prefetchLinks([row]);
+    return TodoMapper.toDomain(row);
   }
 
-  /// Returns items belonging to the task with [taskId].
-  Future<List<Todos>> getByTaskId(int taskId) async {
-    return await _isar.todos
+  Future<List<Todo>> _toDomainList(List<Todos> rows) async {
+    await _prefetchLinks(rows);
+    return TodoMapper.toDomainList(rows);
+  }
+
+  @override
+  Future<Todo?> getById(int id) async {
+    return _toDomainOrNull(await _isar.todos.get(id));
+  }
+
+  @override
+  Future<List<Todo>> getByCategoryId(int categoryId) async {
+    final rows = await _isar.todos
         .filter()
-        .task((q) => q.idEqualTo(taskId))
+        .task((q) => q.idEqualTo(categoryId))
         .sortByIndex()
         .findAll();
+    return _toDomainList(rows);
   }
 
-  /// Returns direct child items of the parent with [parentId].
-  Future<List<Todos>> getChildren(int parentId) async {
-    return await _isar.todos
+  @override
+  Future<List<Todo>> getChildren(int parentId) async {
+    final rows = await _isar.todos
         .filter()
         .parent((q) => q.idEqualTo(parentId))
         .sortByIndex()
         .findAll();
+    return _toDomainList(rows);
   }
 
   // ==================== UPDATE ====================
 
-  /// Persists changes on an existing [item].
-  Future<void> update(Todos todo) async {
-    await _isar.writeTxn(() => _isar.todos.put(todo));
+  @override
+  Future<void> update(Todo todo) async {
+    final row = await _isar.todos.get(todo.id);
+    if (row == null) return;
+    TodoMapper.applyDomain(row, todo);
+    await _isar.writeTxn(() => _isar.todos.put(row));
   }
 
-  /// Sets [status] on [parentTodo] and all descendant subtasks.
+  @override
   Future<void> updateStatusWithSubtasks({
-    required Todos parentTodo,
+    required int parentId,
     required TodoStatus status,
   }) async {
+    final parentTodo = await _isar.todos.get(parentId);
+    if (parentTodo == null) return;
+
     final allIds = <int>{};
     final stack = <Todos>[parentTodo];
 
@@ -121,7 +151,10 @@ class TodoRepository {
       final current = stack.removeLast();
       if (!allIds.add(current.id)) continue;
 
-      final children = await getChildren(current.id);
+      final children = await _isar.todos
+          .filter()
+          .parent((q) => q.idEqualTo(current.id))
+          .findAll();
       for (final child in children) {
         if (!allIds.contains(child.id)) {
           stack.add(child);
@@ -151,43 +184,59 @@ class TodoRepository {
     });
   }
 
-  /// Updates editable fields on [item] and re-links [task].
+  @override
   Future<void> updateFields({
-    required Todos todo,
+    required Todo todo,
     required String name,
     required String description,
     required DateTime? completedTime,
     required bool fix,
     required Priority priority,
     required List<String> tags,
-    required Tasks task,
+    required int categoryId,
     RecurrenceFrequency recurrence = RecurrenceFrequency.none,
     List<int> recurrenceWeekdays = const [],
     RecurrenceMode recurrenceMode = RecurrenceMode.clone,
     int? recurrenceMinuteOfDay,
   }) async {
+    final row = await _isar.todos.get(todo.id);
+    if (row == null) return;
+
+    final task = await _isar.tasks.get(categoryId);
+    if (task == null) {
+      throw StateError('Category $categoryId not found');
+    }
+
     await _isar.writeTxn(() async {
-      todo.name = name;
-      todo.description = description;
-      todo.todoCompletedTime = completedTime;
-      todo.fix = fix;
-      todo.priority = priority;
-      todo.tags = tags;
-      todo.recurrence = recurrence;
-      todo.recurrenceWeekdays = recurrenceWeekdays;
-      todo.recurrenceMode = recurrenceMode;
-      todo.recurrenceMinuteOfDay = recurrenceMinuteOfDay;
-      todo.task.value = task;
-      await _isar.todos.put(todo);
-      await todo.task.save();
+      row.name = name;
+      row.description = description;
+      row.todoCompletedTime = completedTime;
+      row.fix = fix;
+      row.priority = priority;
+      row.tags = tags;
+      row.recurrence = recurrence;
+      row.recurrenceWeekdays = recurrenceWeekdays;
+      row.recurrenceMode = recurrenceMode;
+      row.recurrenceMinuteOfDay = recurrenceMinuteOfDay;
+      row.task.value = task;
+      await _isar.todos.put(row);
+      await row.task.save();
     });
   }
 
-  /// Moves items in [todoIds] to [task], detaching from external parents.
-  Future moveToTask({required Set todoIds, required Tasks task}) async {
+  @override
+  Future<void> moveToCategory({
+    required Set<int> todoIds,
+    required int categoryId,
+  }) async {
     if (todoIds.isEmpty) return;
 
-    final List<Todos> todos = [];
+    final task = await _isar.tasks.get(categoryId);
+    if (task == null) {
+      throw StateError('Category $categoryId not found');
+    }
+
+    final todos = <Todos>[];
     for (final id in todoIds) {
       final todo = await _isar.todos.get(id);
       if (todo != null) {
@@ -221,18 +270,24 @@ class TodoRepository {
     });
   }
 
-  /// Reparents [rootIds] under [newParent]; keeps in-subtree parent links.
-  ///
-  /// [subtreeIds] must include every root and descendant. Only roots get
-  /// [newParent]; descendants keep their existing parent. Optional [newTask]
-  /// is applied to the whole subtree.
+  @override
   Future<void> moveToParent({
     required Set<int> rootIds,
     required Set<int> subtreeIds,
-    required Todos? newParent,
-    required Tasks? newTask,
+    int? newParentId,
+    int? newCategoryId,
   }) async {
     if (rootIds.isEmpty || subtreeIds.isEmpty) return;
+
+    Todos? newParent;
+    if (newParentId != null) {
+      newParent = await _isar.todos.get(newParentId);
+    }
+
+    Tasks? newTask;
+    if (newCategoryId != null) {
+      newTask = await _isar.tasks.get(newCategoryId);
+    }
 
     final todos = <Todos>[];
     for (final id in subtreeIds) {
@@ -272,26 +327,32 @@ class TodoRepository {
     });
   }
 
-  /// Persists sequential [Items.index] values for [items].
-  Future<void> updateIndexes(List<Todos> todos) async {
+  @override
+  Future<void> updateIndexes(List<Todo> todos) async {
     if (todos.isEmpty) return;
 
     await _isar.writeTxn(() async {
-      for (int i = 0; i < todos.length; i++) {
-        todos[i].index = i;
+      final rows = <Todos>[];
+      for (var i = 0; i < todos.length; i++) {
+        final row = await _isar.todos.get(todos[i].id);
+        if (row == null) continue;
+        row.index = i;
+        rows.add(row);
       }
-      await _isar.todos.putAll(todos);
+      if (rows.isNotEmpty) {
+        await _isar.todos.putAll(rows);
+      }
     });
   }
 
   // ==================== DELETE ====================
 
-  /// Deletes the item with [id].
+  @override
   Future<void> delete(int id) async {
     await _isar.writeTxn(() => _isar.todos.delete(id));
   }
 
-  /// Deletes all items whose ids are in [ids].
+  @override
   Future<void> deleteBatch(Set<int> ids) async {
     if (ids.isEmpty) return;
 
@@ -302,27 +363,31 @@ class TodoRepository {
 
   // ==================== WATCH ====================
 
-  /// Emits when any item collection change may have occurred.
+  @override
   Stream<void> watchLazy() {
     return _isar.todos.watchLazy();
   }
 
-  /// Returns the item with CalDAV [uid], or null.
-  Future<Todos?> getByCalDavUid(String uid) {
-    return _isar.todos.filter().caldavUidEqualTo(uid).findFirst();
+  @override
+  Future<Todo?> getByCalDavUid(String uid) async {
+    return _toDomainOrNull(
+      await _isar.todos.filter().caldavUidEqualTo(uid).findFirst(),
+    );
   }
 
-  /// Returns items that still need a CalDAV push.
-  Future<List<Todos>> getDirtyCalDav() {
-    return _isar.todos.filter().caldavDirtyEqualTo(true).findAll();
+  @override
+  Future<List<Todo>> getDirtyCalDav() async {
+    final rows = await _isar.todos.filter().caldavDirtyEqualTo(true).findAll();
+    return _toDomainList(rows);
   }
 
-  /// Returns items that already have a CalDAV UID.
-  Future<List<Todos>> getWithCalDavUid() {
-    return _isar.todos.filter().caldavUidIsNotNull().findAll();
+  @override
+  Future<List<Todo>> getWithCalDavUid() async {
+    final rows = await _isar.todos.filter().caldavUidIsNotNull().findAll();
+    return _toDomainList(rows);
   }
 
-  /// Next free global [Todos.index] (`max(index) + 1`, or `0` when empty).
+  @override
   Future<int> nextIndex() async {
     final todos = await getAll();
     if (todos.isEmpty) return 0;
@@ -332,5 +397,24 @@ class TodoRepository {
       if (index > maxIndex) maxIndex = index;
     }
     return maxIndex + 1;
+  }
+
+  @override
+  Future<List<String>> collectUniqueTags() async {
+    final todos = await getAll();
+    final tags = <String>{};
+    for (final todo in todos) {
+      for (final tag in todo.tags) {
+        final trimmed = tag.trim();
+        if (trimmed.isNotEmpty) tags.add(trimmed);
+      }
+    }
+    return tags.toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+  }
+
+  @override
+  Future<void> clearAll() async {
+    await _isar.writeTxn(() => _isar.todos.clear());
   }
 }

@@ -5,6 +5,7 @@ import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/settings/app_settings_state.dart';
+import 'package:zest/data/mappers/settings_mapper.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/features/shell/application/fab_notifier.dart';
 import 'package:zest/features/tasks/application/tasks_notifier.dart';
@@ -44,7 +45,8 @@ class _TestAppSettingsNotifier extends AppSettingsNotifier {
   final Settings _settings;
 
   @override
-  AppSettingsState build() => AppSettingsState.fromSettings(_settings);
+  AppSettingsState build() =>
+      AppSettingsState.fromSettings(SettingsMapper.toDomain(_settings));
 }
 
 /// Reads [TodosNotifier] after its initial async load completes.

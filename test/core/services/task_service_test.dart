@@ -1,10 +1,9 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/services/notification_service.dart';
-import 'package:zest/core/services/task_service.dart';
+import 'package:zest/domain/usecases/category_usecases.dart';
 import 'package:zest/data/models/db.dart';
-import 'package:zest/data/repositories/task_repository.dart';
+import 'package:zest/data/repositories/category_repository.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
 
 import '../../helpers/fake_notification_show.dart';
@@ -15,17 +14,17 @@ void main() {
 
   late Isar isar;
   late FakeNotificationShow fakeNotifications;
-  late TaskRepository taskRepo;
+  late CategoryRepository categoryRepo;
   late TodoRepository todoRepo;
   late TaskService service;
 
   setUp(() async {
     isar = await openTestIsar();
     fakeNotifications = FakeNotificationShow();
-    taskRepo = TaskRepository(isar);
+    categoryRepo = CategoryRepository(isar);
     todoRepo = TodoRepository(isar);
     service = TaskService(
-      taskRepo: taskRepo,
+      categoryRepo: categoryRepo,
       todoRepo: todoRepo,
       notificationService: NotificationService(
         notificationShow: fakeNotifications,
@@ -34,6 +33,7 @@ void main() {
   });
 
   tearDown(() async {
+    if (isarCoreUnavailable) return;
     await closeTestIsar(isar);
   });
 
@@ -41,19 +41,19 @@ void main() {
     await service.createTask(
       title: 'Duplicate',
       description: '',
-      color: Colors.blue,
+      colorArgb: 0xFF0000FF,
       currentTaskCount: 0,
     );
 
     final duplicate = await service.createTask(
       title: 'Duplicate',
       description: '',
-      color: Colors.red,
+      colorArgb: 0xFFFF0000,
       currentTaskCount: 1,
     );
 
     expect(duplicate, isNull);
-    expect((await taskRepo.getAll()).length, 1);
+    expect((await categoryRepo.getAll()).length, 1);
   });
 
   test('archiveTasks cancels notifications and archives tasks', () async {
@@ -68,7 +68,7 @@ void main() {
 
     await service.archiveTasks([task]);
 
-    final reloaded = await taskRepo.getById(task.id);
+    final reloaded = await categoryRepo.getById(task.id);
     expect(reloaded?.archive, isTrue);
     expect(fakeNotifications.cancelled, isNotEmpty);
   });
@@ -85,7 +85,7 @@ void main() {
 
     await service.deleteTasks([task]);
 
-    expect(await taskRepo.getById(task.id), isNull);
+    expect(await categoryRepo.getById(task.id), isNull);
     expect(await todoRepo.getById(todo.id), isNull);
     expect(fakeNotifications.cancelled, contains(todo.id));
   });
@@ -94,13 +94,13 @@ void main() {
     final task = await createTestTask(isar, title: 'Old title');
 
     await service.updateTask(
-      task: task,
+      category: task,
       title: 'New title',
       description: 'Updated',
-      color: Colors.green,
+      colorArgb: 0xFF00FF00,
     );
 
-    final reloaded = await taskRepo.getById(task.id);
+    final reloaded = await categoryRepo.getById(task.id);
     expect(reloaded?.title, 'New title');
     expect(reloaded?.description, 'Updated');
   });
@@ -117,7 +117,7 @@ void main() {
 
     await service.unarchiveTasks([task]);
 
-    final reloaded = await taskRepo.getById(task.id);
+    final reloaded = await categoryRepo.getById(task.id);
     expect(reloaded?.archive, isFalse);
     expect(fakeNotifications.shown.any((n) => n.id == todo.id), isTrue);
   });

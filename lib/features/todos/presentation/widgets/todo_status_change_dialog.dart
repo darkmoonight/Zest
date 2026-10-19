@@ -3,13 +3,17 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/entities.dart';
+import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Animated dialog for changing item status with optional bulk subtask actions.
 class TodoStatusChangeDialog extends StatefulWidget {
   /// Item whose status is being changed.
-  final Todos todo;
+  final Todo todo;
+
+  /// Whether incomplete subtasks exist (drives bulk actions).
+  final bool hasIncompleteChildren;
 
   /// Whether the layout is mobile width.
   final bool isMobile;
@@ -27,6 +31,7 @@ class TodoStatusChangeDialog extends StatefulWidget {
   const TodoStatusChangeDialog({
     super.key,
     required this.todo,
+    required this.hasIncompleteChildren,
     required this.isMobile,
     required this.onStatusChanged,
     required this.onBulkCompletion,
@@ -88,9 +93,6 @@ class TodoStatusChangeDialogState extends State<TodoStatusChangeDialog>
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final currentStatus = widget.todo.status;
-    final hasIncompleteChildren =
-        widget.todo.children.isNotEmpty &&
-        widget.todo.children.any((child) => child.status != TodoStatus.done);
 
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -127,7 +129,7 @@ class TodoStatusChangeDialogState extends State<TodoStatusChangeDialog>
                   _buildStatusOptions(
                     colorScheme,
                     currentStatus,
-                    hasIncompleteChildren,
+                    widget.hasIncompleteChildren,
                   ),
                 ],
               ),

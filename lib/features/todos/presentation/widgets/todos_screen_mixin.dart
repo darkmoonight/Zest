@@ -2,7 +2,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/di/providers.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/core/utils/show_snack_bar.dart';
+import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/features/todos/presentation/widgets/selection_action_bar.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_transfer.dart';
 import 'package:zest/core/widgets/confirmation_dialog.dart';
@@ -142,9 +143,10 @@ mixin TodosScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
       context: context,
       title: 'deletedTodo'.tr,
       message: 'deletedTodoQuery'.tr,
-      onConfirm: () {
-        todosNotifier.deleteTodo(selected);
+      onConfirm: () async {
+        await todosNotifier.deleteTodo(selected);
         todosNotifier.doMultiSelectionTodoClear();
+        showSnackBar('todoDelete'.tr);
       },
     );
   }

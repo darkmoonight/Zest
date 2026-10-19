@@ -8,7 +8,7 @@ import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/progress_calculator.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/list_empty.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/entities.dart';
 import 'package:zest/features/tasks/application/tasks_notifier.dart';
 import 'package:zest/features/tasks/presentation/widgets/task_card.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
@@ -53,7 +53,7 @@ class _TasksListState extends ConsumerState<TasksList>
     // Progress badges need todo changes even though TasksNotifier only watches
     // the tasks collection after the single-watch split.
     ref.watch(todosNotifierProvider.select((s) => s.todos));
-    final isImage = ref.watch(appSettingsProvider).isImage;
+    final isImage = ref.watch(appSettingsProvider.select((s) => s.isImage));
     final taskCounts = todosNotifier.rootCountsByTaskId();
 
     final tasks = tasksNotifier.getFilteredTasks(
@@ -106,7 +106,7 @@ class _TasksListState extends ConsumerState<TasksList>
 
   /// Builds the reorderable list widget.
   Widget _buildReorderableList(
-    List<Tasks> tasks,
+    List<Category> tasks,
     TasksNotifier tasksNotifier,
     TasksState tasksState,
     Map<int, (int, int)> taskCounts,
@@ -124,7 +124,7 @@ class _TasksListState extends ConsumerState<TasksList>
 
   /// Builds the task card widget.
   Widget _buildTaskCard(
-    Tasks task,
+    Category task,
     TasksNotifier tasksNotifier,
     TasksState tasksState,
     Map<int, (int, int)> taskCounts,
@@ -148,7 +148,7 @@ class _TasksListState extends ConsumerState<TasksList>
 
   /// Void.
   Future<void> _handleReorder(
-    List<Tasks> tasks,
+    List<Category> tasks,
     int oldIndex,
     int newIndex,
     TasksNotifier tasksNotifier,
@@ -166,7 +166,7 @@ class _TasksListState extends ConsumerState<TasksList>
 
   /// Handle task tap.
   void _handleTaskTap(
-    Tasks task,
+    Category task,
     TasksNotifier tasksNotifier,
     TasksState tasksState,
   ) {
@@ -179,7 +179,7 @@ class _TasksListState extends ConsumerState<TasksList>
 
   /// Handle task double tap.
   void _handleTaskDoubleTap(
-    Tasks task,
+    Category task,
     TasksNotifier tasksNotifier,
     TasksState tasksState,
   ) {

@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zest/core/di/providers.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_screen_mixin.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_search_sliver.dart';

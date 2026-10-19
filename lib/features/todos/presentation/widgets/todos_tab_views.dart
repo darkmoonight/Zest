@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/entities.dart';
+import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_list.dart';
 
 /// Configuration for the three status tabs on item list screens.
@@ -33,10 +34,10 @@ class TodosTabViewsConfig {
   final bool allTodos;
 
   /// Category filter when scoped to a task.
-  final Tasks? task;
+  final Category? task;
 
   /// Parent item filter for subtasks.
-  final Todos? todo;
+  final Todo? todo;
 
   /// Selected calendar day when [calendar] is true.
   final DateTime? selectedDay;

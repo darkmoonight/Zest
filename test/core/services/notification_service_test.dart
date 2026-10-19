@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/category.dart';
+import 'package:zest/domain/entities/app_settings.dart';
 
 import '../../helpers/fake_notification_show.dart';
 import '../../helpers/isar_test_helper.dart';
@@ -16,7 +18,9 @@ void main() {
 
   group('NotificationService.scheduleForTodo', () {
     test('skips when due time is null', () async {
-      final task = buildTodo(task: Tasks(id: 1, title: 'T', taskColor: 1));
+      final task = buildTodo(
+        task: const Category(id: 1, title: 'T', colorArgb: 1),
+      );
       await service.scheduleForTodo(task);
       expect(fake.shown, isEmpty);
     });
@@ -24,7 +28,7 @@ void main() {
     test('skips when todo is done', () async {
       final todo = buildTodo(
         id: 11,
-        task: Tasks(id: 1, title: 'T', taskColor: 1),
+        task: const Category(id: 1, title: 'T', colorArgb: 1),
         todoCompletedTime: DateTime.now().add(const Duration(hours: 1)),
         status: TodoStatus.done,
       );
@@ -37,7 +41,7 @@ void main() {
     test('skips when todo is cancelled', () async {
       final todo = buildTodo(
         id: 12,
-        task: Tasks(id: 1, title: 'T', taskColor: 1),
+        task: const Category(id: 1, title: 'T', colorArgb: 1),
         todoCompletedTime: DateTime.now().add(const Duration(hours: 1)),
         status: TodoStatus.cancelled,
       );
@@ -51,7 +55,7 @@ void main() {
       final due = DateTime.now().add(const Duration(hours: 2));
       final todo = buildTodo(
         id: 42,
-        task: Tasks(id: 1, title: 'T', taskColor: 1),
+        task: const Category(id: 1, title: 'T', colorArgb: 1),
         name: 'Reminder',
         description: 'Body',
         todoCompletedTime: due,
@@ -70,7 +74,7 @@ void main() {
       final past = DateTime.now().subtract(const Duration(hours: 1));
       final todo = buildTodo(
         id: 7,
-        task: Tasks(id: 1, title: 'T', taskColor: 1),
+        task: const Category(id: 1, title: 'T', colorArgb: 1),
         todoCompletedTime: past,
       );
 
@@ -90,7 +94,7 @@ void main() {
         final past = DateTime.now().subtract(const Duration(hours: 1));
         final todo = buildTodo(
           id: 8,
-          task: Tasks(id: 1, title: 'T', taskColor: 1),
+          task: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: past,
         );
 
@@ -106,13 +110,15 @@ void main() {
 
     test('advances past-due daily clone instead of now+1s', () async {
       final past = DateTime.now().subtract(const Duration(hours: 1));
-      final todo = buildTodo(
-        id: 9,
-        task: Tasks(id: 1, title: 'T', taskColor: 1),
-        todoCompletedTime: past,
-      );
-      todo.recurrence = RecurrenceFrequency.daily;
-      todo.recurrenceMinuteOfDay = 9 * 60;
+      final todo =
+          buildTodo(
+            id: 9,
+            task: const Category(id: 1, title: 'T', colorArgb: 1),
+            todoCompletedTime: past,
+          ).copyWith(
+            recurrence: RecurrenceFrequency.daily,
+            recurrenceMinuteOfDay: 9 * 60,
+          );
 
       await service.scheduleForTodo(todo, firePastDueImmediately: false);
 
@@ -121,12 +127,12 @@ void main() {
     });
 
     test('passes injected settings to showNotification', () async {
-      final settings = Settings()..snoozeDuration = 30;
+      const settings = AppSettings(snoozeDuration: 30);
       service = NotificationService(notificationShow: fake, settings: settings);
       final due = DateTime.now().add(const Duration(hours: 2));
       final todo = buildTodo(
         id: 99,
-        task: Tasks(id: 1, title: 'T', taskColor: 1),
+        task: const Category(id: 1, title: 'T', colorArgb: 1),
         todoCompletedTime: due,
       );
 
@@ -142,7 +148,7 @@ void main() {
       final due = DateTime.now().add(const Duration(hours: 1));
       final todo = buildTodo(
         id: 5,
-        task: Tasks(id: 1, title: 'T', taskColor: 1),
+        task: const Category(id: 1, title: 'T', colorArgb: 1),
         todoCompletedTime: due,
       );
 
@@ -157,10 +163,10 @@ void main() {
       final todos = [
         buildTodo(
           id: 1,
-          task: Tasks(id: 1, title: 'T', taskColor: 1),
+          task: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: DateTime.now().add(const Duration(hours: 1)),
         ),
-        buildTodo(id: 2, task: Tasks(id: 1, title: 'T', taskColor: 1)),
+        buildTodo(id: 2, task: const Category(id: 1, title: 'T', colorArgb: 1)),
       ];
 
       await service.cancelForTask(todos);
@@ -182,17 +188,20 @@ void main() {
       'rescheduleActiveReminders only touches active todos with due times',
       () async {
         final due = DateTime.now().add(const Duration(hours: 1));
-        final settings = Settings()..snoozeDuration = 5;
+        const settings = AppSettings(snoozeDuration: 5);
         final todos = [
           buildTodo(
             id: 1,
-            task: Tasks(id: 1, title: 'T', taskColor: 1),
+            task: const Category(id: 1, title: 'T', colorArgb: 1),
             todoCompletedTime: due,
           ),
-          buildTodo(id: 2, task: Tasks(id: 1, title: 'T', taskColor: 1)),
+          buildTodo(
+            id: 2,
+            task: const Category(id: 1, title: 'T', colorArgb: 1),
+          ),
           buildTodo(
             id: 3,
-            task: Tasks(id: 1, title: 'T', taskColor: 1),
+            task: const Category(id: 1, title: 'T', colorArgb: 1),
             todoCompletedTime: due,
             status: TodoStatus.done,
           ),
@@ -214,19 +223,19 @@ void main() {
       final todos = [
         buildTodo(
           id: 1,
-          task: Tasks(id: 1, title: 'T', taskColor: 1),
+          task: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: due,
         ),
-        buildTodo(id: 2, task: Tasks(id: 1, title: 'T', taskColor: 1)),
+        buildTodo(id: 2, task: const Category(id: 1, title: 'T', colorArgb: 1)),
         buildTodo(
           id: 3,
-          task: Tasks(id: 1, title: 'T', taskColor: 1),
+          task: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: due,
           status: TodoStatus.done,
         ),
         buildTodo(
           id: 4,
-          task: Tasks(id: 1, title: 'T', taskColor: 1),
+          task: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: due,
         ),
       ];
@@ -246,10 +255,10 @@ void main() {
     test(
       'passes snooze duration and priority from settings and todo',
       () async {
-        final settings = Settings()..snoozeDuration = 15;
+        const settings = AppSettings(snoozeDuration: 15);
         final todo = buildTodo(
           id: 9,
-          task: Tasks(id: 1, title: 'T', taskColor: 1),
+          task: const Category(id: 1, title: 'T', colorArgb: 1),
           name: 'Snooze me',
           priority: Priority.low,
         );

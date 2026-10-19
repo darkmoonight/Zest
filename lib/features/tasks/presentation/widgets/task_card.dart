@@ -8,7 +8,7 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/card_tap_scale_mixin.dart';
 import 'package:zest/core/widgets/selectable_card_shell.dart';
 import 'package:zest/core/widgets/metadata_chip.dart';
-import 'package:zest/data/models/db.dart';
+import 'package:zest/domain/entities/entities.dart';
 import 'package:zest/features/tasks/presentation/widgets/circular_progress_widget.dart';
 import 'package:zest/i18n/tr.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -27,8 +27,8 @@ class TaskCard extends ConsumerStatefulWidget {
     required this.onTap,
   });
 
-  /// The task.
-  final Tasks task;
+  /// The category.
+  final Category task;
 
   /// The created items.
   final int createdTodos;
@@ -75,7 +75,7 @@ class _TaskCardState extends ConsumerState<TaskCard>
       total: widget.createdTodos,
       completed: widget.completedTodos,
     );
-    final taskColor = Color(widget.task.taskColor);
+    final taskColor = Color(widget.task.colorArgb);
 
     return Padding(
       padding: EdgeInsets.symmetric(
