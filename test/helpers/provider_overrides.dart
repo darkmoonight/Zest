@@ -58,7 +58,9 @@ Future<TodosNotifier> readTodosNotifier(ProviderContainer container) async {
 }
 
 /// Reads [CategoriesNotifier] after its initial async load completes.
-Future<CategoriesNotifier> readCategoriesNotifier(ProviderContainer container) async {
+Future<CategoriesNotifier> readCategoriesNotifier(
+  ProviderContainer container,
+) async {
   final notifier = container.read(categoriesNotifierProvider.notifier);
   await Future<void>.delayed(Duration.zero);
   await notifier.reloadCategories();

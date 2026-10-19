@@ -10,7 +10,8 @@ abstract final class _RecurrenceDue {
     DateTime? baseDay,
     DateTime? fallbackTime,
   }) {
-    if (!_RecurrenceSchedule.isRecurring(frequency) || minuteOfDay == null) return fallbackTime;
+    if (!_RecurrenceSchedule.isRecurring(frequency) || minuteOfDay == null)
+      return fallbackTime;
 
     final day = _RecurrenceSchedule.calendarDay(baseDay ?? now);
     final anchor = fallbackTime ?? baseDay ?? now;
@@ -30,7 +31,11 @@ abstract final class _RecurrenceDue {
       );
     }
 
-    var due = _RecurrenceSchedule.dueForOccurrenceDay(day, minuteOfDay, fallbackTime: fallbackTime);
+    var due = _RecurrenceSchedule.dueForOccurrenceDay(
+      day,
+      minuteOfDay,
+      fallbackTime: fallbackTime,
+    );
     if (due == null) return fallbackTime;
     if (!due.isAfter(now)) {
       due = _RecurrenceSchedule.nextReminderAfter(

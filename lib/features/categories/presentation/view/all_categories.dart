@@ -110,7 +110,9 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
     if (didPop) return;
 
     if (ref.read(categoriesNotifierProvider).isMultiSelectionCategory) {
-      ref.read(categoriesNotifierProvider.notifier).doMultiSelectionCategoryClear();
+      ref
+          .read(categoriesNotifierProvider.notifier)
+          .doMultiSelectionCategoryClear();
     }
   }
 
@@ -243,7 +245,10 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
   }
 
   /// Builds the multi selection bar widget.
-  Widget _buildMultiSelectionBar(BuildContext context, CategoriesState tasksState) {
+  Widget _buildMultiSelectionBar(
+    BuildContext context,
+    CategoriesState tasksState,
+  ) {
     if (!tasksState.isMultiSelectionCategory) {
       return const SizedBox.shrink();
     }
@@ -284,7 +289,10 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
   bool _areAllSelectedInCurrentTab() {
     return ref
         .read(categoriesNotifierProvider.notifier)
-        .areAllCategoriesSelected(archived: _isArchiveTab, searchQuery: _filter);
+        .areAllCategoriesSelected(
+          archived: _isArchiveTab,
+          searchQuery: _filter,
+        );
   }
 
   /// Toggle select all.

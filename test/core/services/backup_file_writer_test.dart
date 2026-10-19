@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:archive/archive.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -100,72 +101,75 @@ void main() {
       expect(await output.exists(), isTrue);
     });
 
-    test('redacts CalDAV identity from backup copy and restores live', () async {
-      await isar.writeTxn(() async {
-        await isar.settings.put(
-          Settings()
-            ..caldavEnabled = true
-            ..caldavUrl = 'https://cal.example/dav'
-            ..caldavUsername = 'alice'
-            ..caldavCalendarHref = '/calendars/alice/tasks/'
-            ..caldavCalendarName = 'Tasks'
-            ..caldavCtag = 'etag-1'
-            ..caldavLastError = 'boom'
-            ..caldavPendingDeletes = '["uid-1"]',
+    test(
+      'redacts CalDAV identity from backup copy and restores live',
+      () async {
+        await isar.writeTxn(() async {
+          await isar.settings.put(
+            Settings()
+              ..caldavEnabled = true
+              ..caldavUrl = 'https://cal.example/dav'
+              ..caldavUsername = 'alice'
+              ..caldavCalendarHref = '/calendars/alice/tasks/'
+              ..caldavCalendarName = 'Tasks'
+              ..caldavCtag = 'etag-1'
+              ..caldavLastError = 'boom'
+              ..caldavPendingDeletes = '["uid-1"]',
+          );
+        });
+
+        final result = await BackupFileWriter.write(
+          isar: isar,
+          outputDirectory: tempDir.path,
+          fileNamePrefix: 'redact_backup_',
         );
-      });
+        expect(result.success, isTrue);
 
-      final result = await BackupFileWriter.write(
-        isar: isar,
-        outputDirectory: tempDir.path,
-        fileNamePrefix: 'redact_backup_',
-      );
-      expect(result.success, isTrue);
+        final live = await isar.settings.where().findFirst();
+        expect(live?.caldavUrl, 'https://cal.example/dav');
+        expect(live?.caldavUsername, 'alice');
+        expect(live?.caldavCalendarHref, '/calendars/alice/tasks/');
+        expect(live?.caldavCalendarName, 'Tasks');
+        expect(live?.caldavCtag, 'etag-1');
+        expect(live?.caldavLastError, 'boom');
+        expect(live?.caldavPendingDeletes, '["uid-1"]');
 
-      final live = await isar.settings.where().findFirst();
-      expect(live?.caldavUrl, 'https://cal.example/dav');
-      expect(live?.caldavUsername, 'alice');
-      expect(live?.caldavCalendarHref, '/calendars/alice/tasks/');
-      expect(live?.caldavCalendarName, 'Tasks');
-      expect(live?.caldavCtag, 'etag-1');
-      expect(live?.caldavLastError, 'boom');
-      expect(live?.caldavPendingDeletes, '["uid-1"]');
-
-      final gz = File(p.join(tempDir.path, result.compressedFileName));
-      final bytes = BackupFileWriter.decompressIfNeeded(await gz.readAsBytes());
-      final restoreDir = await Directory.systemTemp.createTemp(
-        'zest_backup_redact_',
-      );
-      final name = 'r${restoreDir.path.hashCode.abs()}';
-      try {
-        await File(
-          p.join(restoreDir.path, '$name.isar'),
-        ).writeAsBytes(bytes);
-        final restored = await Isar.open(
-          IsarBootstrap.schemas,
-          directory: restoreDir.path,
-          name: name,
-          inspector: false,
+        final gz = File(p.join(tempDir.path, result.compressedFileName));
+        final bytes = BackupFileWriter.decompressIfNeeded(
+          await gz.readAsBytes(),
         );
+        final restoreDir = await Directory.systemTemp.createTemp(
+          'zest_backup_redact_',
+        );
+        final name = 'r${restoreDir.path.hashCode.abs()}';
         try {
-          final backed = await restored.settings.where().findFirst();
-          expect(backed?.caldavEnabled, isTrue);
-          expect(backed?.caldavUrl, isNull);
-          expect(backed?.caldavUsername, isNull);
-          expect(backed?.caldavCalendarHref, isNull);
-          expect(backed?.caldavCalendarName, isNull);
-          expect(backed?.caldavCtag, isNull);
-          expect(backed?.caldavLastError, isNull);
-          expect(backed?.caldavPendingDeletes, '[]');
+          await File(p.join(restoreDir.path, '$name.isar')).writeAsBytes(bytes);
+          final restored = await Isar.open(
+            IsarBootstrap.schemas,
+            directory: restoreDir.path,
+            name: name,
+            inspector: false,
+          );
+          try {
+            final backed = await restored.settings.where().findFirst();
+            expect(backed?.caldavEnabled, isTrue);
+            expect(backed?.caldavUrl, isNull);
+            expect(backed?.caldavUsername, isNull);
+            expect(backed?.caldavCalendarHref, isNull);
+            expect(backed?.caldavCalendarName, isNull);
+            expect(backed?.caldavCtag, isNull);
+            expect(backed?.caldavLastError, isNull);
+            expect(backed?.caldavPendingDeletes, '[]');
+          } finally {
+            await restored.close(deleteFromDisk: true);
+          }
         } finally {
-          await restored.close(deleteFromDisk: true);
+          if (await restoreDir.exists()) {
+            await restoreDir.delete(recursive: true);
+          }
         }
-      } finally {
-        if (await restoreDir.exists()) {
-          await restoreDir.delete(recursive: true);
-        }
-      }
-    });
+      },
+    );
 
     test('returns success false when Android SAF write fails', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

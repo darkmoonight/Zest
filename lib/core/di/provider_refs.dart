@@ -96,9 +96,7 @@ final notificationServiceProvider = Provider<NotificationService>(
 
 /// Item CRUD / status / move service (rebuilds when clock/locale prefs change).
 final todoServiceProvider = Provider<TodoService>((ref) {
-  final timeformat = ref.watch(
-    settingsProvider.select((s) => s.timeformat),
-  );
+  final timeformat = ref.watch(settingsProvider.select((s) => s.timeformat));
   final language = ref.watch(settingsProvider.select((s) => s.language));
   return TodoService(
     todoRepo: ref.watch(todoRepositoryProvider),

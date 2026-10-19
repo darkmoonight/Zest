@@ -90,6 +90,7 @@ mixin _TodoHierarchy on _TodoServiceBase {
       }
     }
   }
+
   /// Collects ids for [root] and every descendant item.
   @override
   Future<Set<int>> collectSubtreeIds(Todo root) async {

@@ -113,8 +113,12 @@ class _CategoryListState extends ConsumerState<CategoryList>
   ) {
     return ReorderableSliverList(
       delegate: ReorderableSliverChildBuilderDelegate(
-        (context, index) =>
-            _buildCategoryCard(tasks[index], tasksNotifier, tasksState, taskCounts),
+        (context, index) => _buildCategoryCard(
+          tasks[index],
+          tasksNotifier,
+          tasksState,
+          taskCounts,
+        ),
         childCount: tasks.length,
       ),
       onReorder: (oldIndex, newIndex) =>

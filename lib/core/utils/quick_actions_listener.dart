@@ -143,7 +143,10 @@ class _QuickActionsListenerState extends ConsumerState<QuickActionsListener> {
         popToHomeRoot(ctx);
         homeScreenKey.currentState?.changeTabIndex(categoriesTabIndex);
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showCreateSheet(ctx, CategoriesAction(text: 'create'.tr, edit: false));
+          _showCreateSheet(
+            ctx,
+            CategoriesAction(text: 'create'.tr, edit: false),
+          );
         });
         break;
       case 'action_new_todo':

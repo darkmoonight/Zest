@@ -182,6 +182,7 @@ mixin _TodoMutations on _TodoServiceBase {
       }
     }
   }
+
   /// Deletes [todos], their subtrees, and associated notifications.
   Future<void> deleteTodos(List<Todo> todos) async {
     if (todos.isEmpty) return;

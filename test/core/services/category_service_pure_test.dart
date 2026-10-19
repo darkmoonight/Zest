@@ -39,10 +39,16 @@ void main() {
     ];
 
     test('filters archived flag', () {
-      final active = service.filterCategories(categories: tasks, archived: false);
+      final active = service.filterCategories(
+        categories: tasks,
+        archived: false,
+      );
       expect(active.map((t) => t.id), [1, 3]);
 
-      final archived = service.filterCategories(categories: tasks, archived: true);
+      final archived = service.filterCategories(
+        categories: tasks,
+        archived: true,
+      );
       expect(archived.map((t) => t.id), [2]);
     });
 
@@ -114,7 +120,10 @@ void main() {
       final allTasks = await categoryRepo.getAll();
       final filtered = [taskC, taskA];
 
-      await service.reorderCategories(allCategories: allTasks, filteredCategories: filtered);
+      await service.reorderCategories(
+        allCategories: allTasks,
+        filteredCategories: filtered,
+      );
 
       final reloaded = await categoryRepo.getAll();
       expect(reloaded.map((t) => t.title), ['C', 'B', 'A']);

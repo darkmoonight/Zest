@@ -28,7 +28,10 @@ abstract final class _RecurrenceHabits {
     if (due == null) return true;
     if (!_RecurrenceSchedule.calendarDay(due).isBefore(todayDate)) return false;
 
-    final anchor = _RecurrenceSchedule._scheduleAnchor(due: due, created: todo.createdAt);
+    final anchor = _RecurrenceSchedule._scheduleAnchor(
+      due: due,
+      created: todo.createdAt,
+    );
     return _RecurrenceSchedule._isOccurrenceDay(
       todayDate,
       category.recurrence,
@@ -37,6 +40,7 @@ abstract final class _RecurrenceHabits {
       fallbackWeekday: anchor.weekday,
     );
   }
+
   /// Fingerprint for matching clone-mode siblings in the same category.
   static String cloneFingerprint(Todo todo) {
     final days = List<int>.from(todo.recurrenceWeekdays)..sort();
@@ -52,6 +56,7 @@ abstract final class _RecurrenceHabits {
   /// Stable key for a clone sibling group within [taskId].
   static String cloneSiblingKey(int taskId, Todo todo) =>
       '$taskId|${cloneFingerprint(todo)}';
+
   /// Whether a category habit reset should reopen [item] given [task] rule.
   ///
   /// Category habits only support reopen; legacy [RecurrenceMode.clone] on a
@@ -98,7 +103,8 @@ abstract final class _RecurrenceHabits {
     if (completed == null) return false;
 
     final todayDate = _RecurrenceSchedule.calendarDay(today ?? DateTime.now());
-    if (!_RecurrenceSchedule._isCompletedBefore(completed, todayDate)) return false;
+    if (!_RecurrenceSchedule._isCompletedBefore(completed, todayDate))
+      return false;
 
     final anchor = _RecurrenceSchedule._scheduleAnchor(
       due: todo.dueAt,
@@ -122,9 +128,14 @@ abstract final class _RecurrenceHabits {
 
     final todayDate = _RecurrenceSchedule.calendarDay(today ?? DateTime.now());
     final due = todo.dueAt;
-    if (due != null && !_RecurrenceSchedule.calendarDay(due).isBefore(todayDate)) return false;
+    if (due != null &&
+        !_RecurrenceSchedule.calendarDay(due).isBefore(todayDate))
+      return false;
 
-    final anchor = _RecurrenceSchedule._scheduleAnchor(due: due, created: todo.createdAt);
+    final anchor = _RecurrenceSchedule._scheduleAnchor(
+      due: due,
+      created: todo.createdAt,
+    );
     return _RecurrenceSchedule._isOccurrenceDay(
       todayDate,
       todo.recurrence,
@@ -140,7 +151,9 @@ abstract final class _RecurrenceHabits {
     DateTime? now,
     DateTime? occurrenceDay,
   }) {
-    final day = occurrenceDay != null ? _RecurrenceSchedule.calendarDay(occurrenceDay) : null;
+    final day = occurrenceDay != null
+        ? _RecurrenceSchedule.calendarDay(occurrenceDay)
+        : null;
     final nextDue = day != null
         ? _RecurrenceSchedule.dueForOccurrenceDay(
             day,

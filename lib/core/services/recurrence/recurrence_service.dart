@@ -29,24 +29,22 @@ class RecurrenceService {
     DateTime? date,
     int? minuteOfDay, {
     DateTime? fallbackTime,
-  }) =>
-      _RecurrenceSchedule.applyRecurrenceTime(
-        date,
-        minuteOfDay,
-        fallbackTime: fallbackTime,
-      );
+  }) => _RecurrenceSchedule.applyRecurrenceTime(
+    date,
+    minuteOfDay,
+    fallbackTime: fallbackTime,
+  );
 
   /// Due datetime for an occurrence on [day] using [minuteOfDay] / [fallbackTime].
   static DateTime? dueForOccurrenceDay(
     DateTime day,
     int? minuteOfDay, {
     DateTime? fallbackTime,
-  }) =>
-      _RecurrenceSchedule.dueForOccurrenceDay(
-        day,
-        minuteOfDay,
-        fallbackTime: fallbackTime,
-      );
+  }) => _RecurrenceSchedule.dueForOccurrenceDay(
+    day,
+    minuteOfDay,
+    fallbackTime: fallbackTime,
+  );
 
   /// Due for an active occurrence: [baseDay] + reminder, or next future slot.
   static DateTime? resolveActiveReminderDue({
@@ -56,15 +54,14 @@ class RecurrenceService {
     required int? minuteOfDay,
     DateTime? baseDay,
     DateTime? fallbackTime,
-  }) =>
-      _RecurrenceDue.resolveActiveReminderDue(
-        now: now,
-        frequency: frequency,
-        weekdays: weekdays,
-        minuteOfDay: minuteOfDay,
-        baseDay: baseDay,
-        fallbackTime: fallbackTime,
-      );
+  }) => _RecurrenceDue.resolveActiveReminderDue(
+    now: now,
+    frequency: frequency,
+    weekdays: weekdays,
+    minuteOfDay: minuteOfDay,
+    baseDay: baseDay,
+    fallbackTime: fallbackTime,
+  );
 
   /// Resolves due for a list item living under [category], preferring the item's own rule.
   static DateTime? resolveDueForTodoInCategory({
@@ -75,16 +72,15 @@ class RecurrenceService {
     required int? todoMinuteOfDay,
     DateTime? baseDay,
     DateTime? fallbackTime,
-  }) =>
-      _RecurrenceDue.resolveDueForTodoInCategory(
-        now: now,
-        category: category,
-        todoRecurrence: todoRecurrence,
-        todoWeekdays: todoWeekdays,
-        todoMinuteOfDay: todoMinuteOfDay,
-        baseDay: baseDay,
-        fallbackTime: fallbackTime,
-      );
+  }) => _RecurrenceDue.resolveDueForTodoInCategory(
+    now: now,
+    category: category,
+    todoRecurrence: todoRecurrence,
+    todoWeekdays: todoWeekdays,
+    todoMinuteOfDay: todoMinuteOfDay,
+    baseDay: baseDay,
+    fallbackTime: fallbackTime,
+  );
 
   /// Convenience wrapper around [resolveDueForTodoInCategory] using [todo] fields.
   static DateTime? resolveDueForTodo({
@@ -93,33 +89,30 @@ class RecurrenceService {
     required DateTime now,
     DateTime? baseDay,
     DateTime? fallbackTime,
-  }) =>
-      _RecurrenceDue.resolveDueForTodo(
-        todo: todo,
-        category: category,
-        now: now,
-        baseDay: baseDay,
-        fallbackTime: fallbackTime,
-      );
+  }) => _RecurrenceDue.resolveDueForTodo(
+    todo: todo,
+    category: category,
+    now: now,
+    baseDay: baseDay,
+    fallbackTime: fallbackTime,
+  );
 
   /// Whether [todo] is an active child governed by [category]'s habit (no own repeat).
   static bool isCategoryHabitChild({
     required Todo todo,
     required Category category,
-  }) =>
-      _RecurrenceHabits.isCategoryHabitChild(todo: todo, category: category);
+  }) => _RecurrenceHabits.isCategoryHabitChild(todo: todo, category: category);
 
   /// Whether an active category-habit item needs due stamped from [category].
   static bool shouldEnsureCategoryHabitDue({
     required Todo todo,
     required Category category,
     DateTime? today,
-  }) =>
-      _RecurrenceHabits.shouldEnsureCategoryHabitDue(
-        todo: todo,
-        category: category,
-        today: today,
-      );
+  }) => _RecurrenceHabits.shouldEnsureCategoryHabitDue(
+    todo: todo,
+    category: category,
+    today: today,
+  );
 
   /// Next reminder at or after [now] for the given recurrence rule.
   static DateTime? nextReminderAfter({
@@ -128,14 +121,13 @@ class RecurrenceService {
     required List<int> weekdays,
     required int? minuteOfDay,
     DateTime? fallbackTime,
-  }) =>
-      _RecurrenceSchedule.nextReminderAfter(
-        now: now,
-        frequency: frequency,
-        weekdays: weekdays,
-        minuteOfDay: minuteOfDay,
-        fallbackTime: fallbackTime,
-      );
+  }) => _RecurrenceSchedule.nextReminderAfter(
+    now: now,
+    frequency: frequency,
+    weekdays: weekdays,
+    minuteOfDay: minuteOfDay,
+    fallbackTime: fallbackTime,
+  );
 
   /// Whether [day] is a valid occurrence for [frequency] / [weekdays].
   static bool isOccurrenceDay({
@@ -144,14 +136,13 @@ class RecurrenceService {
     required List<int> weekdays,
     int? monthlyDayOfMonth,
     int? fallbackWeekday,
-  }) =>
-      _RecurrenceSchedule.isOccurrenceDay(
-        day: day,
-        frequency: frequency,
-        weekdays: weekdays,
-        monthlyDayOfMonth: monthlyDayOfMonth,
-        fallbackWeekday: fallbackWeekday,
-      );
+  }) => _RecurrenceSchedule.isOccurrenceDay(
+    day: day,
+    frequency: frequency,
+    weekdays: weekdays,
+    monthlyDayOfMonth: monthlyDayOfMonth,
+    fallbackWeekday: fallbackWeekday,
+  );
 
   /// Fingerprint for matching clone-mode siblings in the same category.
   static String cloneFingerprint(Todo todo) =>
@@ -168,26 +159,24 @@ class RecurrenceService {
     DateTime? from,
     DateTime? now,
     int? minuteOfDay,
-  }) =>
-      _RecurrenceSchedule.nextOccurrence(
-        frequency: frequency,
-        weekdays: weekdays,
-        from: from,
-        now: now,
-        minuteOfDay: minuteOfDay,
-      );
+  }) => _RecurrenceSchedule.nextOccurrence(
+    frequency: frequency,
+    weekdays: weekdays,
+    from: from,
+    now: now,
+    minuteOfDay: minuteOfDay,
+  );
 
   /// Whether a category habit reset should reopen [todo] given [category] rule.
   static bool shouldResetCategoryHabit({
     required Todo todo,
     required Category category,
     DateTime? today,
-  }) =>
-      _RecurrenceHabits.shouldResetCategoryHabit(
-        todo: todo,
-        category: category,
-        today: today,
-      );
+  }) => _RecurrenceHabits.shouldResetCategoryHabit(
+    todo: todo,
+    category: category,
+    today: today,
+  );
 
   /// Whether a list item with its own reopen recurrence should become active again.
   static bool shouldResetTodoHabit({required Todo todo, DateTime? today}) =>
@@ -206,10 +195,9 @@ class RecurrenceService {
     Todo source, {
     DateTime? now,
     DateTime? occurrenceDay,
-  }) =>
-      _RecurrenceHabits.buildNextClone(
-        source,
-        now: now,
-        occurrenceDay: occurrenceDay,
-      );
+  }) => _RecurrenceHabits.buildNextClone(
+    source,
+    now: now,
+    occurrenceDay: occurrenceDay,
+  );
 }

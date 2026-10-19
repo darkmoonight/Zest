@@ -128,7 +128,8 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
 
   void _restoreSelectedTasks(Set<int> preservedIds) {
     if (preservedIds.isEmpty) {
-      if (state.selectedCategories.isNotEmpty || state.isMultiSelectionCategory) {
+      if (state.selectedCategories.isNotEmpty ||
+          state.isMultiSelectionCategory) {
         doMultiSelectionCategoryClear();
       }
       return;
@@ -376,7 +377,10 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
   }
 
   /// Whether are all tasks selected.
-  bool areAllCategoriesSelected({required bool archived, String searchQuery = ''}) {
+  bool areAllCategoriesSelected({
+    required bool archived,
+    String searchQuery = '',
+  }) {
     final filtered = getFilteredTasks(
       archived: archived,
       searchQuery: searchQuery,
@@ -423,6 +427,7 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
 }
 
 /// Category notifier provider.
-final categoriesNotifierProvider = NotifierProvider<CategoriesNotifier, CategoriesState>(
-  CategoriesNotifier.new,
-);
+final categoriesNotifierProvider =
+    NotifierProvider<CategoriesNotifier, CategoriesState>(
+      CategoriesNotifier.new,
+    );

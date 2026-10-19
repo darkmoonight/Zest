@@ -63,6 +63,7 @@ abstract final class _RecurrenceSchedule {
       fallbackTime: fallbackTime,
     );
   }
+
   /// Next reminder at or after [now] for the given recurrence rule.
   ///
   /// If today's reminder is still in the future, returns today + time.
@@ -117,6 +118,7 @@ abstract final class _RecurrenceSchedule {
     monthlyDayOfMonth: monthlyDayOfMonth,
     fallbackWeekday: fallbackWeekday,
   );
+
   /// Next occurrence after [from] for [frequency] / [weekdays].
   static DateTime? nextOccurrence({
     required RecurrenceFrequency frequency,
@@ -141,6 +143,7 @@ abstract final class _RecurrenceSchedule {
 
     return applyRecurrenceTime(next, minuteOfDay, fallbackTime: from);
   }
+
   static DateTime _scheduleAnchor({
     DateTime? due,
     DateTime? completed,

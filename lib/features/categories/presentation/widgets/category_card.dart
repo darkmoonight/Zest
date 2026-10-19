@@ -218,7 +218,8 @@ class _CategoryCardState extends ConsumerState<CategoryCard>
     final defaultCategoryId = ref.watch(
       settingsProvider.select((s) => s.defaultCategoryId),
     );
-    final isDefault = defaultCategoryId == widget.category.id ||
+    final isDefault =
+        defaultCategoryId == widget.category.id ||
         (defaultCategoryId == null && widget.category.isSystem);
 
     return Column(

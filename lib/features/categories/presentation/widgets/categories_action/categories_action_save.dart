@@ -1,7 +1,10 @@
 part of '../categories_action.dart';
 
 mixin _CategoriesActionSave
-    on ConsumerState<CategoriesAction>, _CategoriesActionFields, _CategoriesActionFormState {
+    on
+        ConsumerState<CategoriesAction>,
+        _CategoriesActionFields,
+        _CategoriesActionFormState {
   /// On save pressed.
   Future<void> _onSavePressed() async {
     if (!_formKey.currentState!.validate()) return;

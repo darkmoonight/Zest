@@ -97,10 +97,10 @@ void main() {
       archived: false,
     );
 
-    expect(container.read(categoriesNotifierProvider).categories.map((t) => t.title), [
-      'B',
-      'A',
-    ]);
+    expect(
+      container.read(categoriesNotifierProvider).categories.map((t) => t.title),
+      ['B', 'A'],
+    );
   });
 
   test('doMultiSelectionCategory exits when last item is deselected', () async {
@@ -143,7 +143,10 @@ void main() {
         .map((task) => task.title)
         .toList();
     expect(titles, ['B']);
-    expect(container.read(categoriesNotifierProvider).categories.first.index, 0);
+    expect(
+      container.read(categoriesNotifierProvider).categories.first.index,
+      0,
+    );
     expect(await categoryRepo.getById(second.id), isNotNull);
   });
 
