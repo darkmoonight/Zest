@@ -205,7 +205,11 @@ void main() {
   });
 
   test('server wins on 412 conflict', () async {
-    var todo = await createTestTodo(isar, category: category, name: 'Local title');
+    var todo = await createTestTodo(
+      isar,
+      category: category,
+      name: 'Local title',
+    );
     todo = todo.copyWith(
       caldavUid: 'uid-conflict',
       caldavHref: 'https://cal.example/tasks/uid-conflict.ics',
@@ -230,7 +234,7 @@ void main() {
     expect(stored?.name, 'Server title');
     expect(stored?.caldavDirty, isFalse);
     expect(stored?.caldavEtag, 'server');
-    expect(settings.caldavLastError, contains('conflicting item'));
+    expect(settings.caldavLastError, contains('caldavErrorConflict:1'));
   });
 
   test(
@@ -258,7 +262,11 @@ void main() {
   );
 
   test('local delete is pushed as remote DELETE', () async {
-    var todo = await createTestTodo(isar, category: category, name: 'Remove me');
+    var todo = await createTestTodo(
+      isar,
+      category: category,
+      name: 'Remove me',
+    );
     todo = todo.copyWith(
       caldavUid: 'del-1',
       caldavHref: 'https://cal.example/tasks/del-1.ics',

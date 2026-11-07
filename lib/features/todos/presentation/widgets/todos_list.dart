@@ -131,10 +131,7 @@ class _TodosListState extends ConsumerState<TodosList>
       appSettingsProvider.select((settings) => settings.isImage),
     );
 
-    final memoKey = _listMemoKey(
-      todosState.todosRevision,
-      categoriesRevision,
-    );
+    final memoKey = _listMemoKey(todosState.todosRevision, categoriesRevision);
     if (_listCacheKey != memoKey || _cachedFilteredTodos == null) {
       _listCacheKey = memoKey;
       _cachedFilteredTodos = _getFilteredAndSortedTodos(todosNotifier);

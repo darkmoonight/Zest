@@ -54,9 +54,6 @@ void main() {
     );
     container.read(settingsRevisionProvider.notifier).bump();
 
-    expect(
-      container.read(localeProvider),
-      const Locale('ru', 'RU'),
-    );
+    expect(container.read(localeProvider), const Locale('ru', 'RU'));
   });
 }

@@ -37,9 +37,7 @@ class IsarBootstrap {
       final settings = await isar.settings.where().findFirst() ?? Settings();
       return (isar, settings);
     } catch (e, stackTrace) {
-      AppLog.d(
-        'Settings unreadable, recovering preferences: $e\n$stackTrace',
-      );
+      AppLog.d('Settings unreadable, recovering preferences: $e\n$stackTrace');
       return _recoverSettings(
         isar: isar,
         directory: path,

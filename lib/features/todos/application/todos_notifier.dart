@@ -95,7 +95,7 @@ class TodosNotifier extends _TodosNotifierBase
     final generation = ++_loadGeneration;
     final preservedSelectedIds = state.selectedTodoIds.toSet();
     final newTodos = await todoRepo.getAll();
-    if (generation != _loadGeneration) return;
+    if (!ref.mounted || generation != _loadGeneration) return;
     state = state.copyWith(
       todos: newTodos,
       selectedTodoIds: preservedSelectedIds,

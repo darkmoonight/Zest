@@ -98,8 +98,9 @@ void main() {
       expect(loaded.deviceCalendarSyncEnabled, isTrue);
       expect(loaded.deviceCalendarId, 'cal-42');
       expect(loaded.caldavEnabled, isTrue);
-      expect(loaded.caldavUrl, 'https://cal.example');
-      expect(loaded.caldavUsername, 'ada');
+      // URL/username stay out of the portable sidecar (re-enter after restore).
+      expect(loaded.caldavUrl, isNull);
+      expect(loaded.caldavUsername, isNull);
       expect(loaded.todoCardLayout, settings.todoCardLayout);
     });
   });

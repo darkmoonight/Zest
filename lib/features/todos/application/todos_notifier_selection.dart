@@ -1,7 +1,6 @@
 part of 'todos_notifier.dart';
 
 mixin _TodosNotifierSelection on _TodosNotifierBase, _TodosNotifierQueries {
-
   /// Toggles the given entry in the multi-select id set.
   void doMultiSelectionTodo(Todo todo) {
     if (!state.isMultiSelectionTodo) return;
@@ -137,5 +136,4 @@ mixin _TodosNotifierSelection on _TodosNotifierBase, _TodosNotifierQueries {
 
     resyncSelectedTodoFromIds();
   }
-
 }

@@ -1,3 +1,4 @@
+import 'package:isar_community/isar.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/domain/entities/app_settings.dart';
 
@@ -54,10 +55,13 @@ abstract final class SettingsMapper {
 
   /// Applies domain fields onto an existing Isar [row].
   ///
-  /// When [settings.id] is non-null, the Isar primary key is updated.
+  /// Copies [settings.id] only when it is a real persisted key. Never apply
+  /// [Isar.autoIncrement] — that would clobber an existing row's primary key
+  /// when the live [Settings] object was never assigned an id after insert.
   static void applyDomain(Settings row, AppSettings settings) {
-    if (settings.id != null) {
-      row.id = settings.id!;
+    final id = settings.id;
+    if (id != null && id != Isar.autoIncrement) {
+      row.id = id;
     }
     row.onboard = settings.onboard;
     row.theme = settings.theme;

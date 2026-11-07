@@ -158,6 +158,7 @@ class CategoryRepository implements CategoryRepositoryPort {
   Stream<void> watchLazy() {
     return _isar.tasks.watchLazy();
   }
+
   @override
   Future<List<Category>> getActiveSorted() async {
     final tasks = await _isar.tasks.filter().archiveEqualTo(false).findAll();

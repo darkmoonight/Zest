@@ -1,7 +1,6 @@
 part of 'todos_notifier.dart';
 
 mixin _TodosNotifierQueries on _TodosNotifierBase {
-
   /// Count of root items across non-archived categories.
   Set<int> _archivedCategoryIds() {
     final tasks = ref.read(categoriesNotifierProvider).categories;
@@ -82,5 +81,4 @@ mixin _TodosNotifierQueries on _TodosNotifierBase {
       archivedCategoryIds: _archivedCategoryIds(),
     );
   }
-
 }

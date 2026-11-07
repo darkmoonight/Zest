@@ -11,7 +11,6 @@ mixin _TodosActionAttributes
         _TodosActionAttributesPriority,
         _TodosActionAttributesRecurrence,
         _TodosActionAttributesPin {
-
   Widget _buildAttributesSection(BuildContext context, double padding) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

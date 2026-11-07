@@ -41,7 +41,12 @@ void main() {
       archivedCategoryIds = {archivedCategory.id};
       parent = buildTodo(id: 10, category: category, name: 'Parent');
       allTodos = [
-        buildTodo(id: 1, category: category, name: 'Root active', tags: ['focus']),
+        buildTodo(
+          id: 1,
+          category: category,
+          name: 'Root active',
+          tags: ['focus'],
+        ),
         buildTodo(
           id: 2,
           category: category,
@@ -195,7 +200,12 @@ void main() {
       parent = buildTodo(id: 10, category: category, name: 'Parent');
       allTodos = [
         buildTodo(id: 1, category: category, name: 'Root'),
-        buildTodo(id: 2, category: category, name: 'Done', status: TodoStatus.done),
+        buildTodo(
+          id: 2,
+          category: category,
+          name: 'Done',
+          status: TodoStatus.done,
+        ),
         buildTodo(id: 3, category: category, name: 'Child', parent: parent),
         buildTodo(
           id: 4,

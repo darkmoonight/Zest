@@ -31,9 +31,7 @@ void main() {
     todoRepo = TodoRepository(isar);
     service = TodoService(
       todoRepo: todoRepo,
-      notifications: NotificationService(
-        notificationShow: fakeNotifications,
-      ),
+      notifications: NotificationService(notificationShow: fakeNotifications),
       timeformat: '24',
       languageCode: 'en',
     );
@@ -126,7 +124,11 @@ void main() {
   test(
     'updateStatusWithSubtasks cancels notifications for completed subtree',
     () async {
-      final parent = await createTestTodo(isar, category: category, name: 'Parent');
+      final parent = await createTestTodo(
+        isar,
+        category: category,
+        name: 'Parent',
+      );
       final child = await createTestTodo(
         isar,
         category: category,
@@ -183,7 +185,11 @@ void main() {
   test(
     'updateTodoStatus cancels notification when todo has no due time',
     () async {
-      final todo = await createTestTodo(isar, category: category, name: 'No reminder');
+      final todo = await createTestTodo(
+        isar,
+        category: category,
+        name: 'No reminder',
+      );
       fakeNotifications.clear();
 
       await service.updateTodoStatus(todo);
@@ -195,7 +201,11 @@ void main() {
 
   test('moveTodos reassigns todo to another task', () async {
     final otherTask = await createTestTask(isar, title: 'Personal');
-    final todo = await createTestTodo(isar, category: category, name: 'Move me');
+    final todo = await createTestTodo(
+      isar,
+      category: category,
+      name: 'Move me',
+    );
 
     await service.moveTodos(todos: [todo], category: otherTask);
 
@@ -204,7 +214,11 @@ void main() {
   });
 
   test('moveTodosToParent nests todo under new parent', () async {
-    final parent = await createTestTodo(isar, category: category, name: 'Parent');
+    final parent = await createTestTodo(
+      isar,
+      category: category,
+      name: 'Parent',
+    );
     final child = await createTestTodo(isar, category: category, name: 'Child');
 
     await service.moveTodosToParent(rootTodos: [child], newParent: parent);

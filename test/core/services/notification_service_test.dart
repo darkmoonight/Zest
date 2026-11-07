@@ -166,7 +166,10 @@ void main() {
           category: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: DateTime.now().add(const Duration(hours: 1)),
         ),
-        buildTodo(id: 2, category: const Category(id: 1, title: 'T', colorArgb: 1)),
+        buildTodo(
+          id: 2,
+          category: const Category(id: 1, title: 'T', colorArgb: 1),
+        ),
       ];
 
       await service.cancelForCategory(todos);
@@ -226,7 +229,10 @@ void main() {
           category: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: due,
         ),
-        buildTodo(id: 2, category: const Category(id: 1, title: 'T', colorArgb: 1)),
+        buildTodo(
+          id: 2,
+          category: const Category(id: 1, title: 'T', colorArgb: 1),
+        ),
         buildTodo(
           id: 3,
           category: const Category(id: 1, title: 'T', colorArgb: 1),

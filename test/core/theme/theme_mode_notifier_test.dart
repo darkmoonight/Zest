@@ -40,11 +40,11 @@ void main() {
     expect((await isar.settings.where().findFirst())?.theme, 'light');
   });
 
-  test('unknown theme falls back to light', () async {
+  test('unknown theme falls back to system', () async {
     final notifier = container.read(themeModeProvider.notifier);
     await notifier.setTheme('unknown');
 
-    expect(container.read(themeModeProvider), ThemeMode.light);
+    expect(container.read(themeModeProvider), ThemeMode.system);
   });
 
   test('saveOledTheme persists amoled flag', () async {

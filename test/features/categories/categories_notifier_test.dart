@@ -67,7 +67,10 @@ void main() {
     final state = container.read(categoriesNotifierProvider);
     expect(state.selectedCategories.length, 2);
     expect(state.selectedCategoryIds.length, 2);
-    expect(categoriesNotifier.areAllCategoriesSelected(archived: false), isTrue);
+    expect(
+      categoriesNotifier.areAllCategoriesSelected(archived: false),
+      isTrue,
+    );
   });
 
   test('multi-selection survives reload by id', () async {
@@ -117,7 +120,11 @@ void main() {
   });
 
   test('noArchiveTask unarchives task and clears selection', () async {
-    final category = await createTestTask(isar, title: 'Archived', archive: true);
+    final category = await createTestTask(
+      isar,
+      title: 'Archived',
+      archive: true,
+    );
     final categoriesNotifier = await notifier();
 
     categoriesNotifier.toggleMultiSelectionCategory();

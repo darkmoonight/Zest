@@ -173,9 +173,7 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
     // Markers read archive flags; watch revision so dots refresh without kill.
     ref.watch(todosNotifierProvider.select((s) => s.todosRevision));
     if (excludeArchived) {
-      ref.watch(
-        categoriesNotifierProvider.select((s) => s.categoriesRevision),
-      );
+      ref.watch(categoriesNotifierProvider.select((s) => s.categoriesRevision));
     }
     final dayCounts = ref
         .read(todosNotifierProvider.notifier)
@@ -335,9 +333,7 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
 
   /// Calendar format from reactive settings.
   CalendarFormat _getCalendarFormat() {
-    final format = ref.watch(
-      settingsProvider.select((s) => s.calendarFormat),
-    );
+    final format = ref.watch(settingsProvider.select((s) => s.calendarFormat));
     return CalendarFormatHelper.calendarFormatFromString(format);
   }
 

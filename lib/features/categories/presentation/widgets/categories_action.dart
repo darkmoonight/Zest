@@ -88,7 +88,9 @@ class _CategoriesActionState extends ConsumerState<CategoriesAction>
         title: widget.text,
         subtitle: widget.edit ? 'editCategoryHint'.tr : 'createCategoryHint'.tr,
         leading: Hero(
-          tag: widget.edit ? 'category_icon_${widget.category!.id}' : 'category_icon_new',
+          tag: widget.edit
+              ? 'category_icon_${widget.category!.id}'
+              : 'category_icon_new',
           child: IconContainer(
             icon: widget.edit
                 ? IconsaxPlusBold.edit

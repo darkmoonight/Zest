@@ -103,6 +103,13 @@ Future<Settings> seedSettings(Isar isar, {Settings? settings}) async {
   final repo = SettingsRepository(isar);
   final value = settings ?? Settings();
   await repo.save(SettingsMapper.toDomain(value));
+  // Keep the live object id in sync with the Isar row so later
+  // writeLiveSettings → applyDomain does not overwrite the PK with
+  // Isar.autoIncrement.
+  final stored = await isar.settings.where().findFirst();
+  if (stored != null) {
+    value.id = stored.id;
+  }
   return value;
 }
 

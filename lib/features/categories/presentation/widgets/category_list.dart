@@ -70,7 +70,12 @@ class _CategoryListState extends ConsumerState<CategoryList>
         SliverOverlapInjector(
           handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
         ),
-        _buildReorderableList(categories, categoriesNotifier, categoriesState, taskCounts),
+        _buildReorderableList(
+          categories,
+          categoriesNotifier,
+          categoriesState,
+          taskCounts,
+        ),
         const SliverToBoxAdapter(
           child: SizedBox(height: AppConstants.listFabClearanceHeight),
         ),
@@ -145,8 +150,13 @@ class _CategoryListState extends ConsumerState<CategoryList>
       isSelected:
           categoriesState.isMultiSelectionCategory &&
           categoriesState.selectedCategoryIds.contains(category.id),
-      onTap: () => _handleCategoryTap(category, categoriesNotifier, categoriesState),
-      onDoubleTap: () => _handleCategoryDoubleTap(category, categoriesNotifier, categoriesState),
+      onTap: () =>
+          _handleCategoryTap(category, categoriesNotifier, categoriesState),
+      onDoubleTap: () => _handleCategoryDoubleTap(
+        category,
+        categoriesNotifier,
+        categoriesState,
+      ),
     );
   }
 

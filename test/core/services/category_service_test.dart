@@ -26,9 +26,7 @@ void main() {
     service = CategoryService(
       categoryRepo: categoryRepo,
       todoRepo: todoRepo,
-      notifications: NotificationService(
-        notificationShow: fakeNotifications,
-      ),
+      notifications: NotificationService(notificationShow: fakeNotifications),
     );
   });
 
@@ -106,7 +104,11 @@ void main() {
   });
 
   test('unarchiveCategories schedules notifications and unarchives', () async {
-    final category = await createTestTask(isar, title: 'Archived', archive: true);
+    final category = await createTestTask(
+      isar,
+      title: 'Archived',
+      archive: true,
+    );
     final todo = await createTestTodo(
       isar,
       category: category,

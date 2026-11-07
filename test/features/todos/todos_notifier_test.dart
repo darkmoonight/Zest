@@ -123,29 +123,42 @@ void main() {
     expect(moved.categoryId, target.id);
   });
 
-  test('calendarDayCounts includes archived categories when not excluding', () async {
-    final active = await createTestTask(isar, title: 'Active');
-    final archived = await createTestTask(
-      isar,
-      title: 'Archived',
-      archive: true,
-    );
-    final due = DateTime(2026, 3, 15, 10);
-    await createTestTodo(isar, category: active, name: 'A', completedTime: due);
-    await createTestTodo(isar, category: archived, name: 'B', completedTime: due);
-    await readCategoriesNotifier(container);
-    final todosNotifier = await notifier();
-    await todosNotifier.reloadTodos();
+  test(
+    'calendarDayCounts includes archived categories when not excluding',
+    () async {
+      final active = await createTestTask(isar, title: 'Active');
+      final archived = await createTestTask(
+        isar,
+        title: 'Archived',
+        archive: true,
+      );
+      final due = DateTime(2026, 3, 15, 10);
+      await createTestTodo(
+        isar,
+        category: active,
+        name: 'A',
+        completedTime: due,
+      );
+      await createTestTodo(
+        isar,
+        category: archived,
+        name: 'B',
+        completedTime: due,
+      );
+      await readCategoriesNotifier(container);
+      final todosNotifier = await notifier();
+      await todosNotifier.reloadTodos();
 
-    final day = DateTime(due.year, due.month, due.day);
-    final excluding = todosNotifier.calendarDayCounts(
-      excludeArchivedCategories: true,
-    );
-    final including = todosNotifier.calendarDayCounts(
-      excludeArchivedCategories: false,
-    );
+      final day = DateTime(due.year, due.month, due.day);
+      final excluding = todosNotifier.calendarDayCounts(
+        excludeArchivedCategories: true,
+      );
+      final including = todosNotifier.calendarDayCounts(
+        excludeArchivedCategories: false,
+      );
 
-    expect(excluding[day], 1);
-    expect(including[day], 2);
-  });
+      expect(excluding[day], 1);
+      expect(including[day], 2);
+    },
+  );
 }

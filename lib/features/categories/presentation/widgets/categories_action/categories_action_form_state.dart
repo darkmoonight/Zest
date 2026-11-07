@@ -36,8 +36,11 @@ mixin _CategoriesActionFormState
       _titleController.text = widget.category!.title;
       _descController.text = widget.category!.description;
       _categoryRecurrence = widget.category!.recurrence;
-      _categoryRecurrenceWeekdays = List<int>.from(widget.category!.recurrenceWeekdays);
-      _categoryRecurrenceMode = widget.category!.recurrenceMode == RecurrenceMode.clone
+      _categoryRecurrenceWeekdays = List<int>.from(
+        widget.category!.recurrenceWeekdays,
+      );
+      _categoryRecurrenceMode =
+          widget.category!.recurrenceMode == RecurrenceMode.clone
           ? RecurrenceMode.reopen
           : widget.category!.recurrenceMode;
       _categoryRecurrenceMinuteOfDay = widget.category!.recurrenceMinuteOfDay;

@@ -135,7 +135,9 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
       return;
     }
 
-    final categoriesMap = {for (final category in state.categories) category.id: category};
+    final categoriesMap = {
+      for (final category in state.categories) category.id: category,
+    };
     final restored = preservedIds
         .map((id) => categoriesMap[id])
         .whereType<Category>()
@@ -161,7 +163,9 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
       return;
     }
 
-    final categoriesMap = {for (final category in state.categories) category.id: category};
+    final categoriesMap = {
+      for (final category in state.categories) category.id: category,
+    };
     final updated = state.selectedCategoryIds
         .map((id) => categoriesMap[id])
         .whereType<Category>()
@@ -387,7 +391,9 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
     );
 
     return filtered.isNotEmpty &&
-        filtered.every((category) => state.selectedCategoryIds.contains(category.id));
+        filtered.every(
+          (category) => state.selectedCategoryIds.contains(category.id),
+        );
   }
 
   /// Select all tasks.

@@ -76,7 +76,11 @@ void main() {
 
   test('updateStatusWithSubtasks updates entire subtree', () async {
     final category = await createTestTask(isar);
-    final parent = await createTestTodo(isar, category: category, name: 'Parent');
+    final parent = await createTestTodo(
+      isar,
+      category: category,
+      name: 'Parent',
+    );
     final child = await createTestTodo(
       isar,
       category: category,
@@ -126,8 +130,16 @@ void main() {
   test('moveToParent updates parent and optional category', () async {
     final categoryA = await createTestTask(isar, title: 'A');
     final categoryB = await createTestTask(isar, title: 'B');
-    final parent = await createTestTodo(isar, category: categoryA, name: 'Parent');
-    final child = await createTestTodo(isar, category: categoryA, name: 'Child');
+    final parent = await createTestTodo(
+      isar,
+      category: categoryA,
+      name: 'Parent',
+    );
+    final child = await createTestTodo(
+      isar,
+      category: categoryA,
+      name: 'Child',
+    );
 
     await repo.moveToParent(
       rootIds: {child.id},
