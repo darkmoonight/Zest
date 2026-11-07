@@ -6,7 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import device_info_plus
-import dynamic_system_colors
+import dynamic_color
 import file_selector_macos
 import flutter_local_notifications
 import flutter_secure_storage_darwin

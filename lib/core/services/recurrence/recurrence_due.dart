@@ -10,8 +10,9 @@ abstract final class _RecurrenceDue {
     DateTime? baseDay,
     DateTime? fallbackTime,
   }) {
-    if (!_RecurrenceSchedule.isRecurring(frequency) || minuteOfDay == null)
+    if (!_RecurrenceSchedule.isRecurring(frequency) || minuteOfDay == null) {
       return fallbackTime;
+    }
 
     final day = _RecurrenceSchedule.calendarDay(baseDay ?? now);
     final anchor = fallbackTime ?? baseDay ?? now;

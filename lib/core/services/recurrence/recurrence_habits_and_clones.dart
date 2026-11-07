@@ -103,8 +103,9 @@ abstract final class _RecurrenceHabits {
     if (completed == null) return false;
 
     final todayDate = _RecurrenceSchedule.calendarDay(today ?? DateTime.now());
-    if (!_RecurrenceSchedule._isCompletedBefore(completed, todayDate))
+    if (!_RecurrenceSchedule._isCompletedBefore(completed, todayDate)) {
       return false;
+    }
 
     final anchor = _RecurrenceSchedule._scheduleAnchor(
       due: todo.dueAt,
@@ -129,8 +130,9 @@ abstract final class _RecurrenceHabits {
     final todayDate = _RecurrenceSchedule.calendarDay(today ?? DateTime.now());
     final due = todo.dueAt;
     if (due != null &&
-        !_RecurrenceSchedule.calendarDay(due).isBefore(todayDate))
+        !_RecurrenceSchedule.calendarDay(due).isBefore(todayDate)) {
       return false;
+    }
 
     final anchor = _RecurrenceSchedule._scheduleAnchor(
       due: due,
