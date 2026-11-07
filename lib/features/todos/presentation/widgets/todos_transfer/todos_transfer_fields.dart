@@ -1,14 +1,14 @@
 part of '../todos_transfer.dart';
 
 mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
-  /// The task controller.
-  late final TextEditingController _taskController;
+  /// The category controller.
+  late final TextEditingController _categoryController;
 
   /// The items controller.
   late final TextEditingController _todosController;
 
-  /// The task focus node.
-  late final FocusNode _taskFocusNode;
+  /// The category focus node.
+  late final FocusNode _categoryFocusNode;
 
   /// The item focus node.
   late final FocusNode _todoFocusNode;
@@ -20,7 +20,7 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
   TransferMode _mode = TransferMode.category;
 
   /// The selected category.
-  Category? _selectedCategories;
+  Category? _selectedCategory;
 
   /// The selected item.
   Todo? _selectedTodo;
@@ -163,12 +163,12 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
     );
   }
 
-  /// Builds the task autocomplete widget.
+  /// Builds the category autocomplete widget.
   Widget _buildTaskAutocomplete(BuildContext context) {
     return RawAutocomplete<Category>(
-      key: const ValueKey('task'),
-      focusNode: _taskFocusNode,
-      textEditingController: _taskController,
+      key: const ValueKey('category'),
+      focusNode: _categoryFocusNode,
+      textEditingController: _categoryController,
       optionsViewOpenDirection: OptionsViewOpenDirection.up,
       fieldViewBuilder: (context, controller, focusNode, onSubmit) =>
           _buildTaskField(context, controller, focusNode),
@@ -180,7 +180,7 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
     );
   }
 
-  /// Builds the task field widget.
+  /// Builds the category field widget.
   Widget _buildTaskField(
     BuildContext context,
     TextEditingController controller,
@@ -202,8 +202,8 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
         onClear: () {
           setState(() {
             controller.clear();
-            _selectedCategories = null;
-            _editingController.setTask(null);
+            _selectedCategory = null;
+            _editingController.setCategory(null);
           });
         },
       ),
@@ -211,7 +211,7 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
         if (value == null || value.isEmpty) {
           return 'selectCategory'.tr;
         }
-        if (_selectedCategories == null) {
+        if (_selectedCategory == null) {
           return 'transfer_todo_hint'.tr;
         }
         return null;
@@ -316,7 +316,7 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
     );
   }
 
-  /// Builds the task options view widget.
+  /// Builds the category options view widget.
   Widget _buildTaskOptionsView(
     BuildContext context,
     AutocompleteOnSelected<Category> onSelected,
@@ -394,14 +394,14 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
     );
   }
 
-  /// On task selected.
+  /// On category selected.
   void _onTaskSelected(Category selection) {
     setState(() {
-      _taskController.text = selection.title;
-      _selectedCategories = selection;
-      _editingController.setTask(selection);
+      _categoryController.text = selection.title;
+      _selectedCategory = selection;
+      _editingController.setCategory(selection);
     });
-    _taskFocusNode.unfocus();
+    _categoryFocusNode.unfocus();
   }
 
   /// On item selected.
@@ -427,10 +427,10 @@ mixin _TodosTransferFields on ConsumerState<TodosTransfer> {
         _editingController.setTodo(null);
         _todoFocusNode.unfocus();
       } else {
-        _selectedCategories = null;
-        _taskController.clear();
-        _editingController.setTask(null);
-        _taskFocusNode.unfocus();
+        _selectedCategory = null;
+        _categoryController.clear();
+        _editingController.setCategory(null);
+        _categoryFocusNode.unfocus();
       }
     });
   }

@@ -1,6 +1,6 @@
 import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/core/notifications/notification_i18n.dart';
-import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/domain/recurrence/recurrence_service.dart';
 import 'package:zest/core/utils/notification.dart';
 import 'package:zest/domain/entities/app_settings.dart';
 import 'package:zest/domain/entities/category.dart';
@@ -125,7 +125,7 @@ class NotificationService implements NotificationSchedulerPort {
 
   /// Schedules reminders for every item in [todos] that has a due time.
   @override
-  Future<void> scheduleForTask(List<Todo> todos) async {
+  Future<void> scheduleForCategory(List<Todo> todos) async {
     if (todos.isEmpty) return;
 
     final todosToSchedule = todos.where((todo) {
@@ -149,7 +149,7 @@ class NotificationService implements NotificationSchedulerPort {
 
   /// Cancels reminders for items in [todos] that have a due time.
   @override
-  Future<void> cancelForTask(List<Todo> todos) async {
+  Future<void> cancelForCategory(List<Todo> todos) async {
     for (final todo in todos) {
       if (todo.dueAt != null) {
         await cancel(todo.id);

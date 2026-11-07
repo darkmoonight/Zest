@@ -39,9 +39,9 @@ void main() {
   });
 
   test('selectAll selects every filtered todo', () async {
-    final task = await createTestTask(isar);
-    await createTestTodo(isar, task: task, name: 'One');
-    await createTestTodo(isar, task: task, name: 'Two');
+    final category = await createTestTask(isar);
+    await createTestTodo(isar, category: category, name: 'One');
+    await createTestTodo(isar, category: category, name: 'Two');
     final todosNotifier = await notifier();
 
     todosNotifier.selectAll(select: true, statusFilter: null);
@@ -57,9 +57,9 @@ void main() {
   });
 
   test('deleteTodo removes deleted ids from selection', () async {
-    final task = await createTestTask(isar);
-    final first = await createTestTodo(isar, task: task, name: 'One');
-    final second = await createTestTodo(isar, task: task, name: 'Two');
+    final category = await createTestTask(isar);
+    final first = await createTestTodo(isar, category: category, name: 'One');
+    final second = await createTestTodo(isar, category: category, name: 'Two');
     final todosNotifier = await notifier();
 
     todosNotifier.toggleMultiSelectionTodo();
@@ -74,9 +74,9 @@ void main() {
   });
 
   test('selectAll with select false clears filtered selection', () async {
-    final task = await createTestTask(isar);
-    await createTestTodo(isar, task: task, name: 'One');
-    final second = await createTestTodo(isar, task: task, name: 'Two');
+    final category = await createTestTask(isar);
+    await createTestTodo(isar, category: category, name: 'One');
+    final second = await createTestTodo(isar, category: category, name: 'Two');
     final todosNotifier = await notifier();
 
     todosNotifier.selectAll(select: true, statusFilter: null);
@@ -91,8 +91,8 @@ void main() {
   });
 
   test('reloadTodos drops stale selected ids', () async {
-    final task = await createTestTask(isar);
-    final todo = await createTestTodo(isar, task: task, name: 'Keep');
+    final category = await createTestTask(isar);
+    final todo = await createTestTodo(isar, category: category, name: 'Keep');
     final todosNotifier = await notifier();
 
     todosNotifier.toggleMultiSelectionTodo();
@@ -110,7 +110,7 @@ void main() {
   test('moveTodos reassigns todo to another task', () async {
     final source = await createTestTask(isar, title: 'Source');
     final target = await createTestTask(isar, title: 'Target');
-    final todo = await createTestTodo(isar, task: source, name: 'Move');
+    final todo = await createTestTodo(isar, category: source, name: 'Move');
     final todosNotifier = await notifier();
 
     await todosNotifier.moveTodos([todo], target);
@@ -121,5 +121,31 @@ void main() {
         .todos
         .firstWhere((item) => item.id == todo.id);
     expect(moved.categoryId, target.id);
+  });
+
+  test('calendarDayCounts includes archived categories when not excluding', () async {
+    final active = await createTestTask(isar, title: 'Active');
+    final archived = await createTestTask(
+      isar,
+      title: 'Archived',
+      archive: true,
+    );
+    final due = DateTime(2026, 3, 15, 10);
+    await createTestTodo(isar, category: active, name: 'A', completedTime: due);
+    await createTestTodo(isar, category: archived, name: 'B', completedTime: due);
+    await readCategoriesNotifier(container);
+    final todosNotifier = await notifier();
+    await todosNotifier.reloadTodos();
+
+    final day = DateTime(due.year, due.month, due.day);
+    final excluding = todosNotifier.calendarDayCounts(
+      excludeArchivedCategories: true,
+    );
+    final including = todosNotifier.calendarDayCounts(
+      excludeArchivedCategories: false,
+    );
+
+    expect(excluding[day], 1);
+    expect(including[day], 2);
   });
 }

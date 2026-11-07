@@ -25,11 +25,11 @@ import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/utils/text_utils.dart';
-import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/domain/recurrence/recurrence_service.dart';
 import 'package:zest/features/categories/presentation/widgets/category_sheet_option_card.dart';
 import 'package:zest/features/todos/presentation/widgets/recurrence_picker.dart';
 
-/// Bottom sheet form for creating or editing a task.
+/// Bottom sheet form for creating or editing a category.
 part 'categories_action/categories_action_fields.dart';
 part 'categories_action/categories_action_form_state.dart';
 part 'categories_action/categories_action_save.dart';
@@ -41,20 +41,20 @@ class CategoriesAction extends ConsumerStatefulWidget {
     super.key,
     required this.text,
     required this.edit,
-    this.task,
+    this.category,
     this.updateCategoryName,
   });
 
   /// Sheet title shown in the modal header.
   final String text;
 
-  /// Whether this sheet edits an existing task (`true`) or creates one.
+  /// Whether this sheet edits an existing category (`true`) or creates one.
   final bool edit;
 
   /// Existing category when [edit] is true; null when creating.
-  final Category? task;
+  final Category? category;
 
-  /// Optional callback after the task title is saved (e.g. refresh parent UI).
+  /// Optional callback after the category title is saved (e.g. refresh parent UI).
   final VoidCallback? updateCategoryName;
 
   @override
@@ -88,7 +88,7 @@ class _CategoriesActionState extends ConsumerState<CategoriesAction>
         title: widget.text,
         subtitle: widget.edit ? 'editCategoryHint'.tr : 'createCategoryHint'.tr,
         leading: Hero(
-          tag: widget.edit ? 'task_icon_${widget.task!.id}' : 'task_icon_new',
+          tag: widget.edit ? 'category_icon_${widget.category!.id}' : 'category_icon_new',
           child: IconContainer(
             icon: widget.edit
                 ? IconsaxPlusBold.edit

@@ -13,13 +13,13 @@ abstract interface class NotificationSchedulerPort {
   });
 
   /// Schedules reminders for every item in [todos].
-  Future<void> scheduleForTask(List<Todo> todos);
+  Future<void> scheduleForCategory(List<Todo> todos);
 
   /// Cancels the reminder for [todoId].
   Future<void> cancel(int todoId);
 
   /// Cancels reminders for every item in [todos].
-  Future<void> cancelForTask(List<Todo> todos);
+  Future<void> cancelForCategory(List<Todo> todos);
 
   /// Cancels reminders for the given item ids.
   Future<void> cancelBatch(List<int> todoIds);

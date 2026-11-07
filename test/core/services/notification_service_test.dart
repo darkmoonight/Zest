@@ -18,17 +18,17 @@ void main() {
 
   group('NotificationService.scheduleForTodo', () {
     test('skips when due time is null', () async {
-      final task = buildTodo(
-        task: const Category(id: 1, title: 'T', colorArgb: 1),
+      final category = buildTodo(
+        category: const Category(id: 1, title: 'T', colorArgb: 1),
       );
-      await service.scheduleForTodo(task);
+      await service.scheduleForTodo(category);
       expect(fake.shown, isEmpty);
     });
 
     test('skips when todo is done', () async {
       final todo = buildTodo(
         id: 11,
-        task: const Category(id: 1, title: 'T', colorArgb: 1),
+        category: const Category(id: 1, title: 'T', colorArgb: 1),
         todoCompletedTime: DateTime.now().add(const Duration(hours: 1)),
         status: TodoStatus.done,
       );
@@ -41,7 +41,7 @@ void main() {
     test('skips when todo is cancelled', () async {
       final todo = buildTodo(
         id: 12,
-        task: const Category(id: 1, title: 'T', colorArgb: 1),
+        category: const Category(id: 1, title: 'T', colorArgb: 1),
         todoCompletedTime: DateTime.now().add(const Duration(hours: 1)),
         status: TodoStatus.cancelled,
       );
@@ -55,7 +55,7 @@ void main() {
       final due = DateTime.now().add(const Duration(hours: 2));
       final todo = buildTodo(
         id: 42,
-        task: const Category(id: 1, title: 'T', colorArgb: 1),
+        category: const Category(id: 1, title: 'T', colorArgb: 1),
         name: 'Reminder',
         description: 'Body',
         todoCompletedTime: due,
@@ -74,7 +74,7 @@ void main() {
       final past = DateTime.now().subtract(const Duration(hours: 1));
       final todo = buildTodo(
         id: 7,
-        task: const Category(id: 1, title: 'T', colorArgb: 1),
+        category: const Category(id: 1, title: 'T', colorArgb: 1),
         todoCompletedTime: past,
       );
 
@@ -94,7 +94,7 @@ void main() {
         final past = DateTime.now().subtract(const Duration(hours: 1));
         final todo = buildTodo(
           id: 8,
-          task: const Category(id: 1, title: 'T', colorArgb: 1),
+          category: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: past,
         );
 
@@ -113,7 +113,7 @@ void main() {
       final todo =
           buildTodo(
             id: 9,
-            task: const Category(id: 1, title: 'T', colorArgb: 1),
+            category: const Category(id: 1, title: 'T', colorArgb: 1),
             todoCompletedTime: past,
           ).copyWith(
             recurrence: RecurrenceFrequency.daily,
@@ -132,7 +132,7 @@ void main() {
       final due = DateTime.now().add(const Duration(hours: 2));
       final todo = buildTodo(
         id: 99,
-        task: const Category(id: 1, title: 'T', colorArgb: 1),
+        category: const Category(id: 1, title: 'T', colorArgb: 1),
         todoCompletedTime: due,
       );
 
@@ -148,7 +148,7 @@ void main() {
       final due = DateTime.now().add(const Duration(hours: 1));
       final todo = buildTodo(
         id: 5,
-        task: const Category(id: 1, title: 'T', colorArgb: 1),
+        category: const Category(id: 1, title: 'T', colorArgb: 1),
         todoCompletedTime: due,
       );
 
@@ -159,17 +159,17 @@ void main() {
       expect(fake.shown.first.id, 5);
     });
 
-    test('cancelForTask only cancels todos with due times', () async {
+    test('cancelForCategory only cancels todos with due times', () async {
       final todos = [
         buildTodo(
           id: 1,
-          task: const Category(id: 1, title: 'T', colorArgb: 1),
+          category: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: DateTime.now().add(const Duration(hours: 1)),
         ),
-        buildTodo(id: 2, task: const Category(id: 1, title: 'T', colorArgb: 1)),
+        buildTodo(id: 2, category: const Category(id: 1, title: 'T', colorArgb: 1)),
       ];
 
-      await service.cancelForTask(todos);
+      await service.cancelForCategory(todos);
 
       expect(fake.cancelled, [1]);
     });
@@ -192,16 +192,16 @@ void main() {
         final todos = [
           buildTodo(
             id: 1,
-            task: const Category(id: 1, title: 'T', colorArgb: 1),
+            category: const Category(id: 1, title: 'T', colorArgb: 1),
             todoCompletedTime: due,
           ),
           buildTodo(
             id: 2,
-            task: const Category(id: 1, title: 'T', colorArgb: 1),
+            category: const Category(id: 1, title: 'T', colorArgb: 1),
           ),
           buildTodo(
             id: 3,
-            task: const Category(id: 1, title: 'T', colorArgb: 1),
+            category: const Category(id: 1, title: 'T', colorArgb: 1),
             todoCompletedTime: due,
             status: TodoStatus.done,
           ),
@@ -217,36 +217,36 @@ void main() {
     );
   });
 
-  group('NotificationService.scheduleForTask', () {
+  group('NotificationService.scheduleForCategory', () {
     test('schedules only active todos with due times', () async {
       final due = DateTime.now().add(const Duration(hours: 1));
       final todos = [
         buildTodo(
           id: 1,
-          task: const Category(id: 1, title: 'T', colorArgb: 1),
+          category: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: due,
         ),
-        buildTodo(id: 2, task: const Category(id: 1, title: 'T', colorArgb: 1)),
+        buildTodo(id: 2, category: const Category(id: 1, title: 'T', colorArgb: 1)),
         buildTodo(
           id: 3,
-          task: const Category(id: 1, title: 'T', colorArgb: 1),
+          category: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: due,
           status: TodoStatus.done,
         ),
         buildTodo(
           id: 4,
-          task: const Category(id: 1, title: 'T', colorArgb: 1),
+          category: const Category(id: 1, title: 'T', colorArgb: 1),
           todoCompletedTime: due,
         ),
       ];
 
-      await service.scheduleForTask(todos);
+      await service.scheduleForCategory(todos);
 
       expect(fake.shown.map((n) => n.id), [1, 4]);
     });
 
     test('is a no-op for empty list', () async {
-      await service.scheduleForTask([]);
+      await service.scheduleForCategory([]);
       expect(fake.shown, isEmpty);
     });
   });
@@ -258,7 +258,7 @@ void main() {
         const settings = AppSettings(snoozeDuration: 15);
         final todo = buildTodo(
           id: 9,
-          task: const Category(id: 1, title: 'T', colorArgb: 1),
+          category: const Category(id: 1, title: 'T', colorArgb: 1),
           name: 'Snooze me',
           priority: Priority.low,
         );

@@ -102,9 +102,6 @@ class NoopTodoRepository implements TodoRepositoryPort {
 
   @override
   Future<List<String>> collectUniqueTags() => _unused();
-
-  @override
-  Future<void> clearAll() => _unused();
 }
 
 /// Stub [CategoryRepositoryPort] for pure unit tests that never touch persistence.
@@ -165,9 +162,6 @@ class NoopCategoryRepository implements CategoryRepositoryPort {
 
   @override
   Stream<void> watchLazy() => _unused();
-
-  @override
-  Future<void> clearAll() => _unused();
 
   @override
   Future<List<Category>> getActiveSorted() => _unused();

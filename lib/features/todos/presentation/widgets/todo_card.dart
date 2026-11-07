@@ -5,7 +5,7 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/config/todo_card_layout_config.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
-import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/domain/recurrence/recurrence_service.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/domain/entities/entities.dart';
 import 'package:zest/domain/enums/enums.dart';

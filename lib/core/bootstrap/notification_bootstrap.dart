@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -8,6 +7,7 @@ import 'package:zest/core/notifications/notification_i18n.dart';
 import 'package:zest/core/services/notification_plugin.dart';
 import 'package:zest/core/utils/notification.dart';
 import 'package:zest/i18n/tr.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/platform/platform_features.dart'
     if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
 
@@ -19,7 +19,7 @@ Future<void> initializeNotificationTimeZone() async {
     tz.setLocalLocation(tz.getLocation(timeZoneName.identifier));
     return;
   } catch (e) {
-    debugPrint('Timezone lookup failed, retrying once: $e');
+    AppLog.d('Timezone lookup failed, retrying once: $e');
   }
 
   try {
@@ -27,7 +27,7 @@ Future<void> initializeNotificationTimeZone() async {
     tz.setLocalLocation(tz.getLocation(timeZoneName.identifier));
     return;
   } catch (e) {
-    debugPrint('Timezone init failed, using fixed device offset (not UTC): $e');
+    AppLog.d('Timezone init failed, using fixed device offset (not UTC): $e');
     tz.setLocalLocation(_deviceOffsetLocation());
   }
 }
@@ -109,7 +109,7 @@ Future<void> initializeNotificationsPlugin({
     );
   } catch (e) {
     NotificationPlugin.clear();
-    debugPrint('Error initializing notifications: $e');
+    AppLog.d('Error initializing notifications: $e');
   }
 }
 

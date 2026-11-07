@@ -42,17 +42,17 @@ Calendar _localPhone({String id = 'existing-local', String name = 'Phone'}) {
 
 void main() {
   group('DeviceCalendarSyncService.shouldSyncTodo', () {
-    late Category task;
+    late Category category;
 
     setUp(() {
-      task = const Category(id: 1, title: 'T', colorArgb: 1);
+      category = const Category(id: 1, title: 'T', colorArgb: 1);
     });
 
     test('true only when enabled, has deadline, and active', () {
       var settings = const AppSettings(deviceCalendarSyncEnabled: true);
       var todo = buildTodo(
         id: 1,
-        task: task,
+        category: category,
         priority: Priority.high,
         todoCompletedTime: DateTime(2026, 8, 9, 12),
       );
@@ -102,7 +102,7 @@ void main() {
     late AppSettings settings;
     late FakeDeviceCalendarGateway gateway;
     late DeviceCalendarSyncService sync;
-    late Category task;
+    late Category category;
 
     setUp(() async {
       isar = await openTestIsar();
@@ -118,7 +118,7 @@ void main() {
           settings = updated;
         },
       );
-      task = await createTestTask(isar);
+      category = await createTestTask(isar);
     });
 
     tearDown(() async {
@@ -129,7 +129,7 @@ void main() {
     test('creates event and stores deviceCalendarEventId', () async {
       final todo = await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Meeting',
         completedTime: DateTime(2026, 8, 10, 15),
       );
@@ -154,7 +154,7 @@ void main() {
       gateway.calendars = [_googlePrimary(), _localZest()];
       final todo = await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Visible',
         completedTime: DateTime(2026, 8, 10, 15),
       );
@@ -171,7 +171,7 @@ void main() {
       gateway.calendars = [_googlePrimary(), _localZest()];
       var todo = await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Migrate',
         completedTime: DateTime(2026, 8, 10, 15),
       );
@@ -192,7 +192,7 @@ void main() {
       gateway.calendars = [_googlePrimary(), _localPhone()];
       final todo = await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Call',
         completedTime: DateTime(2026, 8, 10, 15),
       );
@@ -207,7 +207,7 @@ void main() {
       gateway.calendars = const [];
       final todo = await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Offline',
         completedTime: DateTime(2026, 8, 10, 15),
       );
@@ -225,7 +225,7 @@ void main() {
       settings = settings.copyWith(deviceCalendarId: 'local-1');
       var todo = await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Old',
         completedTime: DateTime(2026, 8, 10, 15),
       );
@@ -248,7 +248,7 @@ void main() {
       gateway.failUpdateForIds.add('missing-evt');
       var todo = await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Recover',
         completedTime: DateTime(2026, 8, 10, 15),
       );
@@ -266,7 +266,7 @@ void main() {
     test('removes linked event when sync should stop', () async {
       var todo = await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Done soon',
         completedTime: DateTime(2026, 8, 10, 15),
       );
@@ -284,7 +284,7 @@ void main() {
     test('removeSynced deletes by stored id from DB', () async {
       var todo = await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Delete me',
         completedTime: DateTime(2026, 8, 10, 15),
       );
@@ -312,7 +312,7 @@ void main() {
       );
       final todo = await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Skip',
         completedTime: DateTime(2026, 8, 10, 15),
       );

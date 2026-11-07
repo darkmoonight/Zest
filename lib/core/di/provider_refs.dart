@@ -100,7 +100,7 @@ final todoServiceProvider = Provider<TodoService>((ref) {
   final language = ref.watch(settingsProvider.select((s) => s.language));
   return TodoService(
     todoRepo: ref.watch(todoRepositoryProvider),
-    notificationService: ref.watch(notificationServiceProvider),
+    notifications: ref.watch(notificationServiceProvider),
     calendarSync: ref.watch(deviceCalendarSyncServiceProvider),
     caldavSync: ref.watch(calDavSyncServiceProvider),
     timeformat: timeformat,
@@ -113,7 +113,7 @@ final categoryServiceProvider = Provider<CategoryService>(
   (ref) => CategoryService(
     categoryRepo: ref.watch(categoryRepositoryProvider),
     todoRepo: ref.watch(todoRepositoryProvider),
-    notificationService: ref.watch(notificationServiceProvider),
+    notifications: ref.watch(notificationServiceProvider),
     calendarSync: ref.watch(deviceCalendarSyncServiceProvider),
     caldavSync: ref.watch(calDavSyncServiceProvider),
   ),

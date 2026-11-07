@@ -10,11 +10,11 @@ mixin _TodosTransferSubmit
     if (!_formKey.currentState!.validate()) return;
 
     if (_mode == TransferMode.category) {
-      final task = _selectedCategories;
-      if (task == null) return;
+      final category = _selectedCategory;
+      if (category == null) return;
       await ref
           .read(todosNotifierProvider.notifier)
-          .moveTodos(widget.todos, task);
+          .moveTodos(widget.todos, category);
       ref.read(todosNotifierProvider.notifier).doMultiSelectionTodoClear();
       showSnackBar('updateTodo'.tr);
       if (mounted) NavigationHelper.back(context);

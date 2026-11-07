@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:zest/core/bootstrap/background_isar_context.dart';
 import 'package:zest/core/services/midnight_maintenance.dart';
-import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/domain/recurrence/recurrence_service.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/platform/platform_features.dart'
     if (dart.library.io) 'package:zest/platform/platform_features_mobile.dart';
 
@@ -42,8 +43,8 @@ class RecurrenceBackgroundScheduler {
       await Workmanager().initialize(callbackDispatcher);
       await registerJobs();
     } catch (e, stackTrace) {
-      debugPrint('RecurrenceBackgroundScheduler init failed: $e');
-      debugPrint('$stackTrace');
+      AppLog.d('RecurrenceBackgroundScheduler init failed: $e');
+      AppLog.d('$stackTrace');
     }
   }
 
@@ -71,8 +72,8 @@ class RecurrenceBackgroundScheduler {
         );
       }
     } catch (e, stackTrace) {
-      debugPrint('RecurrenceBackgroundScheduler register failed: $e');
-      debugPrint('$stackTrace');
+      AppLog.d('RecurrenceBackgroundScheduler register failed: $e');
+      AppLog.d('$stackTrace');
     }
   }
 
@@ -119,8 +120,8 @@ void callbackDispatcher() {
       }
       return true;
     } catch (e, stackTrace) {
-      debugPrint('Recurrence background task failed: $e');
-      debugPrint('$stackTrace');
+      AppLog.d('Recurrence background task failed: $e');
+      AppLog.d('$stackTrace');
       return false;
     }
   });

@@ -1,4 +1,4 @@
-import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/domain/recurrence/recurrence_service.dart';
 import 'package:zest/core/utils/reorder_filtered.dart';
 import 'package:zest/domain/entities/category.dart';
 import 'package:zest/domain/entities/todo.dart';
@@ -15,7 +15,7 @@ class CategoryService {
   CategoryService({
     required this._categoryRepo,
     required this._todoRepo,
-    required this._notificationService,
+    required this._notifications,
     this._calendarSync,
     this._caldavSync,
   });
@@ -27,7 +27,7 @@ class CategoryService {
   final TodoRepositoryPort _todoRepo;
 
   /// Schedules and cancels item reminder notifications.
-  final NotificationSchedulerPort _notificationService;
+  final NotificationSchedulerPort _notifications;
 
   /// Optional device-calendar cleanup when items are deleted with a category.
   final DeviceCalendarSyncPort? _calendarSync;
@@ -42,7 +42,7 @@ class CategoryService {
     required String title,
     required String description,
     required int colorArgb,
-    required int currentTaskCount,
+    required int currentCategoryCount,
     RecurrenceFrequency recurrence = RecurrenceFrequency.none,
     List<int> recurrenceWeekdays = const [],
     RecurrenceMode recurrenceMode = RecurrenceMode.reopen,
@@ -56,7 +56,7 @@ class CategoryService {
       title: title,
       description: description,
       colorArgb: colorArgb,
-      index: currentTaskCount,
+      index: currentCategoryCount,
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
       recurrenceMode: recurrenceMode,
@@ -127,9 +127,9 @@ class CategoryService {
       await _todoRepo.update(updated);
 
       if (due != null) {
-        await _notificationService.reschedule(updated, category: category);
+        await _notifications.reschedule(updated, category: category);
       } else {
-        await _notificationService.cancel(todo.id);
+        await _notifications.cancel(todo.id);
       }
       await _calendarSync?.ensureSynced(updated);
     }
@@ -142,7 +142,7 @@ class CategoryService {
     final categoriesCopy = List<Category>.from(categories);
     final allTodos = await _collectTodosForCategories(categoriesCopy);
 
-    await _notificationService.cancelForTask(allTodos);
+    await _notifications.cancelForCategory(allTodos);
     for (final todo in allTodos) {
       await _calendarSync?.removeSynced(todo);
     }
@@ -156,7 +156,7 @@ class CategoryService {
     final categoriesCopy = List<Category>.from(categories);
     final allTodos = await _collectTodosForCategories(categoriesCopy);
 
-    await _notificationService.scheduleForTask(allTodos);
+    await _notifications.scheduleForCategory(allTodos);
     await _categoryRepo.updateArchiveStatusBatch(categoriesCopy, false);
     for (final todo in allTodos) {
       await _calendarSync?.ensureSynced(todo);
@@ -183,7 +183,7 @@ class CategoryService {
 
     for (final category in categoriesCopy) {
       final todos = await _todoRepo.getByCategoryId(category.id);
-      await _notificationService.cancelForTask(todos);
+      await _notifications.cancelForCategory(todos);
       await _deleteAllTodosForCategory(todos);
       await _categoryRepo.delete(category);
     }
@@ -233,7 +233,7 @@ class CategoryService {
 
   // ==================== REORDER ====================
 
-  /// Reorders [allTasks] to match the order of [filteredTasks].
+  /// Reorders [allCategories] to match the order of [filteredTasks].
   Future<void> reorderCategories({
     required List<Category> allCategories,
     required List<Category> filteredCategories,

@@ -39,20 +39,20 @@ void main() {
   });
 
   test('calculates completion rate and today count', () async {
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     final now = DateTime.now();
 
-    await createTestTodo(isar, task: task, name: 'Active');
+    await createTestTodo(isar, category: category, name: 'Active');
     await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Done today',
       status: TodoStatus.done,
       completionTime: now,
     );
     await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Done yesterday',
       status: TodoStatus.done,
       completionTime: now.subtract(const Duration(days: 1)),
@@ -71,13 +71,13 @@ void main() {
   });
 
   test('streak counts consecutive completion days', () async {
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     final today = DateTime.now();
 
     for (var offset = 0; offset < 3; offset++) {
       await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Done $offset',
         status: TodoStatus.done,
         completionTime: DateTime(
@@ -99,12 +99,12 @@ void main() {
   });
 
   test('populates weekly and hourly progress buckets', () async {
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     final completionTime = DateTime.now();
 
     await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Recent afternoon',
       status: TodoStatus.done,
       completionTime: completionTime,
@@ -123,12 +123,12 @@ void main() {
   });
 
   test('weekly progress ignores completions older than seven days', () async {
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     final old = DateTime.now().subtract(const Duration(days: 20));
 
     await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Old Monday',
       status: TodoStatus.done,
       completionTime: old,
@@ -144,19 +144,19 @@ void main() {
   });
 
   test('streak breaks after a gap day', () async {
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     final today = DateTime.now();
 
     await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Today',
       status: TodoStatus.done,
       completionTime: DateTime(today.year, today.month, today.day),
     );
     await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Three days ago',
       status: TodoStatus.done,
       completionTime: DateTime(
@@ -178,7 +178,7 @@ void main() {
   test(
     'longest streak uses all-time completions beyond heatmap window',
     () async {
-      final task = await createTestTask(isar);
+      final category = await createTestTask(isar);
       final today = DateTime(
         DateTime.now().year,
         DateTime.now().month,
@@ -190,7 +190,7 @@ void main() {
       for (var offset = 0; offset < 5; offset++) {
         await createTestTodo(
           isar,
-          task: task,
+          category: category,
           name: 'Old streak $offset',
           status: TodoStatus.done,
           completionTime: streakStart.add(Duration(days: offset)),
@@ -200,7 +200,7 @@ void main() {
       // One recent completion so heatmap is non-empty but current streak is short.
       await createTestTodo(
         isar,
-        task: task,
+        category: category,
         name: 'Today only',
         status: TodoStatus.done,
         completionTime: today,
@@ -230,8 +230,8 @@ void main() {
       archive: true,
     );
 
-    await createTestTodo(isar, task: active, name: 'Keep');
-    await createTestTodo(isar, task: archived, name: 'Skip');
+    await createTestTodo(isar, category: active, name: 'Keep');
+    await createTestTodo(isar, category: archived, name: 'Skip');
 
     final stats = await StatisticsService.calculateStatistics(
       todoRepo,
@@ -249,8 +249,8 @@ void main() {
       archive: true,
     );
 
-    await createTestTodo(isar, task: active, name: 'Keep');
-    await createTestTodo(isar, task: archived, name: 'Include');
+    await createTestTodo(isar, category: active, name: 'Keep');
+    await createTestTodo(isar, category: archived, name: 'Include');
 
     final stats = await StatisticsService.calculateStatistics(
       todoRepo,

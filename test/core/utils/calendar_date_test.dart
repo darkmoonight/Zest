@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zest/core/utils/calendar_date.dart';
+import 'package:zest/domain/utils/calendar_date.dart';
 
 void main() {
   group('CalendarDate.daysBetween', () {

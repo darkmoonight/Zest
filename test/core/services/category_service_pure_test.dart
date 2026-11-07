@@ -20,7 +20,7 @@ void main() {
       service = CategoryService(
         categoryRepo: NoopCategoryRepository(),
         todoRepo: NoopTodoRepository(),
-        notificationService: NotificationService(
+        notifications: NotificationService(
           notificationShow: FakeNotificationShow(),
         ),
       );
@@ -80,7 +80,7 @@ void main() {
       service = CategoryService(
         categoryRepo: categoryRepo,
         todoRepo: TodoRepository(isar),
-        notificationService: NotificationService(
+        notifications: NotificationService(
           notificationShow: FakeNotificationShow(),
         ),
       );
@@ -117,11 +117,11 @@ void main() {
         index: 2,
       );
 
-      final allTasks = await categoryRepo.getAll();
+      final allCategories = await categoryRepo.getAll();
       final filtered = [taskC, taskA];
 
       await service.reorderCategories(
-        allCategories: allTasks,
+        allCategories: allCategories,
         filteredCategories: filtered,
       );
 

@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
-import 'package:zest/core/utils/calendar_date.dart';
+import 'package:zest/domain/utils/calendar_date.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_list_dialog_shell.dart';
 import 'package:zest/i18n/tr.dart';

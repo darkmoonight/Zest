@@ -27,25 +27,31 @@ Do not use `slang analyze --full` for CI checks: numeric keys `"12"` / `"24"` (t
 
 ## Create / edit forms
 
-Use `NavigationHelper.showFormModal` for TasksAction / TodosAction / TodosTransfer (and similar create/edit sheets). Do not call raw `showModalBottomSheet` for those forms — on tablet/desktop the helper presents a centered dialog with `maxModalWidth`.
+Use `NavigationHelper.showFormModal` for CategoriesAction / TodosAction / TodosTransfer (and similar create/edit sheets). Do not call raw `showModalBottomSheet` for those forms — on tablet/desktop the helper presents a centered dialog with `maxModalWidth`.
 
 ## material_ui compatibility
 
-The app targets `package:material_ui` (Flutter 3.47+). A deprecated `MaterialUiCompatibilityBridge` remains in `lib/app.dart` because legacy packages still import `package:flutter/material.dart` (`flex_color_picker`, `google_fonts`, `sleek_circular_slider`, and related). Dynamic color uses `MaterialUiDynamicColorBuilder` (seed from `DynamicColorPlugin`) so Flutter `ColorScheme` conversion is not on the theme hot path. Text themes still bridge via `textThemeToFlutter` / `textThemeFromFlutter` for Google Fonts.
+The app targets `package:material_ui` (Flutter 3.47+). A deprecated `MaterialUiCompatibilityBridge` remains in `lib/app.dart` because legacy packages still import `package:flutter/material.dart` (`flex_color_picker`, `google_fonts`, `sleek_circular_slider`, and related). Dynamic color uses `MaterialUiDynamicColorBuilder` (seed from `DynamicColorPlugin`) so Flutter `ColorScheme` conversion is not on the theme hot path.
 
-Remove the compatibility bridge only after those packages migrate to `material_ui` or are replaced.
+Remove the compatibility bridge only after those packages migrate to `material_ui` or are replaced. Do not delete the bridge while those deps still pull `flutter/material.dart`.
+
+## Known blockers / future product work
+
+- **Backup encryption:** backups are compress + Isar-byte validate only (`IsarService`). Full cipher (passphrase UI, KDF, format version, restore UX) is a dedicated product feature — do not stub crypto in hygiene PRs.
+- **`MaterialUiCompatibilityBridge`:** blocked on third-party package migration (see above).
 
 ## Architecture layers
 
 | Layer | Path | Rules |
 |-------|------|--------|
-| Domain | `lib/domain/` | Entities, enums, repository/side-effect ports, usecases. No `isar_community`, no `data/models/db.dart`, no `material_ui`, no `features/`. |
+| Domain | `lib/domain/` | Entities, enums, repository/side-effect ports, usecases. No `package:flutter/`, no `isar_community`, no `data/models/db.dart`, no `material_ui`, no `features/`. |
 | Data | `lib/data/` | Isar collections (`db.dart`), mappers, repository implementations. |
 | Features | `lib/features/` | UI + Riverpod notifiers. Import domain entities/enums; do not import `db.dart`. |
 | Core | `lib/core/` | Bootstrap, adapters (CalDAV, notifications, device calendar, backup), DI. May touch Isar at the edge via mappers. |
 
 - Prefer `categoryId` / `parentId` on domain `Todo` over Isar links in UI/application code.
-- Mutate live preferences through `liveSettingsProvider` + `writeLiveSettings`; read UI snapshots from `settingsProvider` (`AppSettings`).
+- Mutate live preferences through `liveSettingsProvider` + `writeLiveSettings`.
+- Read domain preferences from `settingsProvider` (`AppSettings`). UI helpers that need Flutter `Locale` / non-null defaults use `appSettingsProvider` / `localeProvider`, which are pure projections of `settingsProvider` (not a separate writable notifier).
 - Usecases depend on ports in `lib/domain/ports/` and `lib/domain/repositories/`. Concrete adapters (`NotificationService`, `CalDavSyncService`, `DeviceCalendarSyncService`, repositories) live in `lib/core/` / `lib/data/` and are wired in DI (`provider_refs.dart`).
 - Production API uses Category naming (`CategoryService`, `categoriesNotifierProvider`, `lib/features/categories/`). Isar collection/property/link names stay `Tasks` / `taskColor` / `task` (schema lock); only mappers/repos touch those.
 

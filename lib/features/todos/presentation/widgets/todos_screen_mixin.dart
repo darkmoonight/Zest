@@ -26,6 +26,9 @@ mixin TodosScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   /// Current sort option applied to item lists.
   SortOption sortOption = SortOption.none;
 
+  /// Multi-select FAB listener; closed in [disposeTodosScreen].
+  ProviderSubscription<bool>? _multiSelectionSubscription;
+
   /// Notifier for item list mutations used by this screen.
   TodosNotifier get todosNotifier => ref.read(todosNotifierProvider.notifier);
 
@@ -43,7 +46,8 @@ mixin TodosScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   /// Registers listeners for multi-selection changes.
   void setupTodosScreenListeners() {
-    ref.listenManual(
+    _multiSelectionSubscription?.close();
+    _multiSelectionSubscription = ref.listenManual(
       todosNotifierProvider.select((s) => s.isMultiSelectionTodo),
       (prev, next) => _handleMultiSelectionChanged(next),
     );
@@ -67,6 +71,7 @@ mixin TodosScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   }
 
   void _handleMultiSelectionChanged(bool isMultiSelection) {
+    if (!mounted) return;
     if (isMultiSelection) {
       ref.read(fabNotifierProvider.notifier).setVisibility(false);
     } else if (tabController.index == 0) {
@@ -90,6 +95,8 @@ mixin TodosScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   /// Disposes controllers created by [initializeTodosScreen].
   void disposeTodosScreen() {
+    _multiSelectionSubscription?.close();
+    _multiSelectionSubscription = null;
     tabController.removeListener(_onTabChanged);
     tabController.dispose();
     searchController.dispose();

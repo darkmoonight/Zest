@@ -11,6 +11,7 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/list_empty.dart';
 import 'package:zest/domain/entities/entities.dart';
 import 'package:zest/domain/enums/enums.dart';
+import 'package:zest/features/categories/application/categories_notifier.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
 import 'package:zest/features/todos/presentation/widgets/todo_card.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_action.dart';
@@ -22,7 +23,7 @@ class TodosList extends ConsumerStatefulWidget {
   const TodosList({
     super.key,
     required this.statusFilter,
-    this.task,
+    this.category,
     this.todo,
     required this.allTodos,
     required this.calendar,
@@ -36,7 +37,7 @@ class TodosList extends ConsumerStatefulWidget {
   final TodoStatus? statusFilter;
 
   /// The category filter.
-  final Category? task;
+  final Category? category;
 
   /// The parent item filter.
   final Todo? todo;
@@ -97,10 +98,11 @@ class _TodosListState extends ConsumerState<TodosList>
     }
   }
 
-  Object _listMemoKey(int todosRevision) => (
+  Object _listMemoKey(int todosRevision, int categoriesRevision) => (
     todosRevision,
+    categoriesRevision,
     widget.statusFilter,
-    widget.task?.id,
+    widget.category?.id,
     widget.todo?.id,
     widget.allTodos,
     widget.calendar,
@@ -119,11 +121,20 @@ class _TodosListState extends ConsumerState<TodosList>
     final topPadding = MediaQuery.of(context).padding.top;
     final todosState = ref.watch(todosNotifierProvider);
     final todosNotifier = ref.read(todosNotifierProvider.notifier);
+    // Archive filter reads category archive flags; watch revision so lists refresh.
+    final categoriesRevision = widget.excludeArchivedCategories
+        ? ref.watch(
+            categoriesNotifierProvider.select((s) => s.categoriesRevision),
+          )
+        : 0;
     final isImage = ref.watch(
       appSettingsProvider.select((settings) => settings.isImage),
     );
 
-    final memoKey = _listMemoKey(todosState.todosRevision);
+    final memoKey = _listMemoKey(
+      todosState.todosRevision,
+      categoriesRevision,
+    );
     if (_listCacheKey != memoKey || _cachedFilteredTodos == null) {
       _listCacheKey = memoKey;
       _cachedFilteredTodos = _getFilteredAndSortedTodos(todosNotifier);
@@ -193,11 +204,11 @@ class _TodosListState extends ConsumerState<TodosList>
 
   /// Items.
   List<Todo> _filterTodos(TodosNotifier todosNotifier) {
-    if (widget.task != null) {
+    if (widget.category != null) {
       return todosNotifier.getFilteredTodos(
         statusFilter: widget.statusFilter,
         searchQuery: widget.searchTodo,
-        task: widget.task,
+        category: widget.category,
       );
     }
     if (widget.todo != null) {

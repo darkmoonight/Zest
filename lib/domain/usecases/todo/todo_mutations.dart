@@ -42,7 +42,7 @@ mixin _TodoMutations on _TodoServiceBase {
     );
 
     if (date != null) {
-      await _notificationService.scheduleForTodo(todo, category: category);
+      await _notifications.scheduleForTodo(todo, category: category);
     }
     await _calendarSync?.ensureSynced(todo);
     await _caldavSync?.markDirty(todo);
@@ -108,9 +108,9 @@ mixin _TodoMutations on _TodoServiceBase {
     );
 
     if (date != null) {
-      await _notificationService.reschedule(updated, category: category);
+      await _notifications.reschedule(updated, category: category);
     } else {
-      await _notificationService.cancel(todo.id);
+      await _notifications.cancel(todo.id);
     }
     await _calendarSync?.ensureSynced(updated);
     await _caldavSync?.markDirty(updated);
@@ -123,11 +123,11 @@ mixin _TodoMutations on _TodoServiceBase {
     final completedTime = todo.dueAt;
 
     if (todo.status == TodoStatus.done || todo.status == TodoStatus.cancelled) {
-      await _notificationService.cancel(todo.id);
+      await _notifications.cancel(todo.id);
     } else if (completedTime != null) {
-      await _notificationService.scheduleForTodo(todo);
+      await _notifications.scheduleForTodo(todo);
     } else {
-      await _notificationService.cancel(todo.id);
+      await _notifications.cancel(todo.id);
     }
     await _calendarSync?.ensureSynced(todo);
     await _caldavSync?.markDirty(todo);
@@ -149,7 +149,7 @@ mixin _TodoMutations on _TodoServiceBase {
     );
     final updated = todo.copyWith(dueAt: newTime);
     await _todoRepo.update(updated);
-    await _notificationService.snooze(updated, settings);
+    await _notifications.snooze(updated, settings);
     await _calendarSync?.ensureSynced(updated);
     await _caldavSync?.markDirty(updated);
   }
@@ -161,7 +161,7 @@ mixin _TodoMutations on _TodoServiceBase {
     final allIds = await collectSubtreeIds(todo);
 
     if (status.isCompleted) {
-      await _notificationService.cancelBatch(allIds.toList());
+      await _notifications.cancelBatch(allIds.toList());
       for (final id in allIds) {
         final todoItem = await _todoRepo.getById(id);
         if (todoItem != null) {
@@ -173,7 +173,7 @@ mixin _TodoMutations on _TodoServiceBase {
       for (final id in allIds) {
         final todoItem = await _todoRepo.getById(id);
         if (todoItem != null && todoItem.dueAt != null) {
-          await _notificationService.scheduleForTodo(todoItem);
+          await _notifications.scheduleForTodo(todoItem);
         }
         if (todoItem != null) {
           await _calendarSync?.ensureSynced(todoItem);
@@ -197,7 +197,7 @@ mixin _TodoMutations on _TodoServiceBase {
 
     if (allIds.isEmpty) return;
 
-    await _notificationService.cancelBatch(allIds.toList());
+    await _notifications.cancelBatch(allIds.toList());
     for (final id in allIds) {
       final todoItem = await _todoRepo.getById(id);
       if (todoItem != null) {

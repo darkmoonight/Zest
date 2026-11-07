@@ -1,7 +1,7 @@
 import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:zest/core/utils/app_log.dart';
 
 /// Loads system dynamic colors as `material_ui` [ColorScheme]s via seed colors.
 ///
@@ -40,9 +40,7 @@ class _MaterialUiDynamicColorBuilderState
       if (!mounted) return;
       if (corePalette != null) {
         final seed = Color(corePalette.primary.get(40));
-        if (kDebugMode) {
-          debugPrint('dynamic_color: Core palette seed applied.');
-        }
+        AppLog.d('dynamic_color: Core palette seed applied.');
         setState(() {
           _light = ColorScheme.fromSeed(
             seedColor: seed,
@@ -56,18 +54,14 @@ class _MaterialUiDynamicColorBuilderState
         return;
       }
     } on PlatformException {
-      if (kDebugMode) {
-        debugPrint('dynamic_color: Failed to obtain core palette.');
-      }
+      AppLog.d('dynamic_color: Failed to obtain core palette.');
     }
 
     try {
       final Color? accentColor = await DynamicColorPlugin.getAccentColor();
       if (!mounted) return;
       if (accentColor != null) {
-        if (kDebugMode) {
-          debugPrint('dynamic_color: Accent color seed applied.');
-        }
+        AppLog.d('dynamic_color: Accent color seed applied.');
         setState(() {
           _light = ColorScheme.fromSeed(
             seedColor: accentColor,
@@ -81,14 +75,10 @@ class _MaterialUiDynamicColorBuilderState
         return;
       }
     } on PlatformException {
-      if (kDebugMode) {
-        debugPrint('dynamic_color: Failed to obtain accent color.');
-      }
+      AppLog.d('dynamic_color: Failed to obtain accent color.');
     }
 
-    if (kDebugMode) {
-      debugPrint('dynamic_color: Dynamic color not detected on this device.');
-    }
+    AppLog.d('dynamic_color: Dynamic color not detected on this device.');
   }
 
   @override

@@ -1,4 +1,4 @@
-import 'package:zest/core/utils/calendar_date.dart';
+import 'package:zest/domain/utils/calendar_date.dart';
 import 'package:zest/domain/entities/category.dart';
 import 'package:zest/domain/entities/todo.dart';
 import 'package:zest/domain/enums/enums.dart';
@@ -144,13 +144,9 @@ class RecurrenceService {
     fallbackWeekday: fallbackWeekday,
   );
 
-  /// Fingerprint for matching clone-mode siblings in the same category.
-  static String cloneFingerprint(Todo todo) =>
-      _RecurrenceHabits.cloneFingerprint(todo);
-
-  /// Stable key for a clone sibling group within [taskId].
-  static String cloneSiblingKey(int taskId, Todo todo) =>
-      _RecurrenceHabits.cloneSiblingKey(taskId, todo);
+  /// Stable key for a clone sibling group within [categoryId].
+  static String cloneSiblingKey(int categoryId, Todo todo) =>
+      _RecurrenceHabits.cloneSiblingKey(categoryId, todo);
 
   /// Next occurrence after [from] for [frequency] / [weekdays].
   static DateTime? nextOccurrence({

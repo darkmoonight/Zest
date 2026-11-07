@@ -2,7 +2,7 @@ part of 'recurrence_service.dart';
 
 /// Category habit and clone/reopen helpers for [RecurrenceService].
 abstract final class _RecurrenceHabits {
-  /// Whether [item] is an active child governed by [task]'s habit (no own repeat).
+  /// Whether [item] is an active child governed by [category]'s habit (no own repeat).
   static bool isCategoryHabitChild({
     required Todo todo,
     required Category category,
@@ -11,7 +11,7 @@ abstract final class _RecurrenceHabits {
       !_RecurrenceSchedule.isRecurring(todo.recurrence) &&
       _RecurrenceSchedule.isRecurring(category.recurrence);
 
-  /// Whether an active category-habit item needs due stamped from [task].
+  /// Whether an active category-habit item needs due stamped from [category].
   ///
   /// Null due always stamps. Stale due restamps only on an occurrence day
   /// (weekly/monthly use [Todo.todoCompletedTime] as the schedule anchor).
@@ -53,11 +53,11 @@ abstract final class _RecurrenceHabits {
     ].join('|');
   }
 
-  /// Stable key for a clone sibling group within [taskId].
-  static String cloneSiblingKey(int taskId, Todo todo) =>
-      '$taskId|${cloneFingerprint(todo)}';
+  /// Stable key for a clone sibling group within [categoryId].
+  static String cloneSiblingKey(int categoryId, Todo todo) =>
+      '$categoryId|${cloneFingerprint(todo)}';
 
-  /// Whether a category habit reset should reopen [item] given [task] rule.
+  /// Whether a category habit reset should reopen [item] given [category] rule.
   ///
   /// Category habits only support reopen; legacy [RecurrenceMode.clone] on a
   /// category is treated as reopen (clone spawning is item-level only).

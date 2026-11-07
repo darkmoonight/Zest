@@ -18,6 +18,7 @@ mixin _TodosActionFormState
     _setupListeners();
     _loadAllTags();
     _preSelectDefaultCategory();
+    _resolveEditCategory();
   }
 
   /// Prefills the category field with the resolved default when creating.
@@ -41,6 +42,33 @@ mixin _TodosActionFormState
         })
         .catchError((Object e, StackTrace stack) {
           AppLog.d('preSelectDefaultCategory failed: $e\n$stack');
+          return null;
+        });
+  }
+
+  /// Resolves the edit todo's category from the repo when the notifier is empty.
+  void _resolveEditCategory() {
+    if (!widget.edit || widget.todo == null) return;
+    final categoryId = widget.todo!.categoryId;
+    if (categoryId == null) return;
+    if (_selectedCategory != null) return;
+
+    ref
+        .read(categoryRepositoryProvider)
+        .getById(categoryId)
+        .then((category) {
+          if (!mounted || category == null) return;
+          if (_selectedCategory != null) return;
+          setState(() {
+            _selectedCategory = category;
+            _categoryController.text = category.title;
+            if (widget.edit) {
+              _editingController.category.value = category;
+            }
+          });
+        })
+        .catchError((Object e, StackTrace stack) {
+          AppLog.d('resolveEditCategory failed: $e\n$stack');
           return null;
         });
   }

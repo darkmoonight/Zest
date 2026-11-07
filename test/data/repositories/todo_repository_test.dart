@@ -76,10 +76,10 @@ void main() {
 
   test('updateStatusWithSubtasks updates entire subtree', () async {
     final category = await createTestTask(isar);
-    final parent = await createTestTodo(isar, task: category, name: 'Parent');
+    final parent = await createTestTodo(isar, category: category, name: 'Parent');
     final child = await createTestTodo(
       isar,
-      task: category,
+      category: category,
       parent: parent,
       name: 'Child',
     );
@@ -104,12 +104,12 @@ void main() {
       final categoryB = await createTestTask(isar, title: 'B');
       final parent = await createTestTodo(
         isar,
-        task: categoryA,
+        category: categoryA,
         name: 'Parent',
       );
       final child = await createTestTodo(
         isar,
-        task: categoryA,
+        category: categoryA,
         parent: parent,
         name: 'Child',
       );
@@ -126,8 +126,8 @@ void main() {
   test('moveToParent updates parent and optional category', () async {
     final categoryA = await createTestTask(isar, title: 'A');
     final categoryB = await createTestTask(isar, title: 'B');
-    final parent = await createTestTodo(isar, task: categoryA, name: 'Parent');
-    final child = await createTestTodo(isar, task: categoryA, name: 'Child');
+    final parent = await createTestTodo(isar, category: categoryA, name: 'Parent');
+    final child = await createTestTodo(isar, category: categoryA, name: 'Child');
 
     await repo.moveToParent(
       rootIds: {child.id},
@@ -146,13 +146,13 @@ void main() {
     final category = await createTestTask(isar, title: 'A');
     final newParent = await createTestTodo(
       isar,
-      task: category,
+      category: category,
       name: 'New parent',
     );
-    final root = await createTestTodo(isar, task: category, name: 'Root');
+    final root = await createTestTodo(isar, category: category, name: 'Root');
     final mid = await createTestTodo(
       isar,
-      task: category,
+      category: category,
       name: 'Mid',
       parent: root,
     );
@@ -173,8 +173,8 @@ void main() {
 
   test('deleteBatch removes todos', () async {
     final category = await createTestTask(isar);
-    final first = await createTestTodo(isar, task: category, name: 'One');
-    final second = await createTestTodo(isar, task: category, name: 'Two');
+    final first = await createTestTodo(isar, category: category, name: 'One');
+    final second = await createTestTodo(isar, category: category, name: 'Two');
 
     await repo.deleteBatch({first.id, second.id});
 

@@ -2,8 +2,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
+import 'package:zest/core/di/provider_refs.dart';
+import 'package:zest/core/di/settings_revision.dart';
 import 'package:zest/core/settings/app_settings_notifier.dart';
 import 'package:zest/core/settings/app_settings_state.dart';
+import 'package:zest/data/mappers/settings_mapper.dart';
 import 'package:zest/i18n/strings.g.dart';
 
 import '../../helpers/isar_test_helper.dart';
@@ -28,23 +31,10 @@ void main() {
     await closeTestIsar(isar);
   });
 
-  test('update changes in-memory settings state', () {
-    final notifier = container.read(appSettingsProvider.notifier);
-
-    notifier.update(
-      timeformat: '12',
-      firstDay: 'sunday',
-      isImage: false,
-      colorPalette: 'teal',
-      appFont: 'system',
-    );
-
-    final state = container.read(appSettingsProvider);
-    expect(state.timeformat, '12');
-    expect(state.firstDay, 'sunday');
-    expect(state.isImage, isFalse);
-    expect(state.colorPalette, 'teal');
-    expect(state.appFont, 'system');
+  test('appSettingsProvider mirrors settingsProvider via fromSettings', () {
+    final domain = container.read(settingsProvider);
+    final ui = container.read(appSettingsProvider);
+    expect(ui, AppSettingsState.fromSettings(domain));
   });
 
   test('colorPalette and appFont participate in equality', () {
@@ -56,13 +46,16 @@ void main() {
     expect(a, isNot(equals(c)));
   });
 
-  test('update locale changes app settings state', () {
-    final notifier = container.read(appSettingsProvider.notifier);
-
-    notifier.update(locale: const Locale('ru', 'RU'));
+  test('localeProvider tracks language on settingsProvider', () {
+    final settings = container.read(liveSettingsProvider);
+    SettingsMapper.applyDomain(
+      settings,
+      SettingsMapper.toDomain(settings).copyWith(language: 'ru_RU'),
+    );
+    container.read(settingsRevisionProvider.notifier).bump();
 
     expect(
-      container.read(appSettingsProvider).locale,
+      container.read(localeProvider),
       const Locale('ru', 'RU'),
     );
   });

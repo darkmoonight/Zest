@@ -412,9 +412,4 @@ class TodoRepository implements TodoRepositoryPort {
     return tags.toList()
       ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
   }
-
-  @override
-  Future<void> clearAll() async {
-    await _isar.writeTxn(() => _isar.todos.clear());
-  }
 }

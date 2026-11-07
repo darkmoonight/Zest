@@ -50,10 +50,10 @@ abstract final class _RecurrenceDue {
     return due;
   }
 
-  /// Resolves due for a list item living under [task], preferring the item's own rule.
+  /// Resolves due for a list item living under [category], preferring the item's own rule.
   ///
   /// - Own recurring item → [todoMinuteOfDay] / weekdays.
-  /// - Otherwise category habit (`todoRecurrence == none`) → [task] reminder.
+  /// - Otherwise category habit (`todoRecurrence == none`) → [category] reminder.
   /// - Explicit [fallbackTime] (parsed due) wins over a missing category minute.
   static DateTime? resolveDueForTodoInCategory({
     required DateTime now,

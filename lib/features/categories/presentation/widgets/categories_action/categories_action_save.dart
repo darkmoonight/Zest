@@ -12,43 +12,43 @@ mixin _CategoriesActionSave
     TextUtils.trimController(_titleController);
     TextUtils.trimController(_descController);
 
-    final saved = widget.edit ? await _updateCategory() : await _addTask();
+    final saved = widget.edit ? await _updateCategory() : await _addCategory();
     if (!saved || !mounted) return;
     NavigationHelper.back(context);
   }
 
-  /// Update task.
+  /// Update category.
   Future<bool> _updateCategory() async {
     await ref
         .read(categoriesNotifierProvider.notifier)
         .updateCategory(
-          widget.task!,
+          widget.category!,
           _titleController.text,
           _descController.text,
           _colorNotifier.value,
-          recurrence: _taskRecurrence,
-          recurrenceWeekdays: _taskRecurrenceWeekdays,
-          recurrenceMode: _taskRecurrenceMode,
-          recurrenceMinuteOfDay: _taskRecurrenceMinuteOfDay,
+          recurrence: _categoryRecurrence,
+          recurrenceWeekdays: _categoryRecurrenceWeekdays,
+          recurrenceMode: _categoryRecurrenceMode,
+          recurrenceMinuteOfDay: _categoryRecurrenceMinuteOfDay,
         );
     showSnackBar('editCategory'.tr);
-    await _applyDefaultPreference(widget.task!);
+    await _applyDefaultPreference(widget.category!);
     widget.updateCategoryName?.call();
     return true;
   }
 
-  /// Add task.
-  Future<bool> _addTask() async {
+  /// Add category.
+  Future<bool> _addCategory() async {
     final created = await ref
         .read(categoriesNotifierProvider.notifier)
-        .addTask(
+        .addCategory(
           _titleController.text,
           _descController.text,
           _colorNotifier.value,
-          recurrence: _taskRecurrence,
-          recurrenceWeekdays: _taskRecurrenceWeekdays,
-          recurrenceMode: _taskRecurrenceMode,
-          recurrenceMinuteOfDay: _taskRecurrenceMinuteOfDay,
+          recurrence: _categoryRecurrence,
+          recurrenceWeekdays: _categoryRecurrenceWeekdays,
+          recurrenceMode: _categoryRecurrenceMode,
+          recurrenceMinuteOfDay: _categoryRecurrenceMinuteOfDay,
         );
     if (created == null) {
       showSnackBar('duplicateCategory'.tr, isError: true);
@@ -61,14 +61,14 @@ mixin _CategoriesActionSave
     return true;
   }
 
-  /// Persists or clears the user default category for [task].
-  Future<void> _applyDefaultPreference(Category task) async {
+  /// Persists or clears the user default category for [category].
+  Future<void> _applyDefaultPreference(Category category) async {
     final wantDefault = _isDefaultNotifier.value;
     final currentId = ref.read(settingsProvider).defaultCategoryId;
-    final isCurrentlyDefault = currentId == task.id;
+    final isCurrentlyDefault = currentId == category.id;
 
     if (wantDefault && !isCurrentlyDefault) {
-      await setDefaultCategory(ref, category: task);
+      await setDefaultCategory(ref, category: category);
       if (mounted) showSnackBar('defaultCategorySet'.tr);
     } else if (!wantDefault && isCurrentlyDefault) {
       await setDefaultCategory(ref, category: null);

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zest/core/services/recurrence_background_scheduler.dart';
-import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/domain/recurrence/recurrence_service.dart';
 import 'package:zest/domain/entities/category.dart';
 import 'package:zest/domain/entities/todo.dart';
 import 'package:zest/domain/enums/enums.dart';
@@ -206,7 +206,7 @@ void main() {
 
   group('RecurrenceService.shouldEnsureCategoryHabitDue', () {
     test('true when active habit child has null due', () {
-      final task = Category(
+      final category = Category(
         id: 1,
         title: 'Habits',
         colorArgb: 0xFF00FF00,
@@ -224,7 +224,7 @@ void main() {
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 15),
         ),
         isTrue,
@@ -232,7 +232,7 @@ void main() {
     });
 
     test('false when todo has its own recurrence', () {
-      final task = Category(
+      final category = Category(
         id: 1,
         title: 'Habits',
         colorArgb: 0xFF00FF00,
@@ -250,7 +250,7 @@ void main() {
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 15),
         ),
         isFalse,
@@ -258,7 +258,7 @@ void main() {
     });
 
     test('weekly empty does not restamp stale due off the due weekday', () {
-      final task = Category(
+      final category = Category(
         id: 1,
         title: 'Habits',
         colorArgb: 0xFF00FF00,
@@ -278,7 +278,7 @@ void main() {
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 15), // Wednesday
         ),
         isFalse,
@@ -286,7 +286,7 @@ void main() {
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 20), // next Monday
         ),
         isTrue,
@@ -294,7 +294,7 @@ void main() {
     });
 
     test('monthly does not restamp stale due off the due day-of-month', () {
-      final task = Category(
+      final category = Category(
         id: 1,
         title: 'Habits',
         colorArgb: 0xFF00FF00,
@@ -313,7 +313,7 @@ void main() {
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 15),
         ),
         isFalse,
@@ -321,7 +321,7 @@ void main() {
       expect(
         RecurrenceService.shouldEnsureCategoryHabitDue(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 8, 1),
         ),
         isTrue,
@@ -715,12 +715,12 @@ void main() {
     );
 
     test('resets daily habit completed on a previous day', () {
-      final task = habitTask();
+      final category = habitTask();
       final todo = doneTodo(completed: DateTime(2026, 7, 14, 21));
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 15, 8),
         ),
         isTrue,
@@ -728,12 +728,12 @@ void main() {
     });
 
     test('treats legacy category clone mode as reopen', () {
-      final task = habitTask(mode: RecurrenceMode.clone);
+      final category = habitTask(mode: RecurrenceMode.clone);
       final todo = doneTodo(completed: DateTime(2026, 7, 14, 21));
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 15, 8),
         ),
         isTrue,
@@ -741,7 +741,7 @@ void main() {
     });
 
     test('skips todos that have their own recurrence', () {
-      final task = habitTask();
+      final category = habitTask();
       final todo = doneTodo(
         completed: DateTime(2026, 7, 14, 21),
         recurrence: RecurrenceFrequency.daily,
@@ -750,7 +750,7 @@ void main() {
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 15, 8),
         ),
         isFalse,
@@ -758,12 +758,12 @@ void main() {
     });
 
     test('does not reset when completed today', () {
-      final task = habitTask();
+      final category = habitTask();
       final todo = doneTodo(completed: DateTime(2026, 7, 15, 7));
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 15, 20),
         ),
         isFalse,
@@ -771,7 +771,7 @@ void main() {
     });
 
     test('weekly only resets on matching weekdays', () {
-      final task = habitTask(
+      final category = habitTask(
         frequency: RecurrenceFrequency.weekly,
         weekdays: const [DateTime.monday, DateTime.wednesday],
       );
@@ -781,7 +781,7 @@ void main() {
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 14),
         ),
         isFalse,
@@ -790,7 +790,7 @@ void main() {
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: todo,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 15),
         ),
         isTrue,
@@ -798,12 +798,12 @@ void main() {
     });
 
     test('ignores non-recurring categories and active todos', () {
-      final task = Category(id: 1, title: 'One-off', colorArgb: 0xFF0000FF);
+      final category = Category(id: 1, title: 'One-off', colorArgb: 0xFF0000FF);
       final done = doneTodo(completed: DateTime(2026, 7, 14));
       expect(
         RecurrenceService.shouldResetCategoryHabit(
           todo: done,
-          category: task,
+          category: category,
           today: DateTime(2026, 7, 15),
         ),
         isFalse,

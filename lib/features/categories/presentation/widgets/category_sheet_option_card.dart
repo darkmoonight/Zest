@@ -4,7 +4,7 @@ import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/i18n/tr.dart';
 
 /// Shared bordered row used by color / default / recurrence controls on the
-/// task sheet.
+/// category sheet.
 class CategorySheetOptionCard extends StatelessWidget {
   /// Creates a card with [leading], title/subtitle column, and [action].
   const CategorySheetOptionCard({
@@ -84,9 +84,9 @@ class CategorySheetOptionCard extends StatelessWidget {
 }
 
 /// 44×44 icon preview with accent border used by default / recurrence rows.
-class TaskSheetOptionIconPreview extends StatelessWidget {
+class CategorySheetOptionIconPreview extends StatelessWidget {
   /// Creates a preview using [active] colors and [icon] / [activeIcon].
-  const TaskSheetOptionIconPreview({
+  const CategorySheetOptionIconPreview({
     super.key,
     required this.active,
     required this.icon,
@@ -128,9 +128,9 @@ class TaskSheetOptionIconPreview extends StatelessWidget {
 }
 
 /// Compact tonal "Change" control matching task-sheet option rows.
-class TaskSheetOptionChangeButton extends StatelessWidget {
+class CategorySheetOptionChangeButton extends StatelessWidget {
   /// Creates a change button with [icon] and optional [active] tint.
-  const TaskSheetOptionChangeButton({
+  const CategorySheetOptionChangeButton({
     super.key,
     required this.onPressed,
     required this.icon,

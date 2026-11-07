@@ -101,7 +101,7 @@ class BackgroundIsarContext {
   TodoService todoService() {
     return TodoService(
       todoRepo: todoRepo,
-      notificationService: notifications,
+      notifications: notifications,
       calendarSync: calendarSync,
       caldavSync: caldavSync,
       timeformat: settings.timeformat,

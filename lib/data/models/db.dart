@@ -306,10 +306,6 @@ class Todos {
   DateTime? get completedAt => todoCompletionTime;
   set completedAt(DateTime? value) => todoCompletionTime = value;
 
-  /// Legacy completion flag; prefer [status]. Read for migration compat only.
-  @Deprecated('Use status field instead — do not write')
-  bool done;
-
   /// Whether the item is pinned.
   bool fix;
 
@@ -378,7 +374,6 @@ class Todos {
     this.todoCompletedTime,
     this.todoCompletionTime,
     required this.createdTime,
-    this.done = false,
     this.fix = false,
     this.priority = Priority.none,
     this.status = TodoStatus.active,

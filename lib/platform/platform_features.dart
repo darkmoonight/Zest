@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:zest/platform/quick_action_item.dart';
+import 'package:zest/core/utils/app_log.dart';
 
 export 'package:zest/platform/quick_action_item.dart';
 
@@ -67,10 +67,10 @@ abstract class PlatformFeatures {
 
   /// Logs [getPlatformInfo] to the debug console.
   static void logPlatformInfo() {
-    debugPrint('=== Platform Features ===');
+    AppLog.d('=== Platform Features ===');
     getPlatformInfo().forEach((key, value) {
-      debugPrint('$key: $value');
+      AppLog.d('$key: $value');
     });
-    debugPrint('========================');
+    AppLog.d('========================');
   }
 }

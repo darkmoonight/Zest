@@ -1,11 +1,11 @@
 import 'dart:isolate';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:zest/core/bootstrap/background_isar_context.dart';
 import 'package:zest/core/bootstrap/notification_handler_bridge.dart';
 import 'package:zest/core/utils/notification.dart';
 import 'package:zest/data/mappers/settings_mapper.dart';
+import 'package:zest/core/utils/app_log.dart';
 
 /// Background isolate entry point for notification taps and actions.
 ///
@@ -50,8 +50,8 @@ Future<void> handleNotificationResponse(NotificationResponse response) async {
       }
     });
   } catch (e, stackTrace) {
-    debugPrint('Error handling notification: $e');
-    debugPrint('$stackTrace');
+    AppLog.d('Error handling notification: $e');
+    AppLog.d('$stackTrace');
   }
 }
 
@@ -60,8 +60,8 @@ Future<void> markTodoAsDone(int itemId) async {
   try {
     await withBackgroundIsar((ctx) => _markItemDone(ctx, itemId));
   } catch (e, stackTrace) {
-    debugPrint('Error marking item as done: $e');
-    debugPrint('$stackTrace');
+    AppLog.d('Error marking item as done: $e');
+    AppLog.d('$stackTrace');
   }
 }
 

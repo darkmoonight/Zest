@@ -5,6 +5,7 @@ import 'package:zest/core/config/todo_card_layout_config.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/provider_refs.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
+import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_list_dialog_shell.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_section_state.dart';
@@ -73,10 +74,6 @@ class _TodoCardLayoutDialog extends StatefulWidget {
 }
 
 class _TodoCardLayoutDialogState extends State<_TodoCardLayoutDialog> {
-  static const EdgeInsets _listHorizontalPadding = EdgeInsets.symmetric(
-    horizontal: AppConstants.spacingM,
-  );
-
   static const double _maxListHeightFactor = 0.42;
 
   late List<TodoCardLayoutEntry> _entries;
@@ -118,7 +115,7 @@ class _TodoCardLayoutDialogState extends State<_TodoCardLayoutDialog> {
         constraints: BoxConstraints(maxHeight: maxListHeight),
         child: ReorderableListView.builder(
           shrinkWrap: true,
-          padding: _listHorizontalPadding,
+          padding: EdgeInsets.zero,
           itemCount: _entries.length,
           onReorderItem: (oldIndex, newIndex) {
             setState(() {
@@ -129,21 +126,12 @@ class _TodoCardLayoutDialogState extends State<_TodoCardLayoutDialog> {
           },
           itemBuilder: (context, index) {
             final entry = _entries[index];
-            return ListTile(
+            return _LayoutFieldTile(
               key: ValueKey(entry.id),
-              contentPadding: _listHorizontalPadding,
-              leading: ReorderableDragStartListener(
-                index: index,
-                child: Icon(
-                  IconsaxPlusLinear.menu,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              title: Text(_labelFor(entry.id)),
-              trailing: Switch(
-                value: entry.visible,
-                onChanged: (value) => _toggle(index, value),
-              ),
+              index: index,
+              label: _labelFor(entry.id),
+              visible: entry.visible,
+              onVisibleChanged: (value) => _toggle(index, value),
             );
           },
         ),
@@ -180,4 +168,52 @@ class _TodoCardLayoutDialogState extends State<_TodoCardLayoutDialog> {
     TodoCardFieldId.tags: 'todoCardFieldTags',
     TodoCardFieldId.completed: 'todoCardFieldCompleted',
   };
+}
+
+/// Reorderable field row styled like [SettingsDialogListTile] + scaled switch.
+class _LayoutFieldTile extends StatelessWidget {
+  const _LayoutFieldTile({
+    super.key,
+    required this.index,
+    required this.label,
+    required this.visible,
+    required this.onVisibleChanged,
+  });
+
+  final int index;
+  final String label;
+  final bool visible;
+  final ValueChanged<bool> onVisibleChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppConstants.spacingXXL,
+        vertical: AppConstants.spacingXS,
+      ),
+      leading: ReorderableDragStartListener(
+        index: index,
+        child: Icon(
+          IconsaxPlusLinear.element_equal,
+          size: AppConstants.iconSizeMedium,
+          color: colorScheme.onSurfaceVariant,
+        ),
+      ),
+      title: Text(
+        label,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.w500,
+          color: colorScheme.onSurface,
+          fontSize: ResponsiveUtils.getResponsiveFontSize(context, 15),
+        ),
+      ),
+      trailing: Transform.scale(
+        scale: 0.8,
+        child: Switch(value: visible, onChanged: onVisibleChanged),
+      ),
+    );
+  }
 }

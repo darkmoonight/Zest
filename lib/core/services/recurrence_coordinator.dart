@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart' hide Category;
 import 'package:zest/core/caldav/caldav_sync_service.dart';
 import 'package:zest/core/services/device_calendar_sync_service.dart';
 import 'package:zest/core/services/notification_service.dart';
-import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/domain/recurrence/recurrence_service.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/domain/entities/category.dart';
 import 'package:zest/domain/entities/todo.dart';
 import 'package:zest/domain/enums/enums.dart';
@@ -44,7 +44,7 @@ class RecurrenceCoordinator {
     count += await _resetTodoReopenHabits(today, todos, archivedIds);
 
     if (count > 0) {
-      debugPrint('Recurrence midnight rollover changed $count todo(s)');
+      AppLog.d('Recurrence midnight rollover changed $count todo(s)');
     }
     return count;
   }

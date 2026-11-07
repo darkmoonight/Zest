@@ -22,11 +22,11 @@ void main() {
   });
 
   test('reschedules active todos with due times once', () async {
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     final due = DateTime.now().add(const Duration(hours: 1));
     final todo = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Reminder',
       completedTime: due,
       priority: Priority.medium,
@@ -55,10 +55,10 @@ void main() {
   });
 
   test('skips completed todos during migration', () async {
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     await createTestTodo(
       isar,
-      task: task,
+      category: category,
       completedTime: DateTime.now().add(const Duration(hours: 1)),
       status: TodoStatus.done,
     );
@@ -72,10 +72,10 @@ void main() {
   });
 
   test('does not set migrated flag when reschedule fails', () async {
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Broken',
       completedTime: DateTime.now().add(const Duration(hours: 1)),
     );

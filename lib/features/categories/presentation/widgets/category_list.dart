@@ -15,20 +15,20 @@ import 'package:zest/features/todos/application/todos_notifier.dart';
 import 'package:zest/features/todos/presentation/view/category_todos.dart';
 import 'package:zest/i18n/tr.dart';
 
-/// Scrollable list of task categories.
+/// Scrollable list of categories.
 class CategoryList extends ConsumerStatefulWidget {
-  /// Creates a [TasksList].
+  /// Creates a [CategoryList].
   const CategoryList({
     super.key,
     required this.archived,
-    required this.searchTask,
+    required this.searchQuery,
   });
 
   /// The archived.
   final bool archived;
 
-  /// The search task.
-  final String searchTask;
+  /// Search query for filtering categories.
+  final String searchQuery;
 
   @override
   /// Creates the state for this widget.
@@ -47,21 +47,21 @@ class _CategoryListState extends ConsumerState<CategoryList>
 
     final isMobile = ResponsiveUtils.isMobile(context);
     final topPadding = MediaQuery.of(context).padding.top;
-    final tasksNotifier = ref.read(categoriesNotifierProvider.notifier);
+    final categoriesNotifier = ref.read(categoriesNotifierProvider.notifier);
     final todosNotifier = ref.read(todosNotifierProvider.notifier);
-    final tasksState = ref.watch(categoriesNotifierProvider);
+    final categoriesState = ref.watch(categoriesNotifierProvider);
     // Progress badges need todo changes even though CategoriesNotifier only watches
     // the tasks collection after the single-watch split.
     ref.watch(todosNotifierProvider.select((s) => s.todos));
     final isImage = ref.watch(appSettingsProvider.select((s) => s.isImage));
-    final taskCounts = todosNotifier.rootCountsByTaskId();
+    final taskCounts = todosNotifier.rootCountsByCategoryId();
 
-    final tasks = tasksNotifier.getFilteredTasks(
+    final categories = categoriesNotifier.getFilteredCategories(
       archived: widget.archived,
-      searchQuery: widget.searchTask,
+      searchQuery: widget.searchQuery,
     );
 
-    if (tasks.isEmpty) {
+    if (categories.isEmpty) {
       return _buildEmptyState(context, isMobile, topPadding, isImage);
     }
 
@@ -70,7 +70,7 @@ class _CategoryListState extends ConsumerState<CategoryList>
         SliverOverlapInjector(
           handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
         ),
-        _buildReorderableList(tasks, tasksNotifier, tasksState, taskCounts),
+        _buildReorderableList(categories, categoriesNotifier, categoriesState, taskCounts),
         const SliverToBoxAdapter(
           child: SizedBox(height: AppConstants.listFabClearanceHeight),
         ),
@@ -106,90 +106,93 @@ class _CategoryListState extends ConsumerState<CategoryList>
 
   /// Builds the reorderable list widget.
   Widget _buildReorderableList(
-    List<Category> tasks,
-    CategoriesNotifier tasksNotifier,
-    CategoriesState tasksState,
+    List<Category> categories,
+    CategoriesNotifier categoriesNotifier,
+    CategoriesState categoriesState,
     Map<int, (int, int)> taskCounts,
   ) {
     return ReorderableSliverList(
       delegate: ReorderableSliverChildBuilderDelegate(
         (context, index) => _buildCategoryCard(
-          tasks[index],
-          tasksNotifier,
-          tasksState,
+          categories[index],
+          categoriesNotifier,
+          categoriesState,
           taskCounts,
         ),
-        childCount: tasks.length,
+        childCount: categories.length,
       ),
       onReorder: (oldIndex, newIndex) =>
-          _handleReorder(tasks, oldIndex, newIndex, tasksNotifier),
+          _handleReorder(categories, oldIndex, newIndex, categoriesNotifier),
     );
   }
 
-  /// Builds the task card widget.
+  /// Builds the category card widget.
   Widget _buildCategoryCard(
-    Category task,
-    CategoriesNotifier tasksNotifier,
-    CategoriesState tasksState,
+    Category category,
+    CategoriesNotifier categoriesNotifier,
+    CategoriesState categoriesState,
     Map<int, (int, int)> taskCounts,
   ) {
-    final counts = taskCounts[task.id] ?? (0, 0);
+    final counts = taskCounts[category.id] ?? (0, 0);
     final progress = ProgressCalculator(total: counts.$1, completed: counts.$2);
 
     return CategoryCard(
-      key: ValueKey(task.id),
-      category: task,
+      key: ValueKey(category.id),
+      category: category,
       createdTodos: progress.total,
       completedTodos: progress.completed,
       percent: progress.percentageString,
       isSelected:
-          tasksState.isMultiSelectionCategory &&
-          tasksState.selectedCategoryIds.contains(task.id),
-      onTap: () => _handleTaskTap(task, tasksNotifier, tasksState),
-      onDoubleTap: () => _handleTaskDoubleTap(task, tasksNotifier, tasksState),
+          categoriesState.isMultiSelectionCategory &&
+          categoriesState.selectedCategoryIds.contains(category.id),
+      onTap: () => _handleCategoryTap(category, categoriesNotifier, categoriesState),
+      onDoubleTap: () => _handleCategoryDoubleTap(category, categoriesNotifier, categoriesState),
     );
   }
 
   /// Void.
   Future<void> _handleReorder(
-    List<Category> tasks,
+    List<Category> categories,
     int oldIndex,
     int newIndex,
-    CategoriesNotifier tasksNotifier,
+    CategoriesNotifier categoriesNotifier,
   ) async {
     if (oldIndex == newIndex) return;
 
-    final element = tasks.removeAt(oldIndex);
-    tasks.insert(newIndex, element);
+    final element = categories.removeAt(oldIndex);
+    categories.insert(newIndex, element);
 
-    await tasksNotifier.reorderCategories(
-      filteredTasks: tasks,
+    await categoriesNotifier.reorderCategories(
+      filteredCategories: categories,
       archived: widget.archived,
     );
   }
 
-  /// Handle task tap.
-  void _handleTaskTap(
-    Category task,
-    CategoriesNotifier tasksNotifier,
-    CategoriesState tasksState,
+  /// Handle category tap.
+  void _handleCategoryTap(
+    Category category,
+    CategoriesNotifier categoriesNotifier,
+    CategoriesState categoriesState,
   ) {
-    if (tasksState.isMultiSelectionCategory) {
-      tasksNotifier.doMultiSelectionCategory(task);
+    if (categoriesState.isMultiSelectionCategory) {
+      categoriesNotifier.doMultiSelectionCategory(category);
     } else {
-      NavigationHelper.toDownToUp(context, () => CategoryTodos(task: task));
+      NavigationHelper.toDownToUp(
+        context,
+        () => CategoryTodos(category: category),
+      );
     }
   }
 
-  /// Handle task double tap.
-  void _handleTaskDoubleTap(
-    Category task,
-    CategoriesNotifier tasksNotifier,
-    CategoriesState tasksState,
+  /// Handle category double tap.
+  void _handleCategoryDoubleTap(
+    Category category,
+    CategoriesNotifier categoriesNotifier,
+    CategoriesState categoriesState,
   ) {
-    if (!tasksState.isMultiSelectionCategory) {
-      tasksNotifier.toggleMultiSelectionCategory();
+    if (!categoriesState.isMultiSelectionCategory) {
+      categoriesNotifier.toggleMultiSelectionCategory();
     }
-    tasksNotifier.doMultiSelectionCategory(task);
+    categoriesNotifier.doMultiSelectionCategory(category);
   }
 }

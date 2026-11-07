@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
 import 'package:zest/core/database/settings_persist.dart';
 import 'package:zest/core/services/notification_service.dart';
 import 'package:zest/data/models/db.dart';
 import 'package:zest/data/repositories/todo_repository.dart';
+import 'package:zest/core/utils/app_log.dart';
 
 /// Re-schedules active item reminders onto priority-based Android channels once.
 Future<void> migrateNotificationChannelsIfNeeded({
@@ -26,7 +26,7 @@ Future<void> migrateNotificationChannelsIfNeeded({
   }
 
   if (failed) {
-    debugPrint(
+    AppLog.d(
       'Notification channel migration incomplete; will retry on next launch',
     );
     return;

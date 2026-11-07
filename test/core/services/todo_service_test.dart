@@ -19,7 +19,7 @@ void main() {
   late FakeNotificationShow fakeNotifications;
   late TodoRepository todoRepo;
   late TodoService service;
-  late Category task;
+  late Category category;
 
   setUpAll(() async {
     await initializeDateFormatting('en');
@@ -31,13 +31,13 @@ void main() {
     todoRepo = TodoRepository(isar);
     service = TodoService(
       todoRepo: todoRepo,
-      notificationService: NotificationService(
+      notifications: NotificationService(
         notificationShow: fakeNotifications,
       ),
       timeformat: '24',
       languageCode: 'en',
     );
-    task = await createTestTask(isar, title: 'Work');
+    category = await createTestTask(isar, title: 'Work');
   });
 
   tearDown(() async {
@@ -50,7 +50,7 @@ void main() {
     final formatted = DateFormat.yMMMEd('en').add_Hm().format(due);
 
     final todo = await service.createTodo(
-      category: task,
+      category: category,
       title: 'New todo',
       description: 'Details',
       timeString: formatted,
@@ -68,7 +68,7 @@ void main() {
   test('updateTodo cancels notification when due time is cleared', () async {
     final todo = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Scheduled',
       completedTime: DateTime.now().add(const Duration(hours: 2)),
     );
@@ -76,7 +76,7 @@ void main() {
 
     await service.updateTodo(
       todo: todo,
-      category: task,
+      category: category,
       title: 'Scheduled',
       description: '',
       timeString: '',
@@ -92,7 +92,7 @@ void main() {
   test('markTodoAsDone cancels notification', () async {
     final todo = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Finish me',
       completedTime: DateTime.now().add(const Duration(hours: 1)),
     );
@@ -108,7 +108,7 @@ void main() {
   test('snoozeTodo updates due time and snoozes notification', () async {
     final todo = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Snooze',
       completedTime: DateTime.now().add(const Duration(hours: 1)),
     );
@@ -126,10 +126,10 @@ void main() {
   test(
     'updateStatusWithSubtasks cancels notifications for completed subtree',
     () async {
-      final parent = await createTestTodo(isar, task: task, name: 'Parent');
+      final parent = await createTestTodo(isar, category: category, name: 'Parent');
       final child = await createTestTodo(
         isar,
-        task: task,
+        category: category,
         parent: parent,
         name: 'Child',
         completedTime: DateTime.now().add(const Duration(hours: 3)),
@@ -145,13 +145,13 @@ void main() {
   test('deleteTodos cancels notifications and removes subtree', () async {
     final parent = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Parent',
       completedTime: DateTime.now().add(const Duration(hours: 1)),
     );
     final child = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       parent: parent,
       name: 'Child',
       completedTime: DateTime.now().add(const Duration(hours: 2)),
@@ -168,7 +168,7 @@ void main() {
   test('updateTodoStatus reschedules active todo with due time', () async {
     final todo = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Active reminder',
       completedTime: DateTime.now().add(const Duration(hours: 2)),
     );
@@ -183,7 +183,7 @@ void main() {
   test(
     'updateTodoStatus cancels notification when todo has no due time',
     () async {
-      final todo = await createTestTodo(isar, task: task, name: 'No reminder');
+      final todo = await createTestTodo(isar, category: category, name: 'No reminder');
       fakeNotifications.clear();
 
       await service.updateTodoStatus(todo);
@@ -195,7 +195,7 @@ void main() {
 
   test('moveTodos reassigns todo to another task', () async {
     final otherTask = await createTestTask(isar, title: 'Personal');
-    final todo = await createTestTodo(isar, task: task, name: 'Move me');
+    final todo = await createTestTodo(isar, category: category, name: 'Move me');
 
     await service.moveTodos(todos: [todo], category: otherTask);
 
@@ -204,8 +204,8 @@ void main() {
   });
 
   test('moveTodosToParent nests todo under new parent', () async {
-    final parent = await createTestTodo(isar, task: task, name: 'Parent');
-    final child = await createTestTodo(isar, task: task, name: 'Child');
+    final parent = await createTestTodo(isar, category: category, name: 'Parent');
+    final child = await createTestTodo(isar, category: category, name: 'Child');
 
     await service.moveTodosToParent(rootTodos: [child], newParent: parent);
 

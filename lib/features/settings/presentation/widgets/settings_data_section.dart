@@ -15,6 +15,7 @@ import 'package:zest/features/settings/presentation/widgets/settings_section_sta
 import 'package:zest/features/settings/presentation/widgets/settings_switch_tile.dart';
 import 'package:zest/features/settings/presentation/widgets/settings_tile.dart';
 import 'package:zest/i18n/tr.dart';
+import 'package:zest/core/utils/app_log.dart';
 
 /// Backup, restore, auto-backup, and data clearing settings.
 class SettingsDataSection extends ConsumerStatefulWidget {
@@ -230,7 +231,7 @@ class _SettingsDataSectionState
         },
       );
     } catch (e) {
-      debugPrint('Error selecting auto backup path: $e');
+      AppLog.d('Error selecting auto backup path: $e');
       if (!mounted) return;
       showSnackBar('error'.tr, isError: true);
     }
@@ -250,7 +251,7 @@ class _SettingsDataSectionState
         showSnackBar('error'.tr, isError: true);
       }
     } catch (e) {
-      debugPrint('Error creating auto backup: $e');
+      AppLog.d('Error creating auto backup: $e');
       if (!mounted) return;
       showSnackBar('error'.tr, isError: true);
     }

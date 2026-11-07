@@ -26,7 +26,7 @@ void main() {
     service = CategoryService(
       categoryRepo: categoryRepo,
       todoRepo: todoRepo,
-      notificationService: NotificationService(
+      notifications: NotificationService(
         notificationShow: fakeNotifications,
       ),
     );
@@ -42,14 +42,14 @@ void main() {
       title: 'Duplicate',
       description: '',
       colorArgb: 0xFF0000FF,
-      currentTaskCount: 0,
+      currentCategoryCount: 0,
     );
 
     final duplicate = await service.createCategory(
       title: 'Duplicate',
       description: '',
       colorArgb: 0xFFFF0000,
-      currentTaskCount: 1,
+      currentCategoryCount: 1,
     );
 
     expect(duplicate, isNull);
@@ -57,87 +57,87 @@ void main() {
   });
 
   test('archiveCategories cancels notifications and archives tasks', () async {
-    final task = await createTestTask(isar, title: 'Archive me');
+    final category = await createTestTask(isar, title: 'Archive me');
     await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Todo',
       completedTime: DateTime.now().add(const Duration(hours: 1)),
     );
     fakeNotifications.clear();
 
-    await service.archiveCategories([task]);
+    await service.archiveCategories([category]);
 
-    final reloaded = await categoryRepo.getById(task.id);
+    final reloaded = await categoryRepo.getById(category.id);
     expect(reloaded?.archive, isTrue);
     expect(fakeNotifications.cancelled, isNotEmpty);
   });
 
   test('deleteCategories removes todos and task', () async {
-    final task = await createTestTask(isar, title: 'Delete me');
+    final category = await createTestTask(isar, title: 'Delete me');
     final todo = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Todo',
       completedTime: DateTime.now().add(const Duration(hours: 1)),
     );
     fakeNotifications.clear();
 
-    await service.deleteCategories([task]);
+    await service.deleteCategories([category]);
 
-    expect(await categoryRepo.getById(task.id), isNull);
+    expect(await categoryRepo.getById(category.id), isNull);
     expect(await todoRepo.getById(todo.id), isNull);
     expect(fakeNotifications.cancelled, contains(todo.id));
   });
 
   test('updateCategory persists new fields', () async {
-    final task = await createTestTask(isar, title: 'Old title');
+    final category = await createTestTask(isar, title: 'Old title');
 
     await service.updateCategory(
-      category: task,
+      category: category,
       title: 'New title',
       description: 'Updated',
       colorArgb: 0xFF00FF00,
     );
 
-    final reloaded = await categoryRepo.getById(task.id);
+    final reloaded = await categoryRepo.getById(category.id);
     expect(reloaded?.title, 'New title');
     expect(reloaded?.description, 'Updated');
   });
 
   test('unarchiveCategories schedules notifications and unarchives', () async {
-    final task = await createTestTask(isar, title: 'Archived', archive: true);
+    final category = await createTestTask(isar, title: 'Archived', archive: true);
     final todo = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Todo',
       completedTime: DateTime.now().add(const Duration(hours: 1)),
     );
     fakeNotifications.clear();
 
-    await service.unarchiveCategories([task]);
+    await service.unarchiveCategories([category]);
 
-    final reloaded = await categoryRepo.getById(task.id);
+    final reloaded = await categoryRepo.getById(category.id);
     expect(reloaded?.archive, isFalse);
     expect(fakeNotifications.shown.any((n) => n.id == todo.id), isTrue);
   });
 
   test('unarchiveCategories skips done todos with due times', () async {
-    final task = await createTestTask(
+    final category = await createTestTask(
       isar,
       title: 'Archived done',
       archive: true,
     );
     final doneTodo = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Done todo',
       completedTime: DateTime.now().add(const Duration(hours: 1)),
       status: TodoStatus.done,
     );
     fakeNotifications.clear();
 
-    await service.unarchiveCategories([task]);
+    await service.unarchiveCategories([category]);
 
     expect(fakeNotifications.shown.any((n) => n.id == doneTodo.id), isFalse);
   });

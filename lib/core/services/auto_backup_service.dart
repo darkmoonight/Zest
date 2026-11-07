@@ -7,8 +7,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:zest/core/database/settings_persist.dart';
 import 'package:zest/core/services/backup_constants.dart';
 import 'package:zest/core/services/backup_file_writer.dart';
-import 'package:zest/core/utils/calendar_date.dart';
+import 'package:zest/domain/utils/calendar_date.dart';
 import 'package:zest/data/models/db.dart';
+import 'package:zest/core/utils/app_log.dart';
 
 /// Whether an automatic backup should run for [frequency] given [lastBackupTime].
 bool shouldPerformAutoBackup({
@@ -61,7 +62,7 @@ class AutoBackupService {
       await performAutoBackup(isar, currentSettings);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('Auto backup check error: $e\n$stackTrace');
+        AppLog.d('Auto backup check error: $e\n$stackTrace');
       }
     }
   }
@@ -77,7 +78,7 @@ class AutoBackupService {
       return await performAutoBackup(isar, currentSettings);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('Manual auto backup error: $e\n$stackTrace');
+        AppLog.d('Manual auto backup error: $e\n$stackTrace');
       }
       return false;
     }
@@ -99,7 +100,7 @@ class AutoBackupService {
         final backupDir = await _getAutoBackupDirectory(currentSettings);
         if (backupDir == null) {
           if (kDebugMode) {
-            debugPrint('Auto backup skipped: no valid backup directory');
+            AppLog.d('Auto backup skipped: no valid backup directory');
           }
           return false;
         }
@@ -121,12 +122,12 @@ class AutoBackupService {
       await _updateLastBackupTime(isar, currentSettings);
 
       if (kDebugMode) {
-        debugPrint('Auto backup completed: ${result.compressedFileName}');
+        AppLog.d('Auto backup completed: ${result.compressedFileName}');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('Auto backup error: $e\n$stackTrace');
+        AppLog.d('Auto backup error: $e\n$stackTrace');
       }
       return false;
     }
@@ -146,13 +147,13 @@ class AutoBackupService {
         for (final file in filesToDelete) {
           await file.delete();
           if (kDebugMode) {
-            debugPrint('Deleted old backup: ${p.basename(file.path)}');
+            AppLog.d('Deleted old backup: ${p.basename(file.path)}');
           }
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('Error cleaning old backups: $e');
+        AppLog.d('Error cleaning old backups: $e');
       }
     }
   }
@@ -181,7 +182,7 @@ class AutoBackupService {
           return customDir;
         }
         if (kDebugMode) {
-          debugPrint('Custom backup path does not exist: $customPath');
+          AppLog.d('Custom backup path does not exist: $customPath');
         }
       }
 
@@ -195,7 +196,7 @@ class AutoBackupService {
       return backupDir;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('Error getting auto backup directory: $e');
+        AppLog.d('Error getting auto backup directory: $e');
       }
       return null;
     }
@@ -216,7 +217,7 @@ class AutoBackupService {
     try {
       if (isAndroidContentUri(currentSettings.autoBackupPath)) {
         if (kDebugMode) {
-          debugPrint('Cannot list files from Android content URI');
+          AppLog.d('Cannot list files from Android content URI');
         }
         return [];
       }
@@ -227,7 +228,7 @@ class AutoBackupService {
       return _listAutoBackupFiles(backupDir);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('Error getting auto backup files: $e');
+        AppLog.d('Error getting auto backup files: $e');
       }
       return [];
     }

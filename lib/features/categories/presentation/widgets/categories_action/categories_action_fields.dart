@@ -20,16 +20,16 @@ mixin _CategoriesActionFields on ConsumerState<CategoriesAction> {
   late final _EditingController _editingController;
 
   /// Habit recurrence for this category.
-  RecurrenceFrequency _taskRecurrence = RecurrenceFrequency.none;
+  RecurrenceFrequency _categoryRecurrence = RecurrenceFrequency.none;
 
   /// Weekdays for weekly habit recurrence.
-  List<int> _taskRecurrenceWeekdays = [];
+  List<int> _categoryRecurrenceWeekdays = [];
 
   /// Clone vs reopen default for this category.
-  RecurrenceMode _taskRecurrenceMode = RecurrenceMode.reopen;
+  RecurrenceMode _categoryRecurrenceMode = RecurrenceMode.reopen;
 
   /// Fixed reminder minutes from midnight for category recurrence.
-  int? _taskRecurrenceMinuteOfDay;
+  int? _categoryRecurrenceMinuteOfDay;
 
   /// Builds the title input widget.
   Widget _buildTitleInput() {
@@ -71,13 +71,13 @@ mixin _CategoriesActionFields on ConsumerState<CategoriesAction> {
 
   /// Habit-reset control styled like the default-category / color cards.
   Widget _buildRecurrenceRow(BuildContext context) {
-    final active = RecurrenceService.isRecurring(_taskRecurrence);
+    final active = RecurrenceService.isRecurring(_categoryRecurrence);
     final use24h = !DateTimeFormatHelper.is12HourFormat(
       ref.watch(appSettingsProvider.select((s) => s.timeformat)),
     );
 
     return CategorySheetOptionCard(
-      leading: TaskSheetOptionIconPreview(
+      leading: CategorySheetOptionIconPreview(
         active: active,
         icon: IconsaxPlusLinear.repeat,
         activeIcon: IconsaxPlusBold.repeat,
@@ -85,34 +85,34 @@ mixin _CategoriesActionFields on ConsumerState<CategoriesAction> {
       titleKey: 'categoryRecurrence',
       subtitle: [
         recurrenceSummaryLabel(
-          frequency: _taskRecurrence,
-          mode: _taskRecurrenceMode,
-          minuteOfDay: _taskRecurrenceMinuteOfDay,
+          frequency: _categoryRecurrence,
+          mode: _categoryRecurrenceMode,
+          minuteOfDay: _categoryRecurrenceMinuteOfDay,
           use24h: use24h,
         ),
         if (active) 'categoryRecurrenceHint'.tr,
       ].join('\n'),
-      action: TaskSheetOptionChangeButton(
+      action: CategorySheetOptionChangeButton(
         active: active,
         icon: IconsaxPlusLinear.repeat,
         onPressed: () async {
           final selection = await showRecurrencePicker(
             context: context,
-            current: _taskRecurrence,
-            currentWeekdays: _taskRecurrenceWeekdays,
-            currentMode: _taskRecurrenceMode == RecurrenceMode.clone
+            current: _categoryRecurrence,
+            currentWeekdays: _categoryRecurrenceWeekdays,
+            currentMode: _categoryRecurrenceMode == RecurrenceMode.clone
                 ? RecurrenceMode.reopen
-                : _taskRecurrenceMode,
-            currentMinuteOfDay: _taskRecurrenceMinuteOfDay,
+                : _categoryRecurrenceMode,
+            currentMinuteOfDay: _categoryRecurrenceMinuteOfDay,
             use24h: use24h,
             allowCloneMode: false,
           );
           if (selection == null || !mounted) return;
           setState(() {
-            _taskRecurrence = selection.frequency;
-            _taskRecurrenceWeekdays = selection.weekdays;
-            _taskRecurrenceMode = selection.mode;
-            _taskRecurrenceMinuteOfDay = selection.minuteOfDay;
+            _categoryRecurrence = selection.frequency;
+            _categoryRecurrenceWeekdays = selection.weekdays;
+            _categoryRecurrenceMode = selection.mode;
+            _categoryRecurrenceMinuteOfDay = selection.minuteOfDay;
             _editingController.recurrence.apply(selection);
           });
         },
@@ -126,7 +126,7 @@ mixin _CategoriesActionFields on ConsumerState<CategoriesAction> {
       valueListenable: _isDefaultNotifier,
       builder: (context, isDefault, _) {
         return CategorySheetOptionCard(
-          leading: TaskSheetOptionIconPreview(
+          leading: CategorySheetOptionIconPreview(
             active: isDefault,
             icon: IconsaxPlusLinear.star,
             activeIcon: IconsaxPlusBold.star,
@@ -135,7 +135,7 @@ mixin _CategoriesActionFields on ConsumerState<CategoriesAction> {
           subtitle: isDefault
               ? 'defaultCategoryStatusOn'.tr
               : 'defaultCategoryStatusOff'.tr,
-          action: TaskSheetOptionChangeButton(
+          action: CategorySheetOptionChangeButton(
             active: isDefault,
             icon: isDefault ? IconsaxPlusBold.star : IconsaxPlusLinear.star,
             onPressed: () {
@@ -159,7 +159,7 @@ mixin _CategoriesActionFields on ConsumerState<CategoriesAction> {
           leading: _buildColorPreview(color, colorScheme),
           titleKey: 'selectedColor',
           subtitle: color.toHexString(),
-          action: TaskSheetOptionChangeButton(
+          action: CategorySheetOptionChangeButton(
             icon: IconsaxPlusLinear.colorfilter,
             onPressed: _showColorPickerDialog,
           ),

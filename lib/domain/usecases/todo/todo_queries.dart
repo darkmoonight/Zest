@@ -9,25 +9,6 @@ mixin _TodoQueries on _TodoServiceBase {
 
   // ==================== COUNTERS ====================
 
-  /// Counts root-level items belonging to [category].
-  int countForCategory(Category category, List<Todo> allTodos) {
-    return allTodos
-        .where((t) => t.categoryId == category.id && t.parentId == null)
-        .length;
-  }
-
-  /// Counts completed root-level items belonging to [category].
-  int countCompletedForCategory(Category category, List<Todo> allTodos) {
-    return allTodos
-        .where(
-          (t) =>
-              t.categoryId == category.id &&
-              t.status.isCompleted &&
-              t.parentId == null,
-        )
-        .length;
-  }
-
   /// Counts root-level items in non-archived categories.
   int countAll(List<Todo> allTodos, {Set<int> archivedCategoryIds = const {}}) {
     return allTodos
@@ -53,39 +34,6 @@ mixin _TodoQueries on _TodoServiceBase {
               !archivedCategoryIds.contains(t.categoryId) &&
               t.status.isCompleted,
         )
-        .length;
-  }
-
-  /// Counts active root items due on [date].
-  int countForCalendar(
-    DateTime date,
-    List<Todo> allTodos, {
-    bool excludeArchivedCategories = true,
-    Set<int> archivedCategoryIds = const {},
-  }) {
-    return allTodos.where((todo) {
-      final completedTime = todo.dueAt;
-      if (excludeArchivedCategories &&
-          (todo.categoryId == null ||
-              archivedCategoryIds.contains(todo.categoryId))) {
-        return false;
-      }
-      return todo.status == TodoStatus.active &&
-          completedTime != null &&
-          todo.parentId == null &&
-          _isSameDay(date, completedTime);
-    }).length;
-  }
-
-  /// Counts direct child items of [parent].
-  int countForParent(Todo parent, List<Todo> allTodos) {
-    return allTodos.where((t) => t.parentId == parent.id).length;
-  }
-
-  /// Counts completed direct child items of [parent].
-  int countCompletedForParent(Todo parent, List<Todo> allTodos) {
-    return allTodos
-        .where((t) => t.parentId == parent.id && t.status.isCompleted)
         .length;
   }
 

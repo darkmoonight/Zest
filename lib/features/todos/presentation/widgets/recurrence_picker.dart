@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
-import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/domain/recurrence/recurrence_service.dart';
 import 'package:zest/core/utils/navigation_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/domain/enums/enums.dart';

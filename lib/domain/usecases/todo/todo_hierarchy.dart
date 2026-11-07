@@ -53,7 +53,7 @@ mixin _TodoHierarchy on _TodoServiceBase {
     if (allIds.isEmpty) return;
 
     if (newParent != null && allIds.contains(newParent.id)) {
-      debugPrint(
+      log(
         'moveTodosToParent rejected: newParent ${newParent.id} is in moved subtree',
       );
       return;

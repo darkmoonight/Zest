@@ -7930,53 +7930,52 @@ const TodosSchema = CollectionSchema(
       name: r'deviceCalendarEventId',
       type: IsarType.string,
     ),
-    r'done': PropertySchema(id: 9, name: r'done', type: IsarType.bool),
-    r'dueAt': PropertySchema(id: 10, name: r'dueAt', type: IsarType.dateTime),
-    r'fix': PropertySchema(id: 11, name: r'fix', type: IsarType.bool),
-    r'index': PropertySchema(id: 12, name: r'index', type: IsarType.long),
-    r'name': PropertySchema(id: 13, name: r'name', type: IsarType.string),
+    r'dueAt': PropertySchema(id: 9, name: r'dueAt', type: IsarType.dateTime),
+    r'fix': PropertySchema(id: 10, name: r'fix', type: IsarType.bool),
+    r'index': PropertySchema(id: 11, name: r'index', type: IsarType.long),
+    r'name': PropertySchema(id: 12, name: r'name', type: IsarType.string),
     r'priority': PropertySchema(
-      id: 14,
+      id: 13,
       name: r'priority',
       type: IsarType.byte,
       enumMap: _TodospriorityEnumValueMap,
     ),
     r'recurrence': PropertySchema(
-      id: 15,
+      id: 14,
       name: r'recurrence',
       type: IsarType.byte,
       enumMap: _TodosrecurrenceEnumValueMap,
     ),
     r'recurrenceMinuteOfDay': PropertySchema(
-      id: 16,
+      id: 15,
       name: r'recurrenceMinuteOfDay',
       type: IsarType.long,
     ),
     r'recurrenceMode': PropertySchema(
-      id: 17,
+      id: 16,
       name: r'recurrenceMode',
       type: IsarType.byte,
       enumMap: _TodosrecurrenceModeEnumValueMap,
     ),
     r'recurrenceWeekdays': PropertySchema(
-      id: 18,
+      id: 17,
       name: r'recurrenceWeekdays',
       type: IsarType.longList,
     ),
     r'status': PropertySchema(
-      id: 19,
+      id: 18,
       name: r'status',
       type: IsarType.byte,
       enumMap: _TodosstatusEnumValueMap,
     ),
-    r'tags': PropertySchema(id: 20, name: r'tags', type: IsarType.stringList),
+    r'tags': PropertySchema(id: 19, name: r'tags', type: IsarType.stringList),
     r'todoCompletedTime': PropertySchema(
-      id: 21,
+      id: 20,
       name: r'todoCompletedTime',
       type: IsarType.dateTime,
     ),
     r'todoCompletionTime': PropertySchema(
-      id: 22,
+      id: 21,
       name: r'todoCompletionTime',
       type: IsarType.dateTime,
     ),
@@ -8075,20 +8074,19 @@ void _todosSerialize(
   writer.writeDateTime(offsets[6], object.createdTime);
   writer.writeString(offsets[7], object.description);
   writer.writeString(offsets[8], object.deviceCalendarEventId);
-  writer.writeBool(offsets[9], object.done);
-  writer.writeDateTime(offsets[10], object.dueAt);
-  writer.writeBool(offsets[11], object.fix);
-  writer.writeLong(offsets[12], object.index);
-  writer.writeString(offsets[13], object.name);
-  writer.writeByte(offsets[14], object.priority.index);
-  writer.writeByte(offsets[15], object.recurrence.index);
-  writer.writeLong(offsets[16], object.recurrenceMinuteOfDay);
-  writer.writeByte(offsets[17], object.recurrenceMode.index);
-  writer.writeLongList(offsets[18], object.recurrenceWeekdays);
-  writer.writeByte(offsets[19], object.status.index);
-  writer.writeStringList(offsets[20], object.tags);
-  writer.writeDateTime(offsets[21], object.todoCompletedTime);
-  writer.writeDateTime(offsets[22], object.todoCompletionTime);
+  writer.writeDateTime(offsets[9], object.dueAt);
+  writer.writeBool(offsets[10], object.fix);
+  writer.writeLong(offsets[11], object.index);
+  writer.writeString(offsets[12], object.name);
+  writer.writeByte(offsets[13], object.priority.index);
+  writer.writeByte(offsets[14], object.recurrence.index);
+  writer.writeLong(offsets[15], object.recurrenceMinuteOfDay);
+  writer.writeByte(offsets[16], object.recurrenceMode.index);
+  writer.writeLongList(offsets[17], object.recurrenceWeekdays);
+  writer.writeByte(offsets[18], object.status.index);
+  writer.writeStringList(offsets[19], object.tags);
+  writer.writeDateTime(offsets[20], object.todoCompletedTime);
+  writer.writeDateTime(offsets[21], object.todoCompletionTime);
 }
 
 Todos _todosDeserialize(
@@ -8100,28 +8098,27 @@ Todos _todosDeserialize(
   final object = Todos(
     createdTime: reader.readDateTime(offsets[6]),
     description: reader.readStringOrNull(offsets[7]) ?? '',
-    done: reader.readBoolOrNull(offsets[9]) ?? false,
-    fix: reader.readBoolOrNull(offsets[11]) ?? false,
+    fix: reader.readBoolOrNull(offsets[10]) ?? false,
     id: id,
-    index: reader.readLongOrNull(offsets[12]),
-    name: reader.readString(offsets[13]),
+    index: reader.readLongOrNull(offsets[11]),
+    name: reader.readString(offsets[12]),
     priority:
-        _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[14])] ??
+        _TodospriorityValueEnumMap[reader.readByteOrNull(offsets[13])] ??
         Priority.none,
     recurrence:
-        _TodosrecurrenceValueEnumMap[reader.readByteOrNull(offsets[15])] ??
+        _TodosrecurrenceValueEnumMap[reader.readByteOrNull(offsets[14])] ??
         RecurrenceFrequency.none,
-    recurrenceMinuteOfDay: reader.readLongOrNull(offsets[16]),
+    recurrenceMinuteOfDay: reader.readLongOrNull(offsets[15]),
     recurrenceMode:
-        _TodosrecurrenceModeValueEnumMap[reader.readByteOrNull(offsets[17])] ??
+        _TodosrecurrenceModeValueEnumMap[reader.readByteOrNull(offsets[16])] ??
         RecurrenceMode.clone,
-    recurrenceWeekdays: reader.readLongList(offsets[18]) ?? const [],
+    recurrenceWeekdays: reader.readLongList(offsets[17]) ?? const [],
     status:
-        _TodosstatusValueEnumMap[reader.readByteOrNull(offsets[19])] ??
+        _TodosstatusValueEnumMap[reader.readByteOrNull(offsets[18])] ??
         TodoStatus.active,
-    tags: reader.readStringList(offsets[20]) ?? const [],
-    todoCompletedTime: reader.readDateTimeOrNull(offsets[21]),
-    todoCompletionTime: reader.readDateTimeOrNull(offsets[22]),
+    tags: reader.readStringList(offsets[19]) ?? const [],
+    todoCompletedTime: reader.readDateTimeOrNull(offsets[20]),
+    todoCompletionTime: reader.readDateTimeOrNull(offsets[21]),
   );
   object.caldavDirty = reader.readBool(offsets[0]);
   object.caldavEtag = reader.readStringOrNull(offsets[1]);
@@ -8132,7 +8129,7 @@ Todos _todosDeserialize(
       SortOption.none;
   object.completedAt = reader.readDateTimeOrNull(offsets[5]);
   object.deviceCalendarEventId = reader.readStringOrNull(offsets[8]);
-  object.dueAt = reader.readDateTimeOrNull(offsets[10]);
+  object.dueAt = reader.readDateTimeOrNull(offsets[9]);
   return object;
 }
 
@@ -8166,40 +8163,38 @@ P _todosDeserializeProp<P>(
     case 8:
       return (reader.readStringOrNull(offset)) as P;
     case 9:
-      return (reader.readBoolOrNull(offset) ?? false) as P;
-    case 10:
       return (reader.readDateTimeOrNull(offset)) as P;
-    case 11:
+    case 10:
       return (reader.readBoolOrNull(offset) ?? false) as P;
-    case 12:
+    case 11:
       return (reader.readLongOrNull(offset)) as P;
-    case 13:
+    case 12:
       return (reader.readString(offset)) as P;
-    case 14:
+    case 13:
       return (_TodospriorityValueEnumMap[reader.readByteOrNull(offset)] ??
               Priority.none)
           as P;
-    case 15:
+    case 14:
       return (_TodosrecurrenceValueEnumMap[reader.readByteOrNull(offset)] ??
               RecurrenceFrequency.none)
           as P;
-    case 16:
+    case 15:
       return (reader.readLongOrNull(offset)) as P;
-    case 17:
+    case 16:
       return (_TodosrecurrenceModeValueEnumMap[reader.readByteOrNull(offset)] ??
               RecurrenceMode.clone)
           as P;
-    case 18:
+    case 17:
       return (reader.readLongList(offset) ?? const []) as P;
-    case 19:
+    case 18:
       return (_TodosstatusValueEnumMap[reader.readByteOrNull(offset)] ??
               TodoStatus.active)
           as P;
-    case 20:
+    case 19:
       return (reader.readStringList(offset) ?? const []) as P;
-    case 21:
+    case 20:
       return (reader.readDateTimeOrNull(offset)) as P;
-    case 22:
+    case 21:
       return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -9351,14 +9346,6 @@ extension TodosQueryFilter on QueryBuilder<Todos, Todos, QFilterCondition> {
           property: r'deviceCalendarEventId',
           value: '',
         ),
-      );
-    });
-  }
-
-  QueryBuilder<Todos, Todos, QAfterFilterCondition> doneEqualTo(bool value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'done', value: value),
       );
     });
   }
@@ -10706,18 +10693,6 @@ extension TodosQuerySortBy on QueryBuilder<Todos, Todos, QSortBy> {
     });
   }
 
-  QueryBuilder<Todos, Todos, QAfterSortBy> sortByDone() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'done', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Todos, Todos, QAfterSortBy> sortByDoneDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'done', Sort.desc);
-    });
-  }
-
   QueryBuilder<Todos, Todos, QAfterSortBy> sortByDueAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dueAt', Sort.asc);
@@ -10960,18 +10935,6 @@ extension TodosQuerySortThenBy on QueryBuilder<Todos, Todos, QSortThenBy> {
     });
   }
 
-  QueryBuilder<Todos, Todos, QAfterSortBy> thenByDone() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'done', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Todos, Todos, QAfterSortBy> thenByDoneDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'done', Sort.desc);
-    });
-  }
-
   QueryBuilder<Todos, Todos, QAfterSortBy> thenByDueAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dueAt', Sort.asc);
@@ -11185,12 +11148,6 @@ extension TodosQueryWhereDistinct on QueryBuilder<Todos, Todos, QDistinct> {
     });
   }
 
-  QueryBuilder<Todos, Todos, QDistinct> distinctByDone() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'done');
-    });
-  }
-
   QueryBuilder<Todos, Todos, QDistinct> distinctByDueAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'dueAt');
@@ -11332,12 +11289,6 @@ extension TodosQueryProperty on QueryBuilder<Todos, Todos, QQueryProperty> {
   deviceCalendarEventIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deviceCalendarEventId');
-    });
-  }
-
-  QueryBuilder<Todos, bool, QQueryOperations> doneProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'done');
     });
   }
 

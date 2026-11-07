@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:zest/core/navigation/home_screen_key.dart';
+import 'package:zest/core/utils/app_log.dart';
 
 /// Default max post-frame retries when waiting for a navigable home context.
 const kWhenHomeContextReadyMaxAttempts = 120;
@@ -44,7 +45,7 @@ void whenHomeContextReady({
   }
 
   if (attempt >= maxAttempts) {
-    debugPrint(
+    AppLog.d(
       'whenHomeContextReady: gave up after $maxAttempts attempts '
       '(home mounted=${homeContext?.mounted})',
     );

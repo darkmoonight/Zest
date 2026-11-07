@@ -57,9 +57,6 @@ abstract interface class CategoryRepositoryPort {
   /// Emits when any category collection change may have occurred.
   Stream<void> watchLazy();
 
-  /// Deletes every category row.
-  Future<void> clearAll();
-
   /// Active (non-archived) categories sorted by index.
   Future<List<Category>> getActiveSorted();
 }

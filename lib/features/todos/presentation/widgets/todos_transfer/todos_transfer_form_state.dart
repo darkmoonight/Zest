@@ -15,23 +15,23 @@ mixin _TodosTransferFormState
 
   /// Initialize controllers.
   void _initializeControllers() {
-    _taskController = TextEditingController();
+    _categoryController = TextEditingController();
     _todosController = TextEditingController();
-    _taskFocusNode = FocusNode();
+    _categoryFocusNode = FocusNode();
     _todoFocusNode = FocusNode();
     _formKey = GlobalKey<FormState>();
     _editingController = _EditingController();
-    _taskController.addListener(_onTaskTextChanged);
+    _categoryController.addListener(_onCategoryTextChanged);
     _todosController.addListener(_onTodoTextChanged);
   }
 
-  void _onTaskTextChanged() {
-    final selected = _selectedCategories;
+  void _onCategoryTextChanged() {
+    final selected = _selectedCategory;
     if (selected == null) return;
-    if (_taskController.text == selected.title) return;
+    if (_categoryController.text == selected.title) return;
     setState(() {
-      _selectedCategories = null;
-      _editingController.setTask(null);
+      _selectedCategory = null;
+      _editingController.setCategory(null);
     });
   }
 
@@ -47,11 +47,11 @@ mixin _TodosTransferFormState
 
   @override
   void dispose() {
-    _taskController.removeListener(_onTaskTextChanged);
+    _categoryController.removeListener(_onCategoryTextChanged);
     _todosController.removeListener(_onTodoTextChanged);
-    _taskController.dispose();
+    _categoryController.dispose();
     _todosController.dispose();
-    _taskFocusNode.dispose();
+    _categoryFocusNode.dispose();
     _todoFocusNode.dispose();
     _editingController.dispose();
     disposeModalSheetAnimations();
@@ -70,7 +70,7 @@ mixin _TodosTransferFormState
     final shouldPop = await showClearTextConfirmation(
       context: context,
       onConfirm: () {
-        _taskController.clear();
+        _categoryController.clear();
         _todosController.clear();
         NavigationHelper.back(context);
       },
@@ -85,11 +85,11 @@ mixin _TodosTransferFormState
 /// Tracks dirty state for the transfer form.
 class _EditingController {
   _EditingController() {
-    _dirtyTracker.watch(_task, _hasSelection);
+    _dirtyTracker.watch(_category, _hasSelection);
     _dirtyTracker.watch(_todo, _hasSelection);
   }
 
-  final ValueNotifier<Category?> _task = ValueNotifier(null);
+  final ValueNotifier<Category?> _category = ValueNotifier(null);
   final ValueNotifier<Todo?> _todo = ValueNotifier(null);
   final FormDirtyTracker _dirtyTracker = FormDirtyTracker();
 
@@ -97,16 +97,16 @@ class _EditingController {
   ValueListenable<bool> get canCompose => _dirtyTracker.canCompose;
 
   /// Sets the destination category for the transfer.
-  void setTask(Category? task) => _task.value = task;
+  void setCategory(Category? category) => _category.value = category;
 
   /// Sets the destination parent item for the transfer.
   void setTodo(Todo? todo) => _todo.value = todo;
 
-  bool _hasSelection() => _task.value != null || _todo.value != null;
+  bool _hasSelection() => _category.value != null || _todo.value != null;
 
   void dispose() {
     _dirtyTracker.dispose();
-    _task.dispose();
+    _category.dispose();
     _todo.dispose();
   }
 }

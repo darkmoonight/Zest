@@ -1,6 +1,8 @@
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:zest/core/services/notification_plugin.dart';
+import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/domain/enums/priority.dart' as zest;
 import 'package:zest/i18n/tr.dart';
 
@@ -161,6 +163,6 @@ Future<void> registerAndroidNotificationChannels(
       await android.createNotificationChannel(config.toAndroidChannel());
     }
   } catch (e) {
-    debugPrint('Error registering notification channels: $e');
+    AppLog.d('Error registering notification channels: $e');
   }
 }

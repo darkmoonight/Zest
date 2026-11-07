@@ -166,7 +166,7 @@ void main() {
   });
 
   test('pushes a dirty local item', () async {
-    final todo = await createTestTodo(isar, task: category, name: 'Local');
+    final todo = await createTestTodo(isar, category: category, name: 'Local');
     await sync.markDirty(todo);
     sync.cancelScheduled();
 
@@ -205,7 +205,7 @@ void main() {
   });
 
   test('server wins on 412 conflict', () async {
-    var todo = await createTestTodo(isar, task: category, name: 'Local title');
+    var todo = await createTestTodo(isar, category: category, name: 'Local title');
     todo = todo.copyWith(
       caldavUid: 'uid-conflict',
       caldavHref: 'https://cal.example/tasks/uid-conflict.ics',
@@ -236,7 +236,7 @@ void main() {
   test(
     'deletes local item when it disappeared remotely and is not dirty',
     () async {
-      var todo = await createTestTodo(isar, task: category, name: 'Gone');
+      var todo = await createTestTodo(isar, category: category, name: 'Gone');
       todo = todo.copyWith(
         caldavUid: 'gone',
         caldavHref: 'https://cal.example/tasks/gone.ics',
@@ -258,7 +258,7 @@ void main() {
   );
 
   test('local delete is pushed as remote DELETE', () async {
-    var todo = await createTestTodo(isar, task: category, name: 'Remove me');
+    var todo = await createTestTodo(isar, category: category, name: 'Remove me');
     todo = todo.copyWith(
       caldavUid: 'del-1',
       caldavHref: 'https://cal.example/tasks/del-1.ics',

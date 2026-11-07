@@ -15,8 +15,8 @@ void main() {
   }) {
     return ProviderScope(
       overrides: [
-        appSettingsProvider.overrideWith(
-          () => _FixedAppSettingsNotifier(AppSettingsState(isImage: isImage)),
+        appSettingsProvider.overrideWithValue(
+          AppSettingsState(isImage: isImage),
         ),
       ],
       child: MediaQuery(
@@ -68,13 +68,4 @@ void main() {
     );
     expect(constrainedBoxes.last.constraints.maxWidth, 300);
   });
-}
-
-class _FixedAppSettingsNotifier extends AppSettingsNotifier {
-  _FixedAppSettingsNotifier(this._state);
-
-  final AppSettingsState _state;
-
-  @override
-  AppSettingsState build() => _state;
 }

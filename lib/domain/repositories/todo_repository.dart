@@ -97,7 +97,4 @@ abstract interface class TodoRepositoryPort {
 
   /// Unique non-empty tags across all items, sorted case-insensitively.
   Future<List<String>> collectUniqueTags();
-
-  /// Deletes every item row.
-  Future<void> clearAll();
 }

@@ -21,26 +21,26 @@ mixin _CategoriesActionFormState
     _descController = TextEditingController();
     _colorNotifier = ValueNotifier(
       widget.edit
-          ? Color(widget.task!.colorArgb)
-          : AppConstants.defaultTaskColor,
+          ? Color(widget.category!.colorArgb)
+          : AppConstants.defaultCategoryColor,
     );
     final settings = ref.read(settingsProvider);
     _isDefaultNotifier = ValueNotifier(
-      widget.edit && isSelectedDefaultCategory(settings, widget.task!),
+      widget.edit && isSelectedDefaultCategory(settings, widget.category!),
     );
   }
 
   /// Initialize edit mode.
   void _initializeEditMode() {
     if (widget.edit) {
-      _titleController.text = widget.task!.title;
-      _descController.text = widget.task!.description;
-      _taskRecurrence = widget.task!.recurrence;
-      _taskRecurrenceWeekdays = List<int>.from(widget.task!.recurrenceWeekdays);
-      _taskRecurrenceMode = widget.task!.recurrenceMode == RecurrenceMode.clone
+      _titleController.text = widget.category!.title;
+      _descController.text = widget.category!.description;
+      _categoryRecurrence = widget.category!.recurrence;
+      _categoryRecurrenceWeekdays = List<int>.from(widget.category!.recurrenceWeekdays);
+      _categoryRecurrenceMode = widget.category!.recurrenceMode == RecurrenceMode.clone
           ? RecurrenceMode.reopen
-          : widget.task!.recurrenceMode;
-      _taskRecurrenceMinuteOfDay = widget.task!.recurrenceMinuteOfDay;
+          : widget.category!.recurrenceMode;
+      _categoryRecurrenceMinuteOfDay = widget.category!.recurrenceMinuteOfDay;
     }
 
     _editingController = _EditingController(
@@ -48,10 +48,10 @@ mixin _CategoriesActionFormState
       _descController.text,
       _colorNotifier.value,
       _isDefaultNotifier.value,
-      _taskRecurrence,
-      List<int>.from(_taskRecurrenceWeekdays),
-      _taskRecurrenceMode,
-      _taskRecurrenceMinuteOfDay,
+      _categoryRecurrence,
+      List<int>.from(_categoryRecurrenceWeekdays),
+      _categoryRecurrenceMode,
+      _categoryRecurrenceMinuteOfDay,
     );
   }
 
@@ -91,7 +91,7 @@ mixin _CategoriesActionFormState
   }
 }
 
-/// Tracks dirty state for the task create/edit form.
+/// Tracks dirty state for the category create/edit form.
 class _EditingController {
   _EditingController(
     this.initialTitle,
@@ -137,7 +137,7 @@ class _EditingController {
 
   final FormDirtyTracker _dirtyTracker = FormDirtyTracker();
 
-  /// Whether the task form has unsaved changes.
+  /// Whether the category form has unsaved changes.
   ValueListenable<bool> get canCompose => _dirtyTracker.canCompose;
 
   bool _hasChanges() =>

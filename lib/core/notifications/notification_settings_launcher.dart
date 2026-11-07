@@ -2,6 +2,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/utils/app_log.dart';
 
 /// Opens Android system Settings for this app's notifications.
 ///
@@ -39,7 +40,7 @@ class NotificationSettingsLauncher {
       final info = await PackageInfo.fromPlatform();
       if (info.packageName.isNotEmpty) return info.packageName;
     } catch (e) {
-      debugPrint('PackageInfo lookup failed: $e');
+      AppLog.d('PackageInfo lookup failed: $e');
     }
     return AppConstants.androidPackageName;
   }

@@ -277,5 +277,5 @@ class AppConstants {
   static const double circularProgressSizeDesktop = 70.0;
 
   /// Default color for newly created tasks.
-  static const Color defaultTaskColor = Color(0xFF2196F3);
+  static const Color defaultCategoryColor = Color(0xFF2196F3);
 }

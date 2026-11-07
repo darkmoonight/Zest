@@ -90,17 +90,20 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
       _handleMultiSelectionChanged,
     );
 
-    final tasksState = ref.watch(categoriesNotifierProvider);
+    final categoriesState = ref.watch(categoriesNotifierProvider);
+    // Rebuild header when todos finish loading / change (not multi-select noise).
+    ref.watch(todosNotifierProvider.select((s) => s.todosRevision));
+    final todosNotifier = ref.read(todosNotifierProvider.notifier);
     final progress = ProgressCalculator(
-      total: ref.read(todosNotifierProvider.notifier).createdAllTodos(),
-      completed: ref.read(todosNotifierProvider.notifier).completedAllTodos(),
+      total: todosNotifier.createdAllTodos(),
+      completed: todosNotifier.completedAllTodos(),
     );
 
     return PopScope(
-      canPop: tasksState.isPop,
+      canPop: categoriesState.isPop,
       onPopInvokedWithResult: _handlePopInvokedWithResult,
       child: Scaffold(
-        body: SafeArea(child: _buildBody(context, progress, tasksState)),
+        body: SafeArea(child: _buildBody(context, progress, categoriesState)),
       ),
     );
   }
@@ -120,12 +123,12 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
   Widget _buildBody(
     BuildContext context,
     ProgressCalculator progress,
-    CategoriesState tasksState,
+    CategoriesState categoriesState,
   ) {
     return Stack(
       children: [
-        _buildScrollableContent(context, progress, tasksState),
-        _buildMultiSelectionBar(context, tasksState),
+        _buildScrollableContent(context, progress, categoriesState),
+        _buildMultiSelectionBar(context, categoriesState),
       ],
     );
   }
@@ -134,12 +137,12 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
   Widget _buildScrollableContent(
     BuildContext context,
     ProgressCalculator progress,
-    CategoriesState tasksState,
+    CategoriesState categoriesState,
   ) {
     return ScrollFabListener(
       tabController: _tabController,
       setFabVisibility: ref.read(fabNotifierProvider.notifier).setVisibility,
-      disabled: tasksState.isMultiSelectionCategory,
+      disabled: categoriesState.isMultiSelectionCategory,
       child: NestedScrollView(
         controller: _scrollController,
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
@@ -238,8 +241,8 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
     return TabBarView(
       controller: _tabController,
       children: [
-        CategoryList(archived: false, searchTask: _filter),
-        CategoryList(archived: true, searchTask: _filter),
+        CategoryList(archived: false, searchQuery: _filter),
+        CategoryList(archived: true, searchQuery: _filter),
       ],
     );
   }
@@ -247,21 +250,21 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
   /// Builds the multi selection bar widget.
   Widget _buildMultiSelectionBar(
     BuildContext context,
-    CategoriesState tasksState,
+    CategoriesState categoriesState,
   ) {
-    if (!tasksState.isMultiSelectionCategory) {
+    if (!categoriesState.isMultiSelectionCategory) {
       return const SizedBox.shrink();
     }
 
     final colorScheme = Theme.of(context).colorScheme;
-    final tasksNotifier = ref.read(categoriesNotifierProvider.notifier);
-    final selectedCount = tasksState.selectedCategories.length;
+    final categoriesNotifier = ref.read(categoriesNotifierProvider.notifier);
+    final selectedCount = categoriesState.selectedCategories.length;
 
     return MultiSelectActionBar(
       selectedCount: selectedCount,
       isAllSelected: _areAllSelectedInCurrentTab(),
       onSelectAll: _toggleSelectAll,
-      onClose: tasksNotifier.doMultiSelectionCategoryClear,
+      onClose: categoriesNotifier.doMultiSelectionCategoryClear,
       actions: [
         MultiSelectAction(
           icon: _isArchiveTab
@@ -269,14 +272,14 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
               : IconsaxPlusLinear.archive_add,
           color: colorScheme.primary,
           onPressed: () =>
-              _showArchiveConfirmationDialog(context, tasksNotifier),
+              _showArchiveConfirmationDialog(context, categoriesNotifier),
           tooltip: _isArchiveTab ? 'restore'.tr : 'archive'.tr,
         ),
         MultiSelectAction(
           icon: IconsaxPlusLinear.trash,
           color: colorScheme.error,
           onPressed: () =>
-              _showDeleteConfirmationDialog(context, tasksNotifier),
+              _showDeleteConfirmationDialog(context, categoriesNotifier),
           tooltip: 'delete'.tr,
         ),
       ],
@@ -310,7 +313,7 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
   /// Void.
   Future<void> _showDeleteConfirmationDialog(
     BuildContext context,
-    CategoriesNotifier tasksNotifier,
+    CategoriesNotifier categoriesNotifier,
   ) async {
     final selected = ref.read(categoriesNotifierProvider).selectedCategories;
     await showDeleteConfirmation(
@@ -318,8 +321,8 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
       title: 'deleteCategory',
       message: 'deleteCategoryQuery',
       onConfirm: () async {
-        await tasksNotifier.deleteCategories(selected);
-        tasksNotifier.doMultiSelectionCategoryClear();
+        await categoriesNotifier.deleteCategories(selected);
+        categoriesNotifier.doMultiSelectionCategoryClear();
         showSnackBar('categoryDelete'.tr);
       },
     );
@@ -328,7 +331,7 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
   /// Void.
   Future<void> _showArchiveConfirmationDialog(
     BuildContext context,
-    CategoriesNotifier tasksNotifier,
+    CategoriesNotifier categoriesNotifier,
   ) async {
     final selected = ref.read(categoriesNotifierProvider).selectedCategories;
     await showArchiveConfirmation(
@@ -340,13 +343,13 @@ class _AllCategoriesState extends ConsumerState<AllCategories>
       isUnarchive: _isArchiveTab,
       onConfirm: () async {
         if (_isArchiveTab) {
-          await tasksNotifier.unarchiveCategories(selected);
+          await categoriesNotifier.unarchiveCategories(selected);
           showSnackBar('noCategoryArchive'.tr);
         } else {
-          await tasksNotifier.archiveCategories(selected);
+          await categoriesNotifier.archiveCategories(selected);
           showSnackBar('categoryArchive'.tr);
         }
-        tasksNotifier.doMultiSelectionCategoryClear();
+        categoriesNotifier.doMultiSelectionCategoryClear();
       },
     );
   }

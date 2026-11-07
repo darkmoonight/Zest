@@ -129,10 +129,10 @@ Future<Category> createTestTask(
   return category;
 }
 
-/// Creates a domain [Todo] under [task] for tests.
+/// Creates a domain [Todo] under [category] for tests.
 Future<Todo> createTestTodo(
   Isar isar, {
-  required Category task,
+  required Category category,
   String name = 'Test todo',
   String description = '',
   DateTime? completedTime,
@@ -153,7 +153,7 @@ Future<Todo> createTestTodo(
     priority: priority,
     tags: tags,
     index: index,
-    categoryId: task.id,
+    categoryId: category.id,
     parentId: parent?.id,
   );
   if (status != TodoStatus.active || completionTime != null) {
@@ -167,9 +167,9 @@ Future<Todo> createTestTodo(
   return todo;
 }
 
-/// Builds an in-memory domain [Todo] linked to [task] without persisting.
+/// Builds an in-memory domain [Todo] linked to [category] without persisting.
 Todo buildTodo({
-  required Category task,
+  required Category category,
   Todo? parent,
   int id = 1,
   String name = 'Todo',
@@ -194,7 +194,7 @@ Todo buildTodo({
     status: status,
     tags: tags,
     index: index,
-    categoryId: task.id,
+    categoryId: category.id,
     parentId: parent?.id,
   );
 }

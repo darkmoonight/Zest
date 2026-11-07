@@ -31,10 +31,8 @@ void main() {
       ProviderScope(
         overrides: [
           statisticsProvider.overrideWith((ref) async => emptyData),
-          appSettingsProvider.overrideWith(
-            () => _FixedAppSettingsNotifier(
-              const AppSettingsState(isImage: false),
-            ),
+          appSettingsProvider.overrideWithValue(
+            const AppSettingsState(isImage: false),
           ),
         ],
         child: const MaterialApp(home: StatisticsPage()),
@@ -46,13 +44,4 @@ void main() {
     expect(find.text('Statistics'), findsOneWidget);
     expect(find.text('Complete todos to see your stats'), findsOneWidget);
   });
-}
-
-class _FixedAppSettingsNotifier extends AppSettingsNotifier {
-  _FixedAppSettingsNotifier(this._state);
-
-  final AppSettingsState _state;
-
-  @override
-  AppSettingsState build() => _state;
 }

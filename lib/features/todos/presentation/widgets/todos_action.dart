@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:zest/core/constants/app_constants.dart';
 import 'package:zest/core/di/providers.dart';
-import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/domain/recurrence/recurrence_service.dart';
 import 'package:zest/core/utils/app_log.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/core/utils/default_category.dart';
@@ -36,6 +36,11 @@ part 'todos_action/todos_action_form_state.dart';
 part 'todos_action/todos_action_save.dart';
 part 'todos_action/todos_action_category.dart';
 part 'todos_action/todos_action_tags.dart';
+part 'todos_action/todos_action_attributes_subtasks.dart';
+part 'todos_action/todos_action_attributes_datetime.dart';
+part 'todos_action/todos_action_attributes_priority.dart';
+part 'todos_action/todos_action_attributes_recurrence.dart';
+part 'todos_action/todos_action_attributes_pin.dart';
 part 'todos_action/todos_action_attributes.dart';
 
 class TodosAction extends ConsumerStatefulWidget {
@@ -80,6 +85,11 @@ class _TodosActionState extends ConsumerState<TodosAction>
         _TodosActionSave,
         _TodosActionCategory,
         _TodosActionTags,
+        _TodosActionAttributesSubtasks,
+        _TodosActionAttributesDateTime,
+        _TodosActionAttributesPriority,
+        _TodosActionAttributesRecurrence,
+        _TodosActionAttributesPin,
         _TodosActionAttributes {
   @override
   Widget build(BuildContext context) {

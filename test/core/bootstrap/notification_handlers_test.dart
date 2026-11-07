@@ -88,10 +88,10 @@ void main() {
   });
 
   test('markTodoAsDone marks todo done in database', () async {
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     final todo = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'From notification',
       completedTime: DateTime.now().add(const Duration(hours: 1)),
     );
@@ -104,10 +104,10 @@ void main() {
   });
 
   test('handleNotificationResponse marks todo done for action', () async {
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     final todo = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Action',
       completedTime: DateTime.now().add(const Duration(hours: 1)),
     );
@@ -129,11 +129,11 @@ void main() {
     final settings = Settings()..snoozeDuration = 20;
     await isar.writeTxn(() => isar.settings.put(settings));
 
-    final task = await createTestTask(isar);
+    final category = await createTestTask(isar);
     final due = DateTime.now().subtract(const Duration(minutes: 5));
     final todo = await createTestTodo(
       isar,
-      task: task,
+      category: category,
       name: 'Snooze action',
       completedTime: due,
     );

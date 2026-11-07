@@ -11,7 +11,7 @@ import 'package:zest/features/todos/presentation/widgets/todos_screen_mixin.dart
 import 'package:zest/features/todos/presentation/widgets/todos_status_tab_bar.dart';
 import 'package:zest/features/todos/presentation/widgets/todos_tab_views.dart';
 import 'package:zest/core/constants/app_constants.dart';
-import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/domain/recurrence/recurrence_service.dart';
 import 'package:zest/core/utils/calendar_format_helper.dart';
 import 'package:zest/core/utils/responsive_utils.dart';
 import 'package:zest/core/widgets/scroll_fab_listener.dart';
@@ -170,6 +170,13 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
   Widget _buildCalendar(BuildContext context, bool excludeArchived) {
     final colorScheme = Theme.of(context).colorScheme;
     final isMobile = ResponsiveUtils.isMobile(context);
+    // Markers read archive flags; watch revision so dots refresh without kill.
+    ref.watch(todosNotifierProvider.select((s) => s.todosRevision));
+    if (excludeArchived) {
+      ref.watch(
+        categoriesNotifierProvider.select((s) => s.categoriesRevision),
+      );
+    }
     final dayCounts = ref
         .read(todosNotifierProvider.notifier)
         .calendarDayCounts(excludeArchivedCategories: excludeArchived);
@@ -320,17 +327,19 @@ class _CalendarTodosState extends ConsumerState<CalendarTodos>
     }
   }
 
-  /// Get first day of week from the live settings instance.
-  StartingDayOfWeek _getFirstDayOfWeek() =>
-      CalendarFormatHelper.startingDayOfWeekFromString(
-        ref.read(liveSettingsProvider).firstDay,
-      );
+  /// First day of week from reactive settings (IndexedStack keeps this tab alive).
+  StartingDayOfWeek _getFirstDayOfWeek() {
+    final firstDay = ref.watch(settingsProvider.select((s) => s.firstDay));
+    return CalendarFormatHelper.startingDayOfWeekFromString(firstDay);
+  }
 
-  /// Get calendar format from the live settings instance (avoids clone lag).
-  CalendarFormat _getCalendarFormat() =>
-      CalendarFormatHelper.calendarFormatFromString(
-        ref.read(liveSettingsProvider).calendarFormat,
-      );
+  /// Calendar format from reactive settings.
+  CalendarFormat _getCalendarFormat() {
+    final format = ref.watch(
+      settingsProvider.select((s) => s.calendarFormat),
+    );
+    return CalendarFormatHelper.calendarFormatFromString(format);
+  }
 
   /// Persists the Calendar view format.
   Future<void> _updateCalendarFormat(CalendarFormat format) async {

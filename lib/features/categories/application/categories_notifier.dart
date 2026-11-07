@@ -11,7 +11,7 @@ import 'package:zest/domain/enums/enums.dart';
 import 'package:zest/domain/repositories/category_repository.dart';
 import 'package:zest/features/todos/application/todos_notifier.dart';
 
-/// Riverpod state and notifier for task categories.
+/// Riverpod state and notifier for categories.
 class CategoriesState {
   /// Creates a [CategoriesState].
   const CategoriesState({
@@ -23,7 +23,7 @@ class CategoriesState {
     this.categoriesRevision = 0,
   });
 
-  /// Loaded task categories for the home list.
+  /// Loaded categories for the home list.
   final List<Category> categories;
 
   /// Selected categories during multi-select mode (resolved from ids).
@@ -69,7 +69,7 @@ class CategoriesState {
   }
 }
 
-/// Loads and mutates task categories; watches Isar for live list updates.
+/// Loads and mutates categories; watches Isar for live list updates.
 class CategoriesNotifier extends Notifier<CategoriesState> {
   CategoryRepositoryPort? _categoryRepo;
 
@@ -116,17 +116,17 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
     });
   }
 
-  /// Reloads task categories from the database into state.
+  /// Reloads categories from the database into state.
   Future<void> reloadCategories() async {
     final generation = ++_loadGeneration;
     final preservedSelectedIds = state.selectedCategoryIds.toSet();
-    final newTasks = await categoryRepo.getAll();
+    final newCategories = await categoryRepo.getAll();
     if (generation != _loadGeneration || !ref.mounted) return;
-    state = state.copyWith(categories: newTasks);
-    _restoreSelectedTasks(preservedSelectedIds);
+    state = state.copyWith(categories: newCategories);
+    _restoreSelectedCategories(preservedSelectedIds);
   }
 
-  void _restoreSelectedTasks(Set<int> preservedIds) {
+  void _restoreSelectedCategories(Set<int> preservedIds) {
     if (preservedIds.isEmpty) {
       if (state.selectedCategories.isNotEmpty ||
           state.isMultiSelectionCategory) {
@@ -135,9 +135,9 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
       return;
     }
 
-    final tasksMap = {for (final task in state.categories) task.id: task};
+    final categoriesMap = {for (final category in state.categories) category.id: category};
     final restored = preservedIds
-        .map((id) => tasksMap[id])
+        .map((id) => categoriesMap[id])
         .whereType<Category>()
         .toList();
 
@@ -153,7 +153,7 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
     }
   }
 
-  void _resyncSelectedTaskFromIds() {
+  void _resyncSelectedCategoryFromIds() {
     if (state.selectedCategoryIds.isEmpty) {
       if (state.selectedCategories.isNotEmpty) {
         state = state.copyWith(selectedCategories: const []);
@@ -161,9 +161,9 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
       return;
     }
 
-    final tasksMap = {for (final task in state.categories) task.id: task};
+    final categoriesMap = {for (final category in state.categories) category.id: category};
     final updated = state.selectedCategoryIds
-        .map((id) => tasksMap[id])
+        .map((id) => categoriesMap[id])
         .whereType<Category>()
         .toList();
 
@@ -175,8 +175,8 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
 
   // ==================== Category CRUD ====================
 
-  /// Creates a task category with the given title, description, and color.
-  Future<Category?> addTask(
+  /// Creates a category with the given title, description, and color.
+  Future<Category?> addCategory(
     String title,
     String description,
     Color color, {
@@ -185,20 +185,20 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
     RecurrenceMode recurrenceMode = RecurrenceMode.reopen,
     int? recurrenceMinuteOfDay,
   }) async {
-    final task = await categoryService.createCategory(
+    final category = await categoryService.createCategory(
       title: title,
       description: description,
       colorArgb: color.toARGB32(),
-      currentTaskCount: state.categories.length,
+      currentCategoryCount: state.categories.length,
       recurrence: recurrence,
       recurrenceWeekdays: recurrenceWeekdays,
       recurrenceMode: recurrenceMode,
       recurrenceMinuteOfDay: recurrenceMinuteOfDay,
     );
-    return task;
+    return category;
   }
 
-  /// Persists edits to an existing task category.
+  /// Persists edits to an existing category.
   Future<void> updateCategory(
     Category category,
     String title,
@@ -221,14 +221,14 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
     );
   }
 
-  /// Deletes [taskList] and reindexes remaining categories.
-  Future<void> deleteCategories(List<Category> taskList) async {
-    if (taskList.isEmpty) return;
+  /// Deletes [categories] and reindexes remaining categories.
+  Future<void> deleteCategories(List<Category> categories) async {
+    if (categories.isEmpty) return;
 
     _loadDebounce?.cancel();
 
-    await categoryService.deleteCategories(taskList);
-    await _clearDefaultCategoryIfNeeded(taskList);
+    await categoryService.deleteCategories(categories);
+    await _clearDefaultCategoryIfNeeded(categories);
 
     state = state.copyWith(categories: await categoryRepo.getAll());
     await _reindexCategories();
@@ -236,24 +236,24 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
     unawaited(_reloadTodosSafely());
   }
 
-  /// Archives [taskList] and clears selection.
-  Future<void> archiveCategories(List<Category> taskList) async {
-    if (taskList.isEmpty) return;
+  /// Archives [categories] and clears selection.
+  Future<void> archiveCategories(List<Category> categories) async {
+    if (categories.isEmpty) return;
 
     _loadDebounce?.cancel();
-    await categoryService.archiveCategories(taskList);
-    await _clearDefaultCategoryIfNeeded(taskList);
+    await categoryService.archiveCategories(categories);
+    await _clearDefaultCategoryIfNeeded(categories);
     state = state.copyWith(categories: await categoryRepo.getAll());
     doMultiSelectionCategoryClear();
     unawaited(_reloadTodosSafely());
   }
 
-  /// Restores [taskList] from archive and clears selection.
-  Future<void> unarchiveCategories(List<Category> taskList) async {
-    if (taskList.isEmpty) return;
+  /// Restores [categories] from archive and clears selection.
+  Future<void> unarchiveCategories(List<Category> categories) async {
+    if (categories.isEmpty) return;
 
     _loadDebounce?.cancel();
-    await categoryService.unarchiveCategories(taskList);
+    await categoryService.unarchiveCategories(categories);
     state = state.copyWith(categories: await categoryRepo.getAll());
     doMultiSelectionCategoryClear();
     unawaited(_reloadTodosSafely());
@@ -267,16 +267,16 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
     }
   }
 
-  /// Persists a new order for [filteredTasks] within the full task list.
+  /// Persists a new order for [filteredCategories] within the full category list.
   Future<void> reorderCategories({
-    required List<Category> filteredTasks,
+    required List<Category> filteredCategories,
     required bool archived,
   }) async {
-    if (filteredTasks.isEmpty) return;
+    if (filteredCategories.isEmpty) return;
 
     await categoryService.reorderCategories(
       allCategories: state.categories.toList(),
-      filteredCategories: filteredTasks,
+      filteredCategories: filteredCategories,
     );
 
     state = state.copyWith(categories: await categoryRepo.getAll());
@@ -287,7 +287,7 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
     final settings = ref.read(liveSettingsProvider);
     final defaultId = settings.defaultCategoryId;
     if (defaultId == null) return;
-    if (!categories.any((task) => task.id == defaultId)) return;
+    if (!categories.any((category) => category.id == defaultId)) return;
 
     await ref.writeLiveSettings(mutate: (s) => s.defaultCategoryId = null);
   }
@@ -298,9 +298,9 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
     state = state.copyWith(categories: await categoryRepo.getAll());
   }
 
-  /// Persists [task.sortOption] after the user changes list sort.
-  Future<void> persistCategorySort(Category task, SortOption option) async {
-    await categoryRepo.update(task.copyWith(sortOption: option));
+  /// Persists [category.sortOption] after the user changes list sort.
+  Future<void> persistCategorySort(Category category, SortOption option) async {
+    await categoryRepo.update(category.copyWith(sortOption: option));
   }
 
   /// Active categories sorted by index (for pickers / transfer).
@@ -308,8 +308,8 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
 
   // ==================== Filters ====================
 
-  /// Returns task categories filtered by archive state and search query.
-  List<Category> getFilteredTasks({
+  /// Returns categories filtered by archive state and search query.
+  List<Category> getFilteredCategories({
     required bool archived,
     String searchQuery = '',
   }) {
@@ -322,15 +322,15 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
 
   // ==================== Multi-Selection Category ====================
 
-  /// Toggles [task] in the multi-select id set.
-  void doMultiSelectionCategory(Category task) {
+  /// Toggles [category] in the multi-select id set.
+  void doMultiSelectionCategory(Category category) {
     if (!state.isMultiSelectionCategory) return;
 
     final updatedIds = Set<int>.from(state.selectedCategoryIds);
-    if (updatedIds.contains(task.id)) {
-      updatedIds.remove(task.id);
+    if (updatedIds.contains(category.id)) {
+      updatedIds.remove(category.id);
     } else {
-      updatedIds.add(task.id);
+      updatedIds.add(category.id);
     }
 
     if (updatedIds.isEmpty) {
@@ -346,7 +346,7 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
         isMultiSelectionCategory: true,
         isPop: false,
       );
-      _resyncSelectedTaskFromIds();
+      _resyncSelectedCategoryFromIds();
     }
   }
 
@@ -381,13 +381,13 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
     required bool archived,
     String searchQuery = '',
   }) {
-    final filtered = getFilteredTasks(
+    final filtered = getFilteredCategories(
       archived: archived,
       searchQuery: searchQuery,
     );
 
     return filtered.isNotEmpty &&
-        filtered.every((task) => state.selectedCategoryIds.contains(task.id));
+        filtered.every((category) => state.selectedCategoryIds.contains(category.id));
   }
 
   /// Select all tasks.
@@ -396,7 +396,7 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
     required bool archived,
     String searchQuery = '',
   }) {
-    final filtered = getFilteredTasks(
+    final filtered = getFilteredCategories(
       archived: archived,
       searchQuery: searchQuery,
     );
@@ -410,7 +410,7 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
         isMultiSelectionCategory: true,
         isPop: false,
       );
-      _resyncSelectedTaskFromIds();
+      _resyncSelectedCategoryFromIds();
     } else {
       final filteredIds = filtered.map((t) => t.id).toSet();
       final updatedIds = Set<int>.from(state.selectedCategoryIds)
@@ -420,7 +420,7 @@ class CategoriesNotifier extends Notifier<CategoriesState> {
         doMultiSelectionCategoryClear();
       } else {
         state = state.copyWith(selectedCategoryIds: updatedIds);
-        _resyncSelectedTaskFromIds();
+        _resyncSelectedCategoryFromIds();
       }
     }
   }

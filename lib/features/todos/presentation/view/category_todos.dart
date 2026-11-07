@@ -16,25 +16,53 @@ import 'package:zest/core/widgets/app_back_button.dart';
 /// Items list for a task category.
 class CategoryTodos extends ConsumerStatefulWidget {
   /// Creates a [CategoryTodos].
-  const CategoryTodos({super.key, required this.task});
+  const CategoryTodos({super.key, required this.category});
 
   /// Task category whose items are listed.
-  final Category task;
+  final Category category;
 
   @override
   ConsumerState<CategoryTodos> createState() => _CategoryTodosState();
 }
 
 class _CategoryTodosState extends ConsumerState<CategoryTodos> {
+  /// Mutable snapshot so AppBar/list refresh after category edit.
+  late Category _category;
+
+  @override
+  void initState() {
+    super.initState();
+    _category = widget.category;
+  }
+
+  @override
+  void didUpdateWidget(covariant CategoryTodos oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.category.id != widget.category.id) {
+      _category = widget.category;
+    }
+  }
+
+  /// Pulls the latest category from the notifier after an edit save.
+  void _refreshCategoryFromNotifier() {
+    final id = _category.id;
+    for (final category in ref.read(categoriesNotifierProvider).categories) {
+      if (category.id == id) {
+        setState(() => _category = category);
+        return;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return TodosListScreen(
       config: TodosListScreenConfig(
-        initialSortOption: widget.task.sortOption,
+        initialSortOption: _category.sortOption,
         onSortPersist: (option) async {
           await ref
               .read(categoriesNotifierProvider.notifier)
-              .persistCategorySort(widget.task, option);
+              .persistCategorySort(_category, option);
         },
         buildAppBar: (context, todosState) => _buildAppBar(context, todosState),
         buildTabViewsConfig: (tabController, searchFilter, sortOption) =>
@@ -42,20 +70,20 @@ class _CategoryTodosState extends ConsumerState<CategoryTodos> {
               tabController: tabController,
               searchFilter: searchFilter,
               sortOption: sortOption,
-              task: widget.task,
+              category: _category,
             ),
         areAllSelected: (statusFilter, searchFilter, notifier) =>
             notifier.areAllSelected(
               statusFilter: statusFilter,
               searchQuery: searchFilter,
-              task: widget.task,
+              category: _category,
             ),
         toggleSelectAll: (statusFilter, searchFilter, select, notifier) =>
             notifier.selectAll(
               select: select,
               statusFilter: statusFilter,
               searchQuery: searchFilter,
-              task: widget.task,
+              category: _category,
             ),
         buildFab: (context) {
           if (!ref.watch(fabNotifierProvider).isVisible) return null;
@@ -82,16 +110,16 @@ class _CategoryTodosState extends ConsumerState<CategoryTodos> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            widget.task.title,
+            _category.title,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w600,
               fontSize: ResponsiveUtils.getResponsiveFontSize(context, 18),
             ),
             overflow: TextOverflow.ellipsis,
           ),
-          if (widget.task.description.isNotEmpty)
+          if (_category.description.isNotEmpty)
             Text(
-              widget.task.description,
+              _category.description,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
                 fontSize: ResponsiveUtils.getResponsiveFontSize(context, 12),
@@ -122,8 +150,8 @@ class _CategoryTodosState extends ConsumerState<CategoryTodos> {
       child: CategoriesAction(
         text: 'editing'.tr,
         edit: true,
-        task: widget.task,
-        updateCategoryName: () => setState(() {}),
+        category: _category,
+        updateCategoryName: _refreshCategoryFromNotifier,
       ),
     );
   }
@@ -135,7 +163,7 @@ class _CategoryTodosState extends ConsumerState<CategoryTodos> {
       child: TodosAction(
         text: 'create'.tr,
         edit: false,
-        category: widget.task,
+        category: _category,
         showCategory: false,
       ),
     );

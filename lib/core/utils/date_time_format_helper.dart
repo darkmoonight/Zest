@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:zest/core/constants/app_constants.dart';
+import 'package:zest/core/utils/app_log.dart';
 
 /// Formats and parses item due dates using the user's 12/24-hour preference.
 class DateTimeFormatHelper {
@@ -37,7 +37,7 @@ class DateTimeFormatHelper {
     try {
       return appDateTimeFormat(timeformat, languageCode).parse(timeString);
     } catch (e) {
-      debugPrint('Error parsing date: $e');
+      AppLog.d('Error parsing date: $e');
       return null;
     }
   }

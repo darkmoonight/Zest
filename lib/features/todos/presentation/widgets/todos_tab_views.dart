@@ -12,7 +12,7 @@ class TodosTabViewsConfig {
     required this.sortOption,
     this.calendar = false,
     this.allTodos = false,
-    this.task,
+    this.category,
     this.todo,
     this.selectedDay,
     this.excludeArchivedCategories = false,
@@ -34,7 +34,7 @@ class TodosTabViewsConfig {
   final bool allTodos;
 
   /// Category filter when scoped to a task.
-  final Category? task;
+  final Category? category;
 
   /// Parent item filter for subtasks.
   final Todo? todo;
@@ -68,7 +68,7 @@ class TodosTabViews extends StatelessWidget {
             calendar: config.calendar,
             allTodos: config.allTodos,
             statusFilter: status,
-            task: config.task,
+            category: config.category,
             todo: config.todo,
             selectedDay: config.selectedDay,
             searchTodo: config.searchFilter,

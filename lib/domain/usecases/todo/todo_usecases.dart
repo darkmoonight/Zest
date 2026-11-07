@@ -1,6 +1,7 @@
-import 'package:flutter/foundation.dart' hide Category;
+import 'dart:developer' show log;
+
 import 'package:zest/core/constants/app_constants.dart';
-import 'package:zest/core/services/recurrence_service.dart';
+import 'package:zest/domain/recurrence/recurrence_service.dart';
 import 'package:zest/core/utils/date_time_format_helper.dart';
 import 'package:zest/core/utils/reorder_filtered.dart';
 import 'package:zest/domain/entities/app_settings.dart';
@@ -19,7 +20,7 @@ part 'todo_queries.dart';
 /// Shared accessors for [TodoService] mixins in this library.
 abstract class _TodoServiceBase {
   TodoRepositoryPort get _todoRepo;
-  NotificationSchedulerPort get _notificationService;
+  NotificationSchedulerPort get _notifications;
   DeviceCalendarSyncPort? get _calendarSync;
   CalDavSyncPort? get _caldavSync;
   String get _timeformat;
@@ -35,7 +36,7 @@ class TodoService extends _TodoServiceBase
   /// Creates a service with repository, notifications, and locale formatting.
   TodoService({
     required this._todoRepo,
-    required this._notificationService,
+    required this._notifications,
     this._calendarSync,
     this._caldavSync,
     this._timeformat = AppConstants.defaultTimeformat,
@@ -46,7 +47,7 @@ class TodoService extends _TodoServiceBase
   final TodoRepositoryPort _todoRepo;
 
   @override
-  final NotificationSchedulerPort _notificationService;
+  final NotificationSchedulerPort _notifications;
 
   @override
   final DeviceCalendarSyncPort? _calendarSync;
